@@ -1,0 +1,119 @@
+#include <algorithm>
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <cstdio>
+#include <cstdarg>
+#include <cerrno>
+#include <sys/ioctl.h>
+
+#include "global.h"
+#include "changelanguage.h"
+#include "cmdutil.h"
+
+//void message_info(const char *format, ...)
+//{
+//    va_list arg;
+//    va_start(arg, format);
+//    vprintf(format, arg);
+//    va_end(arg);
+//}
+
+[[noreturn]] void display_usage()
+{
+#define PRINT_USAGE(head, help_str_id) \
+    do { \
+        std::cout << head; \
+        format_tc_string(tc_width, 24, cinstance.LoadString(help_str_id)); \
+        std::cout << std::endl; \
+    } while(0)
+    unsigned short tc_width = get_tc_width();
+    char str2[2048] = { 0 };
+    CChangeLanguage &cinstance = CChangeLanguage::Instance();
+    std::cout << cinstance.LoadString(2007) << std::endl;
+    PRINT_USAGE("\t-a --auth\t", 2008);
+    PRINT_USAGE("\t-d --dhcp\t", 2043);
+    PRINT_USAGE("\t-n --nic\t", 2009);
+    PRINT_USAGE("\t-s --service\t", 2010);
+    PRINT_USAGE("\t-I --ssid\t", 2011);
+    PRINT_USAGE("\t-w --wlan\t", 2061);
+    PRINT_USAGE("\t-u --user\t", 2012);
+    PRINT_USAGE("\t-p --password\t", 2013);
+    PRINT_USAGE("\t-S --save\t", 2014);
+    PRINT_USAGE("\t-q --quit\t", 2046);
+    std::cout << "\t   --comments\t";
+    std::string log_path = g_strAppPath + "log/run.log";
+    snprintf(str2, sizeof(str2), cinstance.LoadString(2045).c_str(),
+             log_path.c_str());
+    format_tc_string(tc_width, 24, str2);
+#undef PRINT_USAGE
+    exit(1);
+}
+
+unsigned short get_tc_width()
+{
+    unsigned short def = 80;
+    struct winsize wsz = { 0 };
+
+    if (ioctl(0, TIOCGWINSZ, &wsz) == -1) {
+        rj_printf_debug("get_tc_width ioctl=%s\n", strerror(errno));
+        return def;
+
+    } else {
+        if (wsz.ws_col)
+            return wsz.ws_col;
+
+        return def;
+    }
+}
+
+void rj_printf_debug(const char *format, ...)
+{
+    va_list arg;
+    va_start(arg, format);
+    vprintf(format, arg);
+    va_end(arg);
+}
+
+void format_tc_string(
+    unsigned short tc_width,
+    unsigned int indent_len,
+    const std::string &str
+)
+{
+    // i wrote this function myself since I
+    // can't read what the heck they are...
+    unsigned int actual_line_width = tc_width - indent_len;
+    unsigned int remain = str.length();
+    unsigned int actual_write = 0;
+    char *spaces = new char[indent_len + 1];
+    const char *rstr = str.c_str();
+    memset(spaces, ' ', sizeof(char) * indent_len);
+    spaces[indent_len] = 0;
+
+    while (true) {
+        actual_write = remain > actual_line_width ? actual_line_width : remain;
+        std::cout.write(rstr, actual_write);
+        rstr += actual_write;
+        remain -= actual_write;
+
+        if (!remain)
+            break;
+
+        std::cout << std::endl << spaces;
+    }
+
+    delete[] spaces;
+    spaces = nullptr;
+}
+
+void fill_tc_left_char(int len, char c)
+{
+    if (len <= 0)
+        return;
+
+    for (int i = 0; i < len; i++)
+        std::cout << c;
+
+    std::cout.flush();
+}

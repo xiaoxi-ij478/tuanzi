@@ -1,0 +1,221 @@
+#include <string>
+#include <fstream>
+#include <vector>
+
+#include "iniparser.h"
+
+#include "changelanguage.h"
+#include "criticalsection.h"
+#include "global.h"
+#include "util.h"
+#include "timeutil.h"
+#include "msgutil.h"
+
+static CRITICAL_SECTION msg_write_lock;
+
+void CreateNewMsgFile()
+{
+    std::string filename = g_strAppPath + "systemmsg.ini";
+    std::ofstream ofs(filename, std::ios::trunc);
+
+    if (!ofs)
+        return;
+
+    ofs << "[system]" << std::endl
+        << "nmsg=0" << std::endl
+        << "version=1.0";
+    ofs.close();
+}
+
+void AddMsgItem(int type, const std::string &msg)
+{
+    std::string msgcopy = msg;
+    std::string inifile = g_strAppPath + "systemmsg.ini";
+    std::string inikey;
+    std::vector<struct tagMsgItem> msgarr;
+    dictionary *ini;
+//    struct tagMsgItem this_msg;
+    char time[512] = { 0 };
+
+    if (msg.empty())
+        return;
+
+    EnterCriticalSection(&msg_write_lock);
+    replace_all_distinct(msgcopy, "\n", "\r\n");
+    replace_all_distinct(msgcopy, "{$\\r\\n$}", "\n");
+    GetMsgArray_Ex(msgarr, false);
+    CreateNewMsgFile();
+
+    if (!(ini = iniparser_load(inifile.c_str()))) {
+        LeaveCriticalSection(&msg_write_lock);
+        return;
+    }
+
+    GetCurDataAndTime(time);
+//    this_msg.ntype = type;
+//    this_msg.msgtime = time;
+//    this_msg.msg = msg;
+//    msgarr.push_back(this_msg);
+    msgarr.emplace_back(type, time, msg);
+
+    for (int i = 0; i < msgarr.size(); i++) {
+        inikey = "msg_" + std::to_string(i);
+        iniparser_set(
+            ini, (inikey + ":ntype").c_str(),
+            std::to_string(msgarr[i].ntype).c_str()
+        );
+        iniparser_set(
+            ini, (inikey + ":msgtime").c_str(),
+            msgarr[i].msgtime.c_str()
+        );
+        iniparser_set(
+            ini, (inikey + ":msg").c_str(),
+            msgarr[i].msg.c_str()
+        );
+    }
+
+    iniparser_set(ini, "system:nmsg", std::to_string(msgarr.size()).c_str());
+    LeaveCriticalSection(&msg_write_lock);
+}
+
+void DelMsgItem(int type, const std::string &msg)
+{
+    std::string msgcopy = msg;
+    std::string inifile = g_strAppPath + "systemmsg.ini";
+    std::string inikey;
+    std::vector<struct tagMsgItem> msgarr;
+    std::vector<struct tagMsgItem>::iterator to_be_deleted;
+    dictionary *ini;
+//    struct tagMsgItem this_msg;
+
+    if (msg.empty())
+        return;
+
+    EnterCriticalSection(&msg_write_lock);
+    replace_all_distinct(msgcopy, "\n", "\r\n");
+    replace_all_distinct(msgcopy, "{$\\r\\n$}", "\n");
+    GetMsgArray_Ex(msgarr, false);
+    CreateNewMsgFile();
+
+    if (!(ini = iniparser_load(inifile.c_str()))) {
+        LeaveCriticalSection(&msg_write_lock);
+        return;
+    }
+
+    for (
+        std::vector<struct tagMsgItem>::iterator it = msgarr.begin();
+        it != msgarr.end();
+        it++
+    ) {
+        if (!(type == it->ntype && msg == it->msg))
+            continue;
+
+        it = to_be_deleted;
+        break;
+    }
+
+    msgarr.erase(to_be_deleted);
+
+    for (int i = 0; i < msgarr.size(); i++) {
+        inikey = "msg_" + std::to_string(i);
+        iniparser_set(
+            ini,
+            (inikey + ":ntype").c_str(),
+            std::to_string(msgarr[i].ntype).c_str()
+        );
+        iniparser_set(
+            ini,
+            (inikey + ":msgtime").c_str(),
+            msgarr[i].msgtime.c_str()
+        );
+        iniparser_set(
+            ini,
+            (inikey + ":msg").c_str(),
+            msgarr[i].msg.c_str()
+        );
+    }
+
+    iniparser_set(ini, "system:nmsg", std::to_string(msgarr.size()).c_str());
+    LeaveCriticalSection(&msg_write_lock);
+}
+
+int GetMsgArray(std::vector<struct tagMsgItem> &msgarr)
+{
+    return GetMsgArray_Ex(msgarr, true);
+}
+
+int GetMsgArray_Ex(std::vector<struct tagMsgItem> &msgarr, bool replace_crlf)
+{
+    std::string inipath = g_strAppPath + "systemmsg.ini";
+    std::string msgid;
+    int ntype;
+    std::string msgtime, msg;
+//    struct tagMsgItem msgitem;
+    dictionary *ini = nullptr;
+    int msgcnt = 0;
+
+    if (!msgarr.empty())
+        msgarr.clear();
+
+    if (!(ini = iniparser_load(inipath.c_str()))) {
+        CreateNewMsgFile();
+        return 0;
+    }
+
+    if ((msgcnt = iniparser_getint(ini, "system:nmsg", 0)) <= 0) {
+        iniparser_freedict(ini);
+        return 1;
+    }
+
+    while (msgcnt--) {
+        msgid = "msg_" + std::to_string(msgcnt);
+//        msgitem.ntype = iniparser_getint(
+//                            ini,
+//                            std::string(msgid + ":ntype").c_str(),
+//                            -1
+//                        );
+//        msgitem.msgtime = iniparser_getstring(
+//                              ini,
+//                              std::string(msgid + ":msgtime").c_str(),
+//                              ""
+//                          );
+//        msgitem.msg = iniparser_getstring(
+//                          ini,
+//                          std::string(msgid + ":msg").c_str(),
+//                          ""
+//                      );
+
+        if (replace_crlf)
+            replace_all_distinct(msg, "\r\n", "{$\\r\\n$}");
+
+        ntype = iniparser_getint(ini, std::string(msgid + ":ntype").c_str(), -1);
+        msgtime = iniparser_getstring(ini, std::string(msgid + ":msgtime").c_str(), "");
+        msg = iniparser_getstring(ini, std::string(msgid + ":msg").c_str(), "");
+
+        if (ntype == -1 || msgtime == "empty" || msg == "empty")
+            break;
+
+//        msgarr.push_back(msgitem);
+        msgarr.emplace_back(ntype, msgtime, msg);
+    }
+
+    CreateNewMsgFile();
+    return 0;
+}
+
+std::string GetMessageType(int type)
+{
+    switch (type) {
+        case 0:
+            return CChangeLanguage::Instance().LoadString(77);
+
+        case 1:
+            return CChangeLanguage::Instance().LoadString(78);
+
+        case 5:
+            return CChangeLanguage::Instance().LoadString(92);
+
+        default:
+            return std::string();
+    }
+}

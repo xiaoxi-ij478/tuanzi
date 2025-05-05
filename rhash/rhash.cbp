@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="rhash" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/rhash" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-Winline" />
+					<Add option="-Wmissing-declarations" />
+					<Add option="-Wall" />
+					<Add option="-fPIC" />
+					<Add option="-ggdb3" />
+					<Add option="-g" />
+					<Add option="-pipe" />
+					<Add option="-W" />
+					<Add option="-Wstrict-prototypes" />
+					<Add option="-Wnested-externs" />
+					<Add option="-Wpointer-arith" />
+					<Add option="-Wbad-function-cast" />
+					<Add option="-Wmissing-prototypes" />
+					<Add directory="include" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/rhash" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-Winline" />
+					<Add option="-Wmissing-declarations" />
+					<Add option="-Wall" />
+					<Add option="-fPIC" />
+					<Add option="-pipe" />
+					<Add option="-W" />
+					<Add option="-Wstrict-prototypes" />
+					<Add option="-Wnested-externs" />
+					<Add option="-Wpointer-arith" />
+					<Add option="-Wbad-function-cast" />
+					<Add option="-Wmissing-prototypes" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="include/aich.h" />
+		<Unit filename="include/algorithms.h" />
+		<Unit filename="include/byte_order.h" />
+		<Unit filename="include/config.h" />
+		<Unit filename="include/crc32.h" />
+		<Unit filename="include/ed2k.h" />
+		<Unit filename="include/edonr.h" />
+		<Unit filename="include/gost.h" />
+		<Unit filename="include/has160.h" />
+		<Unit filename="include/hex.h" />
+		<Unit filename="include/md4.h" />
+		<Unit filename="include/md5.h" />
+		<Unit filename="include/plug_openssl.h" />
+		<Unit filename="include/rhash.h" />
+		<Unit filename="include/rhash_timing.h" />
+		<Unit filename="include/ripemd-160.h" />
+		<Unit filename="include/rutil.h" />
+		<Unit filename="include/sha1.h" />
+		<Unit filename="include/sha256.h" />
+		<Unit filename="include/sha3.h" />
+		<Unit filename="include/sha512.h" />
+		<Unit filename="include/snefru.h" />
+		<Unit filename="include/test_hashes.h" />
+		<Unit filename="include/tiger.h" />
+		<Unit filename="include/torrent.h" />
+		<Unit filename="include/tth.h" />
+		<Unit filename="include/ustd.h" />
+		<Unit filename="include/whirlpool.h" />
+		<Unit filename="src/aich.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/algorithms.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/byte_order.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/crc32.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/ed2k.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/edonr.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/gost.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/has160.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/hex.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/md4.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/md5.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/plug_openssl.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/rhash.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/rhash_timing.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/ripemd-160.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/sha1.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/sha256.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/sha3.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/sha512.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/snefru.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/test_hashes.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/tiger.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/tiger_sbox.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/torrent.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/tth.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/util.c">
+			<Option compilerVar="CC" />
+			<Option compile="0" />
+			<Option link="0" />
+		</Unit>
+		<Unit filename="src/whirlpool.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/whirlpool_sbox.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
