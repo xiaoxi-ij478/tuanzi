@@ -421,11 +421,12 @@ enum OS_TYPE get_os_type()
         return OS_INVALID;
 
     while (std::getline(ifs, line)) {
-        split(val,line, '=');
+        split(val, line, '=');
 
         if (val[0] == "ID")
             break;
     }
+
     ifs.close();
 
     if (val[1] == "debian" || val[1] == "ubuntu")
@@ -460,15 +461,85 @@ void split(std::vector<std::string> &dest, const std::string &str, char delim)
 
 [[maybe_unused]] void TrimLeft(std::string &str, std::string chars)
 {
-    if(str.find_first_not_of(chars)==std::string::npos)
+    if (str.find_first_not_of(chars) == std::string::npos)
         str.clear();
-    str.erase(0,str.find_first_not_of(chars)-1);
+
+    str.erase(0, str.find_first_not_of(chars) - 1);
 }
 
 [[maybe_unused]] void TrimRight(std::string &str, std::string chars)
 {
-
-    if(str.find_last_not_of(chars)==std::string::npos)
+    if (str.find_last_not_of(chars) == std::string::npos)
         str.clear();
-    str.erase(str.find_last_not_of(chars)+1);
+
+    str.erase(str.find_last_not_of(chars) + 1);
+}
+
+void HIPacketUpdate(unsigned char *, int)
+{
+    logFile.AppendText("receive hi packet update command!");
+}
+
+unsigned int HexCharToAscii(
+    const std::string &str,
+    unsigned char *buf,
+    unsigned int buflen
+)
+{
+    if (str.length() & 1 || buflen < str.length() << 1)
+        return 0;
+
+    for (
+        std::string::const_iterator it = str.cbegin();
+        it != str.cend();
+        it++, buf++
+    ) {
+        if (*it >= '0' && *it <= '9')
+            *buf = *it - '0';
+
+        else if (*it >= 'A' && *it <= 'F')
+            *buf = *it - 'A' + 10;
+
+        else if (*it >= 'a' && *it <= 'f')
+            *buf = *it - 'a' + 10;
+
+        it++;
+        *buf <<= 4;
+
+        if (*it >= '0' && *it <= '9')
+            *buf |= *it - '0';
+
+        else if (*it >= 'A' && *it <= 'F')
+            *buf |= *it - 'A' + 10;
+
+        else if (*it >= 'a' && *it <= 'f')
+            *buf |= *it - 'a' + 10;
+    }
+
+    return str.length() >> 1;
+}
+
+std::string HexToString(const unsigned char *buf, int buflen)
+{
+    std::string ret;
+    unsigned char upper = 0, lower = 0;
+
+    for (; buflen; buflen--, buf++) {
+        upper = *buf >> 4;
+        lower = *buf & 0xF;
+
+        if (/* upper >= 0 && */upper <= 9)
+            ret.push_back(upper + '0');
+
+        else if (upper >= 10 && upper <= 15)
+            ret.push_back(upper - 10 + 'A');
+
+        if (/* lower >= 0 && */lower <= 9)
+            ret.push_back(lower + '0');
+
+        else if (lower >= 10 && lower <= 15)
+            ret.push_back(lower - 10 + 'A');
+    }
+
+    return ret;
 }

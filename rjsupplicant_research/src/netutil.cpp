@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 #include <sys/select.h>
 #include <net/if.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 #include <linux/sockios.h>
 #include <linux/ethtool.h>
@@ -123,8 +124,9 @@ unsigned short checksum(unsigned short *data, unsigned int len)
         checksum += *data++;
 
     // add the additional one padding to word if exists
+    // but the original implementation uses
     if (len & 1)
-        checksum += *reinterpret_cast<unsigned char *>(data) << 8;
+        checksum += *reinterpret_cast<unsigned char *>(data);
 
     // repeatedly take the high 16 bit and add to the low 16 bit
     // until the high 16 bit is 0
@@ -156,6 +158,7 @@ struct NICINFO *get_nics_info(const char *ifname)
     }
 
     if (get_dns(&dns_addr)) {}
+
 //        swap32(reinterpret_cast<unsigned char *>(&dns_addr.s_addr));
 
     if (!ifap) {
@@ -534,14 +537,7 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
     unsigned long pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     // minimal-ping related
     int fd = socket(AF_INET, SOCK_RAW, getprotobyname("icmp")->p_proto);
-    struct icmp_pkg {
-        unsigned char icmp_type;
-        unsigned char icmp_code;
-        unsigned short icmp_cksum;
-        unsigned short icmp_id;
-        unsigned short icmp_seq;
-        char icmp_data[40];
-    } package = { 0 }, recv_package = { 0 };
+    struct icmp_pkg package = { 0 }, recv_package = { 0 };
     struct sockaddr_in dest_addr = { AF_INET, 0, ipaddr };
     struct timeval wait_sec = { 3, 0 };
     unsigned int dest_addrlen = sizeof(dest_addr);
@@ -773,4 +769,53 @@ bool get_nic_speed(char *dst, const char *ifname)
         sprintf(dst, "%d.0", speed);
 
     return !!speed;
+}
+
+bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only)
+{
+    nic_list.clear();
+    return get_nic_in_use(nic_list, wireless_only);
+}
+
+unsigned int InitIpv4Header(
+    char *header_c,
+    char *srcaddr,
+    char *dstaddr,
+    unsigned int datalen
+)
+{
+    struct _IPHeader *header = reinterpret_cast<struct _IPHeader *>(header_c);
+    header->version = 4;
+    header->ihl = 5;
+    header->ios = 0;
+    header->total_length = htons(datalen) +
+                           sizeof(struct _IPHeader) +
+                           sizeof(struct udp_hdr);
+    header->ipid = 0;
+    header->flags = 0;
+    header->fragment_offset = 0;
+    header->ttl = 0x80;
+    header->protocol = IPPROTO_UDP;
+    header->header_checksum = 0;
+    header->srcaddr = inet_addr(srcaddr);
+    header->dstaddr = inet_addr(dstaddr);
+    header->header_checksum = checksum(
+                                  reinterpret_cast<unsigned short *>(header_c),
+                                  sizeof(struct _IPHeader)
+                              );
+    return sizeof(struct _IPHeader);
+}
+
+unsigned int InitUdpHeader(
+    char *header_c,
+    int srcport,
+    int dstport,
+    int datalen
+)
+{
+    struct udp_hdr *header = reinterpret_cast<udp_hdr *>(header_c);
+    header->srcport = srcport;
+    header->dstport = dstport;
+    header->length = datalen + sizeof(struct udp_hdr);
+    return sizeof(struct udp_hdr);
 }

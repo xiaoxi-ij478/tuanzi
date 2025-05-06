@@ -1,6 +1,8 @@
 #ifndef NETUTIL_H_INCLUDED
 #define NETUTIL_H_INCLUDED
 
+#include <vector>
+#include <string>
 #include <net/if.h>
 #include <netinet/in.h>
 
@@ -93,6 +95,15 @@ struct NICINFO {
     struct NICINFO *next;
 };
 
+struct icmp_pkg {
+    unsigned char icmp_type;
+    unsigned char icmp_code;
+    unsigned short icmp_cksum;
+    unsigned short icmp_id;
+    unsigned short icmp_seq;
+    char icmp_data[40];
+};
+
 int sockets_open();
 unsigned short checksum(unsigned short *data, unsigned int len);
 unsigned short ComputeTcpPseudoHeaderChecksum(
@@ -120,5 +131,12 @@ bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only);
 int check_nic_status(const char *ifname);
 [[maybe_unused]] int get_nic_list(std::vector<std::string>);
 bool get_nic_speed(char *dst, const char *ifname);
+bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only);
+unsigned int InitIpv4Header(
+    char *header_c,
+    char *srcaddr,
+    char *dstaddr,
+    unsigned int datalen
+);
 
 #endif // NETUTIL_H_INCLUDED

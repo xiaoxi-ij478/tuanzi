@@ -67,6 +67,13 @@ void split(
 ); // wrote by myself
 [[maybe_unused]] void TrimLeft(std::string &str, std::string chars);
 [[maybe_unused]] void TrimRight(std::string &str, std::string chars);
+void HIPacketUpdate(unsigned char *, int);
+unsigned int HexCharToAscii(
+    const std::string &str,
+    unsigned char *buf,
+    unsigned int buflen
+);
+std::string HexToString(const unsigned char *buf, int buflen);
 
 inline void swap32(unsigned char *val)
 {
