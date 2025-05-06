@@ -1,7 +1,6 @@
 #ifndef THREADUTIL_H_INCLUDED
 #define THREADUTIL_H_INCLUDED
 
-#include <pthread.h>
 
 #include "waithandle.h"
 

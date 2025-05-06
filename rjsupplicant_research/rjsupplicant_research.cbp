@@ -19,6 +19,8 @@
 					<Add option="-fPIC" />
 					<Add option="-ggdb3" />
 					<Add option="-g" />
+					<Add option="-Winvalid-pch" />
+					<Add option="-include all.h" />
 					<Add option="-DPROTOTYPES" />
 					<Add option="-DTIXML_USE_STL" />
 					<Add directory="../iniparser/include" />
@@ -29,6 +31,7 @@
 					<Add directory="../ampheck/include" />
 					<Add directory="../rc4/include" />
 					<Add directory="../md5/include" />
+					<Add directory="../libpcap/include" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
@@ -40,6 +43,7 @@
 					<Add library="ampheck" />
 					<Add library="rc4" />
 					<Add library="md5" />
+					<Add library="pcap" />
 					<Add library="dl" />
 					<Add directory="../iniparser/bin/Debug" />
 					<Add directory="../tinyxml/bin/Debug" />
@@ -49,6 +53,7 @@
 					<Add directory="../ampheck/bin/Debug" />
 					<Add directory="../rc4/bin/Debug" />
 					<Add directory="../md5/bin/Debug" />
+					<Add directory="../libpcap/bin/Debug" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -59,6 +64,8 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-fPIC" />
+					<Add option="-Winvalid-pch" />
+					<Add option="-include all.h" />
 					<Add option="-DPROTOTYPES" />
 					<Add option="-DTIXML_USE_STL" />
 					<Add directory="../iniparser/include" />
@@ -69,6 +76,7 @@
 					<Add directory="../ampheck/include" />
 					<Add directory="../rc4/include" />
 					<Add directory="../md5/include" />
+					<Add directory="../libpcap/include" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
@@ -81,6 +89,7 @@
 					<Add library="ampheck" />
 					<Add library="rc4" />
 					<Add library="md5" />
+					<Add library="pcap" />
 					<Add library="dl" />
 					<Add directory="../iniparser/bin/Release" />
 					<Add directory="../tinyxml/bin/Release" />
@@ -90,6 +99,7 @@
 					<Add directory="../ampheck/bin/Release" />
 					<Add directory="../rc4/bin/Release" />
 					<Add directory="../md5/bin/Release" />
+					<Add directory="../libpcap/bin/Release" />
 				</Linker>
 			</Target>
 		</Build>
@@ -97,6 +107,9 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="include/adapterdetectthread.h" />
+		<Unit filename="include/all.h">
+			<Option compile="1" />
+		</Unit>
 		<Unit filename="include/autorun.h" />
 		<Unit filename="include/backoffreauthenticationmanager.h" />
 		<Unit filename="include/changelanguage.h" />

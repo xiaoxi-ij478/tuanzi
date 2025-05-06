@@ -1,10 +1,6 @@
 #ifndef GLOBAL_H_INCLUDED
 #define GLOBAL_H_INCLUDED
 
-#include <string>
-#include <csignal>
-#include <ctime>
-
 #include "logfile.h"
 #include "checkrunthread.h"
 #include "contextcontrolthread.h"
@@ -34,6 +30,8 @@ extern std::string update_message;
 // original name: qword_70D9B0
 // this is always set to empty
 extern std::string alt_update_message;
+extern int g_rwpipe[2];
+extern timer_t g_runModetimer;
 
 extern int (*my_timer_create)(
     clockid_t clockid,

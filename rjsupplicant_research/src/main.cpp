@@ -1,13 +1,3 @@
-#include <iostream>
-#include <cstdlib>
-#include <cstdarg>
-#include <csignal>
-#include <getopt.h>
-#include <unistd.h>
-#include <sys/stat.h>
-
-#include "iniparser.h"
-
 #include "psutil.h"
 #include "checkrunthread.h"
 #include "signals.h"

@@ -1,6 +1,3 @@
-#include <string>
-#include <iconv.h>
-
 #include "encodeutil.h"
 
 int code_convert(

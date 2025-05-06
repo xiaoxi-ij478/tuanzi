@@ -1,11 +1,3 @@
-#include <algorithm>
-#include <fstream>
-#include <string>
-#include <cstdarg>
-#include <cstdio>
-#include <cstring>
-#include <sys/time.h>
-
 #include "global.h"
 #include "logfile.h"
 

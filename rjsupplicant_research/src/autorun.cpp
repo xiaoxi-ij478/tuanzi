@@ -1,6 +1,3 @@
-#include <string>
-#include <unistd.h>
-
 #include "util.h"
 #include "fileutil.h"
 #include "autorun.h"

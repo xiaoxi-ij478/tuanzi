@@ -1,8 +1,6 @@
 #ifndef ENCODEUTIL_H_INCLUDED
 #define ENCODEUTIL_H_INCLUDED
 
-#include <string>
-
 int code_convert(
     const char *fromcode, const char *tocode,
     char *inbuf, size_t inbytesleft,

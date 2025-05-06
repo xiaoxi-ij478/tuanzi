@@ -1,7 +1,6 @@
 #ifndef CHECKRUNTHREAD_H
 #define CHECKRUNTHREAD_H
 
-#include <pthread.h>
 
 class CCheckRunThread
 {

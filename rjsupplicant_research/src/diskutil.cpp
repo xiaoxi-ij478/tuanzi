@@ -1,15 +1,3 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <cstring>
-#include <cerrno>
-#include <fcntl.h>
-#include <unistd.h>
-#include <scsi/sg.h>
-#include <scsi/scsi.h>
-#include <sys/ioctl.h>
-#include <linux/hdreg.h>
-
 #include "cmdutil.h"
 #include "util.h"
 #include "diskutil.h"

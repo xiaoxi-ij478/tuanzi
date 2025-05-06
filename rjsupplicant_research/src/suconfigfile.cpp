@@ -1,13 +1,3 @@
-#include <algorithm>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <cassert>
-#include <cstring>
-#include <cstdio>
-
-#include "iniparser.h"
-
 #include "global.h"
 #include "util.h"
 #include "compressor.h"

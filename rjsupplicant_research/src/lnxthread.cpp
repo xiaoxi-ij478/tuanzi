@@ -1,13 +1,3 @@
-#include <algorithm>
-#include <vector>
-#include <cerrno>
-#include <cstddef>
-#include <cstdio>
-#include <cstring>
-#include <ctime>
-#include <pthread.h>
-#include <sys/msg.h>
-
 #include "global.h"
 #include "timeutil.h"
 #include "threadutil.h"
@@ -162,7 +152,10 @@ timer_t CLnxThread::SetTimer(int tflag, int off_msec)
 {
     struct sigevent sev = { 0 };
     struct TIMERPARAM *timer = nullptr;
-    struct itimerspec new_time = { 0 };
+    struct itimerspec new_time = {
+        { off_msec / 1000, off_msec % 1000 },
+        { off_msec / 1000, off_msec % 1000 }
+    };
     timer_t timerid = nullptr;
 
     if (off_msec <= 0) {
@@ -172,7 +165,7 @@ timer_t CLnxThread::SetTimer(int tflag, int off_msec)
 
     timer = new struct TIMERPARAM;
     sev.sigev_notify = SIGEV_THREAD;
-    sev.sigev_notify_function = CLnxThread::_OnTimerEntry;
+    sev.sigev_notify_function = &CLnxThread::_OnTimerEntry;
     sev.sigev_value.sival_ptr = timer;
     timer->calling_thread = me;
     timer->tflag = tflag;
@@ -186,8 +179,6 @@ timer_t CLnxThread::SetTimer(int tflag, int off_msec)
 
     timer->ti = timerid;
     timers.push_back(timer);
-    new_time.it_interval.tv_sec = new_time.it_value.tv_sec = off_msec / 1000;
-    new_time.it_value.tv_nsec = new_time.it_interval.tv_nsec = off_msec % 1000;
 
     if (my_timer_settime(timerid, 0, &new_time, nullptr)) {
         g_logSystem.AppendText("timer_settime error.\n");

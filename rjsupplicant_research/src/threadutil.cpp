@@ -1,7 +1,3 @@
-#include <cerrno>
-#include <cstring>
-#include <sys/msg.h>
-
 #include "cmdutil.h"
 #include "timeutil.h"
 #include "util.h"

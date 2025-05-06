@@ -1,6 +1,3 @@
-#include <cstring>
-#include <pthread.h>
-
 #include "global.h"
 #include "criticalsection.h"
 

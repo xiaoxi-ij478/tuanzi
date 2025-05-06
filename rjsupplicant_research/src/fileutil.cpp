@@ -1,8 +1,3 @@
-#include <cstdio>
-#include <cstring>
-#include <fstream>
-#include <sys/stat.h>
-
 #include "fileutil.h"
 
 unsigned long get_file_size(const char *filename)

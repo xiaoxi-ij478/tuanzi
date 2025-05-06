@@ -1,12 +1,3 @@
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <csignal>
-#include <cstring>
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/stat.h>
-
 #include "changelanguage.h"
 #include "psutil.h"
 

@@ -1,7 +1,6 @@
 #ifndef TIMEUTIL_H_INCLUDED
 #define TIMEUTIL_H_INCLUDED
 
-#include <ctime>
 
 void GetAbsTime(struct timespec *ts, unsigned long off_msec);
 long GetTickCount();

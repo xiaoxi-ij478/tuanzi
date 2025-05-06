@@ -1,9 +1,3 @@
-#include <cassert>
-#include <ctime>
-#include <unistd.h>
-#include <sys/time.h>
-#include <sys/sysinfo.h>
-
 #include "global.h"
 #include "timeutil.h"
 

@@ -1,11 +1,6 @@
 #ifndef NETUTIL_H_INCLUDED
 #define NETUTIL_H_INCLUDED
 
-#include <vector>
-#include <string>
-#include <net/if.h>
-#include <netinet/in.h>
-
 #include "global.h"
 
 struct _IPHeader {
@@ -138,5 +133,12 @@ unsigned int InitIpv4Header(
     char *dstaddr,
     unsigned int datalen
 );
+bool Is8021xGroupAddr(unsigned char macaddr[6]);
+bool IsEqualIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4]);
+bool IsEqualMac(unsigned char macaddr1[6], unsigned char macaddr2[6]);
+bool IsHostDstMac(unsigned char macaddr[6]);
+bool IsHostDstMac(unsigned char macaddr1[6], unsigned char macaddr2[6]);
+bool IsGetDhcpIpp(unsigned char ip[4]);
+bool IsMulDstMac(unsigned char macaddr[6]);
 
 #endif // NETUTIL_H_INCLUDED

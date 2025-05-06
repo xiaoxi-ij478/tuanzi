@@ -1,9 +1,3 @@
-#include <fstream>
-#include <string>
-#include <vector>
-#include <utility>
-#include <cstdlib>
-
 #include "global.h"
 #include "util.h"
 #include "changelanguage.h"
@@ -26,7 +20,7 @@ void CChangeLanguage::CleanLanguage()
     lang_inited = false;
 }
 
-enum LANG CChangeLanguage::GetLanguage() const
+enum LANG CChangeLanguage::GetLanguage()
 {
     return language_id;
 }
@@ -86,16 +80,18 @@ bool CChangeLanguage::InitLanguage()
     return true;
 }
 
-std::string CChangeLanguage::LoadString(unsigned int str_id)
+const std::string &CChangeLanguage::LoadString(unsigned int str_id)
 {
+    static std::string none;
+
     if (!lang_inited)
-        return "";
+        return none;
 
     for (const tagSectionUnit &trans_str : trans_strings)
         if (trans_str.id == str_id)
             return trans_str.str;
 
-    return "";
+    return none;
 }
 
 bool CChangeLanguage::SetLanguage(enum LANG lang_id)

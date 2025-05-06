@@ -1,10 +1,6 @@
 #ifndef LNXTHREAD_H
 #define LNXTHREAD_H
 
-#include <vector>
-#include <cstddef>
-#include <ctime>
-#include <pthread.h>
 
 #include "waithandle.h"
 

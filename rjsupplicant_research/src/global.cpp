@@ -1,6 +1,3 @@
-#include <string>
-#include <ctime>
-
 #include "global.h"
 
 std::string g_strAppPath;
@@ -11,6 +8,8 @@ bool bLoadLib = false;
 bool updteParam = false;
 std::string update_message;
 std::string alt_update_message;
+int g_rwpipe[2] = { 0 };
+timer_t g_runModetimer;
 
 int (*my_timer_create)(
     clockid_t clockid,

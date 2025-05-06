@@ -1,14 +1,9 @@
-#include <string>
-#include <fstream>
-#include <vector>
-
-#include "iniparser.h"
-
 #include "changelanguage.h"
 #include "criticalsection.h"
 #include "global.h"
 #include "util.h"
 #include "timeutil.h"
+#include "cmdutil.h"
 #include "msgutil.h"
 
 static CRITICAL_SECTION msg_write_lock;
@@ -203,8 +198,10 @@ int GetMsgArray_Ex(std::vector<struct tagMsgItem> &msgarr, bool replace_crlf)
     return 0;
 }
 
-std::string GetMessageType(int type)
+const std::string &GetMessageType(int type)
 {
+    static std::string none;
+
     switch (type) {
         case 0:
             return CChangeLanguage::Instance().LoadString(77);
@@ -216,6 +213,24 @@ std::string GetMessageType(int type)
             return CChangeLanguage::Instance().LoadString(92);
 
         default:
-            return std::string();
+            return none;
     }
+}
+
+void print_msg_item(tagMsgItem *item)
+{
+    std::string s;
+    s.append(item->msg)
+    .append("\t")
+    .append(GetMessageType(item->ntype));
+    format_tc_string(get_tc_width(), 40, s);
+    std::cout << std::endl;
+}
+
+void print_msg_item_header()
+{
+    std::cout << '\t' << CChangeLanguage::Instance().LoadString(2033)
+              << "\t\t" << CChangeLanguage::Instance().LoadString(2034)
+              << "\t\t" << CChangeLanguage::Instance().LoadString(2035)
+              << std::endl;
 }

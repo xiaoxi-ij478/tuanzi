@@ -1,25 +1,3 @@
-#include <string>
-#include <vector>
-#include <fstream>
-#include <cstring>
-#include <cstdio>
-#include <dirent.h>
-#include <unistd.h>
-#include <features.h>
-#include <ifaddrs.h>
-#include <netdb.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/select.h>
-#include <net/if.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <linux/sockios.h>
-#include <linux/ethtool.h>
-#include <linux/wireless.h>
-
 #include "global.h"
 #include "cmdutil.h"
 #include "util.h"
@@ -787,7 +765,7 @@ unsigned int InitIpv4Header(
     struct _IPHeader *header = reinterpret_cast<struct _IPHeader *>(header_c);
     header->version = 4;
     header->ihl = 5;
-    header->ios = 0;
+    header->tos = 0;
     header->total_length = htons(datalen) +
                            sizeof(struct _IPHeader) +
                            sizeof(struct udp_hdr);
@@ -818,4 +796,49 @@ unsigned int InitUdpHeader(
     header->dstport = dstport;
     header->length = datalen + sizeof(struct udp_hdr);
     return sizeof(struct udp_hdr);
+}
+
+bool Is8021xGroupAddr(unsigned char macaddr[6])
+{
+    // 01:80:C2:00:00:03
+    unsigned char group_addr[6] = {0x01, 0x80, 0xC2, 0x00, 0x00, 0x03};
+    return !memcmp(macaddr, group_addr, sizeof(group_addr));
+}
+
+bool IsEqualIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4])
+{
+    return !memcmp(ipaddr1, ipaddr2, sizeof(char) * 4);
+}
+
+bool IsEqualMac(unsigned char macaddr1[6], unsigned char macaddr2[6])
+{
+    return !memcmp(macaddr1, macaddr2, sizeof(char) * 6);
+}
+
+bool IsGetDhcpIpp(unsigned char ip[4])
+{
+    // !169.254.xxx.xxx ||
+    // 0.xxx.xxx.xxx
+    return ip[0] ?
+           ip[0] != 169 || ip[0] != 254 :
+           ip[1] && ip[2] && ip[3];
+}
+
+bool IsHostDstMac(unsigned char macaddr1[6], unsigned char macaddr2[6])
+{
+    return !memcmp(macaddr1, macaddr2, sizeof(char) * 6);
+}
+
+bool IsMulDstMac(unsigned char macaddr[6])
+{
+    // FF:FF:FF:FF:FF:FF
+    unsigned char multicast_mac[6] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+    return !memcmp(macaddr, multicast_mac, sizeof(multicast_mac));
+}
+
+bool IsStarGroupDstMac(unsigned char macaddr[6])
+{
+    // 00:D0:F8:00:00:03
+    unsigned char star_group_addr[6] = {0x01, 0x80, 0xC2, 0x00, 0x00, 0x03};
+    return !memcmp(macaddr, star_group_addr, sizeof(star_group_addr));
 }

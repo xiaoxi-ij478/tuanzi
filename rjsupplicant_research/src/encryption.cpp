@@ -1,6 +1,3 @@
-#include <cstring>
-#include <cstdlib>
-
 #include "encryption.h"
 
 const char *CEncryption::key = "abcdf12348";

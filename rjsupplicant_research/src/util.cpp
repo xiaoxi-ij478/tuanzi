@@ -1,22 +1,3 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <cassert>
-#include <cerrno>
-#include <ctime>
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <cstdarg>
-#include <csignal>
-#include <unistd.h>
-#include <sys/sysinfo.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/msg.h>
-
-#include "mmd5.h"
 #include "compressor.h"
 #include "cmdutil.h"
 #include "changelanguage.h"
@@ -358,7 +339,10 @@ timer_t GSetTimer(
 )
 {
     struct sigevent sev = { 0 };
-    struct itimerspec newtime = { 0 };
+    struct itimerspec new_time = {
+        { off_msec / 1000, off_msec % 1000 },
+        { off_msec / 1000, off_msec % 1000 }
+    };
     timer_t timerid = 0;
 
     if (!thread_function || !timer)
@@ -373,9 +357,7 @@ timer_t GSetTimer(
         return 0;
 
     timer->ti = timerid;
-    newtime.it_interval.tv_sec = newtime.it_value.tv_sec = off_msec / 1000;
-    newtime.it_value.tv_nsec = newtime.it_interval.tv_nsec = off_msec % 1000;
-    return my_timer_settime(timerid, TIMER_ABSTIME, &newtime, nullptr) < 0
+    return my_timer_settime(timerid, TIMER_ABSTIME, &new_time, nullptr) < 0
            ? 0
            : timerid;
 }
@@ -516,6 +498,7 @@ unsigned int HexCharToAscii(
             *buf |= *it - 'a' + 10;
     }
 
+    *buf = 0;
     return str.length() >> 1;
 }
 
@@ -528,13 +511,13 @@ std::string HexToString(const unsigned char *buf, int buflen)
         upper = *buf >> 4;
         lower = *buf & 0xF;
 
-        if (/* upper >= 0 && */upper <= 9)
+        if (/* upper >= 0 && */ upper <= 9)
             ret.push_back(upper + '0');
 
         else if (upper >= 10 && upper <= 15)
             ret.push_back(upper - 10 + 'A');
 
-        if (/* lower >= 0 && */lower <= 9)
+        if (/* lower >= 0 && */ lower <= 9)
             ret.push_back(lower + '0');
 
         else if (lower >= 10 && lower <= 15)
@@ -543,3 +526,140 @@ std::string HexToString(const unsigned char *buf, int buflen)
 
     return ret;
 }
+
+int StringToHex(const std::string &str, unsigned char *buf, int buflen)
+{
+    if (str.length() & 1 || buflen < str.length() << 1)
+        return 0;
+
+    for (
+        std::string::const_iterator it = str.cbegin();
+        it != str.cend();
+        it++, buf++
+    ) {
+        if (*it >= '0' && *it <= '9')
+            *buf = *it - '0';
+
+        else if (*it >= 'A' && *it <= 'F')
+            *buf = *it - 'A' + 10;
+
+        else if (*it >= 'a' && *it <= 'f')
+            *buf = *it - 'a' + 10;
+
+        it++;
+        *buf <<= 4;
+
+        if (*it >= '0' && *it <= '9')
+            *buf |= *it - '0';
+
+        else if (*it >= 'A' && *it <= 'F')
+            *buf |= *it - 'A' + 10;
+
+        else if (*it >= 'a' && *it <= 'f')
+            *buf |= *it - 'a' + 10;
+    }
+
+    *buf = 0;
+    return str.length() >> 1;
+}
+
+bool SuCreateDirectory(const std::string &dirname)
+{
+    // "mkdir -p -m 666 $dirname"
+    std::vector<std::string> pathnames;
+    std::string tmp;
+
+    if (mkdir(dirname.c_str(), 0666) != -1)
+        return true;
+
+    if (errno != ENOENT)
+        return true;
+
+    split(pathnames, dirname, '/');
+
+    for (const std::string &path : pathnames) {
+        if (!path.empty())
+            tmp.append("/");
+
+        tmp.append(path);
+
+        if (mkdir(tmp.c_str(), 0666) == -1)
+            return true;
+    }
+
+    return true;
+}
+
+bool post_command(char c)
+{
+    for (int i = 0; i < 3; i++) {
+        if (write(g_rwpipe[1], &c, 1) != -1)
+            return true;
+
+        perror("post_command write pipe");
+    }
+
+    return false;
+}
+
+std::string IntToString(int num)
+{
+    return std::to_string(num);
+}
+
+// hey, would you see rjsupplicant.sh?
+// this implementation is the same as the C version
+//function is64BIT()
+//{
+//  os=$(getconf LONG_BIT);
+//  if [ $os != "64" ];  then
+//      return 0;
+//  fi
+//  return 1;
+//}
+bool Is64BIT()
+{
+    // we'll use statically calculated value
+    // maybe we'll support arm64 one day, so include it
+#if defined(__x86_64__) || defined(__aarch64__)
+    return true;
+#elif defined(__i386__) || defined(__arm__)
+    return false;
+#else
+#error Your platform is not supported
+#endif
+}
+
+//void KillRunModeCheckTimer()
+//{
+//    if (g_runModetimer) {
+//        my_timer_delete(g_runModetimer);
+//        g_runModetimer = nullptr;
+//    }
+//}
+//
+//void *OnRunModeCheckTimer(union sigval arg)
+//{
+//
+//}
+//
+//void SetRunModeCheckTimer()
+//{
+//    struct sigevent sev = { 0 };
+//    struct itimerspec new_time = { { 1, 0 }, { 1, 0 } };
+//
+//    if (g_runModetimer)
+//        return;
+//
+//    sev.sigev_notify = SIGEV_THREAD;
+//    sev.sigev_notify_function = &OnRunModeCheckTimer;
+//    sev.sigev_value.sival_int = 1;
+//
+//    if (my_timer_create(CLOCK_REALTIME, &sev, &g_runModetimer) == -1) {
+//        g_uilog.AppendText("SetRunModeCheckTimer my_timer_create error");
+//        return;
+//    }
+//
+//    if (my_timer_settime(g_runModetimer, CLOCK_REALTIME, &new_time, nullptr) == -1)
+//        g_uilog.AppendText("SetRunModeCheckTimer my_timer_settime error");
+//}

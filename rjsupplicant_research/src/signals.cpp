@@ -1,5 +1,3 @@
-#include <csignal>
-
 #include "changelanguage.h"
 #include "logfile.h"
 #include "util.h"

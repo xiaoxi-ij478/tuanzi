@@ -1,7 +1,6 @@
 #ifndef BACKOFFREAUTHENTICATIONMANAGER_H
 #define BACKOFFREAUTHENTICATIONMANAGER_H
 
-#include <ctime>
 
 class CBackoffReAuthenticationManager
 {

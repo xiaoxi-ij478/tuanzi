@@ -1,8 +1,6 @@
 #ifndef CHANGELANGUAGE_H
 #define CHANGELANGUAGE_H
 
-#include <string>
-#include <vector>
 
 enum LANG { LANG_INVALID, LANG_ENGLISH, LANG_CHINESE };
 
@@ -14,6 +12,14 @@ struct tagSectionUnit {
 
 class CChangeLanguage
 {
+    public:
+        void CleanLanguage();
+        enum LANG GetLanguage();
+        bool InitLanguage();
+        static CChangeLanguage &Instance();
+        const std::string &LoadString(unsigned int str_id);
+        bool SetLanguage(enum LANG lang_id);
+
     private:
         CChangeLanguage();
 
@@ -21,14 +27,6 @@ class CChangeLanguage
         enum LANG language_id;
         std::vector<tagSectionUnit> trans_strings;
         static std::string translate_filename;
-
-    public:
-        void CleanLanguage();
-        enum LANG GetLanguage() const;
-        bool InitLanguage();
-        static CChangeLanguage &Instance();
-        std::string LoadString(unsigned int str_id);
-        bool SetLanguage(enum LANG lang_id);
 };
 
 #endif // CHANGELANGUAGE_H

@@ -1,8 +1,6 @@
 #ifndef UTIL_H_INCLUDED
 #define UTIL_H_INCLUDED
 
-#include <string>
-#include <ctime>
 
 #include "waithandle.h"
 #include "changelanguage.h"
@@ -74,6 +72,12 @@ unsigned int HexCharToAscii(
     unsigned int buflen
 );
 std::string HexToString(const unsigned char *buf, int buflen);
+int StringToHex(const std::string &str, unsigned char *buf, int buflen);
+bool post_command(char c);
+bool Is64BIT();
+//void KillRunModeCheckTimer();
+//void *OnRunModeCheckTimer(union sigval arg);
+//void SetRunModeCheckTimer();
 
 inline void swap32(unsigned char *val)
 {

@@ -1,5 +1,3 @@
-#include <string>
-
 #include "xmlparser.h"
 
 XML_PARSER::XML_PARSER() :

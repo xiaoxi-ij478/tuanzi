@@ -1,13 +1,3 @@
-#include <string>
-#include <cstring>
-#include <cstdlib>
-#include <features.h>
-#include <dlfcn.h>
-
-#ifdef __GLIBC__
-    #include <gnu/libc-version.h>
-#endif // __GLIBC__
-
 #include "global.h"
 #include "libutil.h"
 

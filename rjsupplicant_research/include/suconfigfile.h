@@ -1,7 +1,6 @@
 #ifndef SUCONFIGFILE_H
 #define SUCONFIGFILE_H
 
-#include <string>
 
 #include "criticalsection.h"
 

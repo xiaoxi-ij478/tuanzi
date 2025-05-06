@@ -1,5 +1,3 @@
-#include <pthread.h>
-
 #include "global.h"
 #include "waithandle.h"
 

@@ -1,12 +1,3 @@
-#include <cstring>
-#include <cstdio>
-#include <cerrno>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <net/if.h>
-#include <linux/ethtool.h>
-#include <linux/sockios.h>
-
 #include "cmdutil.h"
 #include "netutil.h"
 #include "threadutil.h"

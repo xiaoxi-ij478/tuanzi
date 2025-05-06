@@ -1,23 +1,19 @@
-#include <algorithm>
-#include <iostream>
-#include <string>
-#include <cstring>
-#include <cstdio>
-#include <cstdarg>
-#include <cerrno>
-#include <sys/ioctl.h>
-
 #include "global.h"
 #include "changelanguage.h"
 #include "cmdutil.h"
 
-//void message_info(const char *format, ...)
-//{
-//    va_list arg;
-//    va_start(arg, format);
-//    vprintf(format, arg);
-//    va_end(arg);
-//}
+[[maybe_unused]] void message_info(const char *format, ...)
+{
+    va_list arg;
+    va_start(arg, format);
+    vprintf(format, arg);
+    va_end(arg);
+}
+
+[[maybe_unused]] void message_info(std::string str)
+{
+    std::cout << str;
+}
 
 [[noreturn]] void display_usage()
 {
@@ -116,4 +112,38 @@ void fill_tc_left_char(int len, char c)
         std::cout << c;
 
     std::cout.flush();
+}
+
+void print_separator(const char *s, int len, bool print_crlf)
+{
+    if (len < 0) {
+        if (print_crlf)
+            std::cout << std::endl;
+
+        return;
+    }
+
+    if (!len)
+        len = 10;
+
+    for (int i = 0; i < len; i++)
+        std::cout << s;
+
+    if (print_crlf)
+        std::cout << std::endl;
+}
+
+void print_string_list(
+    const char *prefix,
+    const std::vector<std::string> &slist
+)
+{
+    format_tc_string(12, 0, std::string(prefix));
+    std::cout << CChangeLanguage::Instance().LoadString(2059)
+              << '[' << slist.size() << ']' << std::endl;
+
+    for (unsigned int i = 0; i < slist.size(); i++) {
+        fill_tc_left_char(12, ' ');
+        std::cout << '[' << i << "] " << slist[i] << std::endl;
+    }
 }

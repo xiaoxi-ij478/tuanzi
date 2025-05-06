@@ -1,9 +1,6 @@
 #ifndef LOGFILE_H
 #define LOGFILE_H
 
-#include <fstream>
-#include <string>
-#include <cstdarg>
 
 class CLogFile
 {

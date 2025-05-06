@@ -3,7 +3,6 @@
 
 // the mutex lock
 // uses the name from Windows
-#include <pthread.h>
 
 class CRITICAL_SECTION
 {

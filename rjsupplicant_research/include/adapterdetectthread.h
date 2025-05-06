@@ -1,10 +1,6 @@
 #ifndef ADAPTERDETECTTHREAD_H
 #define ADAPTERDETECTTHREAD_H
 
-#include <ctime>
-#include <pthread.h>
-#include <netinet/in.h>
-
 #include "global.h"
 #include "lnxthread.h"
 
