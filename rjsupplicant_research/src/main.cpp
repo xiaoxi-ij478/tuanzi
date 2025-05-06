@@ -212,8 +212,8 @@ int main(int argc, char **argv)
     }
 
     updteParam = false;
-    update_message = "";
-    alt_update_message = "";
+    update_message.clear();
+    alt_update_message.clear();
     bLoadLib = false;
     hold_signals();
     set_signals();

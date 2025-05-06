@@ -18,13 +18,13 @@ class XML_PARSER : public TiXmlDocument
         bool GetAttributeValue(const char *name, std::string &result);
         int GetAttributeValueInt(const char *name);
         bool GetAttributeValueInt(const char *name, int &result);
-        std::string Get_Text();
+        const char *Get_Text();
         bool Get_XML(std::string &result);
         bool Go_to_Child(const char *name);
         bool Go_to_NextSibling(const char *name);
         bool Go_to_Parent(const char *name);
         bool Go_to_PrevSibling(const char *name);
-        TiXmlElement *Go_to_Root();
+        TiXmlNode *Go_to_Root();
         bool Is_Having_Attribute(const char *name);
         bool Load_XML_Document(const char *filename);
         bool Load_XML_String(const char *str);
