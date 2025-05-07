@@ -135,7 +135,8 @@ struct NICINFO *get_nics_info(const char *ifname)
         return nullptr;
     }
 
-    if (get_dns(&dns_addr)) {}
+    if (get_dns(&dns_addr))
+    {}
 
 //        swap32(reinterpret_cast<unsigned char *>(&dns_addr.s_addr));
 
@@ -326,7 +327,7 @@ bool get_dns(struct in_addr *dst)
         return false;
 
     while (!found && std::getline(ifs, line)) {
-        split(val, line, ' ');
+        ParseString(line, ' ',val);
 
         if (val[0] == "nameserver")
             break;
@@ -353,7 +354,7 @@ bool get_gateway(struct in_addr *result, const char *ifname)
         return false;
 
     while (std::getline(ifs, line)) {
-        split(arr, line, '\t');
+        ParseString(line, '\t',arr);
 
         if (arr[0] == ifname && arr[1] == "00000000") {
             result->s_addr = std::stoi(arr[2], nullptr, 16);
@@ -525,7 +526,7 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
         return false;
 
     while (std::getline(ifs, line)) {
-        split(val, line, ' ');
+        ParseString(line, ' ',val);
 
         if (val[0] != testip || val[3] == empty_mac || val[3] == full_mac)
             continue;
@@ -618,7 +619,7 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
         return false;
 
     while (std::getline(ifs, line)) {
-        split(val, line, ' ');
+        ParseString(line, ' ',val);
 
         if (val[0] != testip || val[3] == empty_mac || val[3] == full_mac)
             continue;

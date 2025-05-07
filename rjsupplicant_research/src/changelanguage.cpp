@@ -6,7 +6,8 @@ std::string CChangeLanguage::translate_filename;
 
 CChangeLanguage::CChangeLanguage() :
     lang_inited(false),
-    language_id(LANG_INVALID) {}
+    language_id(LANG_INVALID)
+{}
 
 CChangeLanguage &CChangeLanguage::Instance()
 {
@@ -51,7 +52,7 @@ bool CChangeLanguage::InitLanguage()
 //
 //        trans_id_str = s.substr(0, equal_pos);
 //        trans_str = s.substr(equal_pos + 1);
-         split(val,line, '=');
+        ParseString(line, '=',val);
         trans_id_str = std::move(val[0]);
         trans_str = std::move(val[1]);
 

@@ -1,7 +1,9 @@
 #include "global.h"
 #include "criticalsection.h"
 
-CRITICAL_SECTION::CRITICAL_SECTION() : inited(false) {}
+CRITICAL_SECTION::CRITICAL_SECTION() :
+    inited(false)
+{}
 
 CRITICAL_SECTION::~CRITICAL_SECTION()
 {

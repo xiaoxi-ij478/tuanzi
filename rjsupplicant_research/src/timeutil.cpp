@@ -54,6 +54,18 @@ void GetCurDataAndTime(char *dst)
     strftime(dst, 64, "%F %T ", timet);
 }
 
+void PrintCurTime()
+{
+    struct tm *timet = nullptr;
+    time_t times = 0;
+    char dst[64] = { 0 };
+//    time(&times);
+    times = time(nullptr);
+    timet = localtime(&times);
+    strftime(dst, sizeof(dst), "%F %T ", timet);
+    std::cout << dst;
+}
+
 void GetCurTime(char *dst)
 {
     struct tm *timet = nullptr;

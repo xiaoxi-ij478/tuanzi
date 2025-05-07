@@ -100,7 +100,7 @@ struct icmp_pkg {
 };
 
 int sockets_open();
-unsigned short checksum(unsigned short *data, unsigned int len);
+enum ADAPTER_TYPE get_nic_type(const char *ifname);
 unsigned short ComputeTcpPseudoHeaderChecksum(
     const struct _IPHeader *ipheader,
     const struct _TCPHeader *tcpheader,
@@ -113,17 +113,23 @@ unsigned short ComputeUdpPseudoHeaderChecksumV4(
     const unsigned char *databuf,
     int length
 );
-enum ADAPTER_TYPE get_nic_type(const char *ifname);
+unsigned short checksum(unsigned short *data, unsigned int len);
 struct NICINFO *get_nics_info(const char *ifname);
 void free_nics_info(struct NICINFO *info);
 bool get_dns(struct in_addr *dst);
 bool get_gateway(struct in_addr *result, const char *ifname);
 unsigned short get_speed_wl(int fd, char *ifname);
 unsigned short get_speed(int fd, char *ifname);
+static bool check_manualip_indirectory(
+    const char *ipaddr,
+    const char *dir,
+    bool incl_subdir
+);
+static bool check_manualip_infile(const char *ipaddr, const char *file);
 bool check_dhcp(const char *ifname, const char *ipaddr);
-bool get_ip_mac(struct in_addr *ipaddr, unsigned char macaddr[6]);
-bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only);
+bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6]);
 int check_nic_status(const char *ifname);
+bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only);
 [[maybe_unused]] int get_nic_list(std::vector<std::string>);
 bool get_nic_speed(char *dst, const char *ifname);
 bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only);
@@ -133,12 +139,19 @@ unsigned int InitIpv4Header(
     char *dstaddr,
     unsigned int datalen
 );
+unsigned int InitUdpHeader(
+    char *header_c,
+    int srcport,
+    int dstport,
+    int datalen
+);
 bool Is8021xGroupAddr(unsigned char macaddr[6]);
 bool IsEqualIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4]);
 bool IsEqualMac(unsigned char macaddr1[6], unsigned char macaddr2[6]);
-bool IsHostDstMac(unsigned char macaddr[6]);
-bool IsHostDstMac(unsigned char macaddr1[6], unsigned char macaddr2[6]);
 bool IsGetDhcpIpp(unsigned char ip[4]);
+bool IsHostDstMac(unsigned char macaddr1[6], unsigned char macaddr2[6]);
 bool IsMulDstMac(unsigned char macaddr[6]);
+bool IsStarGroupDstMac(unsigned char macaddr[6]);
+
 
 #endif // NETUTIL_H_INCLUDED

@@ -111,7 +111,7 @@ int getdiskid(char *buf, int buflen)
     }
 
     while (std::getline(ifs, line)) {
-        split(val, line, ' ');
+        ParseString(line, ' ',val);
 
         if (val[1] == "/")
             break;

@@ -265,8 +265,12 @@ bool TerminateThread(pthread_t thread_key)
     return retval;
 }
 
-bool PostThreadMessage(pthread_t thread_key, unsigned int mtype, void *buf,
-                       unsigned long buflen)
+bool PostThreadMessage(
+    pthread_t thread_key,
+    unsigned int mtype,
+    void *buf,
+    unsigned long buflen
+)
 {
     int msqid = msgget(thread_key, 0666);
     g_logFile_start.AppendText("::PostThreadMessage idThread = %d,Msg=%d",
@@ -274,8 +278,12 @@ bool PostThreadMessage(pthread_t thread_key, unsigned int mtype, void *buf,
     return msqid >= 0 ? GPostThreadMessage(msqid, mtype, buf, buflen) : false;
 }
 
-bool GPostThreadMessage(int msqid, unsigned int mtype, void *buf,
-                        unsigned long buflen)
+bool GPostThreadMessage(
+    int msqid,
+    unsigned int mtype,
+    void *buf,
+    unsigned long buflen
+)
 {
     struct LNXMSG msg = { mtype, buf, buflen };
     int ret = 0;

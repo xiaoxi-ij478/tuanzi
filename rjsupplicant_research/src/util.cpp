@@ -76,8 +76,11 @@ void InitLogFiles()
 }
 
 
-void replace_all_distinct(std::string &str, const std::string &srcstr,
-                          const std::string &dststr)
+void replace_all_distinct(
+    std::string &str,
+    const std::string &srcstr,
+    const std::string &dststr
+)
 {
     size_t special_pos = 0;
 
@@ -112,9 +115,11 @@ void ChangeSelfSvrParam(void *)
     logFile.AppendText("change self svr param");
 }
 
-[[maybe_unused]] void CoInitialize() {}
+[[maybe_unused]] void CoInitialize()
+{}
 
-[[maybe_unused]] void CoUnInitialize(unsigned int) {}
+[[maybe_unused]] void CoUnInitialize(unsigned int)
+{}
 
 [[maybe_unused]] std::string DWordToString(unsigned int a)
 {
@@ -262,12 +267,7 @@ unsigned int addStringOnLineHead(
     return modified_line;
 }
 
-int FindChar(
-    char to_find,
-    const char *str,
-    int begin,
-    int end
-)
+int FindChar(char to_find, const char *str, int begin, int end)
 {
     if (!str || begin < 0 || end < 0 || end > strlen(str))
         return -1;
@@ -325,7 +325,8 @@ int FindSub(
     return -1;
 }
 
-[[maybe_unused]] void GOnTimer(union sigval) {}
+[[maybe_unused]] void GOnTimer(union sigval)
+{}
 
 void GSNRecvPacter(unsigned char *, int)
 {
@@ -403,7 +404,7 @@ enum OS_TYPE get_os_type()
         return OS_INVALID;
 
     while (std::getline(ifs, line)) {
-        split(val, line, '=');
+        ParseString(line, '=',val);
 
         if (val[0] == "ID")
             break;
@@ -423,7 +424,12 @@ enum OS_TYPE get_os_type()
     return OS_INVALID;
 }
 
-void split(std::vector<std::string> &dest, const std::string &str, char delim)
+
+void ParseString(
+    const std::string &str,
+    char delim,
+    std::vector<std::string> &dest
+)
 {
     std::istringstream iss(str);
     std::string tmp;
@@ -527,9 +533,56 @@ std::string HexToString(const unsigned char *buf, int buflen)
     return ret;
 }
 
-int StringToHex(const std::string &str, unsigned char *buf, int buflen)
+// should be used to decode mac address
+[[maybe_unused]] int ASCIIStrtoChar(std::string str, unsigned char *buf)
 {
-    if (str.length() & 1 || buflen < str.length() << 1)
+    if (!str.length())
+        return 0;
+
+    for (
+        std::string::const_iterator it = str.cbegin();
+        it != str.cend() && it - str.cbegin() < 254;
+        it++
+    ) {
+        if (*it == ':')
+            continue;
+
+        if (*it >= '0' && *it <= '9')
+            *buf = *it - '0';
+
+        else if (*it >= 'A' && *it <= 'F')
+            *buf = *it - 'A' + 10;
+
+        else if (*it >= 'a' && *it <= 'f')
+            *buf = *it - 'a' + 10;
+
+        it++;
+        *buf <<= 4;
+
+        if (*it >= '0' && *it <= '9')
+            *buf |= *it - '0';
+
+        else if (*it >= 'A' && *it <= 'F')
+            *buf |= *it - 'A' + 10;
+
+        else if (*it >= 'a' && *it <= 'f')
+            *buf |= *it - 'a' + 10;
+
+        buf++;
+    }
+
+    *buf = 0;
+    return str.length() > 254 ? 255 : str.length();
+}
+
+std::string AsciiToStr(const unsigned char *buf, const unsigned int &len)
+{
+    return std::string(reinterpret_cast<const char *>(buf), len);
+}
+
+unsigned int MD5StrtoUChar(std::string str, unsigned char *buf)
+{
+    if (!str.length())
         return 0;
 
     for (
@@ -575,7 +628,7 @@ bool SuCreateDirectory(const std::string &dirname)
     if (errno != ENOENT)
         return true;
 
-    split(pathnames, dirname, '/');
+    ParseString(dirname, '/',pathnames);
 
     for (const std::string &path : pathnames) {
         if (!path.empty())
@@ -663,3 +716,61 @@ bool Is64BIT()
 //    if (my_timer_settime(g_runModetimer, CLOCK_REALTIME, &new_time, nullptr) == -1)
 //        g_uilog.AppendText("SetRunModeCheckTimer my_timer_settime error");
 //}
+
+int MemCmpare(
+    const void *buf1,
+    unsigned int begin,
+    unsigned int end,
+    const void *buf2,
+    unsigned int len
+)
+{
+    if (!buf1 || !buf2 || end - begin + 1 < len)
+        return -2;
+
+    return memcmp(buf1 + begin, buf2, len);
+}
+
+void RcvACLParam(void *arg)
+{
+    logFile.AppendText("recv acl param");
+    assert(arg);
+}
+
+void RcvCMD_GetProcessAndNetworkInfo()
+{
+    logFile.AppendText("recv cmd of get process and network info");
+}
+
+void RcvFlowMonitorParam(void *arg)
+{
+    logFile.AppendText("recv flow monitor param");
+    assert(arg);
+}
+
+void RcvIPMACChangeNotify()
+{
+    logFile.AppendText("recv ip mac change notify");
+}
+
+void RcvLoginURL(const std::string &arg)
+{
+    logFile.AppendText("recv login url");
+}
+
+void RcvNetSecParam(void *arg)
+{
+    logFile.AppendText("recv network security param");
+    assert(arg);
+}
+
+void RcvOpenUtrustUrlCmd(const std::string &arg)
+{
+    logFile.AppendText("recv open utrust url cmd,url=%s", arg.c_str());
+}
+
+void RcvStartAuthNotification()
+{
+    logFile.AppendText("recv start auth notification");
+}
+

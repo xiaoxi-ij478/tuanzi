@@ -6,7 +6,7 @@ class CConfUpdateUtilInstance
     public:
         CConfUpdateUtilInstance();
         ~CConfUpdateUtilInstance();
-[[maybe_unused]] static void AppendNum(const char *str, int num);
+        [[maybe_unused]] static void AppendNum(const char *str, int num);
 
     protected:
 

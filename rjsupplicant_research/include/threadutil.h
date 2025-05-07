@@ -9,10 +9,10 @@ int WaitForSingleObject(
     unsigned long off_msec
 );
 [[maybe_unused]] int WaitForMultipleObjects(
-    int event_count,
-    WAIT_HANDLE *events,
-    bool wait_all,
-    unsigned long no_obj_waittime
+    int /* event_count */,
+    WAIT_HANDLE * /* events */,
+    bool /* wait_all */,
+    unsigned long /* no_obj_waittime */
 );
 void CloseHandle(WAIT_HANDLE *wait_handle);
 void SetEvent(WAIT_HANDLE *wait_handle, bool broadcast);

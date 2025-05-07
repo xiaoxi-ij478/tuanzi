@@ -1,7 +1,6 @@
 #ifndef UTIL_H_INCLUDED
 #define UTIL_H_INCLUDED
 
-
 #include "waithandle.h"
 #include "changelanguage.h"
 #include "global.h"
@@ -13,15 +12,14 @@ enum LANG GetSysLanguage();
 void InitLogFiles();
 void replace_all_distinct(
     std::string &str,
-    const std::string &src_chars,
-    const std::string &dst_chars
+    const std::string &srcstr,
+    const std::string &dststr
 );
-int do_quit();
 [[noreturn]] void chk_call_back(int);
 bool set_msg_config(const std::string &key, int val);
-[[maybe_unused]] void ChangeSelfSvrParam(void *);
+void ChangeSelfSvrParam(void *);
 [[maybe_unused]] void CoInitialize();
-[[maybe_unused]] void CoUninitialize(unsigned int);
+[[maybe_unused]] void CoUnInitialize(unsigned int);
 [[maybe_unused]] std::string DWordToString(unsigned int a);
 [[maybe_unused]] bool DecryptSuConfig(); // this is not working
 [[maybe_unused]] bool EncryptSuConfig(); // this is not working
@@ -34,12 +32,7 @@ unsigned int addStringOnLineHead(
     const char *add_line_contain,
     const char *add_string
 );
-int FindChar(
-    char to_find,
-    const char *str,
-    int begin,
-    int end
-);
+int FindChar(char to_find, const char *str, int begin, int end);
 int FindSub(
     const unsigned char *buf,
     unsigned int buflen,
@@ -58,11 +51,11 @@ timer_t GSetTimer(
 );
 [[maybe_unused]] void GetMD5File(const char *filename, char *result);
 enum OS_TYPE get_os_type();
-void split(
-    std::vector<std::string> &dest,
+void ParseString(
     const std::string &str,
-    char delim
-); // wrote by myself
+    char delim,
+    std::vector<std::string> &dest
+);
 [[maybe_unused]] void TrimLeft(std::string &str, std::string chars);
 [[maybe_unused]] void TrimRight(std::string &str, std::string chars);
 void HIPacketUpdate(unsigned char *, int);
@@ -72,12 +65,31 @@ unsigned int HexCharToAscii(
     unsigned int buflen
 );
 std::string HexToString(const unsigned char *buf, int buflen);
-int StringToHex(const std::string &str, unsigned char *buf, int buflen);
+[[maybe_unused]] int ASCIIStrtoChar(std::string str, unsigned char *buf);
+std::string AsciiToStr(const unsigned char *buf, const unsigned int &len);
+bool SuCreateDirectory(const std::string &dirname);
 bool post_command(char c);
+std::string IntToString(int num);
 bool Is64BIT();
 //void KillRunModeCheckTimer();
 //void *OnRunModeCheckTimer(union sigval arg);
 //void SetRunModeCheckTimer();
+int do_quit();
+int MemCmpare(
+    const void *buf1,
+    unsigned int begin,
+    unsigned int end,
+    const void *buf2,
+    unsigned int len
+);
+void RcvACLParam(void *arg);
+void RcvCMD_GetProcessAndNetworkInfo();
+void RcvFlowMonitorParam(void *arg);
+void RcvIPMACChangeNotify();
+void RcvLoginURL(const std::string &arg);
+void RcvNetSecParam(void *arg);
+void RcvOpenUtrustUrlCmd(const std::string &arg);
+void RcvStartAuthNotification();
 
 inline void swap32(unsigned char *val)
 {

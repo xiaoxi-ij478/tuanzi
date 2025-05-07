@@ -42,4 +42,5 @@ void sig_quit(int)
     exit(0);
 }
 
-void sig_tstp(int) {}
+void sig_tstp(int)
+{}
