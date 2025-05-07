@@ -14,7 +14,6 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-fPIC" />
 					<Add option="-ggdb3" />
 					<Add option="-g" />
 					<Add option="-DPROTOTYPES" />
@@ -30,7 +29,6 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-fPIC" />
 					<Add option="-DPROTOTYPES" />
 					<Add directory="include" />
 				</Compiler>
@@ -40,7 +38,9 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wextra" />
 			<Add option="-Wall" />
+			<Add option="-fPIC" />
 		</Compiler>
 		<Unit filename="include/mglobal.h" />
 		<Unit filename="include/mmd5.h" />

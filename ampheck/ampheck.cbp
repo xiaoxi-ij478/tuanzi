@@ -14,7 +14,7 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-fPIC" />
+					<Add option="-ggdb3" />
 					<Add option="-g" />
 					<Add directory="include" />
 				</Compiler>
@@ -28,7 +28,6 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-fPIC" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
@@ -37,8 +36,9 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wextra" />
 			<Add option="-Wall" />
-			<Add option="-ggdb3" />
+			<Add option="-fPIC" />
 		</Compiler>
 		<Unit filename="include/ampheck.h" />
 		<Unit filename="include/md4.h" />

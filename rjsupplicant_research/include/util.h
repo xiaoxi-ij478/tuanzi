@@ -90,6 +90,10 @@ void RcvLoginURL(const std::string &arg);
 void RcvNetSecParam(void *arg);
 void RcvOpenUtrustUrlCmd(const std::string &arg);
 void RcvStartAuthNotification();
+[[maybe_unused]] void StrToLower(char *str);
+bool convertInt(const char *str, int &result);
+void decode(unsigned char *buf, int buflen);
+void encode(unsigned char *buf, int buflen);
 
 inline void swap32(unsigned char *val)
 {

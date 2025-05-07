@@ -4,7 +4,7 @@
 void killrjsu();
 bool checkorexitrjsu(bool kill, bool force_kill);
 void killProcess(const char *proc);
-void stop_dhclient_asyn();
 int get_pid_byname(const char *proc);
+bool check_process_run(const char *proc);
 
 #endif // PSUTIL_H_INCLUDED

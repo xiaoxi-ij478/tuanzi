@@ -1,8 +1,13 @@
 bin/
 obj/
+build/
 *.layout
 *.depend
 *.cscope_file_list
 *.gch
 *.output
+*.o*
+*.so*
+*.a*
+*~
 cscope.out

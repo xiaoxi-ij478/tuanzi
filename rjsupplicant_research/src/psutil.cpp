@@ -105,11 +105,6 @@ void killProcess(const char *proc)
     closedir(proc_dir);
 }
 
-void stop_dhclient_asyn()
-{
-    killProcess("dhclient");
-}
-
 int get_pid_byname(const char *proc)
 {
     // the original implementation use shell
@@ -148,4 +143,11 @@ int get_pid_byname(const char *proc)
 
     closedir(proc_dir);
     return -1;
+}
+
+bool check_process_run(const char *proc)
+{
+    // the original implementation use shell
+    // "pidof $proc 2>&-"
+    return get_pid_byname(proc) != -1;
 }

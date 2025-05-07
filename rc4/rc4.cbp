@@ -14,7 +14,6 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-fPIC" />
 					<Add option="-ggdb3" />
 					<Add option="-g" />
 					<Add directory="include" />
@@ -29,7 +28,6 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-fPIC" />
 					<Add directory="include" />
 				</Compiler>
 				<Linker>
@@ -38,6 +36,7 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wextra" />
 			<Add option="-Wall" />
 		</Compiler>
 		<Unit filename="include/rc4.h" />

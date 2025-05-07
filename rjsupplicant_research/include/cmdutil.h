@@ -17,5 +17,8 @@ void print_string_list(
     const char *prefix,
     const std::vector<std::string> &slist
 );
+bool check_quit();
+void check_safe_exit(bool create_file);
+bool is_run_background();
 
 #endif // CMDUTIL_H_INCLUDED

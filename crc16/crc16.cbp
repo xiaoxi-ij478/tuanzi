@@ -14,7 +14,6 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-fPIC" />
 					<Add option="-ggdb3" />
 					<Add option="-g" />
 					<Add directory="include" />
@@ -37,6 +36,7 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add directory="include" />
 		</Compiler>

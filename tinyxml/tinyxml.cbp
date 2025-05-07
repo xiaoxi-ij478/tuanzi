@@ -14,7 +14,6 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-fPIC" />
 					<Add option="-ggdb3" />
 					<Add option="-g" />
 					<Add option="-DTIXML_USE_STL" />
@@ -30,14 +29,16 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-fPIC" />
 					<Add option="-DTIXML_USE_STL" />
 					<Add directory="include" />
 				</Compiler>
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Weffc++" />
+			<Add option="-Wextra" />
 			<Add option="-Wall" />
+			<Add option="-fPIC" />
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="include/tinystr.h" />

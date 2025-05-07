@@ -32,13 +32,14 @@ void hold_signals()
 
 void sig_quit(int)
 {
-    if (!do_quit())
-        CLogFile::LogToFile(
-            CChangeLanguage::Instance().LoadString(2051).c_str(),
-            g_runLogFile.c_str(),
-            true, true
-        );
+    if (do_quit())
+        return;
 
+    CLogFile::LogToFile(
+        CChangeLanguage::Instance().LoadString(2051).c_str(),
+        g_runLogFile.c_str(),
+        true, true
+    );
     exit(0);
 }
 

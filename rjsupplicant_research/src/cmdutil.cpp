@@ -147,3 +147,83 @@ void print_string_list(
         std::cout << '[' << i << "] " << slist[i] << std::endl;
     }
 }
+
+bool check_quit()
+{
+    char c = 0;
+    std::cout << CChangeLanguage::Instance().LoadString(2039);
+    c = std::cin.get();
+    std::cout << std::endl;
+    return c == '\n';
+}
+
+void check_safe_exit(bool create_file)
+{
+    std::string lockfile = g_strAppPath;
+    std::ofstream ofs;
+    lockfile.append(".rgsusfexit");
+    rj_printf_debug("%s strFile=%s\n", __func__, lockfile.c_str());
+
+    if (!create_file) {
+        if (unlink(lockfile.c_str()) == -1)
+            rj_printf_debug(
+                "%s strFile=%s exist and unlink failed \n",
+                __func__,
+                lockfile.c_str()
+            );
+
+        else
+            rj_printf_debug(
+                "%s strFile=%s exist and unlink ok \n",
+                __func__,
+                lockfile.c_str()
+            );
+
+        return;
+    }
+
+    if (!access(lockfile.c_str(), F_OK)) {
+        rj_printf_debug("%s strFile=%s exist\n", lockfile.c_str());
+        return;
+    }
+
+    ofs.open(lockfile.c_str());
+
+    if (!ofs) {
+        rj_printf_debug(
+            "%s strFile=%s no exist and create failed \n",
+            __func__,
+            lockfile.c_str()
+        );
+        return;
+    }
+
+    ofs.close();
+    rj_printf_debug(
+        "%s strFile=%s no exist and create ok 2\n",
+        __func__,
+        lockfile.c_str()
+    );
+}
+
+bool is_run_background()
+{
+    int forep = tcgetpgrp(0);
+    int myp = getpgrp();
+
+    if (forep == -1) {
+        rj_printf_debug("tcgetpgrp STDIN_FILENO(%d) error:%s", 0, strerror(errno));
+
+        if ((forep = tcgetpgrp(1)) == -1) {
+            rj_printf_debug("tcgetpgrp STDOUT_FILENO error:%s", strerror(errno));
+            return false;
+        }
+    }
+
+    if (myp == -1) {
+        rj_printf_debug("getpgrp error:%s",  strerror(errno));
+        return false;
+    }
+
+    return forep != myp;
+}

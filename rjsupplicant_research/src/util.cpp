@@ -404,7 +404,7 @@ enum OS_TYPE get_os_type()
         return OS_INVALID;
 
     while (std::getline(ifs, line)) {
-        ParseString(line, '=',val);
+        ParseString(line, '=', val);
 
         if (val[0] == "ID")
             break;
@@ -628,7 +628,7 @@ bool SuCreateDirectory(const std::string &dirname)
     if (errno != ENOENT)
         return true;
 
-    ParseString(dirname, '/',pathnames);
+    ParseString(dirname, '/', pathnames);
 
     for (const std::string &path : pathnames) {
         if (!path.empty())
@@ -774,3 +774,40 @@ void RcvStartAuthNotification()
     logFile.AppendText("recv start auth notification");
 }
 
+[[maybe_unused]] void StrToLower(char *str)
+{
+    if (!str || !strlen(str))
+        return;
+
+    for (unsigned int i = 0; i < strlen(str); i++)
+        str[i] = tolower(str[i]);
+}
+
+bool convertInt(const char *str, int &result)
+{
+    result = atol(str);
+    return true;
+}
+
+void decode(unsigned char *buf, int buflen)
+{
+    if (buflen <= 0)
+        return;
+
+    while (buflen--) {
+        *buf = ((~*buf & 0x10) >> 1) |
+               ((~*buf & 0x20) >> 3) |
+               ((~*buf & 0x40) >> 5) |
+               ((~*buf & 0x80) >> 7) |
+               ((~*buf & 0x08) << 1) |
+               ((~*buf & 0x04) << 3) |
+               ((~*buf & 0x02) << 5) |
+               ((~*buf & 0x01) << 7);
+        buf++;
+    }
+}
+
+void encode(unsigned char *buf, int buflen)
+{
+    return decode(buf,buflen);
+}

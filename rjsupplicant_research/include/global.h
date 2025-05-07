@@ -32,6 +32,7 @@ extern std::string update_message;
 extern std::string alt_update_message;
 extern int g_rwpipe[2];
 extern timer_t g_runModetimer;
+[[maybe_unused]] extern bool g_bDoRunIbus;
 
 extern int (*my_timer_create)(
     clockid_t clockid,

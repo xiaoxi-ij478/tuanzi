@@ -1,5 +1,8 @@
 #include "global.h"
+#include "psutil.h"
 #include "cmdutil.h"
+#include "timeutil.h"
+#include "fileutil.h"
 #include "util.h"
 #include "netutil.h"
 
@@ -7,8 +10,8 @@ int sockets_open()
 {
 #define TRY_CREATE_AND_RETURN(domain, type) \
     do { \
-        int result; \
-        if ((result = socket(domain, type, 0)) != -1) \
+        int result = socket(domain, type, 0); \
+        if (result != -1) \
             return result; \
     } while (0)
     TRY_CREATE_AND_RETURN(AF_INET, SOCK_DGRAM);
@@ -122,12 +125,12 @@ struct NICINFO *get_nics_info(const char *ifname)
     struct ifaddrs *ifap = nullptr;
     struct NICINFO::IPAddrNode *tmp_ipnode = nullptr, *tmp2_ipnode = nullptr;
     struct NICINFO::IP6AddrNode *tmp_ip6node = nullptr, *tmp2_ip6node = nullptr;
-    int fd = 0;
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
     bool interface_added = false;
     struct ifreq ifr = { 0 };
     struct in_addr dns_addr = { 0 };
 
-    if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+    if (fd  == -1)
         return nullptr;
 
     if (getifaddrs(&ifap) == -1 || !ifap) {
@@ -327,7 +330,7 @@ bool get_dns(struct in_addr *dst)
         return false;
 
     while (!found && std::getline(ifs, line)) {
-        ParseString(line, ' ',val);
+        ParseString(line, ' ', val);
 
         if (val[0] == "nameserver")
             break;
@@ -354,7 +357,7 @@ bool get_gateway(struct in_addr *result, const char *ifname)
         return false;
 
     while (std::getline(ifs, line)) {
-        ParseString(line, '\t',arr);
+        ParseString(line, '\t', arr);
 
         if (arr[0] == ifname && arr[1] == "00000000") {
             result->s_addr = std::stoi(arr[2], nullptr, 16);
@@ -515,7 +518,7 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
     std::vector<std::string> val;
     unsigned long pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     // minimal-ping related
-    int fd = socket(AF_INET, SOCK_RAW, getprotobyname("icmp")->p_proto);
+    int fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     struct icmp_pkg package = { 0 }, recv_package = { 0 };
     struct sockaddr_in dest_addr = { AF_INET, 0, ipaddr };
     struct timeval wait_sec = { 3, 0 };
@@ -526,7 +529,7 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
         return false;
 
     while (std::getline(ifs, line)) {
-        ParseString(line, ' ',val);
+        ParseString(line, ' ', val);
 
         if (val[0] != testip || val[3] == empty_mac || val[3] == full_mac)
             continue;
@@ -619,7 +622,7 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
         return false;
 
     while (std::getline(ifs, line)) {
-        ParseString(line, ' ',val);
+        ParseString(line, ' ', val);
 
         if (val[0] != testip || val[3] == empty_mac || val[3] == full_mac)
             continue;
@@ -640,11 +643,11 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
 
 int check_nic_status(const char *ifname)
 {
-    int fd = 0;
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
     struct ifreq ifr = { 0 };
 //    struct ethtool_value evalue;
 
-    if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+    if (fd == -1)
         return -1;
 
     strncpy(ifr.ifr_ifrn.ifrn_name, ifname, IFNAMSIZ - 1);
@@ -664,10 +667,10 @@ bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only)
 {
     struct ifaddrs *ifap = nullptr;
     bool in_list = false;
-    int fd = 0;
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
     nic_list.clear();
 
-    if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+    if (fd == -1)
         return false;
 
     if (getifaddrs(&ifap) == -1 || !ifap) {
@@ -711,11 +714,11 @@ bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only)
 
 bool get_nic_speed(char *dst, const char *ifname)
 {
-    int fd = 0;
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
     struct ifaddrs *ifap = nullptr;
     unsigned short speed = 0;
 
-    if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+    if (fd == -1)
         return false;
 
     if (getifaddrs(&ifap) == -1 || !ifap) {
@@ -842,4 +845,137 @@ bool IsStarGroupDstMac(unsigned char macaddr[6])
     // 00:D0:F8:00:00:03
     unsigned char star_group_addr[6] = {0x01, 0x80, 0xC2, 0x00, 0x00, 0x03};
     return !memcmp(macaddr, star_group_addr, sizeof(star_group_addr));
+}
+
+bool check_nic_isok(char *ifname)
+{
+    char errbuf[PCAP_ERRBUF_SIZE] = { 0 };
+    pcap_t *handle = nullptr;
+
+    if (!ifname)
+        return false;
+
+    if (!(handle = pcap_open_live(ifname, 2000, true, 0xFFFFFFFF, errbuf)))
+        return 0;
+
+    pcap_close(handle);
+    return true;
+}
+
+void createUdpBindSocket(unsigned short port)
+{
+    int fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    struct sockaddr_in addr = { AF_INET, htons(port) };
+
+    if (fd == -1) {
+        logFile_debug.AppendText("socket error.");
+        return;
+    }
+
+    if (bind(fd, reinterpret_cast<struct sockaddr *>(&addr), sizeof(addr)) == -1)
+        logFile_debug.AppendText("bind error");
+
+    else
+        logFile_debug.AppendText("bind udp socket(port=%d) success.", port);
+}
+
+bool isNoChangeIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4])
+{
+    return !memcmp(ipaddr1, ipaddr2, sizeof(char) * 4);
+}
+
+unsigned long long htonLONGLONG(unsigned long long val)
+{
+    swap128(reinterpret_cast<unsigned char *>(&val));
+}
+
+void stop_dhclient_asyn()
+{
+    killProcess("dhclient");
+}
+
+bool dhclient_asyn(const char *ipaddr, sem_t *semaphore)
+{
+    DhclientThreadStruct *arg = new DhclientThreadStruct;
+    pthread_t thread_key = 0;
+    stop_dhclient_asyn();
+    Sleep(1000);
+    strcpy(arg->ipaddr, ipaddr);
+
+    if (pthread_create(&thread_key, 0, dhclient_thread, arg)) {
+        delete arg;
+        return false;
+    }
+
+    return true;
+}
+
+void *dhclient_thread(void *varg)
+{
+    DhclientThreadStruct *arg = reinterpret_cast<DhclientThreadStruct *>(varg);
+
+    if (get_os_type() != OS_FEDORA || isFileExist("/sbin/dhclient-script")) {
+        if (get_os_type() != OS_FEDORA)
+            g_log_Wireless.AppendText("%s file is no exist.", "/sbin/dhclient-script");
+
+        g_log_Wireless.AppendText("sfFile NULL");
+        system(
+            std::string("dhclient ")
+            .append(arg->ipaddr)
+            /*.append(" 2>&-")*/
+            .c_str()
+        );
+        sem_post(arg->semaphore);
+        delete arg;
+        return nullptr;
+    }
+
+    chmod("/sbin/dhclient-script", 0755);
+    chmod("/sbin/dhclient-script", 0751);
+    addStringOnLineHead(
+        "/sbin/dhclient-script",
+        "/sbin/rjsu-dhclient-script",
+        "ip link set ${interface} down",
+        "#"
+    );
+    addStringOnLineHead(
+        "/sbin/dhclient-script",
+        "/sbin/rjsu-dhclient-script",
+        "ip link set $interface down",
+        "#"
+    );
+    addStringOnLineHead(
+        "/sbin/dhclient-script",
+        "/sbin/rjsu-dhclient-script",
+        "ifconfig $interface inet 0 down",
+        "#"
+    );
+    addStringOnLineHead(
+        "/sbin/dhclient-script",
+        "/sbin/rjsu-dhclient-script",
+        "ifconfig ${interface} inet 0 down",
+        "#"
+    );
+    g_log_Wireless.AppendText("sfFile:%s", "/sbin/rjsu-dhclient-script");
+    system(
+        std::string("dhclient -sf ")
+        .append("/sbin/rjsu-dhclient-script")
+        .append(arg->ipaddr)
+        /*.append(" 2>&-")*/
+        .c_str()
+    );
+    sem_post(arg->semaphore);
+    delete arg;
+    return nullptr;
+}
+
+void dhclient_exit()
+{
+  system("dhclient -x");
+}
+
+void disable_enable_nic(const char *ifname)
+{
+  system(std::string("ifconfig ").append(ifname).append(" down").c_str());
+  system(std::string("ifconfig ").append(ifname).append(" up").c_str());
 }

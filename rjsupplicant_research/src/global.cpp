@@ -9,7 +9,8 @@ bool updteParam = false;
 std::string update_message;
 std::string alt_update_message;
 int g_rwpipe[2] = { 0 };
-timer_t g_runModetimer;
+timer_t g_runModetimer = nullptr;
+[[maybe_unused]] bool g_bDoRunIbus = false;
 
 int (*my_timer_create)(
     clockid_t clockid,

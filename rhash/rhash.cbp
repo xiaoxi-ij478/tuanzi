@@ -16,8 +16,6 @@
 				<Compiler>
 					<Add option="-Winline" />
 					<Add option="-Wmissing-declarations" />
-					<Add option="-Wall" />
-					<Add option="-fPIC" />
 					<Add option="-ggdb3" />
 					<Add option="-g" />
 					<Add option="-pipe" />
@@ -41,8 +39,6 @@
 					<Add option="-O2" />
 					<Add option="-Winline" />
 					<Add option="-Wmissing-declarations" />
-					<Add option="-Wall" />
-					<Add option="-fPIC" />
 					<Add option="-pipe" />
 					<Add option="-W" />
 					<Add option="-Wstrict-prototypes" />
@@ -58,7 +54,9 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wextra" />
 			<Add option="-Wall" />
+			<Add option="-fPIC" />
 		</Compiler>
 		<Unit filename="include/aich.h" />
 		<Unit filename="include/algorithms.h" />

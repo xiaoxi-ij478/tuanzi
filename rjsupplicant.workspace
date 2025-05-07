@@ -19,6 +19,6 @@
 		<Project filename="rc4/rc4.cbp" />
 		<Project filename="md5/md5.cbp" />
 		<Project filename="ampheck/ampheck.cbp" />
-		<Project filename="libpcap/libpcap.cbp" />
+		<Project filename="pcap/pcap.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

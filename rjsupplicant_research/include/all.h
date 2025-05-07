@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cctype>
 #include <cerrno>
 #include <csignal>
 #include <cstdarg>
@@ -35,6 +36,7 @@
 #include <pthread.h>
 #include <scsi/scsi.h>
 #include <scsi/sg.h>
+#include <semaphore.h>
 #include <sys/ioctl.h>
 #include <sys/msg.h>
 #include <sys/select.h>

@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="pcap" />
+		<Option makefile_is_custom="1" />
+		<Option execution_dir="$(target_output_dir)" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<MakeCommands>
+			<Build command="$make -f $makefile shared" />
+			<CompileFile command="$make -f $makefile $file" />
+			<Clean command="$make -f $makefile clean" />
+			<DistClean command="$make -f $makefile distclean$target" />
+			<AskRebuildNeeded command="$make -q -f $makefile shared" />
+			<SilentBuild command="$make -f $makefile shared &gt; $(CMD_NULL)" />
+		</MakeCommands>
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/pcap" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+				<Environment>
+					<Variable name="CFLAGS" value="-g -ggdb3" />
+				</Environment>
+				<MakeCommands>
+					<Build command="" />
+					<CompileFile command="" />
+					<Clean command="" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="" />
+					<SilentBuild command=" &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/pcap" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+				<Environment>
+					<Variable name="CFLAGS" value="-O2 -s" />
+				</Environment>
+				<MakeCommands>
+					<Build command="" />
+					<CompileFile command="" />
+					<Clean command="" />
+					<DistClean command="$make -f $makefile distclean$target" />
+					<AskRebuildNeeded command="" />
+					<SilentBuild command=" &gt; $(CMD_NULL)" />
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<ExtraCommands>
+			<Add before='$(project_dir)/configure --enable-ipv6 CFLAGS=&quot;$(CFLAGS) -fPIC&quot;' />
+		</ExtraCommands>
+		<Unit filename="Win32/Include/Gnuc.h" />
+		<Unit filename="Win32/Include/addrinfo.h" />
+		<Unit filename="Win32/Include/arpa/nameser.h" />
+		<Unit filename="Win32/Include/bittypes.h" />
+		<Unit filename="Win32/Include/cdecl_ext.h" />
+		<Unit filename="Win32/Include/inetprivate.h" />
+		<Unit filename="Win32/Include/ip6_misc.h" />
+		<Unit filename="Win32/Include/net/if.h" />
+		<Unit filename="Win32/Include/net/netdb.h" />
+		<Unit filename="Win32/Include/net/paths.h" />
+		<Unit filename="Win32/Include/sockstorage.h" />
+		<Unit filename="Win32/Src/ffs.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Win32/Src/gai_strerror.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Win32/Src/getaddrinfo.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Win32/Src/getnetbynm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Win32/Src/getnetent.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Win32/Src/getopt.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Win32/Src/getservent.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Win32/Src/inet_aton.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Win32/Src/inet_net.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Win32/Src/inet_pton.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="acconfig.h" />
+		<Unit filename="arcnet.h" />
+		<Unit filename="atmuni31.h" />
+		<Unit filename="bin/Debug/config.h" />
+		<Unit filename="bpf/net/bpf_filter.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="bpf/net/bpf_filter.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="bpf_dump.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="bpf_image.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="etherent.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="ethertype.h" />
+		<Unit filename="fad-getad.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="fad-gifc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="fad-glifc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="fad-null.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="fad-win32.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="gencode.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="gencode.h" />
+		<Unit filename="inet.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="lbl/os-aix4.h" />
+		<Unit filename="lbl/os-hpux11.h" />
+		<Unit filename="lbl/os-osf4.h" />
+		<Unit filename="lbl/os-osf5.h" />
+		<Unit filename="lbl/os-solaris2.h" />
+		<Unit filename="lbl/os-sunos4.h" />
+		<Unit filename="lbl/os-ultrix4.h" />
+		<Unit filename="llc.h" />
+		<Unit filename="missing/snprintf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="msdos/bin2c.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="msdos/ndis2.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="msdos/ndis2.h" />
+		<Unit filename="msdos/ndis_0.asm" />
+		<Unit filename="msdos/pkt_rx0.asm" />
+		<Unit filename="msdos/pkt_rx1.s" />
+		<Unit filename="msdos/pktdrvr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="msdos/pktdrvr.h" />
+		<Unit filename="nametoaddr.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="nlpid.h" />
+		<Unit filename="optimize.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-bpf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-bpf.h" />
+		<Unit filename="pcap-dag.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-dag.h" />
+		<Unit filename="pcap-dlpi.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-dos.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-dos.h" />
+		<Unit filename="pcap-enet.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-int.h" />
+		<Unit filename="pcap-linux.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-namedb.h" />
+		<Unit filename="pcap-nit.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-nit.h" />
+		<Unit filename="pcap-null.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-pf.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-pf.h" />
+		<Unit filename="pcap-septel.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-septel.h" />
+		<Unit filename="pcap-snit.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-snoop.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap-stdinc.h" />
+		<Unit filename="pcap-win32.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pcap.h" />
+		<Unit filename="pcap1.h" />
+		<Unit filename="pf.h" />
+		<Unit filename="ppp.h" />
+		<Unit filename="savefile.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="sll.h" />
+		<Unit filename="sunatmpos.h" />
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>

@@ -99,6 +99,11 @@ struct icmp_pkg {
     char icmp_data[40];
 };
 
+struct DhclientThreadStruct {
+    char ipaddr[512];
+    sem_t *semaphore;
+};
+
 int sockets_open();
 enum ADAPTER_TYPE get_nic_type(const char *ifname);
 unsigned short ComputeTcpPseudoHeaderChecksum(
@@ -152,6 +157,12 @@ bool IsGetDhcpIpp(unsigned char ip[4]);
 bool IsHostDstMac(unsigned char macaddr1[6], unsigned char macaddr2[6]);
 bool IsMulDstMac(unsigned char macaddr[6]);
 bool IsStarGroupDstMac(unsigned char macaddr[6]);
-
+void createUdpBindSocket(unsigned short port);
+bool isNoChangeIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4]);
+void stop_dhclient_asyn();
+bool dhclient_asyn(const char *ipaddr, sem_t *semaphore);
+void *dhclient_thread(void *varg);
+void dhclient_exit();
+void disable_enable_nic(const char *ifname);
 
 #endif // NETUTIL_H_INCLUDED

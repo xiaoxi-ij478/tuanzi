@@ -14,10 +14,8 @@
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
-					<Add option="-fPIC" />
 					<Add option="-ggdb3" />
 					<Add option="-g" />
-					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -29,7 +27,6 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-fPIC" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -37,7 +34,9 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-Wextra" />
 			<Add option="-Wall" />
+			<Add option="-fPIC" />
 			<Add directory="include" />
 		</Compiler>
 		<Unit filename="include/dictionary.h" />
