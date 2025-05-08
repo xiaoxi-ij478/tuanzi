@@ -50,9 +50,9 @@ class CLnxThread
         virtual bool InitInstance();
         virtual bool Run();
         virtual bool DispathMessage(struct LNXMSG *msg);
-        virtual void OnTimer(int tflag);
         virtual bool OnTimerEnter(int tflag);
         virtual void OnTimerLeave(int tflag);
+        virtual void OnTimer(int tflag);
         virtual bool ExitInstance();
         virtual void KillTimer(timer_t &timerid);
 

@@ -1,7 +1,6 @@
 #ifndef CHECKRUNTHREAD_H
 #define CHECKRUNTHREAD_H
 
-
 class CCheckRunThread
 {
     public:

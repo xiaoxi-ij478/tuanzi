@@ -15,6 +15,7 @@
 				<Compiler>
 					<Add option="-ggdb3" />
 					<Add option="-g" />
+					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -24,6 +25,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -86,13 +88,18 @@
 		<Unit filename="include/contextcontrolthread.h" />
 		<Unit filename="include/criticalsection.h" />
 		<Unit filename="include/diskutil.h" />
+		<Unit filename="include/dnsquery.h" />
 		<Unit filename="include/encodeutil.h" />
 		<Unit filename="include/encryption.h" />
 		<Unit filename="include/fileutil.h" />
 		<Unit filename="include/global.h" />
+		<Unit filename="include/helloprocessor.h" />
+		<Unit filename="include/hellothread.h" />
 		<Unit filename="include/libutil.h" />
 		<Unit filename="include/lnxthread.h" />
 		<Unit filename="include/logfile.h" />
+		<Unit filename="include/md5checksum.h" />
+		<Unit filename="include/md5forvz.h" />
 		<Unit filename="include/msgutil.h" />
 		<Unit filename="include/netutil.h" />
 		<Unit filename="include/psutil.h" />
@@ -118,14 +125,19 @@
 		<Unit filename="src/contextcontrolthread.cpp" />
 		<Unit filename="src/criticalsection.cpp" />
 		<Unit filename="src/diskutil.cpp" />
+		<Unit filename="src/dnsquery.cpp" />
 		<Unit filename="src/encodeutil.cpp" />
 		<Unit filename="src/encryption.cpp" />
 		<Unit filename="src/fileutil.cpp" />
 		<Unit filename="src/global.cpp" />
+		<Unit filename="src/helloprocessor.cpp" />
+		<Unit filename="src/hellothread.cpp" />
 		<Unit filename="src/libutil.cpp" />
 		<Unit filename="src/lnxthread.cpp" />
 		<Unit filename="src/logfile.cpp" />
 		<Unit filename="src/main.cpp" />
+		<Unit filename="src/md5checksum.cpp" />
+		<Unit filename="src/md5forvz.cpp" />
 		<Unit filename="src/msgutil.cpp" />
 		<Unit filename="src/netutil.cpp" />
 		<Unit filename="src/psutil.cpp" />
