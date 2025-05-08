@@ -31,6 +31,8 @@
 #include <linux/hdreg.h>
 #include <linux/sockios.h>
 #include <linux/wireless.h>
+//#include <net/if.h>
+#include <net/route.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <pthread.h>
@@ -46,6 +48,7 @@
 #include <sys/sysinfo.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <termios.h>
 #include <unistd.h>
 
 #ifdef __GLIBC__

@@ -96,7 +96,7 @@ unsigned int CSuConfigFile::GetPrivateProfileInt(
     unsigned int ret = 0;
     dictionary *ini = nullptr;
     std::string cfgpath;
-    std::string dkey = domain;
+    std::string dkey(domain);
     dkey.append(":").append(key);
     TakeAppPath(cfgpath);
     cfgpath.append("SuTempConfig.dat");
@@ -120,7 +120,7 @@ void CSuConfigFile::GetPrivateProfileString(
 {
     dictionary *ini = nullptr;
     std::string cfgpath;
-    std::string dkey = domain;
+    std::string dkey(domain);
     dkey.append(":").append(key);
     TakeAppPath(cfgpath);
     cfgpath.append("SuTempConfig.dat");
@@ -273,8 +273,8 @@ bool CSuConfigFile::WritePrivateProfileString(
     assert(is_open);
     dictionary *ini = nullptr;
     std::string cfgpath;
-    std::string dkey = domain;
-    std::string tmpval = val;
+    std::string dkey (domain);
+    std::string tmpval  (val);
     FILE *fp = nullptr;
     dkey.append(":").append(key);
     TakeAppPath(cfgpath);

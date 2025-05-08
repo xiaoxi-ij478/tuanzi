@@ -50,7 +50,6 @@ timer_t GSetTimer(
     struct TIMERPARAM *timer
 );
 [[maybe_unused]] void GetMD5File(const char *filename, char *result);
-enum OS_TYPE get_os_type();
 void ParseString(
     const std::string &str,
     char delim,
@@ -86,7 +85,7 @@ void RcvACLParam(void *arg);
 void RcvCMD_GetProcessAndNetworkInfo();
 void RcvFlowMonitorParam(void *arg);
 void RcvIPMACChangeNotify();
-void RcvLoginURL(const std::string &arg);
+void RcvLoginURL(const std::string &/*arg*/);
 void RcvNetSecParam(void *arg);
 void RcvOpenUtrustUrlCmd(const std::string &arg);
 void RcvStartAuthNotification();
@@ -94,6 +93,8 @@ void RcvStartAuthNotification();
 bool convertInt(const char *str, int &result);
 void decode(unsigned char *buf, int buflen);
 void encode(unsigned char *buf, int buflen);
+std::string makeLower(const std::string &str);
+std::string makeUpper(const std::string &str);
 
 inline void swap32(unsigned char *val)
 {

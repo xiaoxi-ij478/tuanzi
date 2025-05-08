@@ -389,42 +389,6 @@ timer_t GSetTimer(
     }
 }
 
-enum OS_TYPE get_os_type()
-{
-    // the original implementation uses /etc/issue
-    // cat /etc/issue |awk 'NR==1 {print $1}'
-    // we use /etc/os-release
-    // I only use Debian, so code may be inaccurate
-    // If you find any errors, notice me
-    std::ifstream ifs("/etc/os-release");
-    std::vector<std::string> val;
-    std::string line;
-
-    if (!ifs)
-        return OS_INVALID;
-
-    while (std::getline(ifs, line)) {
-        ParseString(line, '=', val);
-
-        if (val[0] == "ID")
-            break;
-    }
-
-    ifs.close();
-
-    if (val[1] == "debian" || val[1] == "ubuntu")
-        return OS_UBUNTU;
-
-    if (val[1] == "fedora")
-        return OS_FEDORA;
-
-    if (val[1] == "centos")
-        return OS_CENTOS;
-
-    return OS_INVALID;
-}
-
-
 void ParseString(
     const std::string &str,
     char delim,
@@ -753,7 +717,7 @@ void RcvIPMACChangeNotify()
     logFile.AppendText("recv ip mac change notify");
 }
 
-void RcvLoginURL(const std::string &arg)
+void RcvLoginURL(const std::string &/*arg*/)
 {
     logFile.AppendText("recv login url");
 }
@@ -809,5 +773,25 @@ void decode(unsigned char *buf, int buflen)
 
 void encode(unsigned char *buf, int buflen)
 {
-    return decode(buf,buflen);
+    return decode(buf, buflen);
+}
+
+std::string makeLower(const std::string &str)
+{
+    std::string ret;
+
+    for (const unsigned char i : str)
+        ret.push_back(tolower(i));
+
+    return ret;
+}
+
+std::string makeUpper(const std::string &str)
+{
+    std::string ret;
+
+    for (const unsigned char i : str)
+        ret.push_back(toupper(i));
+
+    return ret;
 }

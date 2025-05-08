@@ -39,8 +39,11 @@
     PRINT_USAGE("\t-q --quit\t", 2046);
     std::cout << "\t   --comments\t";
     std::string log_path = g_strAppPath + "log/run.log";
-    snprintf(str2, sizeof(str2), cinstance.LoadString(2045).c_str(),
-             log_path.c_str());
+    snprintf(
+        str2, sizeof(str2),
+        cinstance.LoadString(2045).c_str(),
+        log_path.c_str()
+    );
     format_tc_string(tc_width, 24, str2);
 #undef PRINT_USAGE
     exit(1);
@@ -159,7 +162,7 @@ bool check_quit()
 
 void check_safe_exit(bool create_file)
 {
-    std::string lockfile = g_strAppPath;
+    std::string lockfile(g_strAppPath);
     std::ofstream ofs;
     lockfile.append(".rgsusfexit");
     rj_printf_debug("%s strFile=%s\n", __func__, lockfile.c_str());
@@ -226,4 +229,25 @@ bool is_run_background()
     }
 
     return forep != myp;
+}
+
+int set_termios(bool set_echo_icanon)
+{
+    struct termios term = { 0 };
+
+    if (tcgetattr(0, &term) == -1) {
+        rj_printf_debug("set_termios: tcgetattr error:%s", strerror(errno));
+        return -1;
+    }
+
+    if (set_echo_icanon)
+        term.c_lflag |= ICANON | ECHO;
+
+    else
+        term.c_lflag &= ~(ICANON | ECHO);
+
+    if (tcsetattr(0, TCSANOW, &term) == -1)
+        rj_printf_debug("tcsetattr error:%s", strerror(errno));
+
+    return 0;
 }

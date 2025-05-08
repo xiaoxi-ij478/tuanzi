@@ -196,9 +196,9 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck()
 
         } else if (disallow_multi_nic_ip) {
             g_log_Wireless.AppendText("Other nic name:%s", cur_info->ifname);
-            strncpy(ifr.ifr_ifrn.ifrn_name, cur_info->ifname, IFNAMSIZ - 1);
+            strncpy(ifr.ifr_name, cur_info->ifname, IFNAMSIZ - 1);
             evalue.cmd = ETHTOOL_GLINK;
-            ifr.ifr_ifru.ifru_data = reinterpret_cast<__caddr_t>(&evalue);
+            ifr.ifr_data = reinterpret_cast<__caddr_t>(&evalue);
 
             if (ioctl(socket_fd, SIOCGIFFLAGS, &ifr) < 0) {
                 if (ioctl(socket_fd, SIOCETHTOOL, &ifr) >= 0 && evalue.data == 1) {
@@ -209,12 +209,12 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck()
 
             } else {
                 if (
-                    ifr.ifr_ifru.ifru_flags & IFF_UP &&
-                    ifr.ifr_ifru.ifru_flags & IFF_RUNNING
+                    ifr.ifr_flags & IFF_UP &&
+                    ifr.ifr_flags & IFF_RUNNING
                 ) {
                     g_log_Wireless.AppendText(
                         "multiple adapters flags:%4x",
-                        ifr.ifr_ifru.ifru_flags
+                        ifr.ifr_flags
                     );
                     POST_TO_CONTROL_THREAD(MULTIPLE_ADAPTER_MTYPE);
                     break;
@@ -222,7 +222,7 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck()
 
                 g_log_Wireless.AppendText(
                     "SIOCGIFFLAGS flags:%4x",
-                    ifr.ifr_ifru.ifru_flags
+                    ifr.ifr_flags
                 );
             }
         }
@@ -298,9 +298,9 @@ void CAdapterDetectThread::adapter_state_check()
 {
     struct ifreq ifr = { 0 };
     struct ethtool_value evalue = { 0 };
-    strncpy(ifr.ifr_ifrn.ifrn_name, nic_name, IFNAMSIZ - 1);
+    strncpy(ifr.ifr_name, nic_name, IFNAMSIZ - 1);
     evalue.cmd = ETHTOOL_GLINK;
-    ifr.ifr_ifru.ifru_data = reinterpret_cast<__caddr_t>(&evalue);
+    ifr.ifr_data = reinterpret_cast<__caddr_t>(&evalue);
 
     if (ioctl(socket_fd, SIOCGIFFLAGS, &ifr) < 0) {
         g_log_Wireless.AppendText("ioctl SIOCGIFFLAGS error:%s", strerror(errno));
@@ -333,14 +333,14 @@ void CAdapterDetectThread::adapter_state_check()
             }
         }
 
-    } else if (ifr.ifr_ifru.ifru_flags & IFF_UP) {
+    } else if (ifr.ifr_flags & IFF_UP) {
         if (status == ADAPTER_DISABLE) {
             status = ADAPTER_ENABLE;
             POST_TO_CONTROL_THREAD(ADAPTER_ENABLE_REPORT_MTYPE);
             g_log_Wireless.AppendText("ADAPTER_LINK enable\n");
         }
 
-        if (ifr.ifr_ifru.ifru_flags & IFF_RUNNING) {
+        if (ifr.ifr_flags & IFF_RUNNING) {
             if (status != ADAPTER_UP) {
                 status = ADAPTER_UP;
                 POST_TO_CONTROL_THREAD(ADAPTER_UP_REPORT_MTYPE);

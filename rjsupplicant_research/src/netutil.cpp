@@ -4,6 +4,7 @@
 #include "timeutil.h"
 #include "fileutil.h"
 #include "util.h"
+#include "sysutil.h"
 #include "netutil.h"
 
 int sockets_open()
@@ -32,18 +33,18 @@ enum ADAPTER_TYPE get_nic_type(const char *ifname)
         return ADAPTER_WIRELESS;
     }
 
-    strncpy(iwr.ifr_ifrn.ifrn_name, ifname, IFNAMSIZ - 1);
+    strncpy(iwr.ifr_name, ifname, IFNAMSIZ - 1);
     return ioctl(fd, SIOCGIWNAME, &iwr) >= 0 ? ADAPTER_WIRELESS : ADAPTER_WIRED;
 }
 
 unsigned short ComputeTcpPseudoHeaderChecksum(
-    const struct _IPHeader *ipheader,
-    const struct _TCPHeader *tcpheader,
+    const struct IPHeader *ipheader,
+    const struct TCPHeader *tcpheader,
     const unsigned char *databuf,
     int length
 )
 {
-    struct _TCPChecksumHeader header = { 0 };
+    struct TCPChecksumHeader header = { 0 };
     memset(&header, 0, sizeof(header));
 #define SET_PSEUDO_HEADER_INFO(name) header.pseudo_header.name = ipheader->name
     SET_PSEUDO_HEADER_INFO(srcaddr);
@@ -70,7 +71,7 @@ unsigned short ComputeTcpPseudoHeaderChecksum(
 }
 
 unsigned short ComputeUdpPseudoHeaderChecksumV4(
-    const struct _IPHeader *ipheader,
+    const struct IPHeader *ipheader,
     const struct udp_hdr *udpheader,
     const unsigned char *databuf,
     int length
@@ -183,7 +184,7 @@ struct NICINFO *get_nics_info(const char *ifname)
             }
 
             strncpy(cur_info->ifname, cur_if->ifa_name, IFNAMSIZ - 1);
-            strncpy(ifr.ifr_ifrn.ifrn_name, cur_if->ifa_name, IFNAMSIZ - 1);
+            strncpy(ifr.ifr_name, cur_if->ifa_name, IFNAMSIZ - 1);
 
             if (ioctl(fd, SIOCGIFHWADDR, &ifr))
                 memset(&cur_info->hwaddr, 0, sizeof(cur_info->hwaddr));
@@ -191,7 +192,7 @@ struct NICINFO *get_nics_info(const char *ifname)
             else
                 memcpy(
                     &cur_info->hwaddr,
-                    &ifr.ifr_ifru.ifru_hwaddr.sa_data,
+                    &ifr.ifr_hwaddr.sa_data,
                     sizeof(cur_info->hwaddr)
                 );
 
@@ -345,6 +346,37 @@ bool get_dns(struct in_addr *dst)
     return true;
 }
 
+bool get_alternate_dns(char *dest, int &counts)
+{
+    // cat /etc/resolv.conf 2>&- |awk '{if ($1==\"nameserver\") {print $2}}' |awk 'NR>1'
+    std::ifstream ifs("/etc/resolv.conf");
+    std::string line;
+    std::vector<std::string> val;
+    int c = 0;
+
+    if (!ifs) {
+        counts = 0;
+        return false;
+    }
+
+    while (std::getline(ifs, line)) {
+        ParseString(line, ' ', val);
+
+        if (val[0] != "nameserver")
+            continue;
+
+        if (!c++)
+            continue;
+
+        strcat(dest, val[1].c_str());
+        strcat(dest, ";");
+        counts++;
+    }
+
+    dest[strlen(dest) - 1] = 0;
+    return true;
+}
+
 bool get_gateway(struct in_addr *result, const char *ifname)
 {
     // cat /proc/net/route 2>&- |awk '{if ($1~/$ifname/ && $2~/00000000/) print $3}'
@@ -374,7 +406,7 @@ unsigned short get_speed_wl(int fd, char *ifname)
 {
     struct iwreq iwr = { 0 };
     int ret = 0;
-    strncpy(iwr.ifr_ifrn.ifrn_name, ifname, IFNAMSIZ - 1);
+    strncpy(iwr.ifr_name, ifname, IFNAMSIZ - 1);
     return ioctl(fd, SIOCGIWRATE, &iwr) ? 0 : iwr.u.bitrate.value / 1000000;
 }
 
@@ -383,7 +415,7 @@ unsigned short get_speed(int fd, char *ifname)
     struct ethtool_cmd ecmd = { 0 };
     struct ifreq ifr = { 0 };
     ecmd.cmd = ETHTOOL_GSET;
-    strncpy(ifr.ifr_ifrn.ifrn_name, ifname, IFNAMSIZ - 1);
+    strncpy(ifr.ifr_name, ifname, IFNAMSIZ - 1);
     ifr.ifr_data = reinterpret_cast<__caddr_t>(&ecmd);
     return ioctl(fd, SIOCETHTOOL, &ifr) ? 0 : ethtool_cmd_speed(&ecmd);
 }
@@ -402,7 +434,7 @@ static bool check_manualip_indirectory(
     DIR *subdir = nullptr;
     std::ifstream ifs;
     std::string line;
-    std::string sdir = dir;
+    std::string sdir(dir);
 
     if (!rootdir)
         return false;
@@ -509,12 +541,12 @@ bool check_dhcp(const char *ifname, const char *ipaddr)
 
 bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
 {
-    std::string empty_mac = "00:00:00:00:00:00", full_mac = "ff:ff:ff:ff:ff:ff";
+    std::string empty_mac("00:00:00:00:00:00"), full_mac("ff:ff:ff:ff:ff:ff");
     std::string ip, mac;
     std::string line;
     std::ifstream ifs("/proc/net/arp");
     std::string::iterator b, e;
-    std::string testip = inet_ntoa(ipaddr);
+    std::string testip(inet_ntoa(ipaddr));
     std::vector<std::string> val;
     unsigned long pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     // minimal-ping related
@@ -648,19 +680,19 @@ int check_nic_status(const char *ifname)
 //    struct ethtool_value evalue;
 
     if (fd == -1)
-        return -1;
+        return ADAPTER_INVALID;
 
-    strncpy(ifr.ifr_ifrn.ifrn_name, ifname, IFNAMSIZ - 1);
+    strncpy(ifr.ifr_name, ifname, IFNAMSIZ - 1);
 //    evalue.cmd = ETHTOOL_GLINK;
-//    ifr.ifr_ifru.ifru_data = &evalue;
+//    ifr.ifr_data = &evalue;
 
     if (ioctl(fd, SIOCGIFFLAGS, &ifr) < 0) {
         close(fd);
-        return -1;
+        return ADAPTER_INVALID;
     }
 
     close(fd);
-    return ifr.ifr_ifru.ifru_flags & IFF_UP ? ADAPTER_UP : ADAPTER_DOWN;
+    return ifr.ifr_flags & IFF_UP ? ADAPTER_UP : ADAPTER_DOWN;
 }
 
 bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only)
@@ -766,12 +798,12 @@ unsigned int InitIpv4Header(
     unsigned int datalen
 )
 {
-    struct _IPHeader *header = reinterpret_cast<struct _IPHeader *>(header_c);
+    struct IPHeader *header = reinterpret_cast<struct IPHeader *>(header_c);
     header->version = 4;
     header->ihl = 5;
     header->tos = 0;
     header->total_length = htons(datalen) +
-                           sizeof(struct _IPHeader) +
+                           sizeof(struct IPHeader) +
                            sizeof(struct udp_hdr);
     header->ipid = 0;
     header->flags = 0;
@@ -783,9 +815,9 @@ unsigned int InitIpv4Header(
     header->dstaddr = inet_addr(dstaddr);
     header->header_checksum = checksum(
                                   reinterpret_cast<unsigned short *>(header_c),
-                                  sizeof(struct _IPHeader)
+                                  sizeof(struct IPHeader)
                               );
-    return sizeof(struct _IPHeader);
+    return sizeof(struct IPHeader);
 }
 
 unsigned int InitUdpHeader(
@@ -887,6 +919,7 @@ bool isNoChangeIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4])
 unsigned long long htonLONGLONG(unsigned long long val)
 {
     swap128(reinterpret_cast<unsigned char *>(&val));
+    return val;
 }
 
 void stop_dhclient_asyn()
@@ -971,11 +1004,181 @@ void *dhclient_thread(void *varg)
 
 void dhclient_exit()
 {
-  system("dhclient -x");
+    system("dhclient -x");
 }
 
 void disable_enable_nic(const char *ifname)
 {
-  system(std::string("ifconfig ").append(ifname).append(" down").c_str());
-  system(std::string("ifconfig ").append(ifname).append(" up").c_str());
+    system(std::string("ifconfig ").append(ifname).append(" down").c_str());
+    system(std::string("ifconfig ").append(ifname).append(" up").c_str());
+}
+
+void get_all_nics_statu(std::vector<struct NicsStatus> &dest)
+{
+    bool in_list = false;
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    struct ifaddrs *ifap = nullptr;
+
+    if (fd == -1)
+        return;
+
+    if (getifaddrs(&ifap) == -1) {
+        close(fd);
+        return;
+    }
+
+    for (
+        struct ifaddrs *cur_if = ifap;
+        cur_if;
+        cur_if = cur_if->ifa_next, in_list = false
+    ) {
+        for (const struct NicsStatus &nic : dest) {
+            if (!strcmp(nic.nic_name, cur_if->ifa_name))
+                in_list = true;
+
+            break;
+        }
+
+        if (in_list)
+            continue;
+
+        switch (check_nic_status(cur_if->ifa_name)) {
+            case ADAPTER_INVALID:
+                rj_printf_debug("%s check_nic_status error", cur_if->ifa_name);
+                dest.emplace_back(cur_if->ifa_name, true);
+                break;
+
+            case ADAPTER_UP:
+                rj_printf_debug("%s check_nic_status enable", cur_if->ifa_name);
+                dest.emplace_back(cur_if->ifa_name, true);
+                break;
+
+            case ADAPTER_DOWN:
+                rj_printf_debug("%s check_nic_status disable", cur_if->ifa_name);
+                dest.emplace_back(cur_if->ifa_name, true);
+                break;
+        }
+    }
+
+    freeifaddrs(ifap);
+    close(fd);
+}
+
+void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname)
+{
+    // yes, the codes are from check_manualip_indirectory
+    // original code:
+    // [ ! -d /etc/sysconfig/networking/devices/ ] && exit
+    // grep DEVICE=$ifname /etc/sysconfig/networking/*/* 2>&-
+    // split with ':', get the first field
+    // and for each do
+    // ipaddr=$(cat $first_field|awk  -F = '{if ($1~/IPADDR/) print $2}')
+    // if not empty then
+    // netmask=$(cat $first_field|awk  -F = '{if ($1~/NETMASK/) print $2}')
+    // if not empty then
+    // ifconfig $ifname $ipaddr netmask $netmask
+    // printf "____%s [set ip mask]%s________\n" "get_gateway_from_file" \\
+    // "ifconfig $ifname $ipaddr netmask $netmask"
+    // gateway=$(cat $first_field|awk  -F = '{if ($1~/GATEWAY/) print $2}')
+    // if not empty then
+    // printf "%s GATEWAY:%d:%d:%d:%d;\n" "get_gateway_from_file" \\
+    // $gateway_splited
+    // route add default gw $gateway 2>&-
+    DIR *rootdir = opendir("/etc/sysconfig/networking");
+    DIR *subdir = nullptr;
+    std::ifstream ifs;
+    std::string line;
+    std::string device_line("DEVICE=");
+    std::string ipaddr, netmask, gateway;
+    std::string sdir("/etc/sysconfig/networking");
+    std::vector<std::string> val;
+    struct ifreq ifr = { 0 };
+    struct rtentry route = { 0 };
+    bool exit_ok = false;
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    device_line.append(ifname);
+
+    if (access("/etc/sysconfig/networking/devices/", F_OK) == -1)
+        return;
+
+    if (!rootdir)
+        return;
+
+    for (struct dirent *dent = readdir(rootdir); dent; dent = readdir(rootdir)) {
+        if (dent->d_type != DT_DIR)
+            continue;
+
+        subdir = opendir((sdir + dent->d_name).c_str());
+
+        if (!subdir)
+            continue;
+
+        for (struct dirent *sdent = readdir(subdir); sdent; sdent = readdir(subdir)) {
+            if (sdent->d_type != DT_REG)
+                continue;
+
+            ifs.open(sdent->d_name);
+
+            if (!ifs)
+                continue;
+
+            while (std::getline(ifs, line)) {
+                if (line.compare(device_line))
+                    break;
+
+                ParseString(line, '=', val);
+
+                if (val[0] == "IPADDR")
+                    ipaddr = val[1];
+
+                if (val[1] == "NETMASK")
+                    netmask = val[1];
+
+                if (val[1] == "GATEWAY")
+                    gateway = val[1];
+            }
+
+            if (!ipaddr.empty() && !netmask.empty()) {
+                strcpy(ifr.ifr_name, ifname);
+                reinterpret_cast<struct sockaddr_in *>(&ifr.ifr_addr)
+                ->sin_addr.s_addr = inet_addr(ipaddr.c_str());
+                reinterpret_cast<struct sockaddr_in *>(&ifr.ifr_netmask)
+                ->sin_addr.s_addr = inet_addr(netmask.c_str());
+                // may be this is a inline function's name
+                std::cout << "____" << "get_gateway_from_file"
+                          << " [set ip mask]" << "ifconfig " << ifname << " "
+                          << ipaddr << " netmask " << netmask
+                          << " ________" << std::endl;
+                exit_ok = true;
+            }
+
+            if (!gateway.empty()) {
+                reinterpret_cast<struct sockaddr_in *>(&route.rt_gateway)
+                ->sin_addr.s_addr = *gatewayd = inet_addr(gateway.c_str());
+                std::cout << "get_gateway_from_file GATEWAY:"
+                          << reinterpret_cast<char *>(&gatewayd)[0]
+                          << ':' << reinterpret_cast<char *>(&gatewayd)[1]
+                          << ':' << reinterpret_cast<char *>(&gatewayd)[2]
+                          << ':' << reinterpret_cast<char *>(&gatewayd)[3]
+                          << ';' << std::endl;
+                ioctl(fd, SIOCADDRT, &route);
+                exit_ok = true;
+            }
+
+            if (exit_ok) {
+                close(fd);
+                return;
+            }
+
+            ifs.close();
+        }
+
+        closedir(subdir);
+        subdir = nullptr;
+        continue;
+    }
+
+    close(fd);
+    closedir(rootdir);
+    return;
 }

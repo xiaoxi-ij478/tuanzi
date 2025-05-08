@@ -3,7 +3,17 @@
 
 #include "global.h"
 
-struct _IPHeader {
+enum ADAPTER_STATUS {
+    ADAPTER_INVALID = -1,
+    ADAPTER_UP = 1,
+    ADAPTER_DOWN,
+    ADAPTER_DISABLE,
+    ADAPTER_ENABLE,
+    ADAPTER_ERROR
+};
+enum ADAPTER_TYPE { ADAPTER_WIRELESS, ADAPTER_WIRED };
+
+struct IPHeader {
     unsigned int version: 4;
     unsigned int ihl: 4;
     unsigned char tos;
@@ -18,7 +28,7 @@ struct _IPHeader {
     unsigned int dstaddr;
 } __attribute__((packed));
 
-struct _TCPHeader {
+struct TCPHeader {
     unsigned short srcport;
     unsigned short dstport;
     unsigned int seq;
@@ -31,7 +41,7 @@ struct _TCPHeader {
     unsigned short urgent_pointer;
 } __attribute__((packed));
 
-struct _TCPPseudoHeader {
+struct TCPPseudoHeader {
     unsigned int srcaddr;
     unsigned int dstaddr;
     unsigned char zero;
@@ -39,9 +49,9 @@ struct _TCPPseudoHeader {
     unsigned short tcp_length;
 } __attribute__((packed));
 
-struct _TCPChecksumHeader {
-    struct _TCPPseudoHeader pseudo_header;
-    struct _TCPHeader header;
+struct TCPChecksumHeader {
+    struct TCPPseudoHeader pseudo_header;
+    struct TCPHeader header;
     unsigned char data[2024];
 } __attribute__((packed));
 
@@ -104,16 +114,24 @@ struct DhclientThreadStruct {
     sem_t *semaphore;
 };
 
+struct NicsStatus {
+    NicsStatus(char *nic_name, bool is_up) : is_up(is_up) {
+        strncpy(this->nic_name, nic_name, sizeof(this->nic_name));
+    }
+    char nic_name[16];
+    bool is_up;
+};
+
 int sockets_open();
 enum ADAPTER_TYPE get_nic_type(const char *ifname);
 unsigned short ComputeTcpPseudoHeaderChecksum(
-    const struct _IPHeader *ipheader,
-    const struct _TCPHeader *tcpheader,
+    const struct IPHeader *ipheader,
+    const struct TCPHeader *tcpheader,
     const unsigned char *databuf,
     int length
 );
 unsigned short ComputeUdpPseudoHeaderChecksumV4(
-    const struct _IPHeader *ipheader,
+    const struct IPHeader *ipheader,
     const struct udp_hdr *udpheader,
     const unsigned char *databuf,
     int length
@@ -122,6 +140,7 @@ unsigned short checksum(unsigned short *data, unsigned int len);
 struct NICINFO *get_nics_info(const char *ifname);
 void free_nics_info(struct NICINFO *info);
 bool get_dns(struct in_addr *dst);
+bool get_alternate_dns(char *dst, int &counts);
 bool get_gateway(struct in_addr *result, const char *ifname);
 unsigned short get_speed_wl(int fd, char *ifname);
 unsigned short get_speed(int fd, char *ifname);
@@ -164,5 +183,6 @@ bool dhclient_asyn(const char *ipaddr, sem_t *semaphore);
 void *dhclient_thread(void *varg);
 void dhclient_exit();
 void disable_enable_nic(const char *ifname);
+void get_all_nics_statu(std::vector<struct NicsStatus> &dest);
 
 #endif // NETUTIL_H_INCLUDED

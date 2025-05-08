@@ -99,10 +99,9 @@
 		<Unit filename="include/saveconfigureinfo.h" />
 		<Unit filename="include/signals.h" />
 		<Unit filename="include/suconfigfile.h" />
+		<Unit filename="include/supf.h" />
 		<Unit filename="include/suradiusprivate.h" />
-		<Unit filename="include/sysutil.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="include/sysutil.h" />
 		<Unit filename="include/threadutil.h" />
 		<Unit filename="include/timeutil.h" />
 		<Unit filename="include/util.h" />
@@ -133,10 +132,9 @@
 		<Unit filename="src/saveconfigureinfo.cpp" />
 		<Unit filename="src/signals.cpp" />
 		<Unit filename="src/suconfigfile.cpp" />
+		<Unit filename="src/supf.cpp" />
 		<Unit filename="src/suradiusprivate.cpp" />
-		<Unit filename="src/sysutil.cpp">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="src/sysutil.cpp" />
 		<Unit filename="src/threadutil.cpp" />
 		<Unit filename="src/timeutil.cpp" />
 		<Unit filename="src/util.cpp" />

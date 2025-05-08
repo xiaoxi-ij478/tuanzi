@@ -24,7 +24,7 @@ void CreateNewMsgFile()
 
 void AddMsgItem(int type, const std::string &msg)
 {
-    std::string msgcopy = msg;
+    std::string msgcopy(msg);
     std::string inifile = g_strAppPath + "systemmsg.ini";
     std::string inikey;
     std::vector<struct tagMsgItem> msgarr;
@@ -75,7 +75,7 @@ void AddMsgItem(int type, const std::string &msg)
 
 void DelMsgItem(int type, const std::string &msg)
 {
-    std::string msgcopy = msg;
+    std::string msgcopy(msg);
     std::string inifile = g_strAppPath + "systemmsg.ini";
     std::string inikey;
     std::vector<struct tagMsgItem> msgarr;

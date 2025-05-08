@@ -1,3 +1,4 @@
+#include "util.h"
 #include "sysutil.h"
 
 [[maybe_unused]] void check_run_ibus()
@@ -30,19 +31,79 @@
     // rj_printf_debug("%s kill ibus by exit,cmd=%s\n", __func__, $(pidof ibus-daemon));
 }
 
-bool check_service_status(const char * /* service_name */)
+[[maybe_unused]] bool check_service_status(const char * /* service_name */)
 {
     // this function is used to check and kill services,
     // so we deliberately not implement it
     // service $service_name status 2>&- | grep pid
+    // || check_service_status2 $service_name
     return false;
 }
 
-bool check_service_status2(const char * /* service_name */)
+[[maybe_unused]] bool check_service_status2(const char * /* service_name */)
 {
     // same as above
-    // systemctl status %s.service 2>&- | awk '{if($1~/Active/) print $2}' |
+    // systemctl status $service_name.service 2>&- | awk '{if($1~/Active/) print $2}' |
     // grep active
     return false;
 }
 
+[[maybe_unused]] bool service_start(const char * /* service_name */)
+{
+    // service $service_name start 2>&-
+    // check_service_status $service_name || service_start2 $service_name
+    return true;
+}
+
+[[maybe_unused]] bool service_start2(const char * /* service_name */)
+{
+    // systemctl start $service_name.service 2>&-
+    return true;
+}
+
+[[maybe_unused]] bool service_stop(const char * /* service_name */)
+{
+    // service $service_name stop 2>&-
+    return true;
+}
+
+[[maybe_unused]] bool service_stop2(const char * /* service_name */)
+{
+    // systemctl stop $service_name.service 2>&-
+    return true;
+}
+
+enum OS_TYPE get_os_type()
+{
+    // the original implementation uses /etc/issue
+    // cat /etc/issue |awk 'NR==1 {print $1}'
+    // we use /etc/os-release
+    // I only use Debian, so code may be inaccurate
+    // If you find any errors, notice me
+    std::ifstream ifs("/etc/os-release");
+    std::vector<std::string> val;
+    std::string line;
+
+    if (!ifs)
+        return OS_INVALID;
+
+    while (std::getline(ifs, line)) {
+        ParseString(line, '=', val);
+
+        if (val[0] == "ID")
+            break;
+    }
+
+    ifs.close();
+
+    if (val[1] == "debian" || val[1] == "ubuntu")
+        return OS_UBUNTU;
+
+    if (val[1] == "fedora")
+        return OS_FEDORA;
+
+    if (val[1] == "centos")
+        return OS_CENTOS;
+
+    return OS_INVALID;
+}
