@@ -64,6 +64,7 @@
 			<Add library="md5" />
 			<Add library="pcap" />
 			<Add library="dl" />
+			<Add library="rt" />
 			<Add directory="../iniparser/bin/$(target_name)" />
 			<Add directory="../tinyxml/bin/$(target_name)" />
 			<Add directory="../d3des/bin/$(target_name)" />
@@ -89,6 +90,7 @@
 		<Unit filename="include/criticalsection.h" />
 		<Unit filename="include/diskutil.h" />
 		<Unit filename="include/dnsquery.h" />
+		<Unit filename="include/downloadthread.h" />
 		<Unit filename="include/encodeutil.h" />
 		<Unit filename="include/encryption.h" />
 		<Unit filename="include/fileutil.h" />
@@ -126,6 +128,7 @@
 		<Unit filename="src/criticalsection.cpp" />
 		<Unit filename="src/diskutil.cpp" />
 		<Unit filename="src/dnsquery.cpp" />
+		<Unit filename="src/downloadthread.cpp" />
 		<Unit filename="src/encodeutil.cpp" />
 		<Unit filename="src/encryption.cpp" />
 		<Unit filename="src/fileutil.cpp" />

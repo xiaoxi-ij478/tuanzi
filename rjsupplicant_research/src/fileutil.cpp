@@ -102,5 +102,5 @@ bool decompressFile(const char *cfilename, const char *cdestdir)
 
 bool isFileExist(const char *filename)
 {
-    return !access(filename,F_OK);
+    return !access(filename, F_OK);
 }

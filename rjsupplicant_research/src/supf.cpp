@@ -59,5 +59,4 @@ const char *getSupfStateText(enum SupfState state)
         default:
             return "";
     }
-
 }

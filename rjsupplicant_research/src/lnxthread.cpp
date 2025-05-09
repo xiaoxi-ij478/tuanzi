@@ -165,7 +165,7 @@ timer_t CLnxThread::SetTimer(int tflag, int off_msec)
 
     timer = new struct TIMERPARAM;
     sev.sigev_notify = SIGEV_THREAD;
-    sev.sigev_notify_function = &CLnxThread::_OnTimerEntry;
+    sev.sigev_notify_function = &_OnTimerEntry;
     sev.sigev_value.sival_ptr = timer;
     timer->calling_thread = me;
     timer->tflag = tflag;

@@ -273,8 +273,8 @@ bool CSuConfigFile::WritePrivateProfileString(
     assert(is_open);
     dictionary *ini = nullptr;
     std::string cfgpath;
-    std::string dkey (domain);
-    std::string tmpval  (val);
+    std::string dkey(domain);
+    std::string tmpval(val);
     FILE *fp = nullptr;
     dkey.append(":").append(key);
     TakeAppPath(cfgpath);

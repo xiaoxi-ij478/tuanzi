@@ -111,7 +111,7 @@ int getdiskid(char *buf, int buflen)
     }
 
     while (std::getline(ifs, line)) {
-        ParseString(line, ' ',val);
+        ParseString(line, ' ', val);
 
         if (val[1] == "/")
             break;
@@ -140,9 +140,9 @@ int getdiskid(char *buf, int buflen)
     pos = 0;
 
     while (
-           serialid.serial_no[++pos] == ' ' &&
-           pos < strlen(reinterpret_cast<char *>(serialid.serial_no))
-        );
+        serialid.serial_no[++pos] == ' ' &&
+        pos < strlen(reinterpret_cast<char *>(serialid.serial_no))
+    );
 
     pos -= pos & 1;
 

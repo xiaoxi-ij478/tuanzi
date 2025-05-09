@@ -52,7 +52,7 @@ bool CChangeLanguage::InitLanguage()
 //
 //        trans_id_str = s.substr(0, equal_pos);
 //        trans_str = s.substr(equal_pos + 1);
-        ParseString(line, '=',val);
+        ParseString(line, '=', val);
         trans_id_str = std::move(val[0]);
         trans_str = std::move(val[1]);
 

@@ -40,6 +40,7 @@
 #include <scsi/sg.h>
 #include <semaphore.h>
 #include <sys/ioctl.h>
+#include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/select.h>
 #include <sys/sem.h>

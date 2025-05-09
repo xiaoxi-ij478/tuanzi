@@ -25,7 +25,7 @@ void ChangeSelfSvrParam(void *);
 [[maybe_unused]] bool EncryptSuConfig(); // this is not working
 // it would not be used anyway...
 [[maybe_unused]] void exec_cmd(const char *cmd, char *buf, int buflen);
-[[maybe_unused]] float get_fedora_lib_version(const char *pkgname);
+[[maybe_unused]] float get_fedora_lib_version(const char * /* pkgname */);
 unsigned int addStringOnLineHead(
     const char *in_filename,
     const char *out_filename,

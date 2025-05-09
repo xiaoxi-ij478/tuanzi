@@ -10,11 +10,14 @@ struct CHostEnt {
     long last_update_time;
 };
 
-struct DNSQueryStruct
-{
-int mtype;
-char buf[1016];
+struct DNSQueryStruct {
+    int mtype;
+    char buf[1024];
 };
+
+#define DNSQueryStruct_MSGSZ (\
+    sizeof(struct DNSQueryStruct) - offsetof(struct DNSQueryStruct, buf)\
+)
 
 class CDNSQuery
 {
@@ -34,6 +37,7 @@ class CDNSQuery
         static bool running; // m_bRunning
         static int msgid; // m_msgid
         static int timeout; // m_timeOut; seems to like TTL
+        static pthread_t thread_key; // m_thread
         static pthread_mutex_t mutex_list; // m_mutex_list
         static struct CHostEnt *hostent_list_hdr; // m_hostEntListHdr
 };

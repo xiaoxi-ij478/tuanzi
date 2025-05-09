@@ -136,7 +136,7 @@ int WaitForSingleObject(
 //                if (++j == event_count)
 //                    do
 //                        if (no_obj_waittime <= GetTickCount() - TickCount) {
-//                            delete []wait_flags;
+//                            delete[] wait_flags;
 //                            return 110;
 //                        }
 //
@@ -192,7 +192,7 @@ int WaitForSingleObject(
 //            }
 //        }
 //
-//        delete []wait_flags;
+//        delete[] wait_flags;
 //    }
 //
 //    return wait_result;
@@ -293,7 +293,7 @@ bool GPostThreadMessage(
         return false;
     }
 
-    ret = msgsnd(msqid, &msg, LNXMSG_MSGSZ, 2048);
+    ret = msgsnd(msqid, &msg, LNXMSG_MSGSZ, IPC_NOWAIT);
 
     if (ret == -1)
         rj_printf_debug("msgsnd Error:%s\n", strerror(errno));

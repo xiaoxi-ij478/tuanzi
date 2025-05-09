@@ -13,7 +13,6 @@ class CRITICAL_SECTION
         friend inline unsigned int EnterCriticalSection(CRITICAL_SECTION *lock);
         friend inline unsigned int InitializeCriticalSection(CRITICAL_SECTION *lock);
         friend inline unsigned int LeaveCriticalSection(CRITICAL_SECTION *lock);
-    protected:
 
     private:
         pthread_mutex_t pthread_mutex;

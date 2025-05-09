@@ -64,7 +64,7 @@ int ConvertUtf8ToGBK(
     char *outb = new char[4 * inbytesleft];
     u2g(inbuf, inbytesleft, outb, 3 * inbytesleft);
     outbuf.assign(outb, 4 * inbytesleft);
-    delete []outb;
+    delete[] outb;
     outb = nullptr;
     return outbuf.length();
 }

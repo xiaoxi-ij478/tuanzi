@@ -228,7 +228,7 @@ void ChangeSelfSvrParam(void *)
     pclose(fp);
 }
 
-[[maybe_unused]] float get_fedora_lib_version(const char *pkgname)
+[[maybe_unused]] float get_fedora_lib_version(const char * /* pkgname */)
 {
     // I'm a Debian fan, so I don't know how to use yum
     // yum list installed |grep $pkgname |awk 'NR==1 {print $2}'
@@ -255,7 +255,7 @@ unsigned int addStringOnLineHead(
 
     while (std::getline(ifs, line)) {
         if (line.find(add_line_contain) != std::string::npos) {
-            line.insert(0, line);
+            line.insert(0, add_string);
             modified_line++;
         }
 

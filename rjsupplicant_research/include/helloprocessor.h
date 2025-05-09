@@ -1,7 +1,6 @@
 #ifndef HELLOPROCESSOR_H
 #define HELLOPROCESSOR_H
 
-
 class CHelloProcessor
 {
     public:
