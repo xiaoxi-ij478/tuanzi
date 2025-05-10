@@ -7,7 +7,7 @@ class CHelloThread : public CLnxThread
 {
     public:
         CHelloThread();
-        virtual ~CHelloThread();
+        virtual ~CHelloThread() override;
 
     protected:
 

@@ -1,7 +1,6 @@
 #ifndef LNXTHREAD_H
 #define LNXTHREAD_H
 
-
 #include "waithandle.h"
 
 #define STOP_THREAD_MTYPE 0x456

@@ -89,7 +89,8 @@ bool CLnxThread::PostThreadMessage(long mtype, void *buf, unsigned long buflen)
         return false;
     }
 
-    if (msgsnd(msgid, &msg, LNXMSG_MSGSZ, IPC_NOWAIT) == -1) {
+    if (msgsnd(msgid, &msg, LNXMSG_MSGSZ, IPC_NOWAIT) == -1)
+    {
         g_logSystem.AppendText(
             "%s msgsnd %d Error:%s",
             classname, mtype, strerror(errno)

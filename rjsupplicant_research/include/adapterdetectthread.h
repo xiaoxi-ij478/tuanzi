@@ -40,6 +40,8 @@ class CAdapterDetectThread : public CLnxThread
 {
     public:
         CAdapterDetectThread();
+        virtual ~CAdapterDetectThread() override;
+
         bool StartDetect(
             const char *nic_name,
             const unsigned char macaddr[6],

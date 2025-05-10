@@ -24,6 +24,7 @@ extern int g_rwpipe[2];
 extern timer_t g_runModetimer;
 [[maybe_unused]] extern bool g_bDoRunIbus;
 
+#ifdef USE_EXTERNAL_LIBRT
 extern int (*my_timer_create)(
     clockid_t clockid,
     struct sigevent *sevp,
@@ -41,6 +42,13 @@ extern int (*my_timer_settime)(
 );
 extern int (*my_timer_delete)(timer_t timerid);
 extern int (*my_timer_getoverrun)(timer_t timerid);
+#else
+#define my_timer_gettime    timer_gettime
+#define my_timer_create     timer_create
+#define my_timer_settime    timer_settime
+#define my_timer_delete     timer_delete
+#define my_timer_getoverrun timer_getoverrun
+#endif // USE_EXTERNAL_LIBRT
 
 
 extern CLogFile logFile;

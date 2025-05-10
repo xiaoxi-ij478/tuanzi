@@ -55,7 +55,9 @@ bool XML_PARSER::Add_FirstChildElement(const char *name)
 
     if (currentElement->FirstChildElement()) {
         if (!(newNode = currentElement->InsertBeforeChild(
-                            currentElement->FirstChildElement(), el)))
+                            currentElement->FirstChildElement(),
+                            el
+                        )))
             return true;
 
     } else if (!(newNode = currentElement->InsertEndChild(el)))

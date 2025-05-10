@@ -144,12 +144,6 @@ struct NICINFO *get_nics_info(const char *ifname)
 
 //        swap32(reinterpret_cast<unsigned char *>(&dns_addr.s_addr));
 
-    if (!ifap) {
-        /* freeifaddrs(ifap); */ /* ???? */
-        close(fd);
-        return nullptr;
-    }
-
     for (struct ifaddrs *cur_if = ifap; cur_if; cur_if = cur_if->ifa_next) {
         interface_added = false;
 
@@ -706,6 +700,7 @@ bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only)
         return false;
 
     if (getifaddrs(&ifap) == -1 || !ifap) {
+        freeifaddrs(ifap);
         close(fd);
         return false;
     }
@@ -754,6 +749,7 @@ bool get_nic_speed(char *dst, const char *ifname)
         return false;
 
     if (getifaddrs(&ifap) == -1 || !ifap) {
+        freeifaddrs(ifap);
         close(fd);
         return false;
     }
@@ -1022,7 +1018,8 @@ void get_all_nics_statu(std::vector<struct NicsStatus> &dest)
     if (fd == -1)
         return;
 
-    if (getifaddrs(&ifap) == -1) {
+    if (getifaddrs(&ifap) == -1 || !ifap) {
+        freeifaddrs(ifap);
         close(fd);
         return;
     }

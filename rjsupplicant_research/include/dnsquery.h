@@ -16,8 +16,8 @@ struct DNSQueryStruct {
 };
 
 #define DNSQueryStruct_MSGSZ (\
-    sizeof(struct DNSQueryStruct) - offsetof(struct DNSQueryStruct, buf)\
-)
+                              sizeof(struct DNSQueryStruct) - offsetof(struct DNSQueryStruct, buf)\
+                             )
 
 class CDNSQuery
 {

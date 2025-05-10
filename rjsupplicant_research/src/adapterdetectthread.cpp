@@ -21,6 +21,9 @@ CAdapterDetectThread::CAdapterDetectThread() :
     SetClassName("CAdapterDetectThread");
 }
 
+CAdapterDetectThread::~CAdapterDetectThread()
+{}
+
 bool CAdapterDetectThread::StartDetect(
     const char *nic_name,
     const unsigned char macaddr[6],

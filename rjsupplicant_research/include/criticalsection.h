@@ -9,10 +9,22 @@ class CRITICAL_SECTION
     public:
         CRITICAL_SECTION();
         ~CRITICAL_SECTION();
-        friend inline unsigned int DeleteCriticalSection(CRITICAL_SECTION *lock);
-        friend inline unsigned int EnterCriticalSection(CRITICAL_SECTION *lock);
-        friend inline unsigned int InitializeCriticalSection(CRITICAL_SECTION *lock);
-        friend inline unsigned int LeaveCriticalSection(CRITICAL_SECTION *lock);
+
+        friend unsigned int DeleteCriticalSection(CRITICAL_SECTION *lock) {
+            return lock->Delete();
+        }
+
+        friend unsigned int EnterCriticalSection(CRITICAL_SECTION *lock) {
+            return lock->enter();
+        }
+
+        friend unsigned int InitializeCriticalSection(CRITICAL_SECTION *lock) {
+            return lock->init();
+        }
+
+        friend unsigned int LeaveCriticalSection(CRITICAL_SECTION *lock) {
+            return lock->leave();
+        }
 
     private:
         pthread_mutex_t pthread_mutex;
@@ -24,24 +36,5 @@ class CRITICAL_SECTION
         unsigned int leave();
 };
 
-inline unsigned int DeleteCriticalSection(CRITICAL_SECTION *lock)
-{
-    return lock->Delete();
-}
-
-inline unsigned int EnterCriticalSection(CRITICAL_SECTION *lock)
-{
-    return lock->enter();
-}
-
-inline unsigned int InitializeCriticalSection(CRITICAL_SECTION *lock)
-{
-    return lock->init();
-}
-
-inline unsigned int LeaveCriticalSection(CRITICAL_SECTION *lock)
-{
-    return lock->leave();
-}
 
 #endif // CRITICAL_SECTION_H

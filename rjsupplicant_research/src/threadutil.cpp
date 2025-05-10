@@ -273,8 +273,11 @@ bool PostThreadMessage(
 )
 {
     int msqid = msgget(thread_key, 0666);
-    g_logFile_start.AppendText("::PostThreadMessage idThread = %d,Msg=%d",
-                               thread_key, mtype);
+    g_logFile_start.AppendText(
+        "::PostThreadMessage idThread = %d,Msg=%d",
+        thread_key,
+        mtype
+    );
     return msqid >= 0 ? GPostThreadMessage(msqid, mtype, buf, buflen) : false;
 }
 

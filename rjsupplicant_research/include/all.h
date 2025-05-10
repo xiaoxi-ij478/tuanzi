@@ -39,6 +39,7 @@
 #include <scsi/scsi.h>
 #include <scsi/sg.h>
 #include <semaphore.h>
+#include <strings.h>
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
