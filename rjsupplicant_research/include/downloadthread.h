@@ -96,43 +96,47 @@ class CDownLoadThread : public CLnxThread
             FILE *socket_file,
             char *recv_buf
         );
-        int get_local_filename(char *server_path, char *suffix, char *filename);
+        int get_local_filename(
+            const char *server_path,
+            const char *suffix,
+            char *filename
+        );
         int get_local_path(const char *default_path, char *final_path);
         int get_remote_file(
-            char *domain,
+            const char *domain,
             unsigned int port,
-            char *server_path,
-            char *default_path,
-            char *suffix
+            const char *server_path,
+            const char *default_path,
+            const char *suffix
         );
-        int get_surfix(char *filename, char *suffix);
+        int get_surfix(const char *filename, char *suffix);
         enum URL_KIND get_url_kind(const char *url);
         void http_del_blank(char *str);
         int http_download(
-            char *url,
-            char *default_path,
-            char *suffix,
+            const char *url,
+            const char *default_path,
+            const char *suffix,
             char *domain,
             char *path,
             unsigned int *port
         );
         int http_parse_response_head(
-            char *header,
+            const char *header,
             unsigned long *length
         );
         int http_parse_url(
-            char *url,
+            const char *url,
             char *domain,
             char *path,
             unsigned int *port
         );
         int http_send(
             int *fd,
-            char *domain,
+            const char *domain,
             unsigned int port,
-            char *path
+            const char *path
         );
-        int is_exist_dir(char *dir);
+        int is_exist_dir(const char *dir);
 //        int my_strnicmp(const char *src, const char *dst, int len);
         void set_nport(struct len_and_sockaddr *addr, unsigned int port);
         struct len_and_sockaddr *str2sockaddr(

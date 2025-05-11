@@ -100,7 +100,7 @@ int main(int argc, char **argv)
                 break;
 
             case 'd':
-                dhcp_mode = static_cast<enum DHCP_MODE>(strtol(optarg,nullptr,10));
+                dhcp_mode = static_cast<enum DHCP_MODE>(strtol(optarg, nullptr, 10));
 
                 if (dhcp_mode == DHCP_LOCAL || dhcp_mode == DHCP_SERVER)
                     continue;

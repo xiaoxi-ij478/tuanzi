@@ -749,7 +749,7 @@ void RcvStartAuthNotification()
 
 bool convertInt(const char *str, int &result)
 {
-    result = strtol(str,nullptr,10);
+    result = strtol(str, nullptr, 10);
     return true;
 }
 

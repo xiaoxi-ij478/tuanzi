@@ -47,7 +47,7 @@ static void copy_hostent(struct hostent *src, struct hostent *dst)
             *saddr;
             saddr++, daddr++
         )
-            strcpy(*daddr = new char[strlen(*saddr) + 1], *saddr);
+            memcpy(*daddr = new char[src->h_length], *saddr, src->h_length);
     }
 
     dst->h_addr_list[addr_count] = nullptr;
