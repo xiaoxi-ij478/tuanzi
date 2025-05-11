@@ -120,7 +120,7 @@ int CDownLoadThread::ftp_get_len(char *reply, unsigned long *length)
 
     strncpy(buf, sizepos + 4, sizeof(buf));
     http_del_blank(buf);
-    return atoi(buf);
+    *length = strtoul(buf, nullptr, 10);
 }
 
 FILE *CDownLoadThread::ftp_login(struct ftp_host_info_s *hostinfo)
@@ -188,7 +188,7 @@ int CDownLoadThread::ftp_parse_url(
 
         if ((port_begin = strchr(domain_begin, ':'))) {
             *port_begin++ = 0;
-            *port = atoi(port_begin);
+            *port = strtol(port_begin, nullptr, 10);
 
             if (*port > 65535)
                 return -1;
@@ -201,7 +201,7 @@ int CDownLoadThread::ftp_parse_url(
     } else {
         if ((port_begin = strchr(tmp_domain, ':'))) {
             *port_begin++ = 0;
-            *port = atoi(port_begin);
+            *port = strtol(port_begin, nullptr, 10);
 
             if (*port > 65535)
                 return -1;
@@ -224,20 +224,75 @@ int CDownLoadThread::ftp_receive(
     const char *suffix
 )
 {
-    char pasv_reply[2048] = { 0 };
+    char reply[264] = { 0 };
+    char save_path[2048] = { 0 };
+    char dir[2048]={ 0 };
+    char filename[2048]={ 0 };
+    char *new_save_path = nullptr;
+    int fd = 0;
+    int ret = 0;
+    unsigned long file_size = 0;
+#define FAIL_QUIT(error) \
+    do { \
+        if (!dl_para.thread_key) { \
+            if (error) \
+                return -1; \
+            \
+            ftpcmd("QUIT", nullptr, socket_file, reply); \
+            \
+            if (fd) \
+                close(fd); \
+            \
+            return 0; \
+        } \
+        \
+        if (error) { \
+            ::PostThreadMessage(dl_para.thread_key, dl_para.mtype, nullptr, error); \
+            return -1; \
+        } \
+        \
+        new_save_path = new char[strlen(save_path) + 1]; \
+        strcpy(new_save_path, save_path); \
+        \
+        if (!::PostThreadMessage(dl_para.thread_key, dl_para.mtype, new_save_path, 0)) \
+            delete[] new_save_path; \
+        \
+        ftpcmd("QUIT", nullptr, socket_file, reply); \
+        \
+        if (fd) \
+            close(fd); \
+        \
+        return 0; \
+    } while (0)
 
-    if (!server_path) {
-        if (!dl_para.thread_key)
-            return -1;
+    if (!server_path ||
+            !ftpcmd("PASV", nullptr, socket_file, reply) ||
+            ((fd = xconnect_ftpdata(ftp_info, reply) == -1)))
+        FAIL_QUIT(DOWNLOAD_ERROR_4);
 
-        ::PostThreadMessage(
-            dl_para.thread_key
-            dl_para.mtype,
-            nullptr,
-            DOWNLOAD_ERROR_4
-        );
-        return -1;
+    if (ftpcmd("SIZE", server_path, socket_file, reply) != 213 ||
+            ftp_get_len(reply, &file_size) == -1 ||
+            ret(ftpcmd("RETR", server_path, socket_file, reply)) != 125 &&
+            ret != 150
+       )
+        FAIL_QUIT(DOWNLOAD_ERROR_5);
+
+    if (default_path && strlen(default_path) >= 2048 ||
+            suffix && strlen(suffix) >= 2048) {
+        rj_printf_debug("local path or name file is too long\n");
+        FAIL_QUIT(DOWNLOAD_ERROR_9);
     }
+if(get_local_path(default_path,dir)==-1||get_local_filename(server_path,suffix,filename))
+{
+
+        FAIL_QUIT(DOWNLOAD_ERROR_8);
+}
+if(strlen(dir)+strlen(filename)>=2048)
+{
+        rj_printf_debug("path + name is too long\n");
+        FAIL_QUIT(DOWNLOAD_ERROR_9);
+}
+#undef FAIL_QUIT
 }
 
 int CDownLoadThread::ftpcmd(
@@ -263,7 +318,7 @@ int CDownLoadThread::ftpcmd(
 
         if (*recv_buf >= '0' && *recv_buf <= '9' && recv_buf[3] == ' ') {
             recv_buf[3] = 0;
-            result = atoi(recv_buf);
+            result = strtol(recv_buf, nullptr, 10);
             recv_buf[3] = ' ';
             return result;
         }
@@ -280,7 +335,10 @@ int CDownLoadThread::get_local_filename(
 {
 }
 
-int CDownLoadThread::get_local_path(const char *default_path, char *final_path)
+int CDownLoadThread::get_local_path(
+    const char *default_path,
+    char *final_path
+)
 {
 }
 
@@ -298,7 +356,6 @@ int CDownLoadThread::get_surfix(char *filename, char *suffix)
 {
 }
 
-
 enum URL_KIND CDownLoadThread::get_url_kind(const char *url)
 {
     if (!url || strlen(url) > 2048)
@@ -312,7 +369,6 @@ enum URL_KIND CDownLoadThread::get_url_kind(const char *url)
 
     return URL_OTHER;
 }
-
 void CDownLoadThread::http_del_blank(char *str)
 {
     char *ptr = str;
@@ -417,7 +473,7 @@ int CDownLoadThread::xconnect_ftpdata(
         return -1;
     }
 
-    if ((ptmp = atoi(tmp)) < 0 || ptmp > 255) {
+    if ((ptmp = strtol(tmp, nullptr, 10)) < 0 || ptmp > 255) {
         rj_printf_debug("pasv tras num failed\n");
         return -1;
     }
@@ -432,7 +488,7 @@ int CDownLoadThread::xconnect_ftpdata(
         return -1;
     }
 
-    if ((ptmp = atoi(tmp)) < 0 || ptmp > 255) {
+    if ((ptmp = strtol(tmp, nullptr, 10)) < 0 || ptmp > 255) {
         rj_printf_debug("pasv tras num failed\n");
         return -1;
     }

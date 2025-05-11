@@ -38,7 +38,7 @@ bool checkorexitrjsu(bool kill_task, bool force_kill)
         ) // not a directory or is not a PID
             continue;
 
-        int pid = atoi(dent->d_name);
+        int pid = strtol(dent->d_name,nullptr,10);
         ifs.open(std::string("/proc/").append(dent->d_name).append("/cmdline"));
 
         if (!ifs)
@@ -85,7 +85,7 @@ void killProcess(const char *proc)
         ) // not a directory or is not a PID
             continue;
 
-        int pid = atoi(dent->d_name);
+        int pid = strtol(dent->d_name,nullptr,10);
         ifs.open(std::string("/proc/").append(dent->d_name).append("/cmdline"));
 
         if (!ifs)
@@ -125,7 +125,7 @@ int get_pid_byname(const char *proc)
         ) // not a directory or is not a PID
             continue;
 
-        int pid = atoi(dent->d_name);
+        int pid = strtol(dent->d_name,nullptr,10);
         ifs.open(std::string("/proc/").append(dent->d_name).append("/cmdline"));
 
         if (!ifs)

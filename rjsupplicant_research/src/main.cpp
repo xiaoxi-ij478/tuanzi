@@ -72,21 +72,23 @@ int main(int argc, char **argv)
                 break;
 
             case 'S':
-                save_password_tmp = atoi(optarg);
+                save_password_tmp = strtol(optarg, nullptr, 10);
 
                 if (save_password_tmp == 0 || save_password_tmp == 1) {
                     save_password = save_password_tmp;
                     continue;
                 }
 
-                snprintf(option_parse_error_str, sizeof(option_parse_error_str),
-                         cinstance.LoadString(2028).c_str(), 'S',
-                         optarg);
+                snprintf(
+                    option_parse_error_str, sizeof(option_parse_error_str),
+                    cinstance.LoadString(2028).c_str(), 'S',
+                    optarg
+                );
                 option_parse_error = true;
                 break;
 
             case 'a':
-                auth_method = static_cast<enum AUTH_MODE>(atoi(optarg));
+                auth_method = static_cast<enum AUTH_MODE>(strtol(optarg, nullptr, 10));
 
                 if (auth_method == AUTH_WIRED || auth_method == AUTH_WIRELESS)
                     continue;
@@ -98,7 +100,7 @@ int main(int argc, char **argv)
                 break;
 
             case 'd':
-                dhcp_mode = static_cast<enum DHCP_MODE>(atoi(optarg));
+                dhcp_mode = static_cast<enum DHCP_MODE>(strtol(optarg,nullptr,10));
 
                 if (dhcp_mode == DHCP_LOCAL || dhcp_mode == DHCP_SERVER)
                     continue;

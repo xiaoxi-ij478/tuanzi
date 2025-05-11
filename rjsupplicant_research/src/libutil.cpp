@@ -2,7 +2,7 @@
 #include "libutil.h"
 
 #ifdef USE_EXTERNAL_LIBRT
-    static void *librt_handle = nullptr; /* orig name: librt */
+static void *librt_handle = nullptr; /* orig name: librt */
 #endif // USE_EXTERNAL_LIBRT
 
 // the return value is its FAILURE value
@@ -38,6 +38,7 @@ int load_librt()
     LOAD_SYMBOL(timer_delete);
     LOAD_SYMBOL(timer_gettime);
     LOAD_SYMBOL(timer_getoverrun);
+#undef LOAD_SYMBOL
 #endif // USE_EXTERNAL_LIBRT
     return 0;
 }
@@ -59,8 +60,8 @@ bool check_glibc_version()
 {
 #ifdef __GLIBC__
     const char *libc_version = gnu_get_libc_version();
-    unsigned int major = atoi(libc_version);
-    unsigned int minor = atoi(strchr(libc_version, '.'));
+    unsigned int major = strtol(libc_version,nullptr,10);
+    unsigned int minor = strtol(strchr(libc_version, '.'),nullptr,10);
     return major < 2 && minor >= 7;
 #else
     return false;
