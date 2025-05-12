@@ -3,10 +3,10 @@
 XML_PARSER::XML_PARSER() :
     TiXmlDocument(),
     currentElement(nullptr)
-{}
+{ }
 
 XML_PARSER::~XML_PARSER()
-{}
+{ }
 
 bool XML_PARSER::Add_ElementAfter(const char *name)
 {

@@ -45,7 +45,7 @@ int main(int argc, char **argv)
         { "ssid", 1, nullptr, 'I' }, { "wlan", 0, nullptr, 'w' }, { "service", 1, nullptr, 's' },
         { "user", 1, nullptr, 'u' }, { "password", 1, nullptr, 'p' }, { "save", 1, nullptr, 'S' },
         { "quit", 0, nullptr, 'q' }, { "list", 0, nullptr, 'l' }, { "help", 0, nullptr, 'h' },
-        { "version", 0, nullptr, 'v' }, {  }
+        { "version", 0, nullptr, 'v' }, { }
     };
     iniparser_set_error_callback(iniparser_error_callback);
     setAppEnvironment();

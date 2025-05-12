@@ -10,10 +10,10 @@ CDownLoadThread::CDownLoadThread() :
     down_para_set(false),
     update_progress_dialog(false),
     read_only_once(false)
-{}
+{ }
 
 CDownLoadThread::~CDownLoadThread()
-{}
+{ }
 
 void CDownLoadThread::SetDlPara(struct tagDownLoadPara &para)
 {
@@ -170,8 +170,8 @@ int CDownLoadThread::ftp_parse_url(
     char *domain_begin = nullptr;
     char *password_begin = nullptr;
     char *port_begin = nullptr;
-    char tmp_url[2048] = { 0 };
-    char tmp_domain[2048] = { 0 };
+    char url_copy[2048] = { 0 };
+    char domain_copy[2048] = { 0 };
     *port = 21;
     *password = 0;
     strcpy(username, "anonymous");
@@ -182,26 +182,26 @@ int CDownLoadThread::ftp_parse_url(
     if (strncasecmp(url, "ftp://", 6))
         return -1;
 
-    strcpy(tmp_url, url + 6);
+    strcpy(url_copy, url + 6);
 
-    if ((path_begin = strchr(tmp_url, '/'))) {
+    if ((path_begin = strchr(url_copy, '/'))) {
         *path_begin++ = 0;
         strcpy(path, path_begin);
     }
 
-    strcpy(tmp_domain, tmp_url);
+    strcpy(domain_copy, url_copy);
 
-    if ((domain_begin = strchr(tmp_domain, '@'))) {
+    if ((domain_begin = strchr(domain_copy, '@'))) {
         *domain_begin++ = 0;
 
-        if ((password_begin = strchr(tmp_domain, ':'))) {
+        if ((password_begin = strchr(domain_copy, ':'))) {
             *password_begin++ = 0;
             strcpy(password, password_begin);
 
         } else
             *password = 0;
 
-        strcpy(username, tmp_domain);
+        strcpy(username, domain_copy);
 
         if ((port_begin = strchr(domain_begin, ':'))) {
             *port_begin++ = 0;
@@ -214,7 +214,7 @@ int CDownLoadThread::ftp_parse_url(
         strcpy(domain, domain_begin);
 
     } else {
-        if ((port_begin = strchr(tmp_domain, ':'))) {
+        if ((port_begin = strchr(domain_copy, ':'))) {
             *port_begin++ = 0;
             *port = strtol(port_begin, nullptr, 10);
 
@@ -222,7 +222,7 @@ int CDownLoadThread::ftp_parse_url(
                 return -1;
         }
 
-        strcpy(domain, tmp_domain);
+        strcpy(domain, domain_copy);
     }
 
     return 0;
@@ -243,7 +243,6 @@ int CDownLoadThread::ftp_receive(
     char *new_save_path = nullptr;
     int socket_fd = 0;
     int file_fd = 0;
-    int tmpret = 0;
     enum DOWNLOAD_STATUS ret = DOWNLOAD_OK;
     long read_byte = 0;
     unsigned long total_read_byte = 0;
@@ -256,13 +255,22 @@ int CDownLoadThread::ftp_receive(
         goto quit;
     }
 
-    if (ftpcmd("SIZE", server_path, socket_file, reply) != 213 ||
-            ftp_get_len(reply, &file_size) == -1 ||
-            ((tmpret = ftpcmd("RETR", server_path, socket_file, reply)) != 125 &&
-             tmpret != 150)
-       ) {
+    if (
+        ftpcmd("SIZE", server_path, socket_file, reply) != 213 ||
+        ftp_get_len(reply, &file_size) == -1
+    ) {
         ret = DOWNLOAD_ERROR_5;
         goto quit;
+    }
+
+    switch (ftpcmd("RETR", server_path, socket_file, reply)) {
+        case 125:
+        case 150:
+            break;
+
+        default:
+            ret = DOWNLOAD_ERROR_5;
+            goto quit;
     }
 
     if ((default_path && strlen(default_path) >= sizeof(dir)) ||
@@ -622,6 +630,7 @@ int CDownLoadThread::get_remote_file(
 
         FD_ZERO(&listen_fd);
         FD_SET(socket_fd, &listen_fd);
+        listen_timeout = { 20, 0 };
 
         if (select(
                     socket_fd + 1,
@@ -635,10 +644,7 @@ int CDownLoadThread::get_remote_file(
             goto error_quit;
         }
 
-        if ((read_byte = read(socket_fd, buf, sizeof(buf))) == -1) {
-            ret = DOWNLOAD_ERROR_2;
-            goto error_quit;
-        }
+        read_byte = read(socket_fd, buf, sizeof(buf));
 
         if (!read_byte || read_byte == -1) {
             ret = DOWNLOAD_ERROR_5;
@@ -781,8 +787,8 @@ int CDownLoadThread::http_parse_url(
 {
     char *path_begin = nullptr;
     char *port_begin = nullptr;
-    char tmp_url[2048] = { 0 };
-    char tmp_domain[2048] = { 0 };
+    char url_copy[2048] = { 0 };
+    char domain_copy[2048] = { 0 };
     *port = 80;
 
     if (strlen(url) <= 7)
@@ -791,21 +797,21 @@ int CDownLoadThread::http_parse_url(
     if (strncasecmp(url, "http://", 7))
         return -1;
 
-    strcpy(tmp_url, url + 7);
+    strcpy(url_copy, url + 7);
 
-    if ((path_begin = strchr(tmp_url, '/'))) {
+    if ((path_begin = strchr(url_copy, '/'))) {
         *path_begin++ = 0;
         strcpy(path, path_begin);
     }
 
-    strcpy(tmp_domain, tmp_url);
+    strcpy(domain_copy, url_copy);
 
-    if ((port_begin = strchr(tmp_domain, ':'))) {
+    if ((port_begin = strchr(domain_copy, ':'))) {
         *port_begin++ = 0;
         *port = strtol(port_begin, nullptr, 10);
     }
 
-    strcpy(domain, tmp_domain);
+    strcpy(domain, domain_copy);
     return 0;
 }
 
@@ -959,6 +965,6 @@ int CDownLoadThread::xconnect_ftpdata(
     }
 
     port |= ptmp;
-    set_nport(hostinfo->addr, port);
+    set_nport(hostinfo->addr, htons(port));
     return xconnect_stream(hostinfo->addr);
 }

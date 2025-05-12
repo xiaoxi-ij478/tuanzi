@@ -97,6 +97,7 @@
 		<Unit filename="include/global.h" />
 		<Unit filename="include/helloprocessor.h" />
 		<Unit filename="include/hellothread.h" />
+		<Unit filename="include/httpconnection.h" />
 		<Unit filename="include/libutil.h" />
 		<Unit filename="include/lnxthread.h" />
 		<Unit filename="include/logfile.h" />
@@ -135,6 +136,7 @@
 		<Unit filename="src/global.cpp" />
 		<Unit filename="src/helloprocessor.cpp" />
 		<Unit filename="src/hellothread.cpp" />
+		<Unit filename="src/httpconnection.cpp" />
 		<Unit filename="src/libutil.cpp" />
 		<Unit filename="src/lnxthread.cpp" />
 		<Unit filename="src/logfile.cpp" />

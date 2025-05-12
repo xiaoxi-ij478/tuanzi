@@ -7,7 +7,7 @@ std::string CChangeLanguage::translate_filename;
 CChangeLanguage::CChangeLanguage() :
     lang_inited(false),
     language_id(LANG_INVALID)
-{}
+{ }
 
 CChangeLanguage &CChangeLanguage::Instance()
 {

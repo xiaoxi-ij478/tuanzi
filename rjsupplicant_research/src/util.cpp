@@ -116,10 +116,10 @@ void ChangeSelfSvrParam(void *)
 }
 
 [[maybe_unused]] void CoInitialize()
-{}
+{ }
 
 [[maybe_unused]] void CoUnInitialize(unsigned int)
-{}
+{ }
 
 [[maybe_unused]] std::string DWordToString(unsigned int a)
 {
@@ -326,7 +326,7 @@ int FindSub(
 }
 
 [[maybe_unused]] void GOnTimer(union sigval)
-{}
+{ }
 
 void GSNRecvPacter(unsigned char *, int)
 {

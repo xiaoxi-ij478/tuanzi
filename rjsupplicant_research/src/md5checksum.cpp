@@ -6,7 +6,7 @@ CMD5Checksum::CMD5Checksum()
 }
 
 CMD5Checksum::~CMD5Checksum()
-{}
+{ }
 
 void CMD5Checksum::Update(unsigned char *buf, unsigned int buflen)
 {

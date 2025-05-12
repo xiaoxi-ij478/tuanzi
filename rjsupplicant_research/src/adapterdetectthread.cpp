@@ -22,7 +22,7 @@ CAdapterDetectThread::CAdapterDetectThread() :
 }
 
 CAdapterDetectThread::~CAdapterDetectThread()
-{}
+{ }
 
 bool CAdapterDetectThread::StartDetect(
     const char *nic_name,

@@ -140,7 +140,7 @@ struct NICINFO *get_nics_info(const char *ifname)
     }
 
     if (get_dns(&dns_addr))
-    {}
+    { }
 
 //        swap32(reinterpret_cast<unsigned char *>(&dns_addr.s_addr));
 

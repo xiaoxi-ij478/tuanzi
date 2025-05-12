@@ -3,9 +3,12 @@
 
 
 struct tagMsgItem {
-    tagMsgItem(int ntype = 0, const std::string &msgtime = "",
-               const std::string &msg = "") :
-        ntype(ntype), msgtime(msgtime), msg(msg) {}
+    tagMsgItem(
+        int ntype = 0,
+        const std::string &msgtime = "",
+        const std::string &msg = ""
+    ) : ntype(ntype), msgtime(msgtime), msg(msg)
+    { }
     int ntype;
     std::string msgtime;
     std::string msg;

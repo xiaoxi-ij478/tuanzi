@@ -8,7 +8,7 @@ CRITICAL_SECTION CSuConfigFile::CSuConfigFileLock;
 CSuConfigFile::CSuConfigFile() :
     config_dirty(false),
     is_open(false)
-{}
+{ }
 
 CSuConfigFile::~CSuConfigFile()
 {
@@ -85,7 +85,7 @@ void CSuConfigFile::DeleteTempConfig()
     const char * /* a1 */,
     bool /* a2 */
 )
-{}
+{ }
 
 unsigned int CSuConfigFile::GetPrivateProfileInt(
     const char *domain,
@@ -139,10 +139,11 @@ void CSuConfigFile::GetPrivateProfileString(
 [[maybe_unused]] void CSuConfigFile::GetSysUPTime(
     unsigned int & /* a1 */,
     unsigned int & /* a2 */
-) {}
+)
+{ }
 
 [[maybe_unused]] void CSuConfigFile::LogToFile(const char * /* str */)
-{}
+{ }
 
 bool CSuConfigFile::Open(const char *rfilename)
 {

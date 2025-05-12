@@ -6,7 +6,7 @@ CMD5ForVz::CMD5ForVz()
 }
 
 CMD5ForVz::~CMD5ForVz()
-{}
+{ }
 
 void CMD5ForVz::Update(unsigned char *buf, unsigned int buflen)
 {

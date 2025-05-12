@@ -3,7 +3,7 @@
 
 CRITICAL_SECTION::CRITICAL_SECTION() :
     inited(false)
-{}
+{ }
 
 CRITICAL_SECTION::~CRITICAL_SECTION()
 {

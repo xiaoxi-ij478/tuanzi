@@ -5,7 +5,9 @@
 enum LANG { LANG_INVALID, LANG_ENGLISH, LANG_CHINESE };
 
 struct tagSectionUnit {
-    tagSectionUnit(unsigned id, const std::string &str) : id(id), str(str) {}
+    tagSectionUnit(unsigned id, const std::string &str) :
+        id(id), str(str)
+    { }
     unsigned int id;
     std::string str;
 };
