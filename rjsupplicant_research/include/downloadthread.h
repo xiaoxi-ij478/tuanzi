@@ -130,7 +130,7 @@ class CDownLoadThread : public CLnxThread
             char *path,
             unsigned int *port
         );
-        int http_send(
+    int http_send(
             int *fd,
             const char *domain,
             unsigned int port,

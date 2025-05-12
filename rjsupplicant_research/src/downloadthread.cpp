@@ -245,7 +245,7 @@ int CDownLoadThread::ftp_receive(
     int file_fd = 0;
     int tmpret = 0;
     enum DOWNLOAD_STATUS ret = DOWNLOAD_OK;
-    unsigned long read_byte = 0;
+    long read_byte = 0;
     unsigned long total_read_byte = 0;
     unsigned long file_size = 0;
 
@@ -258,15 +258,15 @@ int CDownLoadThread::ftp_receive(
 
     if (ftpcmd("SIZE", server_path, socket_file, reply) != 213 ||
             ftp_get_len(reply, &file_size) == -1 ||
-            (tmpret = ftpcmd("RETR", server_path, socket_file, reply)) != 125 &&
-            tmpret != 150
+            ((tmpret = ftpcmd("RETR", server_path, socket_file, reply)) != 125 &&
+             tmpret != 150)
        ) {
         ret = DOWNLOAD_ERROR_5;
         goto quit;
     }
 
-    if ((default_path && strlen(default_path) >= 2048) ||
-            (suffix && strlen(suffix) >= 2048)) {
+    if ((default_path && strlen(default_path) >= sizeof(dir)) ||
+            (suffix && strlen(suffix) >= sizeof(filename))) {
         rj_printf_debug("local path or name file is too long\n");
         ret = DOWNLOAD_ERROR_9;
         goto quit;
@@ -278,7 +278,7 @@ int CDownLoadThread::ftp_receive(
         goto quit;
     }
 
-    if (strlen(dir) + strlen(filename) >= 2048) {
+    if (strlen(dir) + strlen(filename) >= sizeof(save_path)) {
         rj_printf_debug("path + name is too long\n");
         ret = DOWNLOAD_ERROR_9;
         goto quit;
@@ -388,12 +388,13 @@ int CDownLoadThread::ftpcmd(
     char *crlf = nullptr;
     int result = 0;
 
-    if (cmd)
+    if (cmd) {
         if (arg)
             fprintf(socket_file, "%s %s\r\n", cmd, arg);
 
         else
             fprintf(socket_file, "%s\r\n", cmd);
+    }
 
     while (fgets(recv_buf, 256, socket_file)) {
         if ((crlf = strstr(recv_buf, "\r\n")))
@@ -438,7 +439,7 @@ int CDownLoadThread::get_local_filename(
         return -1;
 
     if (!strrchr(suffix, '.')) {
-        if (strlen(buf) + strlen(suffix) > 2048)
+        if (strlen(buf) + strlen(suffix) > sizeof(buf))
             return -1;
 
         strcpy(filename, suffix);
@@ -487,25 +488,34 @@ int CDownLoadThread::get_remote_file(
     const char *suffix
 )
 {
+    fd_set listen_fd;
+    struct timeval listen_timeout = { 20, 0 };
     int file_fd = 0;
     int socket_fd = 0;
-    char dir[2048] = { 0 };
-    char filename[2048] = { 0 };
+    long read_byte = 0;
+    unsigned long total_read_byte = 0;
+    unsigned long file_size = 0;
+    char dir[1024] = { 0 };
+    char filename[1024] = { 0 };
     char save_path[2048] = { 0 };
+    char *new_save_path = nullptr;
+    char buf[2048] = { 0 };
+    char *content_begin = nullptr;
     enum DOWNLOAD_STATUS ret = DOWNLOAD_OK;
 
     if (!*domain || !*server_path)
         return -1;
 
-    if (http_send(socket_fd, domain, port, server_path) == -1) {
+    if (http_send(&socket_fd, domain, port, server_path) == -1) {
         ret = DOWNLOAD_ERROR_4;
         g_log_Wireless.AppendText("http_send failed.");
         file_fd = -1;
         goto error_quit;
     }
 
-    if (default_path && strlen(default_path) > 0x7FF || suffix &&
-            strlen(suffix) > 0x7FF) {
+    if ((default_path && strlen(default_path) >= sizeof(dir)) ||
+            (suffix && strlen(suffix) >= sizeof(filename))
+       ) {
         rj_printf_debug("local path or name file is too long\n");
         ret = DOWNLOAD_ERROR_9;
         file_fd = -1;
@@ -519,7 +529,7 @@ int CDownLoadThread::get_remote_file(
         goto error_quit;
     }
 
-    if (strlen(dir) + strlen(filename) >= 2048) {
+    if (strlen(dir) + strlen(filename) >= sizeof(save_path)) {
         rj_printf_debug("path + name is too long\n");
         ret = DOWNLOAD_ERROR_9;
         file_fd = -1;
@@ -542,6 +552,132 @@ int CDownLoadThread::get_remote_file(
         goto error_quit;
     }
 
+    if (dl_para.create_progress_dialog && !update_progress_dialog)
+        rj_printf_debug("delayed_create_progress_dlg\n");
+
+    FD_ZERO(&listen_fd);
+    FD_SET(socket_fd, &listen_fd);
+
+    if (select(
+                socket_fd + 1,
+                &listen_fd,
+                nullptr,
+                nullptr,
+                &listen_timeout
+            ) == -1) {
+        g_log_Wireless.AppendText("select failed.");
+        ret = DOWNLOAD_ERROR_4;
+        goto error_quit;
+    }
+
+    if ((read_byte = read(socket_fd, buf, sizeof(buf))) == -1) {
+        ret = DOWNLOAD_ERROR_2;
+        goto error_quit;
+    }
+
+    if (http_parse_response_head(buf, &file_size)) {
+        ret = DOWNLOAD_ERROR_2;
+        goto error_quit;
+    }
+
+    if (
+        !(content_begin = strstr(buf, "\r\n\r\n"))) {
+        ret = DOWNLOAD_ERROR_2;
+        goto error_quit;
+    }
+
+    *content_begin = 0;
+
+    if (!strstr(buf, "200 OK")) {
+        ret = DOWNLOAD_ERROR_2;
+        goto error_quit;
+    }
+
+    if (write(file_fd, content_begin + 4, read_byte - strlen(buf) - 4) == -1) {
+        ret = DOWNLOAD_ERROR_3;
+        goto error_quit;
+    }
+
+    if (read_byte > file_size) {
+        ret = DOWNLOAD_ERROR_2;
+        goto error_quit;
+
+    } else if (read_byte == file_size) {
+        rj_printf_debug("percent......%d\n", 100);
+
+        if (update_progress_dialog)
+            rj_printf_debug(
+                "percent......%d___update_progress_dlg(m_pProgressDlg, 1.0)____\n",
+                100
+            );
+
+        goto normal_quit;
+    }
+
+    total_read_byte += file_size;
+
+    while (read_byte != total_read_byte) {
+        if (dl_para.create_progress_dialog && !update_progress_dialog)
+            rj_printf_debug("delayed_create_progress_dlg\n");
+
+        FD_ZERO(&listen_fd);
+        FD_SET(socket_fd, &listen_fd);
+
+        if (select(
+                    socket_fd + 1,
+                    &listen_fd,
+                    nullptr,
+                    nullptr,
+                    &listen_timeout
+                ) == -1) {
+            g_log_Wireless.AppendText("select failed.");
+            ret = DOWNLOAD_ERROR_4;
+            goto error_quit;
+        }
+
+        if ((read_byte = read(socket_fd, buf, sizeof(buf))) == -1) {
+            ret = DOWNLOAD_ERROR_2;
+            goto error_quit;
+        }
+
+        if (!read_byte || read_byte == -1) {
+            ret = DOWNLOAD_ERROR_5;
+            goto error_quit;
+        }
+
+        if (write(file_fd, buf, read_byte) == -1) {
+            ret = DOWNLOAD_ERROR_3;
+            goto error_quit;
+        }
+
+        if (read_only_once)
+            goto normal_quit;
+    }
+
+    rj_printf_debug(
+        "read_len...%lu...file_len...%lu...percent...%d,local_file...%s\n",
+        read_byte,
+        file_size,
+        100,
+        save_path
+    );
+normal_quit:
+
+    if (dl_para.thread_key) {
+        new_save_path = new char[strlen(save_path) + 1];
+        strcpy(new_save_path, save_path);
+
+        if (!::PostThreadMessage(dl_para.thread_key, dl_para.mtype, new_save_path, 0))
+            delete[] new_save_path;
+    }
+
+    shutdown(socket_fd, SHUT_RDWR);
+    close(file_fd);
+
+    if (update_progress_dialog)
+        update_progress_dialog = false;
+
+    return 0;
 error_quit:
 
     if (socket_fd != -1)
@@ -570,7 +706,7 @@ int CDownLoadThread::get_surfix(const char *filename, char *suffix)
 
 enum URL_KIND CDownLoadThread::get_url_kind(const char *url)
 {
-    if (!url || strlen(url) > 2048)
+    if (!url /*|| strlen(url) > 2048*/)
         return URL_INVALID;
 
     if (!strncasecmp(url, "http://", 7))
@@ -732,7 +868,7 @@ int CDownLoadThread::http_send(
             )) == -1)
         return -1;
 
-    if (strlen(path) + strlen(domain) + strlen(HTTP_REQUEST) > 2048)
+    if (strlen(path) + strlen(domain) + strlen(HTTP_REQUEST) > sizeof(send_buf))
         return -1;
 
     sprintf(send_buf, HTTP_REQUEST, path, domain);

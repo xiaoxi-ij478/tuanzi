@@ -54,7 +54,7 @@
 #include <unistd.h>
 
 #ifdef __GLIBC__
-    #include <gnu/libc-version.h>
+#include <gnu/libc-version.h>
 #endif // __GLIBC__
 
 #include "mmd5.h"

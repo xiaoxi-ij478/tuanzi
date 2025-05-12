@@ -599,7 +599,7 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
     );
 
     // wait up to 3 seconds
-    switch (select(1, &listen_fds, nullptr, nullptr, &wait_sec)) {
+    switch (select(fd + 1, &listen_fds, nullptr, nullptr, &wait_sec)) {
         case -1: // some error
         case 0: // the host may not be online
             return false;

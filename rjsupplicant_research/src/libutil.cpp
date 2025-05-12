@@ -2,7 +2,7 @@
 #include "libutil.h"
 
 #ifdef USE_EXTERNAL_LIBRT
-    static void *librt_handle = nullptr; /* orig name: librt */
+static void *librt_handle = nullptr; /* orig name: librt */
 #endif // USE_EXTERNAL_LIBRT
 
 // the return value is its FAILURE value
