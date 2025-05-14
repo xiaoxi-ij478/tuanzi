@@ -88,6 +88,7 @@
 		<Unit filename="include/confupdateutilinstance.h" />
 		<Unit filename="include/contextcontrolthread.h" />
 		<Unit filename="include/criticalsection.h" />
+		<Unit filename="include/customizeinfo.h" />
 		<Unit filename="include/diskutil.h" />
 		<Unit filename="include/dnsquery.h" />
 		<Unit filename="include/downloadthread.h" />
@@ -109,6 +110,7 @@
 		<Unit filename="include/saveconfigureinfo.h" />
 		<Unit filename="include/signals.h" />
 		<Unit filename="include/suconfigfile.h" />
+		<Unit filename="include/sudes.h" />
 		<Unit filename="include/supf.h" />
 		<Unit filename="include/suradiusprivate.h" />
 		<Unit filename="include/sysutil.h" />
@@ -127,6 +129,7 @@
 		<Unit filename="src/confupdateutilinstance.cpp" />
 		<Unit filename="src/contextcontrolthread.cpp" />
 		<Unit filename="src/criticalsection.cpp" />
+		<Unit filename="src/customizeinfo.cpp" />
 		<Unit filename="src/diskutil.cpp" />
 		<Unit filename="src/dnsquery.cpp" />
 		<Unit filename="src/downloadthread.cpp" />
@@ -149,6 +152,7 @@
 		<Unit filename="src/saveconfigureinfo.cpp" />
 		<Unit filename="src/signals.cpp" />
 		<Unit filename="src/suconfigfile.cpp" />
+		<Unit filename="src/sudes.cpp" />
 		<Unit filename="src/supf.cpp" />
 		<Unit filename="src/suradiusprivate.cpp" />
 		<Unit filename="src/sysutil.cpp" />

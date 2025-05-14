@@ -10,11 +10,6 @@
  *	(GEnie : OUTER; CIS : [71755,204])
  */
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
-
 #define D2_DES		/* include double-length support */
 #define D3_DES		/* include triple-length support */
 
@@ -160,7 +155,4 @@ extern void make3key(char *, unsigned char *);
  ********************************************************************/
 
 
-#ifdef __cplusplus
-}
-#endif // __cplusplus
 

@@ -58,6 +58,7 @@
 #endif // __GLIBC__
 
 #include "mmd5.h"
+#include "d3des.h"
 #include "tinyxml.h"
 #include "iniparser.h"
 #include "crc16.h"

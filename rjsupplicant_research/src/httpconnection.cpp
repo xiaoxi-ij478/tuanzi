@@ -77,6 +77,54 @@ int CHttpConnection::httpConnect(const char *url)
 
 int CHttpConnection::httpRead(void *buf, int buflen)
 {
+    fd_set listen_fd;
+    struct timeval timeout = { connect_timeout, 0 };
+    long read_byte = 0;
+    unsigned long total_read_byte = 0;
+
+    if (socket_fd == -1)
+        return -1;
+
+    if (buflen <= 0)
+        return total_read_byte;
+
+    while (buflen) {
+        FD_ZERO(&listen_fd);
+        FD_SET(socket_fd, &listen_fd);
+        timeout = { connect_timeout, 0 };
+
+        switch (
+            select(
+                socket_fd + 1,
+                &listen_fd,
+                nullptr,
+                nullptr,
+                connect_timeout ? &timeout : nullptr
+            )
+        ) {
+            case 0:
+                setError("httpRead:select timeout.");
+                return total_read_byte;
+
+            case -1:
+                setErrorCode(errno, "httpRead:select");
+                return total_read_byte;
+        }
+
+        switch (read_byte = read(socket_fd, buf, buflen)) {
+            case -1:
+                setErrorCode(errno, "httpRead:read");
+[[fallthrough]];
+            case 0:
+                return total_read_byte;
+        }
+
+        total_read_byte += read_byte;
+        buflen -= read_byte;
+        buf += read_byte;
+    }
+
+    return total_read_byte;
 }
 
 int CHttpConnection::getHttpContentLength(const char *header)
@@ -195,23 +243,83 @@ bool CHttpConnection::parseUrl(
 bool CHttpConnection::readHttpHeader(int fd)
 {
     fd_set listen_fd;
-struct timeval timeout = { connect_timeout,0 };
-while (true)
-{
-    FD_ZERO(&listen_fd);
-    FS_SET(fd,&listen_fd);
-    timeout={connect_timeout,0};
-    switch (
-            select(
-                   fd+1,&listen_fd,nullptr,nullptr,connect_timeout?&timeout:nullptr
-                   )
-            )
-            {
-            case 0:
-                   setError( "readHttpHeader: time out.");
+    struct timeval timeout = { connect_timeout, 0 };
+    unsigned char newline = 0;
+    unsigned int pos = 0;
 
-            }
-}
+    while (pos <= sizeof(reply_header)) {
+        FD_ZERO(&listen_fd);
+        FD_SET(fd, &listen_fd);
+        timeout = { connect_timeout, 0 };
+
+        switch (
+            select(
+                fd + 1,
+                &listen_fd,
+                nullptr,
+                nullptr,
+                connect_timeout ? &timeout : nullptr
+            )
+        ) {
+            case 0:
+                setError("readHttpHeader: time out.");
+
+                switch (newline) {
+                    case 4:
+                        reply_header[pos - 4] = 0;
+                        return 1;
+
+                    default:
+                        setError("readHttpHeader: newlines(%d) error.", newline / 2);
+                        return 0;
+                }
+
+            case -1:
+                setErrorCode(errno, "readHttpHeader:select");
+
+                switch (newline) {
+                    case 4:
+                        reply_header[pos - 4] = 0;
+                        return 1;
+
+                    default:
+                        setError("readHttpHeader: newlines(%d) error.", newline / 2);
+                        return 0;
+                }
+        }
+
+        if (read(fd, &reply_header[pos], 1) == -1)
+            setErrorCode(errno, "readHttpHeader:read");
+
+        switch (reply_header[pos]) {
+            case '\r':
+            case '\n':
+                newline++;
+                break;
+
+            default:
+                switch (newline) {
+                    case 2:
+                        newline = 0;
+                        break;
+
+                    case 4:
+                        reply_header[pos - 4] = 0;
+                        return 1;
+
+                    default:
+                        setError("readHttpHeader: newlines(%d) error.", newline / 2);
+                        return 0;
+                }
+
+                break;
+        }
+
+        pos++;
+    }
+
+    setError("readHttpHeader: newlines(%d) error.", newline / 2);
+    return 0;
 }
 
 int CHttpConnection::sendRequest(
@@ -233,15 +341,16 @@ int CHttpConnection::sendRequest(
     remain = strlen(request);
 
     while (remain) {
-        written = write(fd, request, remain);
+        switch (written = write(fd, request, remain)) {
+            case -1:
+                setErrorCode(errno);
 
-        switch (written)
-        {
-        case -1:
-            setErrorCode(errno);
-        case 0:
-            close(fd);return -1;
+[[fallthrough]];
+            case 0:
+                close(fd);
+                return -1;
         }
+
         remain -= written;
         request += written;
     }

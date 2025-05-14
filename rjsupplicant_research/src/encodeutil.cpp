@@ -41,7 +41,8 @@ int ConvertGBKToUtf8(
 {
     char *outb = new char[3 * inbytesleft];
     g2u(inbuf, inbytesleft, outb, 3 * inbytesleft);
-    outbuf.assign(outb, 3 * inbytesleft);
+    outbuf = outb;
+//    outbuf.assign(outb, 3 * inbytesleft);
     delete[] outb;
     outb = nullptr;
     return outbuf.length();
@@ -63,7 +64,8 @@ int ConvertUtf8ToGBK(
 {
     char *outb = new char[4 * inbytesleft];
     u2g(inbuf, inbytesleft, outb, 3 * inbytesleft);
-    outbuf.assign(outb, 4 * inbytesleft);
+    outbuf = outb;
+//    outbuf.assign(outb, 4 * inbytesleft);
     delete[] outb;
     outb = nullptr;
     return outbuf.length();
