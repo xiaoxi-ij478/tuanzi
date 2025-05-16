@@ -4,14 +4,14 @@
 
 int get_sata_serial(int fd, char *dst)
 {
-    static unsigned char args[0x200] = { 0 };
+    static unsigned char args[0x200] = {};
     unsigned short pos = 0;
-    struct sg_io_hdr hdr = { 0 };
+    struct sg_io_hdr hdr = {};
     unsigned char cmd_blk[] = {
         0x85, 0x08, 0x2E, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0xEC, 0x00
     };
-    unsigned char sense_blk[32] = { 0 };
+    unsigned char sense_blk[32] = {};
     hdr.interface_id = 'S';
     hdr.cmd_len = sizeof(cmd_blk);
     hdr.mx_sb_len = sizeof(sense_blk);
@@ -100,9 +100,9 @@ int getdiskid(char *buf, int buflen)
     std::ifstream ifs("/etc/mtab");
     std::string line;
     std::vector<std::string> val;
-    struct hd_driveid serialid = { 0 };
+    struct hd_driveid serialid = {};
     int fd = 0;
-    int pos = 0;
+    unsigned int pos = 0;
     memset(buf, 0, buflen);
 
     if (!ifs) {
@@ -151,4 +151,6 @@ int getdiskid(char *buf, int buflen)
         *buf++ = serialid.serial_no[pos];
         pos += 2;
     }
+
+    return 1;
 }

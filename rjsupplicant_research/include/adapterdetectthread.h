@@ -50,17 +50,17 @@ class CAdapterDetectThread : public CLnxThread
             int msgid,
             bool disallow_multi_nic_ip,
             char *errmsg
-        );
-        bool StopDetect(unsigned int flag);
+        ) const;
+        bool StopDetect(unsigned int flag) const;
 
     protected:
         bool InitInstance() override;
         bool DispathMessage(struct LNXMSG *msg) override;
-        void OnTimer(int tflag) override;
+        void OnTimer(int tflag) const override;
         bool ExitInstance() override;
 
     private:
-        void MultipleAdaptesOrIPCheck();
+        void MultipleAdaptesOrIPCheck() const;
         void OnStartDetect(void *arg);
         void OnStopDetect(void *arg);
         void OnTimer(void *arg); // called by DispathMessage

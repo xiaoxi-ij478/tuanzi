@@ -2,6 +2,7 @@
 
 CHttpConnection::CHttpConnection() :
     error_num(0),
+    error_msg(),
     connect_timeout(0),
     socket_fd(-1),
     content_length(-1),
@@ -11,7 +12,7 @@ CHttpConnection::CHttpConnection() :
         "User-Agent: HttpConnection\r\n"
         "Accept-Language: en-us\r\n"
     )
-{ }
+{}
 
 CHttpConnection::~CHttpConnection()
 {
@@ -26,17 +27,17 @@ void CHttpConnection::addRequestHeader(const char *header)
     http_request_header = header;
 }
 
-int CHttpConnection::getErrorCode()
+int CHttpConnection::getErrorCode() const
 {
     return error_num;
 }
 
-const std::string &CHttpConnection::getErrorText()
+const std::string &CHttpConnection::getErrorText() const
 {
     return error_msg;
 }
 
-int CHttpConnection::getLength()
+int CHttpConnection::getLength() const
 {
     return content_length;
 }
@@ -75,7 +76,7 @@ int CHttpConnection::httpConnect(const char *url)
     return sendRequest(domain.c_str(), port, request.c_str());
 }
 
-int CHttpConnection::httpRead(void *buf, int buflen)
+int CHttpConnection::httpRead(unsigned char *buf, int buflen)
 {
     fd_set listen_fd;
     struct timeval timeout = { connect_timeout, 0 };
@@ -114,7 +115,8 @@ int CHttpConnection::httpRead(void *buf, int buflen)
         switch (read_byte = read(socket_fd, buf, buflen)) {
             case -1:
                 setErrorCode(errno, "httpRead:read");
-[[fallthrough]];
+                [[fallthrough]];
+
             case 0:
                 return total_read_byte;
         }
@@ -127,7 +129,7 @@ int CHttpConnection::httpRead(void *buf, int buflen)
     return total_read_byte;
 }
 
-int CHttpConnection::getHttpContentLength(const char *header)
+int CHttpConnection::getHttpContentLength(const char *header) const
 {
     const char *version_begin = strstr(header, "HTTP/");
     const char *size_begin = nullptr;
@@ -159,7 +161,7 @@ int CHttpConnection::getHttpContentLength(const char *header)
 
 int CHttpConnection::makeSocket(const char *addr, unsigned short port)
 {
-    struct sockaddr_in inaddr = { 0 };
+    struct sockaddr_in inaddr = {};
     struct hostent *entry = nullptr;
     int fd = 0;
 
@@ -344,8 +346,8 @@ int CHttpConnection::sendRequest(
         switch (written = write(fd, request, remain)) {
             case -1:
                 setErrorCode(errno);
+                [[fallthrough]];
 
-[[fallthrough]];
             case 0:
                 close(fd);
                 return -1;
@@ -372,7 +374,7 @@ int CHttpConnection::sendRequest(
 
 void CHttpConnection::setError(const char *format, ...)
 {
-    char buf[1024] = { 0 };
+    char buf[1024] = {};
     va_list va;
     va_start(va, format);
     vsnprintf(buf, sizeof(buf), format, va);

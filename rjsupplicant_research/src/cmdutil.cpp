@@ -24,7 +24,7 @@
         std::cout << std::endl; \
     } while(0)
     unsigned short tc_width = get_tc_width();
-    char str2[2048] = { 0 };
+    char str2[2048] = {};
     CChangeLanguage &cinstance = CChangeLanguage::Instance();
     std::cout << cinstance.LoadString(2007) << std::endl;
     PRINT_USAGE("\t-a --auth\t", 2008);
@@ -52,7 +52,7 @@
 unsigned short get_tc_width()
 {
     unsigned short def = 80;
-    struct winsize wsz = { 0 };
+    struct winsize wsz = {};
 
     if (ioctl(0, TIOCGWINSZ, &wsz) == -1) {
         rj_printf_debug("get_tc_width ioctl=%s\n", strerror(errno));
@@ -233,7 +233,7 @@ bool is_run_background()
 
 int set_termios(bool set_echo_icanon)
 {
-    struct termios term = { 0 };
+    struct termios term = {};
 
     if (tcgetattr(0, &term) == -1) {
         rj_printf_debug("set_termios: tcgetattr error:%s", strerror(errno));

@@ -44,7 +44,7 @@ int TakeAppPath(std::string &dst)
 
 void get_exe_name(std::string &dst)
 {
-    char s[1024] = { 0 };
+    char s[1024] = {};
     int r = readlink("/proc/self/exe", s, sizeof(s));
     dst = r == -1 ? "" : s;
 }
@@ -116,10 +116,10 @@ void ChangeSelfSvrParam(void *)
 }
 
 [[maybe_unused]] void CoInitialize()
-{ }
+{}
 
 [[maybe_unused]] void CoUnInitialize(unsigned int)
-{ }
+{}
 
 [[maybe_unused]] std::string DWordToString(unsigned int a)
 {
@@ -255,7 +255,7 @@ unsigned int addStringOnLineHead(
 
     while (std::getline(ifs, line)) {
         if (line.find(add_line_contain) != std::string::npos) {
-            line.insert(0, add_string);
+            ofs << add_string;
             modified_line++;
         }
 
@@ -326,7 +326,7 @@ int FindSub(
 }
 
 [[maybe_unused]] void GOnTimer(union sigval)
-{ }
+{}
 
 void GSNRecvPacter(unsigned char *, int)
 {
@@ -339,7 +339,7 @@ timer_t GSetTimer(
     struct TIMERPARAM *timer
 )
 {
-    struct sigevent sev = { 0 };
+    struct sigevent sev = {};
     struct itimerspec new_time = {
         { off_msec / 1000, off_msec % 1000 },
         { off_msec / 1000, off_msec % 1000 }
@@ -366,8 +366,8 @@ timer_t GSetTimer(
 [[maybe_unused]] void GetMD5File(const char *filename, char *result)
 {
     std::ifstream ifs(filename);
-    unsigned char digest[16] = { 0 };
-    unsigned char buf[0x200] = { 0 };
+    unsigned char digest[16] = {};
+    unsigned char buf[0x200] = {};
     MD5_CTX ctx;
 
     if (!ifs)
@@ -662,7 +662,7 @@ bool Is64BIT()
 //
 //void SetRunModeCheckTimer()
 //{
-//    struct sigevent sev = { 0 };
+//    struct sigevent sev = {};
 //    struct itimerspec new_time = { { 1, 0 }, { 1, 0 } };
 //
 //    if (g_runModetimer)
@@ -682,10 +682,10 @@ bool Is64BIT()
 //}
 
 int MemCmpare(
-    const void *buf1,
+    const unsigned char *buf1,
     unsigned int begin,
     unsigned int end,
-    const void *buf2,
+    const unsigned char *buf2,
     unsigned int len
 )
 {

@@ -5,9 +5,10 @@
 std::string CChangeLanguage::translate_filename;
 
 CChangeLanguage::CChangeLanguage() :
-    lang_inited(false),
-    language_id(LANG_INVALID)
-{ }
+    lang_inited(),
+    language_id(LANG_INVALID),
+    trans_strings()
+{}
 
 CChangeLanguage &CChangeLanguage::Instance()
 {
@@ -21,7 +22,7 @@ void CChangeLanguage::CleanLanguage()
     lang_inited = false;
 }
 
-enum LANG CChangeLanguage::GetLanguage()
+enum LANG CChangeLanguage::GetLanguage() const
 {
     return language_id;
 }
@@ -81,7 +82,7 @@ bool CChangeLanguage::InitLanguage()
     return true;
 }
 
-const std::string &CChangeLanguage::LoadString(unsigned int str_id)
+const std::string &CChangeLanguage::LoadString(unsigned int str_id) const
 {
     static std::string none;
 

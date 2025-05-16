@@ -1,9 +1,23 @@
 #ifndef SUPF_H_INCLUDED
 #define SUPF_H_INCLUDED
 
-enum SUPF_EVENT_TYPE { SUPF_STATE, SUPF_MSG };
-enum SupfCmdType { SUPF_SCAN_CMD, SUPF_START_CMD, SUPF_STOP_CMD };
-enum SupfMsg { SUPF_MSG_SCAN_RES, SUPF_MSG_EAP_ERR, SUPF_MSG_EAP_SUC };
+enum SUPF_EVENT_TYPE {
+    SUPF_STATE,
+    SUPF_MSG
+};
+
+enum SupfCmdType {
+    SUPF_SCAN_CMD,
+    SUPF_START_CMD,
+    SUPF_STOP_CMD
+};
+
+enum SupfMsg {
+    SUPF_MSG_SCAN_RES,
+    SUPF_MSG_EAP_ERR,
+    SUPF_MSG_EAP_SUC
+};
+
 enum SupfState {
     SUPF_STOP,
     SUPF_START,
@@ -18,6 +32,7 @@ enum SupfState {
     SUPF_COMPLETE_SUCCESS,
     SUPF_AUTH_TIMEOUT
 };
+
 enum EAP_TYPE_RFC {
     RFC_EAP_NONE,
     RFC_EAP_IDENTITY,

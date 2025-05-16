@@ -4,33 +4,27 @@
 #include "util.h"
 #include "lnxthread.h"
 
-CLnxThread::CLnxThread() :
-    dont_know_always_false(false),
-    thread_running(false),
-    me(nullptr),
-    thread_key(0),
+CLnxThread::CLnxThread(void *(*thread_func)(void *), void *thread_func_arg) :
+    dont_know_always_false(),
+    thread_running(),
+    me(),
+    thread_key(),
     msgid(-1),
-    no_need_send_msg(false),
-    thread_func_arg(nullptr),
-    thread_func(nullptr)
+    no_need_send_msg(),
+    thread_func_arg(thread_func_arg),
+    thread_func(thread_func),
+    wait_handle1(),
+    wait_handle2(),
+    cur_msg(),
+    timers(),
+    pthread_mutex()
 {
     pthread_mutex_init(&pthread_mutex, nullptr);
     memset(classname, 0, sizeof(classname));
 }
 
-CLnxThread::CLnxThread(void *(*thread_func)(void *), void *thread_func_arg) :
-    dont_know_always_false(false),
-    thread_running(false),
-    me(nullptr),
-    thread_key(0),
-    msgid(-1),
-    no_need_send_msg(false),
-    thread_func_arg(thread_func_arg),
-    thread_func(thread_func)
-{
-    pthread_mutex_init(&pthread_mutex, nullptr);
-    memset(classname, 0, sizeof(classname));
-}
+CLnxThread::CLnxThread() : CLnxThread(nullptr, nullptr)
+{}
 
 CLnxThread::~CLnxThread()
 {
@@ -73,12 +67,13 @@ int CLnxThread::CreateThread(
     return 1;
 }
 
-int CLnxThread::GetMessageID()
+int CLnxThread::GetMessageID() const
 {
     return msgid;
 }
 
-bool CLnxThread::PostThreadMessage(long mtype, void *buf, unsigned long buflen)
+bool CLnxThread::PostThreadMessage(long mtype, void *buf,
+                                   unsigned long buflen) const
 {
     struct LNXMSG msg = { mtype, buf, buflen };
 
@@ -150,7 +145,7 @@ void CLnxThread::SetClassName(const char *name)
 
 timer_t CLnxThread::SetTimer(int tflag, int off_msec)
 {
-    struct sigevent sev = { 0 };
+    struct sigevent sev = {};
     struct TIMERPARAM *timer = nullptr;
     struct itimerspec new_time = {
         { off_msec / 1000, off_msec % 1000 },
@@ -260,7 +255,7 @@ bool CLnxThread::DispathMessage(struct LNXMSG * /* msg */)
     return true;
 }
 
-void CLnxThread::OnTimer(int tflag)
+void CLnxThread::OnTimer(int tflag) const
 {
     g_logSystem.AppendText(
         "CLnxThread::OnTimer pid =%d,timerFlag=%d\n",
@@ -268,7 +263,7 @@ void CLnxThread::OnTimer(int tflag)
     );
 }
 
-bool CLnxThread::OnTimerEnter(int tflag)
+bool CLnxThread::OnTimerEnter(int tflag) const
 {
     bool found = false;
     bool success = false;
@@ -302,7 +297,7 @@ bool CLnxThread::OnTimerEnter(int tflag)
     return success;
 }
 
-void CLnxThread::OnTimerLeave(int tflag)
+void CLnxThread::OnTimerLeave(int tflag) const
 {
     for (TIMERPARAM *timer : timers) {
         if (timer->tflag != tflag)
@@ -433,7 +428,6 @@ void CLnxThread::SafeExitThread(unsigned int off_msec)
     }
 }
 
-
 void *CLnxThread::_LnxThreadEntry(void *arg)
 {
     int msgid = 0;
@@ -530,4 +524,3 @@ void CLnxThread::_OnTimerEntry(union sigval arg)
     if (timer->tflag)
         calling_thread->OnTimer(timer->tflag);
 }
-

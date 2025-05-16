@@ -21,17 +21,17 @@ struct DNSQueryStruct {
 class CDNSQuery
 {
     public:
-        int PostQueryByName(const char *hostname, struct CHostEnt **dest);
-        int QueryByName(const char *hostname, struct CHostEnt **dest);
-        bool StartQueryThread(char *errmsg);
-        int StopQueryThread();
-        bool thread_is_running();
+        int PostQueryByName(const char *hostname, struct CHostEnt **dest) const;
+        int QueryByName(const char *hostname, struct CHostEnt **dest) const;
+        bool StartQueryThread(char *errmsg) const;
+        int StopQueryThread() const;
+        bool thread_is_running() const;
 
     private:
         static void UpdateHostEntList(struct CHostEnt *entry);
         static void AddToHostEntList(struct CHostEnt *entry);
         static void GetHostByName(char *hostname, struct CHostEnt **dest);
-        static void *thread_function(void *arg);
+        static void *thread_function(void * /*arg*/);
 
         static bool running; // m_bRunning
         static int msgid; // m_msgid

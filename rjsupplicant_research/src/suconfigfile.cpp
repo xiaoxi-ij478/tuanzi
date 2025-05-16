@@ -6,9 +6,10 @@
 CRITICAL_SECTION CSuConfigFile::CSuConfigFileLock;
 
 CSuConfigFile::CSuConfigFile() :
-    config_dirty(false),
-    is_open(false)
-{ }
+    config_dirty(),
+    is_open(),
+    cfg_filename()
+{}
 
 CSuConfigFile::~CSuConfigFile()
 {
@@ -85,7 +86,7 @@ void CSuConfigFile::DeleteTempConfig()
     const char * /* a1 */,
     bool /* a2 */
 )
-{ }
+{}
 
 unsigned int CSuConfigFile::GetPrivateProfileInt(
     const char *domain,
@@ -140,10 +141,10 @@ void CSuConfigFile::GetPrivateProfileString(
     unsigned int & /* a1 */,
     unsigned int & /* a2 */
 )
-{ }
+{}
 
 [[maybe_unused]] void CSuConfigFile::LogToFile(const char * /* str */)
-{ }
+{}
 
 bool CSuConfigFile::Open(const char *rfilename)
 {
@@ -269,7 +270,7 @@ bool CSuConfigFile::WritePrivateProfileString(
     const char *domain,
     const char *key,
     const char *val
-)
+) const
 {
     assert(is_open);
     dictionary *ini = nullptr;

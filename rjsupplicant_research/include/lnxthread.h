@@ -27,12 +27,12 @@ struct TIMERPARAM {
 class CLnxThread
 {
     public:
-        CLnxThread();
         CLnxThread(void *(*thread_func)(void *), void *thread_func_arg);
+        CLnxThread();
         virtual ~CLnxThread();
         int CreateThread(pthread_attr_t *pthread_attr, bool no_need_send_msg);
-        int GetMessageID();
-        bool PostThreadMessage(long mtype, void *buf, unsigned long buflen);
+        int GetMessageID() const;
+        bool PostThreadMessage(long mtype, void *buf, unsigned long buflen) const;
         int StartThread();
         int StopThread();
 
@@ -49,9 +49,9 @@ class CLnxThread
         virtual bool InitInstance();
         virtual bool Run();
         virtual bool DispathMessage(struct LNXMSG *msg);
-        virtual bool OnTimerEnter(int tflag);
-        virtual void OnTimerLeave(int tflag);
-        virtual void OnTimer(int tflag);
+        virtual bool OnTimerEnter(int tflag) const;
+        virtual void OnTimerLeave(int tflag) const;
+        virtual void OnTimer(int tflag) const;
         virtual bool ExitInstance();
         virtual void KillTimer(timer_t &timerid);
 
@@ -63,6 +63,7 @@ class CLnxThread
         // but here we set it as a member function
         // static void LnxEndThread(CLnxThread *objp);
         void LnxEndThread();
+
         static void *_LnxThreadEntry(void * /* WAIT_HANDLE2 * */ arg);
         static void _OnTimerEntry(union sigval /* TIMERPARAM @ sival_ptr */ arg);
 

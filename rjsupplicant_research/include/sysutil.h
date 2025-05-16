@@ -1,7 +1,12 @@
 #ifndef SYSUTIL_H_INCLUDED
 #define SYSUTIL_H_INCLUDED
 
-enum OS_TYPE { OS_INVALID = -1, OS_FEDORA, OS_UBUNTU, OS_CENTOS };
+enum OS_TYPE {
+    OS_INVALID = -1,
+    OS_FEDORA,
+    OS_UBUNTU,
+    OS_CENTOS
+};
 
 [[maybe_unused]] void check_run_ibus();
 [[maybe_unused]] void check_stop_ibus();

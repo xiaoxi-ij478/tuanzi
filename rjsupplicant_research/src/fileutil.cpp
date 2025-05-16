@@ -35,7 +35,7 @@ void removeFileOrDir(const char *filename)
 
 int get_sh_name(const char *src, char *dst)
 {
-    char buf[1024] = { 0 };
+    char buf[1024] = {};
     char *tmp = nullptr;
     char *tmp2 = nullptr;
 

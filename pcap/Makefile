@@ -34,8 +34,8 @@ libdir =  ${exec_prefix}/lib
 mandir = ${prefix}/man
 
 # VPATH
-srcdir = /home/xiaoxi/rjsupplicant_research/pcap
-VPATH = /home/xiaoxi/rjsupplicant_research/pcap
+srcdir = /home/xiaoxi/Desktop/rjsupplicant_research/pcap
+VPATH = /home/xiaoxi/Desktop/rjsupplicant_research/pcap
 
 #
 # You shouldn't need to edit anything below.

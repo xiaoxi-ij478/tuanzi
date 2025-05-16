@@ -5,8 +5,17 @@
 #include "checkrunthread.h"
 #include "contextcontrolthread.h"
 
-enum AUTH_MODE { AUTH_INVALID, AUTH_WIRED, AUTH_WIRELESS };
-enum DHCP_MODE { DHCP_INVALID, DHCP_LOCAL, DHCP_SERVER };
+enum AUTH_MODE {
+    AUTH_INVALID,
+    AUTH_WIRED,
+    AUTH_WIRELESS
+};
+
+enum DHCP_MODE {
+    DHCP_INVALID,
+    DHCP_LOCAL,
+    DHCP_SERVER
+};
 
 extern std::string g_strAppPath;
 extern std::string g_runLogFile;

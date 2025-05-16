@@ -30,7 +30,7 @@ void AddMsgItem(int type, const std::string &msg)
     std::vector<struct tagMsgItem> msgarr;
     dictionary *ini;
 //    struct tagMsgItem this_msg;
-    char time[512] = { 0 };
+    char time[512] = {};
 
     if (msg.empty())
         return;

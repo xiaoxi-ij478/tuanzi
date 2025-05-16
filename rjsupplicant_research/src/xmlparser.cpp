@@ -2,11 +2,11 @@
 
 XML_PARSER::XML_PARSER() :
     TiXmlDocument(),
-    currentElement(nullptr)
-{ }
+    currentElement()
+{}
 
 XML_PARSER::~XML_PARSER()
-{ }
+{}
 
 bool XML_PARSER::Add_ElementAfter(const char *name)
 {
@@ -82,7 +82,7 @@ bool XML_PARSER::Add_LastChildElement(const char *name)
     return true;
 }
 
-std::string XML_PARSER::GetAttributeValue(const char *name)
+std::string XML_PARSER::GetAttributeValue(const char *name) const
 {
     TiXmlElement *el = nullptr;
     const char *attr = nullptr;
@@ -99,7 +99,7 @@ std::string XML_PARSER::GetAttributeValue(const char *name)
     return attr;
 }
 
-bool XML_PARSER::GetAttributeValue(const char *name, std::string &result)
+bool XML_PARSER::GetAttributeValue(const char *name, std::string &result) const
 {
     TiXmlElement *el = nullptr;
     const char *attr = nullptr;
@@ -118,7 +118,7 @@ bool XML_PARSER::GetAttributeValue(const char *name, std::string &result)
     return true;
 }
 
-int XML_PARSER::GetAttributeValueInt(const char *name)
+int XML_PARSER::GetAttributeValueInt(const char *name) const
 {
     TiXmlElement *el = nullptr;
     int attr = 0;
@@ -133,7 +133,7 @@ int XML_PARSER::GetAttributeValueInt(const char *name)
     return attr;
 }
 
-bool XML_PARSER::GetAttributeValueInt(const char *name, int &result)
+bool XML_PARSER::GetAttributeValueInt(const char *name, int &result) const
 {
     TiXmlElement *el = nullptr;
     result = 0;
@@ -147,7 +147,7 @@ bool XML_PARSER::GetAttributeValueInt(const char *name, int &result)
     return el->QueryIntAttribute(name, &result);
 }
 
-const char *XML_PARSER::Get_Text()
+const char *XML_PARSER::Get_Text() const
 {
     TiXmlElement *el = nullptr;
     const char *attr = nullptr;
@@ -164,7 +164,7 @@ const char *XML_PARSER::Get_Text()
     return attr;
 }
 
-bool XML_PARSER::Get_XML(std::string &result)
+bool XML_PARSER::Get_XML(std::string &result) const
 {
     TiXmlPrinter printer;
     printer.SetIndent(nullptr);
@@ -242,7 +242,7 @@ TiXmlNode *XML_PARSER::Go_to_Root()
     return currentElement = FirstChildElement();
 }
 
-bool XML_PARSER::Is_Having_Attribute(const char *name)
+bool XML_PARSER::Is_Having_Attribute(const char *name) const
 {
     TiXmlElement *el = nullptr;
 
@@ -270,7 +270,7 @@ bool XML_PARSER::Load_XML_String(const char *str)
     return !!(currentElement = FirstChildElement());
 }
 
-bool XML_PARSER::RemoveChildElements(const char *name)
+bool XML_PARSER::RemoveChildElements(const char *name) const
 {
     TiXmlNode *childElement = nullptr;
 
@@ -284,7 +284,7 @@ bool XML_PARSER::RemoveChildElements(const char *name)
     return true;
 }
 
-bool XML_PARSER::RemoveFirstChildElement(const char *name)
+bool XML_PARSER::RemoveFirstChildElement(const char *name) const
 {
     TiXmlNode *childElement = nullptr;
 
@@ -297,7 +297,7 @@ bool XML_PARSER::RemoveFirstChildElement(const char *name)
     return currentElement->RemoveChild(childElement);
 }
 
-bool XML_PARSER::Remove_Attribute(const char *name)
+bool XML_PARSER::Remove_Attribute(const char *name) const
 {
     TiXmlElement *el = nullptr;
 
@@ -311,12 +311,12 @@ bool XML_PARSER::Remove_Attribute(const char *name)
     return true;
 }
 
-bool XML_PARSER::Save_XML_Document(const char *filename)
+bool XML_PARSER::Save_XML_Document(const char *filename) const
 {
     return SaveFile(filename);
 }
 
-bool XML_PARSER::Set_Attribute(const char *name, const char *value)
+bool XML_PARSER::Set_Attribute(const char *name, const char *value) const
 {
     TiXmlElement *el = nullptr;
 
@@ -330,7 +330,7 @@ bool XML_PARSER::Set_Attribute(const char *name, const char *value)
     return true;
 }
 
-bool XML_PARSER::Set_Text(const char *str)
+bool XML_PARSER::Set_Text(const char *str) const
 {
     TiXmlText textnode(str);
     TiXmlElement *el = nullptr;

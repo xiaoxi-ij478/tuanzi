@@ -6,14 +6,15 @@
 #include "downloadthread.h"
 
 CDownLoadThread::CDownLoadThread() :
+    dl_para(),
     create_progress_dialog(true),
-    down_para_set(false),
-    update_progress_dialog(false),
-    read_only_once(false)
-{ }
+    down_para_set(),
+    update_progress_dialog(),
+    read_only_once()
+{}
 
 CDownLoadThread::~CDownLoadThread()
-{ }
+{}
 
 void CDownLoadThread::SetDlPara(struct tagDownLoadPara &para)
 {
@@ -61,10 +62,10 @@ bool CDownLoadThread::download(
     bool create_progress_dialog
 )
 {
-    char domain[1024] = { 0 };
-    char path[1024] = { 0 };
-    char username[1024] = { 0 };
-    char password[1024] = { 0 };
+    char domain[1024] = {};
+    char path[1024] = {};
+    char username[1024] = {};
+    char password[1024] = {};
     unsigned int port = 0;
     assert(dl_para.thread_key);
     dl_para.create_progress_dialog = create_progress_dialog;
@@ -120,10 +121,10 @@ int CDownLoadThread::ftp_download(
     return ret == -1 ? -1 : 0;
 }
 
-int CDownLoadThread::ftp_get_len(char *reply, unsigned long *length)
+int CDownLoadThread::ftp_get_len(char *reply, unsigned long *length) const
 {
     char *sizepos = strstr(reply, "213");
-    char buf[32] = { 0 };
+    char buf[32] = {};
 
     if (!sizepos)
         return -1;
@@ -134,9 +135,9 @@ int CDownLoadThread::ftp_get_len(char *reply, unsigned long *length)
     return 0;
 }
 
-FILE *CDownLoadThread::ftp_login(struct ftp_host_info_s *hostinfo)
+FILE *CDownLoadThread::ftp_login(struct ftp_host_info_s *hostinfo) const
 {
-    char recv_buf[256] = { 0 };
+    char recv_buf[256] = {};
     FILE *socket_file = fdopen(xconnect_stream(hostinfo->addr), "r+");
 
     if (!socket_file)
@@ -164,14 +165,14 @@ int CDownLoadThread::ftp_parse_url(
     char *username,
     char *password,
     unsigned int *port
-)
+) const
 {
     char *path_begin = nullptr;
     char *domain_begin = nullptr;
     char *password_begin = nullptr;
     char *port_begin = nullptr;
-    char url_copy[2048] = { 0 };
-    char domain_copy[2048] = { 0 };
+    char url_copy[2048] = {};
+    char domain_copy[2048] = {};
     *port = 21;
     *password = 0;
     strcpy(username, "anonymous");
@@ -236,10 +237,10 @@ int CDownLoadThread::ftp_receive(
     const char *suffix
 )
 {
-    char reply[264] = { 0 };
-    char save_path[2048] = { 0 };
-    char dir[1024] = { 0 };
-    char filename[1024] = { 0 };
+    char reply[264] = {};
+    char save_path[2048] = {};
+    char dir[1024] = {};
+    char filename[1024] = {};
     char *new_save_path = nullptr;
     int socket_fd = 0;
     int file_fd = 0;
@@ -391,7 +392,7 @@ int CDownLoadThread::ftpcmd(
     const char *arg,
     FILE *socket_file,
     char *recv_buf
-)
+) const
 {
     char *crlf = nullptr;
     int result = 0;
@@ -423,10 +424,10 @@ int CDownLoadThread::get_local_filename(
     const char *server_path,
     const char *suffix,
     char *filename
-)
+) const
 {
     const char *tmp = strrchr(server_path, '/');
-    char buf[2048] = { 0 };
+    char buf[2048] = {};
 
     if (!tmp) {
         std::cerr << "strrchr server path failed" << std::endl;
@@ -462,7 +463,7 @@ int CDownLoadThread::get_local_filename(
 int CDownLoadThread::get_local_path(
     const char *default_path,
     char *final_path
-)
+) const
 {
     char *tmp = nullptr;
     *final_path = 0;
@@ -503,11 +504,11 @@ int CDownLoadThread::get_remote_file(
     long read_byte = 0;
     unsigned long total_read_byte = 0;
     unsigned long file_size = 0;
-    char dir[1024] = { 0 };
-    char filename[1024] = { 0 };
-    char save_path[2048] = { 0 };
+    char dir[1024] = {};
+    char filename[1024] = {};
+    char save_path[2048] = {};
     char *new_save_path = nullptr;
-    char buf[2048] = { 0 };
+    char buf[2048] = {};
     char *content_begin = nullptr;
     enum DOWNLOAD_STATUS ret = DOWNLOAD_OK;
 
@@ -699,7 +700,7 @@ error_quit:
     return -1;
 }
 
-int CDownLoadThread::get_surfix(const char *filename, char *suffix)
+int CDownLoadThread::get_surfix(const char *filename, char *suffix) const
 {
     const char *tmp = nullptr;
     tmp = strrchr(filename, '.');
@@ -710,7 +711,7 @@ int CDownLoadThread::get_surfix(const char *filename, char *suffix)
     return 0;
 }
 
-enum URL_KIND CDownLoadThread::get_url_kind(const char *url)
+enum URL_KIND CDownLoadThread::get_url_kind(const char *url) const
 {
     if (!url /*|| strlen(url) > 2048*/)
         return URL_INVALID;
@@ -724,7 +725,7 @@ enum URL_KIND CDownLoadThread::get_url_kind(const char *url)
     return URL_OTHER;
 }
 
-void CDownLoadThread::http_del_blank(char *str)
+void CDownLoadThread::http_del_blank(char *str) const
 {
     char *ptr = str;
 
@@ -764,10 +765,10 @@ int CDownLoadThread::http_download(
 int CDownLoadThread::http_parse_response_head(
     const char *header,
     unsigned long *length
-)
+) const
 {
     const char *sizepos = strstr(header, "Content-Length:");
-    char buf[25] = { 0 };
+    char buf[25] = {};
 
     if (!sizepos)
         return -1;
@@ -783,12 +784,12 @@ int CDownLoadThread::http_parse_url(
     char *domain,
     char *path,
     unsigned int *port
-)
+) const
 {
     char *path_begin = nullptr;
     char *port_begin = nullptr;
-    char url_copy[2048] = { 0 };
-    char domain_copy[2048] = { 0 };
+    char url_copy[2048] = {};
+    char domain_copy[2048] = {};
     *port = 80;
 
     if (strlen(url) <= 7)
@@ -820,11 +821,11 @@ int CDownLoadThread::http_send(
     const char *domain,
     unsigned int port,
     const char *path
-)
+) const
 {
-    unsigned char tmp_ipaddr[4] = { 0 };
-    char send_buf[2048] = { 0 };
-    struct sockaddr_in dest_ipaddr = { 0 };
+    unsigned char tmp_ipaddr[4] = {};
+    char send_buf[2048] = {};
+    struct sockaddr_in dest_ipaddr = {};
     struct hostent *domain_resolve = nullptr;
     // maybe from one of their employee's browser xD
 #define HTTP_REQUEST \
@@ -886,7 +887,7 @@ int CDownLoadThread::http_send(
 #undef HTTP_REQUEST
 }
 
-int CDownLoadThread::is_exist_dir(const char *dir)
+int CDownLoadThread::is_exist_dir(const char *dir) const
 {
     return access(dir, F_OK) == -1 ? -1 : 0;
 }
@@ -894,7 +895,7 @@ int CDownLoadThread::is_exist_dir(const char *dir)
 void CDownLoadThread::set_nport(
     struct len_and_sockaddr *addr,
     unsigned int port
-)
+) const
 {
     if (addr->addr.sin_family == AF_INET)
         addr->addr.sin_port = port;
@@ -904,8 +905,7 @@ struct len_and_sockaddr *CDownLoadThread::str2sockaddr(
     const char *straddr,
     int port,
     int flag
-)
-{
+) const {
     struct addrinfo hint = { flag & ~AI_CANONNAME, AF_INET, SOCK_STREAM };
     struct addrinfo *res = nullptr;
     struct len_and_sockaddr *ret = nullptr;
@@ -927,7 +927,7 @@ struct len_and_sockaddr *CDownLoadThread::str2sockaddr(
 int CDownLoadThread::xconnect_ftpdata(
     struct ftp_host_info_s *hostinfo,
     char *pasv_reply
-)
+) const
 {
     unsigned int port = 0;
     int ptmp = 0;

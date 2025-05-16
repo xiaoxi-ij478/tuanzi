@@ -34,7 +34,7 @@
 [[maybe_unused]] bool check_service_status(const char * /* service_name */)
 {
     // this function is used to check and kill services,
-    // so we deliberately not implement it
+    // so we deliberately don't implement it
     // service $service_name status 2>&- | grep pid
     // || check_service_status2 $service_name
     return false;

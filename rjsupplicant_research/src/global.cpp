@@ -8,7 +8,7 @@ bool bLoadLib = false;
 bool updteParam = false;
 std::string update_message;
 std::string alt_update_message;
-int g_rwpipe[2] = { 0 };
+int g_rwpipe[2] = {};
 timer_t g_runModetimer = nullptr;
 [[maybe_unused]] bool g_bDoRunIbus = false;
 

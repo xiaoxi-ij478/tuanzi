@@ -1,9 +1,8 @@
 #include "backoffreauthenticationmanager.h"
 
-CBackoffReAuthenticationManager::CBackoffReAuthenticationManager()
-{
-    Reset();
-}
+CBackoffReAuthenticationManager::CBackoffReAuthenticationManager() :
+    reauth_count(0), reauth_timer(0)
+{}
 
 CBackoffReAuthenticationManager &CBackoffReAuthenticationManager::Instance()
 {
@@ -12,6 +11,7 @@ CBackoffReAuthenticationManager &CBackoffReAuthenticationManager::Instance()
 }
 
 unsigned int CBackoffReAuthenticationManager::GetReAuthenticationTimerElapse()
+const
 {
     if (reauth_count < 4) {
         srand(time(nullptr));
@@ -21,7 +21,7 @@ unsigned int CBackoffReAuthenticationManager::GetReAuthenticationTimerElapse()
     return 0;
 }
 
-bool CBackoffReAuthenticationManager::IsNeedReAuthentication()
+bool CBackoffReAuthenticationManager::IsNeedReAuthentication() const
 {
     return reauth_count < 3;
 }

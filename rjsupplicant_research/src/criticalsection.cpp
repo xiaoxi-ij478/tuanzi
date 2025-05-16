@@ -2,8 +2,10 @@
 #include "criticalsection.h"
 
 CRITICAL_SECTION::CRITICAL_SECTION() :
-    inited(false)
-{ }
+    inited(),
+    pthread_mutex(),
+    pthread_mutexattr()
+{}
 
 CRITICAL_SECTION::~CRITICAL_SECTION()
 {

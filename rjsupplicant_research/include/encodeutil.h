@@ -3,27 +3,27 @@
 
 int code_convert(
     const char *fromcode, const char *tocode,
-    char *inbuf, size_t inbytesleft,
+    const char *inbuf, size_t inbytesleft,
     char *outbuf, size_t outbytesleft
 );
 int g2u(
-    char *inbuf, size_t inbytesleft,
+    const char *inbuf, size_t inbytesleft,
     char *outbuf, size_t outbytesleft
 );
 int u2g(
-    char *inbuf, size_t inbytesleft,
+    const char *inbuf, size_t inbytesleft,
     char *outbuf, size_t outbytesleft
 );
 int ConvertGBKToUtf8(
     std::string &outbuf,
-    char *inbuf, int inbytesleft
+    const char *inbuf, int inbytesleft
 );
 int ConvertUtf8ToGBK(
     char *outbuf, int outbytesleft,
-    char *inbuf, int inbytesleft
+    const char *inbuf, int inbytesleft
 );
 int ConvertUtf8ToGBK(
-    char *inbuf, int inbytesleft,
+    const char *inbuf, int inbytesleft,
     std::string &outbuf
 );
 

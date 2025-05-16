@@ -3,7 +3,7 @@
 
 long GetTickCount()
 {
-    struct sysinfo sinfo = { 0 };
+    struct sysinfo sinfo = {};
 
     for (int i = 0; i < 3; i++)
         if (!sysinfo(&sinfo))
@@ -58,7 +58,7 @@ void PrintCurTime()
 {
     struct tm *timet = nullptr;
     time_t times = 0;
-    char dst[64] = { 0 };
+    char dst[64] = {};
 //    time(&times);
     times = time(nullptr);
     timet = localtime(&times);
@@ -78,7 +78,7 @@ void GetCurTime(char *dst)
 
 unsigned long GetDayTime()
 {
-    struct timeval tv = { 0 };
+    struct timeval tv = {};
 
     for (int i = 0; i < 3; i++)
         if (!gettimeofday(&tv, nullptr))
@@ -89,7 +89,7 @@ unsigned long GetDayTime()
 
 unsigned long GetElapseMiliSec(struct timeval tvp)
 {
-    struct timeval tvn = { 0 };
+    struct timeval tvn = {};
     gettimeofday(&tvn, nullptr);
     return (tvn.tv_sec - tvp.tv_sec) * 1000 + (tvn.tv_usec - tvp.tv_usec) / 1000;
 }

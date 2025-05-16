@@ -9,7 +9,7 @@ int WaitForSingleObject(
 )
 {
     int ret = 0;
-    struct timespec ts = { 0 };
+    struct timespec ts = {};
 
     if (wait_handle->finished) {
         wait_handle->finished = false;

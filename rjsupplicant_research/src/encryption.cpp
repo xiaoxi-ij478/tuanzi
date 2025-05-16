@@ -20,7 +20,7 @@ int CEncryption::base64_decode(const char *src, unsigned char *dst)
     int srclen = strlen(src);
     int written = 0;
     bool met_equal = false;
-    char tmp[4] = { 0 };
+    unsigned char tmp[4] = {};
 
     // read 4 bytes from the base64 string one time
     for (int i = 0; i < srclen / 4 && !met_equal; i++) {
@@ -47,7 +47,7 @@ int CEncryption::base64_encode(const unsigned char *src, int len, char *dst)
 {
     // this was written by myself too
     int written = 0;
-    unsigned char tmp[3] = { 0 };
+    unsigned char tmp[3] = {};
 
     // process up to the 3-byte boundary
     for (int i = 0; i < len / 3; i++) {

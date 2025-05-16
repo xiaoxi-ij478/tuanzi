@@ -1,5 +1,6 @@
 #include "timeutil.h"
 #include "global.h"
+#include "hostentutil.h"
 #include "dnsquery.h"
 
 bool CDNSQuery::running = false;
@@ -9,74 +10,12 @@ pthread_t CDNSQuery::thread_key;
 pthread_mutex_t CDNSQuery::mutex_list;
 struct CHostEnt *CDNSQuery::hostent_list_hdr = nullptr;
 
-static void copy_hostent(struct hostent *src, struct hostent *dst)
+int CDNSQuery::PostQueryByName(const char *hostname,
+                               struct CHostEnt **dest) const
 {
-    int alias_count = 0, addr_count = 0;
-    dst->h_addrtype = src->h_addrtype;
-    dst->h_length = src->h_length;
-
-    if (src->h_name) {
-        dst->h_name = new char[strlen(src->h_name) + 1];
-        strcpy(dst->h_name, src->h_name);
-    }
-
-    if (src->h_aliases) {
-        for (char **alias = src->h_aliases; *alias; alias++, alias_count++);
-
-        dst->h_aliases = new char *[alias_count + 1];
-
-        for (
-            char **salias = src->h_aliases,
-            **dalias = dst->h_aliases;
-            *salias;
-            salias++, dalias++
-        )
-            strcpy(*dalias = new char[strlen(*salias) + 1], *salias);
-    }
-
-    dst->h_aliases[alias_count] = nullptr;
-
-    if (src->h_addr_list) {
-        for (char **addr = src->h_addr_list; *addr; addr++, addr_count++);
-
-        dst->h_addr_list = new char *[addr_count + 1];
-
-        for (
-            char **saddr = src->h_addr_list,
-            **daddr = dst->h_addr_list;
-            *saddr;
-            saddr++, daddr++
-        )
-            memcpy(*daddr = new char[src->h_length], *saddr, src->h_length);
-    }
-
-    dst->h_addr_list[addr_count] = nullptr;
-}
-
-static void delete_hostent(struct hostent *entry)
-{
-    delete[] entry->h_name;
-
-    if (entry->h_aliases) {
-        for (char **alias = entry->h_aliases; *alias; alias++)
-            delete[] *alias;
-
-        delete[] entry->h_aliases;
-    }
-
-    if (entry->h_addr_list) {
-        for (char **addr = entry->h_addr_list; *addr; addr++)
-            delete[] *addr;
-
-        delete[] entry->h_addr_list;
-    }
-}
-
-int CDNSQuery::PostQueryByName(const char *hostname, struct CHostEnt **dest)
-{
-    struct DNSQueryStruct query = { 0 };
+    struct DNSQueryStruct query = {};
     int ret = 0;
-    char buf[1024] = { 0 };
+    char buf[1024] = {};
 
     if (strlen(hostname) > 1023)
         return -2;
@@ -100,15 +39,13 @@ int CDNSQuery::PostQueryByName(const char *hostname, struct CHostEnt **dest)
     return 1;
 }
 
-int CDNSQuery::QueryByName(const char *hostname, struct CHostEnt **dest)
+int CDNSQuery::QueryByName(const char *hostname, struct CHostEnt **dest) const
 {
     int list_len = 1;
     int ret = 0;
-    char buf[1024] = { 0 };
+    char buf[1024] = {};
     bool found = false;
     long cur_time = GetTickCount();
-    int alias_count = 0;
-    int addr_count = 0;
     struct CHostEnt *cur_ent = nullptr;
 
     if (strlen(hostname) > 1023)
@@ -192,11 +129,11 @@ int CDNSQuery::QueryByName(const char *hostname, struct CHostEnt **dest)
     return 1;
 }
 
-bool CDNSQuery::StartQueryThread(char *errmsg)
+bool CDNSQuery::StartQueryThread(char *errmsg) const
 {
     pthread_mutexattr_t mutexattr;
     int lmsgid = 0;
-    char exename[1024] = { 0 };
+    char exename[1024] = {};
     g_logFile_dns.CreateLogFile_S(g_strAppPath + "log/dns_query.log", 1);
 
     if (running) {
@@ -265,7 +202,7 @@ bool CDNSQuery::StartQueryThread(char *errmsg)
     return true;
 }
 
-int CDNSQuery::StopQueryThread()
+int CDNSQuery::StopQueryThread() const
 {
     struct DNSQueryStruct msg = { STOP_DNS_QUERY_MTYPE };
 
@@ -309,7 +246,7 @@ int CDNSQuery::StopQueryThread()
     return 0;
 }
 
-bool CDNSQuery::thread_is_running()
+bool CDNSQuery::thread_is_running() const
 {
     return running;
 }
@@ -369,8 +306,6 @@ void CDNSQuery::AddToHostEntList(struct CHostEnt *entry)
 void CDNSQuery::GetHostByName(char *hostname, struct CHostEnt **dest)
 {
     struct hostent *entry = nullptr;
-    int alias_count = 0;
-    int addr_count = 0;
 
     if (*hostname && hostname[strlen(hostname) - 1] == '\n')
         hostname[strlen(hostname) - 1] = 0;
@@ -389,10 +324,10 @@ void CDNSQuery::GetHostByName(char *hostname, struct CHostEnt **dest)
     copy_hostent(entry, &(*dest)->hostent_entry);
 }
 
-void *CDNSQuery::thread_function(void *arg)
+void *CDNSQuery::thread_function(void * /*arg*/)
 {
     int rcv_msgid = 0;
-    struct DNSQueryStruct msg = { 0 };
+    struct DNSQueryStruct msg = {};
     struct CHostEnt *entry = nullptr;
     g_logFile_dns.AppendText("QueryDNSThread start,running...");
 

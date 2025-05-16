@@ -13,4 +13,5 @@ unsigned int Compress(
     unsigned int in_len,
     unsigned int out_len // when this is 0 it is used to detect actual out len
 );
+
 #endif // COMPRESSOR_H_INCLUDED

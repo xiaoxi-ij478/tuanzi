@@ -75,10 +75,10 @@ bool Is64BIT();
 //void SetRunModeCheckTimer();
 int do_quit();
 int MemCmpare(
-    const void *buf1,
+    const unsigned char *buf1,
     unsigned int begin,
     unsigned int end,
-    const void *buf2,
+    const unsigned char *buf2,
     unsigned int len
 );
 void RcvACLParam(void *arg);

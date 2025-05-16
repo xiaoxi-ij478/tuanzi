@@ -1,12 +1,12 @@
 #include "md5forvz.h"
 
-CMD5ForVz::CMD5ForVz()
+CMD5ForVz::CMD5ForVz() : ctx()
 {
     MD5Init_Vz(&ctx);
 }
 
 CMD5ForVz::~CMD5ForVz()
-{ }
+{}
 
 void CMD5ForVz::Update(unsigned char *buf, unsigned int buflen)
 {
@@ -15,7 +15,7 @@ void CMD5ForVz::Update(unsigned char *buf, unsigned int buflen)
 
 char *CMD5ForVz::Final()
 {
-    unsigned char digest[16] = { 0 };
+    unsigned char digest[16] = {};
     char *digest_txt = new char[33];
     unsigned char upper = 0, lower = 0;
     Final2CharBuff(digest, 16);

@@ -2,7 +2,7 @@
 
 int code_convert(
     const char *fromcode, const char *tocode,
-    char *inbuf, size_t inbytesleft,
+    const char *inbuf, size_t inbytesleft,
     char *outbuf, size_t outbytesleft
 )
 {
@@ -11,7 +11,13 @@ int code_convert(
     if (cd == reinterpret_cast<iconv_t>(-1))
         return -1;
 
-    if (iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft) == -1)
+    if (iconv(
+                cd,
+                const_cast<char **>(&inbuf),
+                &inbytesleft,
+                &outbuf,
+                &outbytesleft
+            ) == static_cast<size_t>(-1))
         return -1;
 
     iconv_close(cd);
@@ -19,7 +25,7 @@ int code_convert(
 }
 
 int g2u(
-    char *inbuf, size_t inbytesleft,
+    const char *inbuf, size_t inbytesleft,
     char *outbuf, size_t outbytesleft
 )
 {
@@ -27,7 +33,7 @@ int g2u(
 }
 
 int u2g(
-    char *inbuf, size_t inbytesleft,
+    const char *inbuf, size_t inbytesleft,
     char *outbuf, size_t outbytesleft
 )
 {
@@ -36,7 +42,7 @@ int u2g(
 
 int ConvertGBKToUtf8(
     std::string &outbuf,
-    char *inbuf, int inbytesleft
+    const char *inbuf, int inbytesleft
 )
 {
     char *outb = new char[3 * inbytesleft];
@@ -50,7 +56,7 @@ int ConvertGBKToUtf8(
 
 int ConvertUtf8ToGBK(
     char *outbuf, int outbytesleft,
-    char *inbuf, int inbytesleft
+    const char *inbuf, int inbytesleft
 )
 {
     u2g(inbuf, inbytesleft, outbuf, outbytesleft);
@@ -58,7 +64,7 @@ int ConvertUtf8ToGBK(
 }
 
 int ConvertUtf8ToGBK(
-    char *inbuf, int inbytesleft,
+    const char *inbuf, int inbytesleft,
     std::string &outbuf
 )
 {

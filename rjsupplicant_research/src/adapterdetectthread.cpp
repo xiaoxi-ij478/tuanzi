@@ -15,14 +15,20 @@
 
 CAdapterDetectThread::CAdapterDetectThread() :
     CLnxThread(),
-    proxy_detect_timerid(0), nic_state_detect_timerid(0),
-    socket_fd(-1), status(ADAPTER_INVALID)
+    control_thread_key(),
+    control_thread_msgid(),
+    proxy_detect_timerid(),
+    ipaddr(),
+    disallow_multi_nic_ip(),
+    nic_state_detect_timerid(),
+    socket_fd(-1),
+    status(ADAPTER_INVALID)
 {
     SetClassName("CAdapterDetectThread");
 }
 
 CAdapterDetectThread::~CAdapterDetectThread()
-{ }
+{}
 
 bool CAdapterDetectThread::StartDetect(
     const char *nic_name,
@@ -32,7 +38,7 @@ bool CAdapterDetectThread::StartDetect(
     int msgid,
     bool disallow_multi_nic_ip,
     char *errmsg
-)
+) const
 {
     struct DetectNICInfo *info = nullptr;
 
@@ -67,7 +73,7 @@ bool CAdapterDetectThread::StartDetect(
     return true;
 }
 
-bool CAdapterDetectThread::StopDetect(unsigned int flag)
+bool CAdapterDetectThread::StopDetect(unsigned int flag) const
 {
     if (flag & 3) {
         if (PostThreadMessage(
@@ -128,7 +134,7 @@ bool CAdapterDetectThread::InitInstance()
     return false;
 }
 
-void CAdapterDetectThread::OnTimer(int tflag)
+void CAdapterDetectThread::OnTimer(int tflag) const
 {
     if (OnTimerEnter(tflag)) {
         if (!PostThreadMessage(ON_TIMER_MTYPE, reinterpret_cast<void *>(tflag), -1))
@@ -139,7 +145,7 @@ void CAdapterDetectThread::OnTimer(int tflag)
                                tflag);
 }
 
-void CAdapterDetectThread::MultipleAdaptesOrIPCheck()
+void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
 {
     struct ifreq ifr;
     struct ethtool_value evalue;
@@ -299,8 +305,8 @@ void CAdapterDetectThread::OnTimer(void *arg)
 
 void CAdapterDetectThread::adapter_state_check()
 {
-    struct ifreq ifr = { 0 };
-    struct ethtool_value evalue = { 0 };
+    struct ifreq ifr = {};
+    struct ethtool_value evalue = {};
     strncpy(ifr.ifr_name, nic_name, IFNAMSIZ - 1);
     evalue.cmd = ETHTOOL_GLINK;
     ifr.ifr_data = reinterpret_cast<__caddr_t>(&evalue);

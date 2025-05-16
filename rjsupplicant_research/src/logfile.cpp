@@ -1,6 +1,10 @@
 #include "global.h"
 #include "logfile.h"
 
+CLogFile::CLogFile() :
+    ofs(), prio()
+{}
+
 void CLogFile::CreateLogFile_S(const std::string &filename, int prio)
 {
     CreateLogFile(filename.c_str(), prio);
@@ -44,7 +48,7 @@ void CLogFile::LogToFile(
     bool print_crlf
 )
 {
-    char time[304] = { 0 };
+    char time[304] = {};
 
     if (!(log_msg && *log_msg && filename && *filename))
         return;
@@ -78,7 +82,7 @@ void CLogFile::AppendText(const char *format, ...)
 
 void CLogFile::AppendText_V(const char *format, va_list va)
 {
-    char s[2048] = { 0 };
+    char s[2048] = {};
     vsnprintf(s, sizeof(s), format, va);
     ofs << s;
 }

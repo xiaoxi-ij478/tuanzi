@@ -1,12 +1,13 @@
 #include "md5checksum.h"
 
-CMD5Checksum::CMD5Checksum()
+CMD5Checksum::CMD5Checksum() :
+    ctx()
 {
     MD5Init(&ctx);
 }
 
 CMD5Checksum::~CMD5Checksum()
-{ }
+{}
 
 void CMD5Checksum::Update(unsigned char *buf, unsigned int buflen)
 {
@@ -15,7 +16,7 @@ void CMD5Checksum::Update(unsigned char *buf, unsigned int buflen)
 
 char *CMD5Checksum::Final()
 {
-    unsigned char digest[16] = { 0 };
+    unsigned char digest[16] = {};
     char *digest_txt = new char[33];
     unsigned char upper = 0, lower = 0;
     Final2CharBuff(digest, 16);

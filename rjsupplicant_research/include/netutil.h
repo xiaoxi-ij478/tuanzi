@@ -11,7 +11,11 @@ enum ADAPTER_STATUS {
     ADAPTER_ENABLE,
     ADAPTER_ERROR
 };
-enum ADAPTER_TYPE { ADAPTER_WIRELESS, ADAPTER_WIRED };
+
+enum ADAPTER_TYPE {
+    ADAPTER_WIRELESS,
+    ADAPTER_WIRED
+};
 
 struct IPHeader {
     unsigned int version: 4;
@@ -144,13 +148,13 @@ bool get_alternate_dns(char *dst, int &counts);
 bool get_gateway(struct in_addr *result, const char *ifname);
 unsigned short get_speed_wl(int fd, char *ifname);
 unsigned short get_speed(int fd, char *ifname);
-static bool check_manualip_indirectory(
+bool check_manualip_indirectory(
     const char *ipaddr,
     const char *dir,
     bool incl_subdir
 );
-static bool check_manualip_infile(const char *ipaddr, const char *file);
-bool check_dhcp(const char *ifname, const char *ipaddr);
+bool check_manualip_infile(const char *ipaddr, const char *file);
+bool check_dhcp(const char * /*ifname*/, const char *ipaddr);
 bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6]);
 int check_nic_status(const char *ifname);
 bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only);
@@ -179,7 +183,7 @@ bool IsStarGroupDstMac(unsigned char macaddr[6]);
 void createUdpBindSocket(unsigned short port);
 bool isNoChangeIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4]);
 void stop_dhclient_asyn();
-bool dhclient_asyn(const char *ipaddr, sem_t *semaphore);
+bool dhclient_asyn(const char *ipaddr, sem_t * /*semaphore*/);
 void *dhclient_thread(void *varg);
 void dhclient_exit();
 void disable_enable_nic(const char *ifname);

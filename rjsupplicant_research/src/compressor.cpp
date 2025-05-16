@@ -4,7 +4,7 @@
 //static const unsigned char *in_mem  = nullptr;       /* orig name: pInputMem  */
 //static       unsigned char *out_pos = nullptr;       /* orig name: pOutPos    */
 //static       unsigned char *out_mem = nullptr;       /* orig name: pOutputMem */
-static       unsigned char  pc_table[32768] = { 0 }; /* orig name: pcTable    */
+static       unsigned char  pc_table[32768] = {}; /* orig name: pcTable    */
 
 //static unsigned char mgetc()
 //{
@@ -80,7 +80,7 @@ unsigned int Compress(
     unsigned int in_pos = 0, out_pos = 0;
     unsigned char prev_prev_char = 0, prev_char = 0, cur_char = 0;
     unsigned char master_byte = 0;
-    unsigned char buffer[8] = { 0 };
+    unsigned char buffer[8] = {};
     unsigned char buffer_index = 0;
     unsigned int compressed_size = 0;
     memset(pc_table, ' ', sizeof(pc_table));

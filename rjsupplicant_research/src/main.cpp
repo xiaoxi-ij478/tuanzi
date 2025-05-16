@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     char *ssid = nullptr;
     char *service = nullptr;
     char *username = nullptr;
-    char option_parse_error_str[2048] = { 0 };
+    char option_parse_error_str[2048] = {};
     bool option_parse_error = false;
     int save_password_tmp = 0;
     int start_thread_result = 0;

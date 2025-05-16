@@ -8,16 +8,16 @@ class CHttpConnection
         ~CHttpConnection();
 
         void addRequestHeader(const char *header);
-        int getErrorCode();
-        const std::string &getErrorText();
-        int getLength();
+        int getErrorCode() const;
+        const std::string &getErrorText() const;
+        int getLength() const;
         void setTimeout(int timeout);
         void httpClose();
         int httpConnect(const char *url);
-        int httpRead(void *buf, int buflen);
+        int httpRead(unsigned char *buf, int buflen);
 
     private:
-        int getHttpContentLength(const char *header);
+        int getHttpContentLength(const char *header) const;
         int makeSocket(const char *addr, unsigned short port);
         bool parseUrl(
             const char *url,

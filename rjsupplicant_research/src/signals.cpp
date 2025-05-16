@@ -44,4 +44,4 @@ void sig_quit(int)
 }
 
 void sig_tstp(int)
-{ }
+{}

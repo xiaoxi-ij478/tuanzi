@@ -1,7 +1,10 @@
 #include "global.h"
 #include "waithandle.h"
 
-WAIT_HANDLE::WAIT_HANDLE()
+WAIT_HANDLE::WAIT_HANDLE() :
+    finished(),
+    pthread_cond(),
+    pthread_mutex()
 {
     pthread_mutexattr_t t;
     int val;
@@ -25,3 +28,8 @@ WAIT_HANDLE::~WAIT_HANDLE()
 {
     finished = false;
 }
+
+WAIT_HANDLE2::WAIT_HANDLE2() :
+    no_need_send_msg(),
+    calling_thread()
+{}

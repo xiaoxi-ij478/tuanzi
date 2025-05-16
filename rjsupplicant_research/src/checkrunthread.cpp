@@ -36,7 +36,7 @@ static int del_sem(int semid)
 
 static int set_sem_all(int semid, int semnum)
 {
-    unsigned short arg[12] = { 0 };
+    unsigned short arg[12] = {};
 
     if (semctl(semid, semnum, SETALL, arg) == -1) {
         g_logChkRun.AppendText("Set sem error(%d):%s\n", errno, strerror(errno));

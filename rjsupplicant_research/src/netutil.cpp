@@ -26,7 +26,7 @@ int sockets_open()
 enum ADAPTER_TYPE get_nic_type(const char *ifname)
 {
     int fd = sockets_open();
-    struct iwreq iwr = { 0 };
+    struct iwreq iwr = {};
 
     if (fd < 0) {
         perror("get_nic_type __ sockets_open");
@@ -44,7 +44,7 @@ unsigned short ComputeTcpPseudoHeaderChecksum(
     int length
 )
 {
-    struct TCPChecksumHeader header = { 0 };
+    struct TCPChecksumHeader header = {};
     memset(&header, 0, sizeof(header));
 #define SET_PSEUDO_HEADER_INFO(name) header.pseudo_header.name = ipheader->name
     SET_PSEUDO_HEADER_INFO(srcaddr);
@@ -106,9 +106,9 @@ unsigned short checksum(unsigned short *data, unsigned int len)
         checksum += *data++;
 
     // add the additional one padding to word if exists
-    // but the original implementation uses
+    // but the original implementation uses partial byte
     if (len & 1)
-        checksum += *reinterpret_cast<unsigned char *>(data);
+        checksum += *reinterpret_cast<unsigned char *>(data) /*<< 8*/;
 
     // repeatedly take the high 16 bit and add to the low 16 bit
     // until the high 16 bit is 0
@@ -128,8 +128,8 @@ struct NICINFO *get_nics_info(const char *ifname)
     struct NICINFO::IP6AddrNode *tmp_ip6node = nullptr, *tmp2_ip6node = nullptr;
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     bool interface_added = false;
-    struct ifreq ifr = { 0 };
-    struct in_addr dns_addr = { 0 };
+    struct ifreq ifr = {};
+    struct in_addr dns_addr = {};
 
     if (fd  == -1)
         return nullptr;
@@ -140,7 +140,7 @@ struct NICINFO *get_nics_info(const char *ifname)
     }
 
     if (get_dns(&dns_addr))
-    { }
+    {}
 
 //        swap32(reinterpret_cast<unsigned char *>(&dns_addr.s_addr));
 
@@ -377,7 +377,6 @@ bool get_gateway(struct in_addr *result, const char *ifname)
     std::ifstream ifs("/proc/net/route");
     std::string line;
     std::vector<std::string> arr;
-    unsigned int pos1 = 0, pos2 = 0, pos3 = 0;
 
     if (!ifs)
         return false;
@@ -398,23 +397,22 @@ bool get_gateway(struct in_addr *result, const char *ifname)
 
 unsigned short get_speed_wl(int fd, char *ifname)
 {
-    struct iwreq iwr = { 0 };
-    int ret = 0;
+    struct iwreq iwr = {};
     strncpy(iwr.ifr_name, ifname, IFNAMSIZ - 1);
     return ioctl(fd, SIOCGIWRATE, &iwr) ? 0 : iwr.u.bitrate.value / 1000000;
 }
 
 unsigned short get_speed(int fd, char *ifname)
 {
-    struct ethtool_cmd ecmd = { 0 };
-    struct ifreq ifr = { 0 };
+    struct ethtool_cmd ecmd = {};
+    struct ifreq ifr = {};
     ecmd.cmd = ETHTOOL_GSET;
     strncpy(ifr.ifr_name, ifname, IFNAMSIZ - 1);
     ifr.ifr_data = reinterpret_cast<__caddr_t>(&ecmd);
     return ioctl(fd, SIOCETHTOOL, &ifr) ? 0 : ethtool_cmd_speed(&ecmd);
 }
 
-static bool check_manualip_indirectory(
+bool check_manualip_indirectory(
     const char *ipaddr,
     const char *dir,
     bool incl_subdir
@@ -487,7 +485,7 @@ static bool check_manualip_indirectory(
     return false;
 }
 
-static bool check_manualip_infile(const char *ipaddr, const char *file)
+bool check_manualip_infile(const char *ipaddr, const char *file)
 {
     std::ifstream ifs(file);
     std::string line;
@@ -505,7 +503,7 @@ static bool check_manualip_infile(const char *ipaddr, const char *file)
     return false;
 }
 
-bool check_dhcp(const char *ifname, const char *ipaddr)
+bool check_dhcp(const char * /*ifname*/, const char *ipaddr)
 {
     if (!ipaddr || !strcmp(ipaddr, "0.0.0.0"))
         return true;
@@ -542,10 +540,9 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
     std::string::iterator b, e;
     std::string testip(inet_ntoa(ipaddr));
     std::vector<std::string> val;
-    unsigned long pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
     // minimal-ping related
     int fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-    struct icmp_pkg package = { 0 }, recv_package = { 0 };
+    struct icmp_pkg package = {}, recv_package = {};
     struct sockaddr_in dest_addr = { AF_INET, 0, ipaddr };
     struct timeval wait_sec = { 3, 0 };
     unsigned int dest_addrlen = sizeof(dest_addr);
@@ -604,7 +601,7 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
         case 0: // the host may not be online
             return false;
 
-        case 1:// got response
+        case 1: // got response
             break;
     }
 
@@ -670,7 +667,7 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
 int check_nic_status(const char *ifname)
 {
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
-    struct ifreq ifr = { 0 };
+    struct ifreq ifr = {};
 //    struct ethtool_value evalue;
 
     if (fd == -1)
@@ -877,7 +874,7 @@ bool IsStarGroupDstMac(unsigned char macaddr[6])
 
 bool check_nic_isok(char *ifname)
 {
-    char errbuf[PCAP_ERRBUF_SIZE] = { 0 };
+    char errbuf[PCAP_ERRBUF_SIZE] = {};
     pcap_t *handle = nullptr;
 
     if (!ifname)
@@ -923,7 +920,7 @@ void stop_dhclient_asyn()
     killProcess("dhclient");
 }
 
-bool dhclient_asyn(const char *ipaddr, sem_t *semaphore)
+bool dhclient_asyn(const char *ipaddr, sem_t * /*semaphore*/)
 {
     DhclientThreadStruct *arg = new DhclientThreadStruct;
     pthread_t thread_key = 0;
@@ -1074,11 +1071,11 @@ void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname)
     // netmask=$(cat $first_field|awk  -F = '{if ($1~/NETMASK/) print $2}')
     // if not empty then
     // ifconfig $ifname $ipaddr netmask $netmask
-    // printf "____%s [set ip mask]%s________\n" "get_gateway_from_file" \\
+    // printf "____%s [set ip mask]%s________\n" "get_gateway_from_file" $
     // "ifconfig $ifname $ipaddr netmask $netmask"
     // gateway=$(cat $first_field|awk  -F = '{if ($1~/GATEWAY/) print $2}')
     // if not empty then
-    // printf "%s GATEWAY:%d:%d:%d:%d;\n" "get_gateway_from_file" \\
+    // printf "%s GATEWAY:%d:%d:%d:%d;\n" "get_gateway_from_file" $
     // $gateway_splited
     // route add default gw $gateway 2>&-
     DIR *rootdir = opendir("/etc/sysconfig/networking");
@@ -1089,8 +1086,8 @@ void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname)
     std::string ipaddr, netmask, gateway;
     std::string sdir("/etc/sysconfig/networking");
     std::vector<std::string> val;
-    struct ifreq ifr = { 0 };
-    struct rtentry route = { 0 };
+    struct ifreq ifr = {};
+    struct rtentry route = {};
     bool exit_ok = false;
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     device_line.append(ifname);

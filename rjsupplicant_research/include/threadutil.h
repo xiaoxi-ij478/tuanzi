@@ -1,7 +1,6 @@
 #ifndef THREADUTIL_H_INCLUDED
 #define THREADUTIL_H_INCLUDED
 
-
 #include "waithandle.h"
 
 int WaitForSingleObject(

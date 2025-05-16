@@ -9,10 +9,16 @@ class CSuConfigFile
     public:
         CSuConfigFile();
         virtual ~CSuConfigFile();
-        static void Lock();
-        static void Unlock();
         void Close();
         bool Open();
+        bool WritePrivateProfileString(
+            const char *domain,
+            const char *key,
+            const char *val
+        ) const;
+
+        static void Lock();
+        static void Unlock();
         static unsigned int GetPrivateProfileInt(
             const char *domain,
             const char *key,
@@ -24,20 +30,14 @@ class CSuConfigFile
             const char *defval,
             std::string &dst
         );
-        bool WritePrivateProfileString(
-            const char *domain,
-            const char *key,
-            const char *val
-        );
-
-    protected:
 
     private:
+        bool Open(const char *filename);
+        bool UpdateConfig();
+
         [[maybe_unused]] static void EnablePrivilege(const char *a1, bool a2);
         [[maybe_unused]] static void GetSysUPTime(unsigned int &a1, unsigned int &a2);
         [[maybe_unused]] static void LogToFile(const char *str);
-        bool Open(const char *filename);
-        bool UpdateConfig();
         static void DeleteFile(const std::string &filename);
         static void DeleteTempConfig();
         static void ProfileStringToString(std::string &str);
