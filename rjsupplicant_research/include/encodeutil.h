@@ -27,5 +27,4 @@ int ConvertUtf8ToGBK(
     std::string &outbuf
 );
 
-
 #endif // ENCODEUTIL_H_INCLUDED

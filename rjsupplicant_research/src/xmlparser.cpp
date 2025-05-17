@@ -1,8 +1,6 @@
 #include "xmlparser.h"
 
-XML_PARSER::XML_PARSER() :
-    TiXmlDocument(),
-    currentElement()
+XML_PARSER::XML_PARSER() : TiXmlDocument(), currentElement()
 {}
 
 XML_PARSER::~XML_PARSER()

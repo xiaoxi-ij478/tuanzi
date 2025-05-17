@@ -55,8 +55,12 @@ char *CMD5ForVz::GetMD5(unsigned char *buf, unsigned int buflen)
     return cksum.Final();
 }
 
-void CMD5ForVz::GetCharMd5(unsigned char *dst, unsigned char *src, int srclen,
-                           int dstlen)
+void CMD5ForVz::GetCharMd5(
+    unsigned char *dst,
+    unsigned char *src,
+    int srclen,
+    int dstlen
+)
 {
     CMD5ForVz cksum;
     cksum.Update(src, srclen);

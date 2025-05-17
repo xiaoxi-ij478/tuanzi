@@ -5,10 +5,7 @@
 
 CRITICAL_SECTION CSuConfigFile::CSuConfigFileLock;
 
-CSuConfigFile::CSuConfigFile() :
-    config_dirty(),
-    is_open(),
-    cfg_filename()
+CSuConfigFile::CSuConfigFile() : config_dirty(), is_open(), cfg_filename()
 {}
 
 CSuConfigFile::~CSuConfigFile()
@@ -83,8 +80,8 @@ void CSuConfigFile::DeleteTempConfig()
 }
 
 [[maybe_unused]] void CSuConfigFile::EnablePrivilege(
-    const char * /* a1 */,
-    bool /* a2 */
+    [[maybe_unused]] const char *a1,
+    [[maybe_unused]] bool a2
 )
 {}
 
@@ -138,12 +135,14 @@ void CSuConfigFile::GetPrivateProfileString(
 }
 
 [[maybe_unused]] void CSuConfigFile::GetSysUPTime(
-    unsigned int & /* a1 */,
-    unsigned int & /* a2 */
+    [[maybe_unused]] unsigned int &a1,
+    [[maybe_unused]] unsigned int &a2
 )
 {}
 
-[[maybe_unused]] void CSuConfigFile::LogToFile(const char * /* str */)
+[[maybe_unused]] void CSuConfigFile::LogToFile(
+    [[maybe_unused]] const char *str
+)
 {}
 
 bool CSuConfigFile::Open(const char *rfilename)

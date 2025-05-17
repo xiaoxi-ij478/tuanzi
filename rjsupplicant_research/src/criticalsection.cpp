@@ -2,9 +2,7 @@
 #include "criticalsection.h"
 
 CRITICAL_SECTION::CRITICAL_SECTION() :
-    inited(),
-    pthread_mutex(),
-    pthread_mutexattr()
+    pthread_mutex(), inited(), pthread_mutexattr()
 {}
 
 CRITICAL_SECTION::~CRITICAL_SECTION()
@@ -33,7 +31,7 @@ unsigned int CRITICAL_SECTION::enter()
 
 unsigned int CRITICAL_SECTION::Delete()
 {
-    unsigned int ret; // ebp
+    unsigned int ret;
 
     if (!inited)
         return 1;
@@ -45,7 +43,7 @@ unsigned int CRITICAL_SECTION::Delete()
         g_logSystem.AppendText("pthread_mutex_destroy return %d", ret);
 
     inited = true;
-    return 1;// !ret;
+    return 1; // !ret;
 }
 
 unsigned int CRITICAL_SECTION::init()

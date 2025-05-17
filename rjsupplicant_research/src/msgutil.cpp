@@ -220,9 +220,7 @@ const std::string &GetMessageType(int type)
 void print_msg_item(tagMsgItem *item)
 {
     std::string s;
-    s.append(item->msg)
-    .append("\t")
-    .append(GetMessageType(item->ntype));
+    s.append(item->msg).append("\t").append(GetMessageType(item->ntype));
     format_tc_string(get_tc_width(), 40, s);
     std::cout << std::endl;
 }

@@ -118,8 +118,8 @@ struct DhclientThreadStruct {
     sem_t *semaphore;
 };
 
-struct NicsStatus {
-    NicsStatus(char *nic_name, bool is_up) : is_up(is_up) {
+struct NICsStatus {
+    NICsStatus(char *nic_name, bool is_up) : is_up(is_up) {
         strncpy(this->nic_name, nic_name, sizeof(this->nic_name));
     }
     char nic_name[16];
@@ -154,11 +154,13 @@ bool check_manualip_indirectory(
     bool incl_subdir
 );
 bool check_manualip_infile(const char *ipaddr, const char *file);
-bool check_dhcp(const char * /*ifname*/, const char *ipaddr);
+bool check_dhcp([[maybe_unused]] const char *ifname, const char *ipaddr);
 bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6]);
 int check_nic_status(const char *ifname);
 bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only);
-[[maybe_unused]] int get_nic_list(std::vector<std::string>);
+[[maybe_unused]] int get_nic_list(
+    [[maybe_unused]] std::vector<std::string> list
+);
 bool get_nic_speed(char *dst, const char *ifname);
 bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only);
 unsigned int InitIpv4Header(
@@ -183,10 +185,10 @@ bool IsStarGroupDstMac(unsigned char macaddr[6]);
 void createUdpBindSocket(unsigned short port);
 bool isNoChangeIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4]);
 void stop_dhclient_asyn();
-bool dhclient_asyn(const char *ipaddr, sem_t * /*semaphore*/);
+bool dhclient_asyn(const char *ipaddr, [[maybe_unused]] sem_t *semaphore);
 void *dhclient_thread(void *varg);
 void dhclient_exit();
 void disable_enable_nic(const char *ifname);
-void get_all_nics_statu(std::vector<struct NicsStatus> &dest);
+void get_all_nics_statu(std::vector<struct NICsStatus> &dest);
 
 #endif // NETUTIL_H_INCLUDED

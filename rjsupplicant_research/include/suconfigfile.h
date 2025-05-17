@@ -1,7 +1,6 @@
 #ifndef SUCONFIGFILE_H
 #define SUCONFIGFILE_H
 
-
 #include "criticalsection.h"
 
 class CSuConfigFile
@@ -35,9 +34,17 @@ class CSuConfigFile
         bool Open(const char *filename);
         bool UpdateConfig();
 
-        [[maybe_unused]] static void EnablePrivilege(const char *a1, bool a2);
-        [[maybe_unused]] static void GetSysUPTime(unsigned int &a1, unsigned int &a2);
-        [[maybe_unused]] static void LogToFile(const char *str);
+        [[maybe_unused]] static void EnablePrivilege(
+            [[maybe_unused]] const char *a1,
+            [[maybe_unused]] bool a2
+        );
+        [[maybe_unused]] static void GetSysUPTime(
+            [[maybe_unused]] unsigned int &a1,
+            [[maybe_unused]] unsigned int &a2
+        );
+        [[maybe_unused]] static void LogToFile(
+            [[maybe_unused]] const char *str
+        );
         static void DeleteFile(const std::string &filename);
         static void DeleteTempConfig();
         static void ProfileStringToString(std::string &str);

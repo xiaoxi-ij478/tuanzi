@@ -8,8 +8,7 @@ enum LANG {
 };
 
 struct tagSectionUnit {
-    tagSectionUnit(unsigned id, const std::string &str) :
-        id(id), str(str)
+    tagSectionUnit(unsigned id, const std::string &str) : id(id), str(str)
     {}
     unsigned int id;
     std::string str;

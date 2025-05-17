@@ -1,20 +1,20 @@
 #include "global.h"
 #include "timeutil.h"
 #include "threadutil.h"
-#include "util.h"
 #include "lnxthread.h"
 
 CLnxThread::CLnxThread(void *(*thread_func)(void *), void *thread_func_arg) :
     dont_know_always_false(),
     thread_running(),
     me(),
+    wait_handle1(),
     thread_key(),
+    classname(),
     msgid(-1),
     no_need_send_msg(),
+    wait_handle2(),
     thread_func_arg(thread_func_arg),
     thread_func(thread_func),
-    wait_handle1(),
-    wait_handle2(),
     cur_msg(),
     timers(),
     pthread_mutex()
@@ -72,14 +72,18 @@ int CLnxThread::GetMessageID() const
     return msgid;
 }
 
-bool CLnxThread::PostThreadMessage(long mtype, void *buf,
-                                   unsigned long buflen) const
+bool CLnxThread::PostThreadMessage(
+    long mtype,
+    void *buf,
+    unsigned long buflen
+) const
 {
     struct LNXMSG msg = { mtype, buf, buflen };
 
     if (mtype < 0) {
         g_logSystem.AppendText(
-            "%s PostThreadMessage error: msgid < 0", classname
+            "%s PostThreadMessage error: msgid < 0",
+            classname
         );
         return false;
     }
@@ -250,7 +254,7 @@ bool CLnxThread::Run()
     return true;
 }
 
-bool CLnxThread::DispathMessage(struct LNXMSG * /* msg */)
+bool CLnxThread::DispathMessage([[maybe_unused]] struct LNXMSG *msg)
 {
     return true;
 }

@@ -16,7 +16,6 @@
 				<Compiler>
 					<Add option="-ggdb3" />
 					<Add option="-g" />
-					<Add option="-DTIXML_USE_STL" />
 					<Add directory="include" />
 				</Compiler>
 			</Target>
@@ -29,7 +28,6 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-DTIXML_USE_STL" />
 					<Add directory="include" />
 				</Compiler>
 			</Target>
@@ -40,6 +38,7 @@
 			<Add option="-Wall" />
 			<Add option="-fPIC" />
 			<Add option="-fexceptions" />
+			<Add option="-DTIXML_USE_STL" />
 		</Compiler>
 		<Unit filename="include/tinystr.h" />
 		<Unit filename="include/tinyxml.h" />

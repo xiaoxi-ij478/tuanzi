@@ -5,9 +5,7 @@
 std::string CChangeLanguage::translate_filename;
 
 CChangeLanguage::CChangeLanguage() :
-    lang_inited(),
-    language_id(LANG_INVALID),
-    trans_strings()
+    lang_inited(), language_id(LANG_INVALID), trans_strings()
 {}
 
 CChangeLanguage &CChangeLanguage::Instance()
@@ -103,9 +101,10 @@ bool CChangeLanguage::SetLanguage(enum LANG lang_id)
     if (language_id == lang_id && lang_inited)
         return true;
 
-    translate_filename = g_strAppPath + (
-                             lang_id == LANG_CHINESE ? "uiCHS.ini" : "uiENG.ini"
-                         );
+    translate_filename =
+        g_strAppPath + (
+            lang_id == LANG_CHINESE ? "uiCHS.ini" : "uiENG.ini"
+        );
 
     if ((result = InitLanguage()))
         language_id = lang_id;

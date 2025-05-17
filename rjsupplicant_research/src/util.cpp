@@ -183,7 +183,10 @@ void ChangeSelfSvrParam(void *)
     }
 
     if (!ofs) {
-        g_logSystem.AppendText("ERROR: Open file %s failed.\n", "SuConfig_Encrypt.dat");
+        g_logSystem.AppendText(
+            "ERROR: Open file %s failed.\n",
+            "SuConfig_Encrypt.dat"
+        );
         return false;
     }
 
@@ -198,8 +201,10 @@ void ChangeSelfSvrParam(void *)
     Compress(ibuf, obuf, orig_len, comp_len);
 
     if (!ofs.write(reinterpret_cast<const char *>(obuf), comp_len)) {
-        g_logSystem.AppendText("ERROR: write file %s failed.\n",
-                               "SuConfig_Encrypt.dat");
+        g_logSystem.AppendText(
+            "ERROR: write file %s failed.\n",
+            "SuConfig_Encrypt.dat"
+        );
         return false;
     }
 
@@ -228,7 +233,9 @@ void ChangeSelfSvrParam(void *)
     pclose(fp);
 }
 
-[[maybe_unused]] float get_fedora_lib_version(const char * /* pkgname */)
+[[maybe_unused]] float get_fedora_lib_version(
+    [[maybe_unused]] const char *pkgname
+)
 {
     // I'm a Debian fan, so I don't know how to use yum
     // yum list installed |grep $pkgname |awk 'NR==1 {print $2}'
@@ -267,14 +274,19 @@ unsigned int addStringOnLineHead(
     return modified_line;
 }
 
-int FindChar(char to_find, const char *str, int begin, int end)
+int FindChar(
+    unsigned char to_find,
+    const unsigned char *str,
+    int begin,
+    int end
+)
 {
     if (!str || begin < 0 || end < 0 || end > strlen(str))
         return -1;
 
     for (int i = begin; i < end; i++)
         if (str[i] == to_find)
-            return str[i];
+            return i;
 
     return -1;
 }
@@ -629,10 +641,10 @@ std::string IntToString(int num)
 //function is64BIT()
 //{
 //  os=$(getconf LONG_BIT);
-//  if [ $os != "64" ];  then
-//      return 0;
+//  if [ $os == "32" ];  then
+//      return 1;
 //  fi
-//  return 1;
+//  return 0;
 //}
 bool Is64BIT()
 {
@@ -692,7 +704,7 @@ int MemCmpare(
     if (!buf1 || !buf2 || end - begin + 1 < len)
         return -2;
 
-    return memcmp(buf1 + begin, buf2, len);
+    return !!memcmp(buf1 + begin, buf2, len);
 }
 
 void RcvACLParam(void *arg)
@@ -717,7 +729,7 @@ void RcvIPMACChangeNotify()
     logFile.AppendText("recv ip mac change notify");
 }
 
-void RcvLoginURL(const std::string &/*arg*/)
+void RcvLoginURL([[maybe_unused]] const std::string &arg)
 {
     logFile.AppendText("recv login url");
 }

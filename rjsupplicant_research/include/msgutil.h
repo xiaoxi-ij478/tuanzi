@@ -1,7 +1,6 @@
 #ifndef MSGUTIL_H_INCLUDED
 #define MSGUTIL_H_INCLUDED
 
-
 struct tagMsgItem {
     tagMsgItem(
         int ntype = 0,

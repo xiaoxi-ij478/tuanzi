@@ -1,8 +1,7 @@
 #include "global.h"
 #include "logfile.h"
 
-CLogFile::CLogFile() :
-    ofs(), prio()
+CLogFile::CLogFile() : ofs(), prio()
 {}
 
 void CLogFile::CreateLogFile_S(const std::string &filename, int prio)
@@ -34,9 +33,9 @@ void CLogFile::HexPrinter(const unsigned char *arr, unsigned int len)
 {
     std::ios::fmtflags orig_f = ofs.flags(std::ios::hex);
     std::streamsize orig_p = ofs.precision(2);
-    std::for_each(arr, arr + len, [this](const unsigned char i) {
-        ofs << i;
-    });
+    // *INDENT-OFF*
+    std::for_each(arr, arr + len, [this](const unsigned char i) { ofs << i; });
+    // *INDENT-ON*
     ofs.flags(orig_f);
     ofs.precision(orig_p);
 }

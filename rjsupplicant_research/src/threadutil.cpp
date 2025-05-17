@@ -52,10 +52,10 @@ int WaitForSingleObject(
 }
 
 [[maybe_unused]] int WaitForMultipleObjects(
-    int /* event_count */,
-    WAIT_HANDLE * /* events */,
-    bool /* wait_all */,
-    unsigned long /* no_obj_waittime */
+    [[maybe_unused]] int event_count,
+    [[maybe_unused]] WAIT_HANDLE *events,
+    [[maybe_unused]] bool wait_all,
+    [[maybe_unused]] unsigned long no_obj_waittime
 )
 {
     // It is not used anyway, and I don't want to figure what the heck

@@ -827,7 +827,7 @@ int CDownLoadThread::http_send(
     char send_buf[2048] = {};
     struct sockaddr_in dest_ipaddr = {};
     struct hostent *domain_resolve = nullptr;
-    // maybe from one of their employee's browser xD
+    // maybe from one of their employee's browser :D
 #define HTTP_REQUEST \
     "GET %s HTTP/1.1\r\n" \
     "User-Agent: Mozilla/4.0 (compatiable; MSIE 6.0; Windows NT 5.1; SV1; Maxthon)\r\n" \
@@ -934,10 +934,10 @@ int CDownLoadThread::xconnect_ftpdata(
     char *tmp = nullptr;
 
     if ((tmp = strrchr(pasv_reply, ')')))
-        * tmp = 0;
+        *tmp = 0; // *NOPAD*
 
     if ((tmp = strrchr(pasv_reply, ',')))
-        * tmp++ = 0;
+        *tmp++ = 0; // *NOPAD*
 
     else {
         rj_printf_debug("pasv parse error\n");
@@ -952,7 +952,7 @@ int CDownLoadThread::xconnect_ftpdata(
     port = ptmp << 8;
 
     if ((tmp = strrchr(pasv_reply, ',')))
-        * tmp++ = 0;
+        *tmp++ = 0; // *NOPAD*
 
     else {
         rj_printf_debug("pasv parse error\n");

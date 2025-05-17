@@ -1,7 +1,6 @@
 #include "md5checksum.h"
 
-CMD5Checksum::CMD5Checksum() :
-    ctx()
+CMD5Checksum::CMD5Checksum() : ctx()
 {
     MD5Init(&ctx);
 }
@@ -56,8 +55,12 @@ char *CMD5Checksum::GetMD5(unsigned char *buf, unsigned int buflen)
     return cksum.Final();
 }
 
-void CMD5Checksum::GetCharMd5(unsigned char *dst, unsigned char *src,
-                              int srclen, int dstlen)
+void CMD5Checksum::GetCharMd5(
+    unsigned char *dst,
+    unsigned char *src,
+    int srclen,
+    int dstlen
+)
 {
     CMD5Checksum cksum;
     cksum.Update(src, srclen);

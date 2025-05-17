@@ -9,7 +9,7 @@ class CCheckRunThread
 
     private:
         static unsigned int create_sem_and_lock();
-        static void *thread_function(void *);
+        static void *thread_function([[maybe_unused]] void *arg);
 
         static bool started;
         static int sem_id; // original name: m_sem_id

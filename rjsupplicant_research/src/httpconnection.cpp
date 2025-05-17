@@ -1,10 +1,11 @@
 #include "httpconnection.h"
 
 CHttpConnection::CHttpConnection() :
-    error_num(0),
+    error_num(),
     error_msg(),
-    connect_timeout(0),
+    connect_timeout(),
     socket_fd(-1),
+    reply_header(),
     content_length(-1),
     http_request_version("HTTP/1.0"),
     http_request_header(

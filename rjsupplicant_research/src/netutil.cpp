@@ -139,8 +139,7 @@ struct NICINFO *get_nics_info(const char *ifname)
         return nullptr;
     }
 
-    if (get_dns(&dns_addr))
-    {}
+    if (get_dns(&dns_addr)) {}
 
 //        swap32(reinterpret_cast<unsigned char *>(&dns_addr.s_addr));
 
@@ -230,8 +229,11 @@ struct NICINFO *get_nics_info(const char *ifname)
 //                swap32(reinterpret_cast<unsigned char *>(&tmp_ipnode->netmask.s_addr));
                 if (!cur_info->ipaddrs) {
                     cur_info->ipaddrs = tmp_ipnode;
-                    cur_info->use_dhcp = check_dhcp(cur_if->ifa_name,
-                                                    inet_ntoa(tmp_ipnode->ipaddr));
+                    cur_info->use_dhcp =
+                        check_dhcp(
+                            cur_if->ifa_name,
+                            inet_ntoa(tmp_ipnode->ipaddr)
+                        );
 
                 } else {
                     tmp2_ipnode = cur_info->ipaddrs;
@@ -441,7 +443,11 @@ bool check_manualip_indirectory(
             if (!subdir)
                 continue;
 
-            for (struct dirent *sdent = readdir(subdir); sdent; sdent = readdir(subdir)) {
+            for (
+                struct dirent *sdent = readdir(subdir);
+                sdent;
+                sdent = readdir(subdir)
+            ) {
                 if (sdent->d_type != DT_REG)
                     continue;
 
@@ -503,32 +509,31 @@ bool check_manualip_infile(const char *ipaddr, const char *file)
     return false;
 }
 
-bool check_dhcp(const char * /*ifname*/, const char *ipaddr)
+bool check_dhcp([[maybe_unused]] const char *ifname, const char *ipaddr)
 {
     if (!ipaddr || !strcmp(ipaddr, "0.0.0.0"))
         return true;
 
-    return !(
-               check_manualip_indirectory(
-                   ipaddr,
-                   "/etc/sysconfig/networking/",
-                   true
-               ) ||
-               check_manualip_indirectory(
-                   ipaddr,
-                   "/etc/sysconfig/network-scripts/",
-                   false
-               ) ||
-               check_manualip_infile(
-                   ipaddr,
-                   "/etc/network/interfaces"
-               ) ||
-               check_manualip_indirectory(
-                   ipaddr,
-                   "/etc/NetworkManager/system-connections/",
-                   false
-               )
-           );
+    return
+        !check_manualip_indirectory(
+            ipaddr,
+            "/etc/sysconfig/networking/",
+            true
+        ) &&
+        !check_manualip_indirectory(
+            ipaddr,
+            "/etc/sysconfig/network-scripts/",
+            false
+        ) &&
+        !check_manualip_infile(
+            ipaddr,
+            "/etc/network/interfaces"
+        ) &&
+        !check_manualip_indirectory(
+            ipaddr,
+            "/etc/NetworkManager/system-connections/",
+            false
+        );
 }
 
 bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
@@ -582,10 +587,11 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
         "ij478ij478ij478ij478ij478ij478ij478ij478",
         sizeof(package.icmp_data)
     );
-    package.icmp_cksum = checksum(
-                             reinterpret_cast<unsigned short *>(&package),
-                             sizeof(package)
-                         );
+    package.icmp_cksum =
+        checksum(
+            reinterpret_cast<unsigned short *>(&package),
+            sizeof(package)
+        );
     sendto(
         fd,
         &package,
@@ -731,7 +737,9 @@ bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only)
 
 // ????????
 // lshal 2>&- |grep net.interface | awk -F\"'\" '{print$2}'
-[[maybe_unused]] int get_nic_list(std::vector<std::string>)
+[[maybe_unused]] int get_nic_list(
+    [[maybe_unused]] std::vector<std::string> list
+)
 {
     return 0;
 }
@@ -795,9 +803,8 @@ unsigned int InitIpv4Header(
     header->version = 4;
     header->ihl = 5;
     header->tos = 0;
-    header->total_length = htons(datalen) +
-                           sizeof(struct IPHeader) +
-                           sizeof(struct udp_hdr);
+    header->total_length =
+        htons(datalen) + sizeof(struct IPHeader) + sizeof(struct udp_hdr);
     header->ipid = 0;
     header->flags = 0;
     header->fragment_offset = 0;
@@ -806,10 +813,11 @@ unsigned int InitIpv4Header(
     header->header_checksum = 0;
     header->srcaddr = inet_addr(srcaddr);
     header->dstaddr = inet_addr(dstaddr);
-    header->header_checksum = checksum(
-                                  reinterpret_cast<unsigned short *>(header_c),
-                                  sizeof(struct IPHeader)
-                              );
+    header->header_checksum =
+        checksum(
+            reinterpret_cast<unsigned short *>(header_c),
+            sizeof(struct IPHeader)
+        );
     return sizeof(struct IPHeader);
 }
 
@@ -920,7 +928,7 @@ void stop_dhclient_asyn()
     killProcess("dhclient");
 }
 
-bool dhclient_asyn(const char *ipaddr, sem_t * /*semaphore*/)
+bool dhclient_asyn(const char *ipaddr, [[maybe_unused]] sem_t *semaphore)
 {
     DhclientThreadStruct *arg = new DhclientThreadStruct;
     pthread_t thread_key = 0;
@@ -1006,7 +1014,7 @@ void disable_enable_nic(const char *ifname)
     system(std::string("ifconfig ").append(ifname).append(" up").c_str());
 }
 
-void get_all_nics_statu(std::vector<struct NicsStatus> &dest)
+void get_all_nics_statu(std::vector<struct NICsStatus> &dest)
 {
     bool in_list = false;
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -1026,7 +1034,7 @@ void get_all_nics_statu(std::vector<struct NicsStatus> &dest)
         cur_if;
         cur_if = cur_if->ifa_next, in_list = false
     ) {
-        for (const struct NicsStatus &nic : dest) {
+        for (const struct NICsStatus &nic : dest) {
             if (!strcmp(nic.nic_name, cur_if->ifa_name))
                 in_list = true;
 

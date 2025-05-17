@@ -8,17 +8,25 @@ int WaitForSingleObject(
     unsigned long off_msec
 );
 [[maybe_unused]] int WaitForMultipleObjects(
-    int /* event_count */,
-    WAIT_HANDLE * /* events */,
-    bool /* wait_all */,
-    unsigned long /* no_obj_waittime */
+    [[maybe_unused]] int event_count,
+    [[maybe_unused]] WAIT_HANDLE *events,
+    [[maybe_unused]] bool wait_all,
+    [[maybe_unused]] unsigned long no_obj_waittime
 );
 void CloseHandle(WAIT_HANDLE *wait_handle);
 void SetEvent(WAIT_HANDLE *wait_handle, bool broadcast);
 bool TerminateThread(pthread_t thread_key);
-bool PostThreadMessage(pthread_t thread_key, unsigned int mtype, void *buf,
-                       unsigned long buflen);
-bool GPostThreadMessage(int msqid, unsigned int mtype, void *buf,
-                        unsigned long buflen);
+bool PostThreadMessage(
+    pthread_t thread_key,
+    unsigned int mtype,
+    void *buf,
+    unsigned long buflen
+);
+bool GPostThreadMessage(
+    int msqid,
+    unsigned int mtype,
+    void *buf,
+    unsigned long buflen
+);
 
 #endif // THREADUTIL_H_INCLUDED

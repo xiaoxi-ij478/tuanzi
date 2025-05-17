@@ -8,6 +8,18 @@
 #include "cmdutil.h"
 #include "global.h"
 
+enum AUTH_MODE {
+    AUTH_INVALID,
+    AUTH_WIRED,
+    AUTH_WIRELESS
+};
+
+enum DHCP_MODE {
+    DHCP_INVALID,
+    DHCP_LOCAL,
+    DHCP_SERVER
+};
+
 static int iniparser_error_callback(const char *format, ...)
 {
     // redirect iniparser issue to g_logSystem
@@ -41,10 +53,12 @@ int main(int argc, char **argv)
     int save_password_tmp = 0;
     int start_thread_result = 0;
     const struct option longopt[] = {
-        { "auth", 1, nullptr, 'a' }, { "dhcp", 1, nullptr, 'd' }, { "nic", 1, nullptr, 'n' },
-        { "ssid", 1, nullptr, 'I' }, { "wlan", 0, nullptr, 'w' }, { "service", 1, nullptr, 's' },
-        { "user", 1, nullptr, 'u' }, { "password", 1, nullptr, 'p' }, { "save", 1, nullptr, 'S' },
-        { "quit", 0, nullptr, 'q' }, { "list", 0, nullptr, 'l' }, { "help", 0, nullptr, 'h' },
+        { "auth",    1, nullptr, 'a' }, { "dhcp",     1, nullptr, 'd' },
+        { "nic",     1, nullptr, 'n' }, { "ssid",     1, nullptr, 'I' },
+        { "wlan",    0, nullptr, 'w' }, { "service",  1, nullptr, 's' },
+        { "user",    1, nullptr, 'u' }, { "password", 1, nullptr, 'p' },
+        { "save",    1, nullptr, 'S' }, { "quit",     0, nullptr, 'q' },
+        { "list",    0, nullptr, 'l' }, { "help",     0, nullptr, 'h' },
         { "version", 0, nullptr, 'v' }, { }
     };
     iniparser_set_error_callback(iniparser_error_callback);
@@ -55,8 +69,13 @@ int main(int argc, char **argv)
     cinstance.SetLanguage(GetSysLanguage());
     InitLogFiles();
 
-    while ((option = getopt_long(argc, argv, "qlh?wa:d:u:p:s:n:S:I:", longopt,
-                                 &longind)) != -1) {
+    while ((option = getopt_long(
+                         argc,
+                         argv,
+                         "qlh?wa:d:u:p:s:n:S:I:",
+                         longopt,
+                         &longind
+                     )) != -1) {
         switch (option) {
             case ':':
                 fprintf(stderr, cinstance.LoadString(2029).c_str(), optopt);
@@ -181,7 +200,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    if (geteuid())  { // not superuser
+    if (geteuid()) {  // not superuser
         std::cerr << cinstance.LoadString(257) << std::endl;
         return EXIT_SUCCESS;
     }

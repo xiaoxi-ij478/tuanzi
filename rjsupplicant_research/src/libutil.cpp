@@ -26,7 +26,8 @@ int load_librt()
             !(librt_handle = dlopen(try2.c_str(), RTLD_LAZY)))
         return 1;
 
-#define LOAD_SYMBOL(symbol) do { \
+#define LOAD_SYMBOL(symbol) \
+    do { \
         *reinterpret_cast<void **>(&my_##symbol) = dlsym(librt_handle, #symbol); \
         if (dlerror()) { \
             free_librt(); \

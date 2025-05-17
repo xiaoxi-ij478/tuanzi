@@ -10,8 +10,7 @@ pthread_t CDNSQuery::thread_key;
 pthread_mutex_t CDNSQuery::mutex_list;
 struct CHostEnt *CDNSQuery::hostent_list_hdr = nullptr;
 
-int CDNSQuery::PostQueryByName(const char *hostname,
-                               struct CHostEnt **dest) const
+int CDNSQuery::PostQueryByName(const char *hostname, struct CHostEnt **dest)
 {
     struct DNSQueryStruct query = {};
     int ret = 0;
@@ -39,7 +38,7 @@ int CDNSQuery::PostQueryByName(const char *hostname,
     return 1;
 }
 
-int CDNSQuery::QueryByName(const char *hostname, struct CHostEnt **dest) const
+int CDNSQuery::QueryByName(const char *hostname, struct CHostEnt **dest)
 {
     int list_len = 1;
     int ret = 0;
@@ -129,7 +128,7 @@ int CDNSQuery::QueryByName(const char *hostname, struct CHostEnt **dest) const
     return 1;
 }
 
-bool CDNSQuery::StartQueryThread(char *errmsg) const
+bool CDNSQuery::StartQueryThread(char *errmsg)
 {
     pthread_mutexattr_t mutexattr;
     int lmsgid = 0;
@@ -202,7 +201,7 @@ bool CDNSQuery::StartQueryThread(char *errmsg) const
     return true;
 }
 
-int CDNSQuery::StopQueryThread() const
+int CDNSQuery::StopQueryThread()
 {
     struct DNSQueryStruct msg = { STOP_DNS_QUERY_MTYPE };
 
@@ -228,10 +227,8 @@ int CDNSQuery::StopQueryThread() const
         hostent_list_hdr;
         hostent_list_hdr = nent,
         nent = hostent_list_hdr ? nullptr : hostent_list_hdr->hostent_next
-    ) {
+    )
         delete_hostent(&hostent_list_hdr->hostent_entry);
-        delete hostent_list_hdr;
-    }
 
     hostent_list_hdr = nullptr;
     pthread_mutex_unlock(&mutex_list);
@@ -246,7 +243,7 @@ int CDNSQuery::StopQueryThread() const
     return 0;
 }
 
-bool CDNSQuery::thread_is_running() const
+bool CDNSQuery::thread_is_running()
 {
     return running;
 }
@@ -275,10 +272,8 @@ void CDNSQuery::UpdateHostEntList(struct CHostEnt *entry)
         to_be_deleted;
         to_be_deleted = nent,
         nent = to_be_deleted ? nullptr : to_be_deleted->hostent_next
-    ) {
+    )
         delete_hostent(&to_be_deleted->hostent_entry);
-        delete to_be_deleted;
-    }
 
     pthread_mutex_unlock(&mutex_list);
 }
@@ -324,7 +319,7 @@ void CDNSQuery::GetHostByName(char *hostname, struct CHostEnt **dest)
     copy_hostent(entry, &(*dest)->hostent_entry);
 }
 
-void *CDNSQuery::thread_function(void * /*arg*/)
+void *CDNSQuery::thread_function([[maybe_unused]] void *arg)
 {
     int rcv_msgid = 0;
     struct DNSQueryStruct msg = {};

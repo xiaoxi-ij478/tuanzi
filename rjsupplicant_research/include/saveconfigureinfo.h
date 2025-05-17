@@ -1,7 +1,6 @@
 #ifndef SAVECONFIGUREINFO_H
 #define SAVECONFIGUREINFO_H
 
-
 class SaveConfigureInfo
 {
     public:

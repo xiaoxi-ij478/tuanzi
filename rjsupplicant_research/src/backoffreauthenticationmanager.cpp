@@ -1,7 +1,7 @@
 #include "backoffreauthenticationmanager.h"
 
 CBackoffReAuthenticationManager::CBackoffReAuthenticationManager() :
-    reauth_count(0), reauth_timer(0)
+    reauth_count(), reauth_timer()
 {}
 
 CBackoffReAuthenticationManager &CBackoffReAuthenticationManager::Instance()
@@ -29,5 +29,5 @@ bool CBackoffReAuthenticationManager::IsNeedReAuthentication() const
 void CBackoffReAuthenticationManager::Reset()
 {
     reauth_count = 0;
-    reauth_timer = 0;
+    reauth_timer = nullptr;
 }

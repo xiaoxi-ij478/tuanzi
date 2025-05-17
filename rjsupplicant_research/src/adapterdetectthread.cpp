@@ -12,14 +12,14 @@
                          0 \
                        )
 
-
 CAdapterDetectThread::CAdapterDetectThread() :
     CLnxThread(),
     control_thread_key(),
     control_thread_msgid(),
-    proxy_detect_timerid(),
     ipaddr(),
+    macaddr(),
     disallow_multi_nic_ip(),
+    proxy_detect_timerid(),
     nic_state_detect_timerid(),
     socket_fd(-1),
     status(ADAPTER_INVALID)
@@ -141,8 +141,10 @@ void CAdapterDetectThread::OnTimer(int tflag) const
             OnTimerLeave(tflag);
 
     } else
-        g_logSystem.AppendText("CAdapterDetectThread::OnTimer(timerFlag=%d),return",
-                               tflag);
+        g_logSystem.AppendText(
+            "CAdapterDetectThread::OnTimer(timerFlag=%d),return",
+            tflag
+        );
 }
 
 void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const

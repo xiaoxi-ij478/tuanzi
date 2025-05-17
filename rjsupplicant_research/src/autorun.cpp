@@ -1,7 +1,6 @@
 #include "util.h"
-#include "fileutil.h"
-#include "autorun.h"
 #include "cmdutil.h"
+#include "autorun.h"
 
 bool AddAutoRun(const char *arg)
 {
@@ -49,7 +48,10 @@ int auto_run(const char *exe, enum MODIFY_MODE mode, const char *arg)
     }
 }
 
-int before_login_enable(const char * /*exe*/, const char * /*arg*/)
+int before_login_enable(
+    [[maybe_unused]] const char *exe,
+    [[maybe_unused]] const char *arg
+)
 {
     // original implementation is in shell
     // rm -rf "/etc/rc.d/init.d/${exe%.*}"
@@ -62,14 +64,17 @@ int before_login_enable(const char * /*exe*/, const char * /*arg*/)
     return 0;
 }
 
-int before_login_disable(const char * /*exe*/)
+int before_login_disable([[maybe_unused]] const char *exe)
 {
     // original implementation is in shell
     // rm -rf "/etc/rc.d/init.d/${exe%.*}"
     return 0;
 }
 
-int profile_add(const char * /*exe*/, const char * /*arg*/)
+int profile_add(
+    [[maybe_unused]] const char *exe,
+    [[maybe_unused]] const char *arg
+)
 {
     // original implementation is in shell
     // if ! cat /etc/profile | grep "$exe"
@@ -78,7 +83,7 @@ int profile_add(const char * /*exe*/, const char * /*arg*/)
     return 0;
 }
 
-int profile_del(const char * /*exe*/)
+int profile_del([[maybe_unused]] const char *exe)
 {
     // original implementation is in shell
     // sed -i "/$exe/d" /etc/profile

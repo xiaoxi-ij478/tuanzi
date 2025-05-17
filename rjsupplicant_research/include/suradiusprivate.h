@@ -1,7 +1,6 @@
 #ifndef SURADIUSPRIVATE_H
 #define SURADIUSPRIVATE_H
 
-
 class SuRadiusPrivate
 {
     public:

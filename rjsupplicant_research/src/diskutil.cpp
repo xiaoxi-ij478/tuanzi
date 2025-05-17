@@ -52,7 +52,7 @@ int get_sata_serial(int fd, char *dst)
         return -5;
     }
 
-// the original function is named as print_ascii, but we inline it here
+    // the original function is named as print_ascii, but we inline it here
     pos = 19;
 
     while (args[++pos] == ' ' && pos < 40);

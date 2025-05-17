@@ -25,14 +25,20 @@ void ChangeSelfSvrParam(void *);
 [[maybe_unused]] bool EncryptSuConfig(); // this is not working
 // it would not be used anyway...
 [[maybe_unused]] void exec_cmd(const char *cmd, char *buf, int buflen);
-[[maybe_unused]] float get_fedora_lib_version(const char * /* pkgname */);
+[[maybe_unused]] float get_fedora_lib_version(
+    [[maybe_unused]] const char *pkgname
+);
 unsigned int addStringOnLineHead(
     const char *in_filename,
     const char *out_filename,
     const char *add_line_contain,
     const char *add_string
 );
-int FindChar(char to_find, const char *str, int begin, int end);
+int FindChar(
+    unsigned char to_find,
+    const unsigned char *str,
+    int begin, int end
+);
 int FindSub(
     const unsigned char *buf,
     unsigned int buflen,
@@ -85,7 +91,7 @@ void RcvACLParam(void *arg);
 void RcvCMD_GetProcessAndNetworkInfo();
 void RcvFlowMonitorParam(void *arg);
 void RcvIPMACChangeNotify();
-void RcvLoginURL(const std::string &/*arg*/);
+void RcvLoginURL([[maybe_unused]] const std::string &arg);
 void RcvNetSecParam(void *arg);
 void RcvOpenUtrustUrlCmd(const std::string &arg);
 void RcvStartAuthNotification();
