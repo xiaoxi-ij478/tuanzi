@@ -274,12 +274,7 @@ unsigned int addStringOnLineHead(
     return modified_line;
 }
 
-int FindChar(
-    unsigned char to_find,
-    const unsigned char *str,
-    int begin,
-    int end
-)
+int FindChar(char to_find, const char *str, int begin, int end)
 {
     if (!str || begin < 0 || end < 0 || end > strlen(str))
         return -1;
@@ -292,22 +287,16 @@ int FindChar(
 }
 
 int FindSub(
-    const unsigned char *buf,
-    unsigned int buflen,
-    const unsigned char *to_find_buf,
+    const char *to_find_buf,
     unsigned int to_find_buf_len,
+    const char *buf,
     unsigned int begin,
     unsigned int end
 )
 {
     bool match = true;
 
-    if (
-        !buf ||
-        !to_find_buf ||
-        end > buflen ||
-        begin + to_find_buf_len > buflen
-    )
+    if (!buf || end - begin + 1 < to_find_buf_len)
         return -1;
 
     for (unsigned int i = begin; i < end; i++) {
@@ -693,13 +682,7 @@ bool Is64BIT()
 //        g_uilog.AppendText("SetRunModeCheckTimer my_timer_settime error");
 //}
 
-int MemCmpare(
-    const unsigned char *buf1,
-    unsigned int begin,
-    unsigned int end,
-    const unsigned char *buf2,
-    unsigned int len
-)
+int MemCmpare(const void *buf1, int begin, int end, const void *buf2, int len)
 {
     if (!buf1 || !buf2 || end - begin + 1 < len)
         return -2;

@@ -224,7 +224,7 @@ bool is_run_background()
     }
 
     if (myp == -1) {
-        rj_printf_debug("getpgrp error:%s",  strerror(errno));
+        rj_printf_debug("getpgrp error:%s", strerror(errno));
         return false;
     }
 

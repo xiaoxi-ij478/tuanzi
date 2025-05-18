@@ -4,7 +4,7 @@
 //static const unsigned char *in_mem  = nullptr;       /* orig name: pInputMem  */
 //static       unsigned char *out_pos = nullptr;       /* orig name: pOutPos    */
 //static       unsigned char *out_mem = nullptr;       /* orig name: pOutputMem */
-static       unsigned char  pc_table[32768] = {}; /* orig name: pcTable    */
+static unsigned char pc_table[32768] = {}; /* orig name: pcTable    */
 
 //static unsigned char mgetc()
 //{

@@ -131,7 +131,7 @@ struct NICINFO *get_nics_info(const char *ifname)
     struct ifreq ifr = {};
     struct in_addr dns_addr = {};
 
-    if (fd  == -1)
+    if (fd == -1)
         return nullptr;
 
     if (getifaddrs(&ifap) == -1 || !ifap) {
@@ -219,12 +219,12 @@ struct NICINFO *get_nics_info(const char *ifname)
 
                 cur_info->ipaddr_count++;
                 tmp_ipnode->ipaddr =
-                    reinterpret_cast<struct sockaddr_in *>(cur_if->ifa_addr)
-                    ->sin_addr;
+                    reinterpret_cast<struct sockaddr_in *>
+                    (cur_if->ifa_addr)->sin_addr;
 //                swap32(reinterpret_cast<unsigned char *>(&tmp_ipnode->ipaddr.s_addr));
                 tmp_ipnode->netmask =
-                    reinterpret_cast<struct sockaddr_in *>(cur_if->ifa_netmask)
-                    ->sin_addr;
+                    reinterpret_cast<struct sockaddr_in *>
+                    (cur_if->ifa_netmask)->sin_addr;
 
 //                swap32(reinterpret_cast<unsigned char *>(&tmp_ipnode->netmask.s_addr));
                 if (!cur_info->ipaddrs) {
@@ -254,12 +254,12 @@ struct NICINFO *get_nics_info(const char *ifname)
 
                 cur_info->ipaddr6_count++;
                 tmp_ip6node->ipaddr =
-                    reinterpret_cast<struct sockaddr_in6 *>(cur_if->ifa_addr)
-                    ->sin6_addr;
+                    reinterpret_cast<struct sockaddr_in6 *>
+                    (cur_if->ifa_addr)->sin6_addr;
 //                swap128(reinterpret_cast<unsigned char *>(tmp_ip6node->ipaddr));
                 tmp_ip6node->netmask =
-                    reinterpret_cast<struct sockaddr_in6 *>(cur_if->ifa_netmask)
-                    ->sin6_addr;
+                    reinterpret_cast<struct sockaddr_in6 *>
+                    (cur_if->ifa_netmask)->sin6_addr;
 
 //                swap128(reinterpret_cast<unsigned char *>(tmp_ip6node->netmask));
 
@@ -930,7 +930,7 @@ void stop_dhclient_asyn()
 
 bool dhclient_asyn(const char *ipaddr, [[maybe_unused]] sem_t *semaphore)
 {
-    DhclientThreadStruct *arg = new DhclientThreadStruct;
+    DHClientThreadStruct *arg = new DHClientThreadStruct;
     pthread_t thread_key = 0;
     stop_dhclient_asyn();
     Sleep(1000);
@@ -946,7 +946,7 @@ bool dhclient_asyn(const char *ipaddr, [[maybe_unused]] sem_t *semaphore)
 
 void *dhclient_thread(void *varg)
 {
-    DhclientThreadStruct *arg = reinterpret_cast<DhclientThreadStruct *>(varg);
+    DHClientThreadStruct *arg = reinterpret_cast<DHClientThreadStruct *>(varg);
 
     if (get_os_type() != OS_FEDORA || isFileExist("/sbin/dhclient-script")) {
         if (get_os_type() != OS_FEDORA)

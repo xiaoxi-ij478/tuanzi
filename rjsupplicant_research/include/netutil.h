@@ -113,7 +113,7 @@ struct icmp_pkg {
     char icmp_data[40];
 };
 
-struct DhclientThreadStruct {
+struct DHClientThreadStruct {
     char ipaddr[512];
     sem_t *semaphore;
 };

@@ -34,16 +34,11 @@ unsigned int addStringOnLineHead(
     const char *add_line_contain,
     const char *add_string
 );
-int FindChar(
-    unsigned char to_find,
-    const unsigned char *str,
-    int begin, int end
-);
+int FindChar(char to_find, const char *str, int begin, int end);
 int FindSub(
-    const unsigned char *buf,
-    unsigned int buflen,
-    const unsigned char *to_find_buf,
+    const char *to_find_buf,
     unsigned int to_find_buf_len,
+    const char *buf,
     unsigned int begin,
     unsigned int end
 );
@@ -80,13 +75,7 @@ bool Is64BIT();
 //void *OnRunModeCheckTimer(union sigval arg);
 //void SetRunModeCheckTimer();
 int do_quit();
-int MemCmpare(
-    const unsigned char *buf1,
-    unsigned int begin,
-    unsigned int end,
-    const unsigned char *buf2,
-    unsigned int len
-);
+int MemCmpare(const void *buf1, int begin, int end, const void *buf2, int len);
 void RcvACLParam(void *arg);
 void RcvCMD_GetProcessAndNetworkInfo();
 void RcvFlowMonitorParam(void *arg);

@@ -200,7 +200,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    if (geteuid()) {  // not superuser
+    if (geteuid()) { // not superuser
         std::cerr << cinstance.LoadString(257) << std::endl;
         return EXIT_SUCCESS;
     }

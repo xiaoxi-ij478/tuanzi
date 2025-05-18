@@ -253,7 +253,7 @@ bool CSuConfigFile::UpdateConfig()
     });
 
     if (!ofs.write(reinterpret_cast<const char *>(obuf), compressed_size)) {
-        g_logSystem.AppendText("ERROR: write file %s failed.\n",  cfg_filename.c_str());
+        g_logSystem.AppendText("ERROR: write file %s failed.\n", cfg_filename.c_str());
         delete[] obuf;
         obuf = nullptr;
         return false;

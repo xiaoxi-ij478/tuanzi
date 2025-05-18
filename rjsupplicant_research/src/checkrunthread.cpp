@@ -253,7 +253,7 @@ unsigned int CCheckRunThread::create_sem_and_lock()
             if (del_sem(sem_id))
                 return 1;
 
-            sem_id = semget(519407, 2, 0666  | IPC_CREAT | IPC_EXCL);
+            sem_id = semget(519407, 2, 0666 | IPC_CREAT | IPC_EXCL);
 
             if (sem_id == -1) {
                 g_logChkRun.AppendText("Error-create sem:%s\n", strerror(errno));
