@@ -67,9 +67,7 @@ struct Socks5IPv6 {
 
 struct Socks5Domain {
     unsigned char addr_len;
-    // this is only meant to be compatible with CTcp,
-    // actual data would also contain a port
-    char addr_and_port[255];
+    char addr_and_port[257];
 } __attribute__((packed));
 
 union Socks5AddrUnion {
