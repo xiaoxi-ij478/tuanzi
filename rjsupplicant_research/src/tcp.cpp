@@ -656,6 +656,52 @@ bool CTcp::IsTelnetType(const struct TCPIP &pkg) const
 
 int CTcp::QueryAndUpdate(const struct TCPIP &pkg) const
 {
+    if (
+        pkg.ipheader->srcaddr == tcpinfo.srcaddr &&
+        pkg.ipheader->dstaddr == tcpinfo.dstaddr &&
+        ntohs(pkg.tcpheader->srcport) == tcpinfo.srcport &&
+        ntohs(pkg.tcpheader->dstport) == tcpinfo.dstport
+    ) {
+        if (tcpinfo.r2h_last_seq != bswap_64(pkg.tcpheader->seq)) {
+            if (tcpinfo.r2h_last_seq >= bswap_64(pkg.tcpheader->seq))
+                return TRANS_R2H;
+
+            g_logFile_proxy.AppendText(
+                "CTcp::Query may be losted R to H packet Last Seq:%u,Now Seq:%u\r\n",
+                tcpinfo.r2h_last_seq,
+                bswap_64(pkg.tcpheader->seq)
+            );
+        }
+
+        r2h_trans_times++;
+        trans_direction = TRANS_R2H;
+        tcpinfo.r2h_last_seq = pkg.content_length + bswap_64(pkg.tcpheader->seq);
+        return TRANS_R2H;
+    }
+
+    if (
+        pkg.ipheader->srcaddr == tcpinfo.dstaddr &&
+        pkg.ipheader->dstaddr == tcpinfo.srcaddr &&
+        ntohs(pkg.tcpheader->srcport) == tcpinfo.dstport &&
+        ntohs(pkg.tcpheader->dstport) == tcpinfo.srcport
+    ) {
+        if (tcpinfo.h2r_last_seq != bswap_64(pkg.tcpheader->seq)) {
+            if (tcpinfo.h2r_last_seq >= bswap_64(pkg.tcpheader->seq))
+                return TRANS_H2R;
+
+            g_logFile_proxy.AppendText(
+                "CTcp::Query may be losted H to R packet Last Seq:%u,Now Seq:%u\r\n",
+                tcpinfo.h2r_last_seq,
+                bswap_64(pkg.tcpheader->seq)
+            );
+            h2r_trans_times++;
+            trans_direction = TRANS_H2R;
+            tcpinfo.h2r_last_seq = pkg.content_length + bswap_64(pkg.tcpheader->seq);
+            return TRANS_H2R;
+        }
+    }
+
+    return TRANS_MINE;
 }
 
 int CTcp::QueryProtocolType(const struct TCPIP &pkg, unsigned int flag) const

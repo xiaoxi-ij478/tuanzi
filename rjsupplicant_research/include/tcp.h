@@ -19,7 +19,7 @@ enum REQUEST_TYPE {
 
 enum TRANS_DIRECTION {
     TRANS_R2H = -1,
-    TRANS_INVALID,
+    TRANS_MINE,
     TRANS_H2R
 };
 
@@ -148,10 +148,12 @@ struct MMSTcpMessage {
 } __attribute__((packed));
 
 struct TcpInfo {
-    in_addr_t dstaddr;
-    in_addr_t srcaddr;
-    struct IPHeader *ipheader;
-    struct TCPHeader *tcpheader;
+  in_addr_t dstaddr;
+  in_addr_t srcaddr;
+  unsigned short dstport;
+  unsigned short srcport;
+  unsigned int h2r_last_seq;
+  unsigned int r2h_last_seq;
 };
 
 struct TCPIP {
@@ -197,7 +199,6 @@ class CTcp
             int &r2h_trans_times,
             int &h2r_trans_times
         ) const;
-
         enum REQUEST_TYPE request_type;
         char reqaddr_char[64];
         in_addr_t reqaddr_int;

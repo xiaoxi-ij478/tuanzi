@@ -20,7 +20,7 @@
 #include <utility>
 #include <vector>
 
-#include <arpa/inet.h>
+#include <byteswap.h>
 #include <dirent.h>
 #include <dlfcn.h>
 #include <fcntl.h>
@@ -28,19 +28,23 @@
 #include <getopt.h>
 #include <iconv.h>
 #include <ifaddrs.h>
+#include <netdb.h>
+#include <pthread.h>
+#include <semaphore.h>
+#include <strings.h>
+#include <termios.h>
+#include <unistd.h>
+
+#include <arpa/inet.h>
 #include <linux/ethtool.h>
 #include <linux/hdreg.h>
 #include <linux/sockios.h>
 #include <linux/wireless.h>
 //#include <net/if.h>
 #include <net/route.h>
-#include <netdb.h>
 #include <netinet/in.h>
-#include <pthread.h>
 #include <scsi/scsi.h>
 #include <scsi/sg.h>
-#include <semaphore.h>
-#include <strings.h>
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -51,8 +55,6 @@
 #include <sys/sysinfo.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <termios.h>
-#include <unistd.h>
 
 #ifdef __GLIBC__
 #include <gnu/libc-version.h>

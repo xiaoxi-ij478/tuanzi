@@ -91,14 +91,25 @@ void encode(unsigned char *buf, int buflen);
 std::string makeLower(const std::string &str);
 std::string makeUpper(const std::string &str);
 
-inline void swap32(unsigned char *val)
-{
-    unsigned char t;
-#define SWAP(a, b) do { t = (a); (a) = (b); (b) = t; } while(0)
-    SWAP(val[0], val[3]);
-    SWAP(val[1], val[2]);
-#undef SWAP
-}
+//inline void swap32(unsigned char *val)
+//{
+//    unsigned char t;
+//#define SWAP(a, b) do { t = (a); (a) = (b); (b) = t; } while(0)
+//    SWAP(val[0], val[3]);
+//    SWAP(val[1], val[2]);
+//#undef SWAP
+//}
+//
+//inline void swap64(unsigned char *val)
+//{
+//    unsigned char t;
+//#define SWAP(a, b) do { t = (a); (a) = (b); (b) = t; } while(0)
+//    SWAP(val[0], val[7]);
+//    SWAP(val[1], val[6]);
+//    SWAP(val[2], val[5]);
+//    SWAP(val[3], val[4]);
+//#undef SWAP
+//}
 
 inline void swap128(unsigned char *val)
 {
