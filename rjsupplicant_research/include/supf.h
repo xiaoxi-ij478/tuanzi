@@ -120,5 +120,4 @@ struct SupfMsgData {
     int len;
 };
 
-
 #endif // SUPF_H_INCLUDED

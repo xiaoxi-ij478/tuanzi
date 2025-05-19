@@ -51,7 +51,7 @@ int WaitForSingleObject(
     return ret;
 }
 
-[[maybe_unused]] int WaitForMultipleObjects(
+int WaitForMultipleObjects(
     [[maybe_unused]] int event_count,
     [[maybe_unused]] WAIT_HANDLE *events,
     [[maybe_unused]] bool wait_all,

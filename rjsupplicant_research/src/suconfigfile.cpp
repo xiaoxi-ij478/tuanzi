@@ -79,7 +79,7 @@ void CSuConfigFile::DeleteTempConfig()
     DeleteFile(path);
 }
 
-[[maybe_unused]] void CSuConfigFile::EnablePrivilege(
+void CSuConfigFile::EnablePrivilege(
     [[maybe_unused]] const char *a1,
     [[maybe_unused]] bool a2
 )
@@ -134,15 +134,13 @@ void CSuConfigFile::GetPrivateProfileString(
     ProfileStringToString(dst);
 }
 
-[[maybe_unused]] void CSuConfigFile::GetSysUPTime(
+void CSuConfigFile::GetSysUPTime(
     [[maybe_unused]] unsigned int &a1,
     [[maybe_unused]] unsigned int &a2
 )
 {}
 
-[[maybe_unused]] void CSuConfigFile::LogToFile(
-    [[maybe_unused]] const char *str
-)
+void CSuConfigFile::LogToFile([[maybe_unused]] const char *str)
 {}
 
 bool CSuConfigFile::Open(const char *rfilename)

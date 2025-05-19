@@ -17,7 +17,7 @@ enum ADAPTER_TYPE {
     ADAPTER_WIRED
 };
 
-struct IPHeader {
+struct [[gnu::packed]] IPHeader {
     unsigned int version: 4;
     unsigned int ihl: 4;
     unsigned char tos;
@@ -30,9 +30,9 @@ struct IPHeader {
     unsigned short header_checksum;
     unsigned int srcaddr;
     unsigned int dstaddr;
-} __attribute__((packed));
+};
 
-struct TCPHeader {
+struct [[gnu::packed]] TCPHeader {
     unsigned short srcport;
     unsigned short dstport;
     unsigned int seq;
@@ -43,42 +43,42 @@ struct TCPHeader {
     unsigned short window;
     unsigned short checksum;
     unsigned short urgent_pointer;
-} __attribute__((packed));
+};
 
-struct TCPPseudoHeader {
+struct [[gnu::packed]] TCPPseudoHeader {
     unsigned int srcaddr;
     unsigned int dstaddr;
     unsigned char zero;
     unsigned char protocol;
     unsigned short tcp_length;
-} __attribute__((packed));
+};
 
-struct TCPChecksumHeader {
+struct [[gnu::packed]] TCPChecksumHeader {
     struct TCPPseudoHeader pseudo_header;
     struct TCPHeader header;
     unsigned char data[2024];
-} __attribute__((packed));
+};
 
-struct udp_hdr {
+struct [[gnu::packed]] udp_hdr {
     unsigned short srcport;
     unsigned short dstport;
     unsigned short length;
     unsigned short checksum;
-} __attribute__((packed));
+};
 
-struct udp_pseudo_hdr {
+struct [[gnu::packed]] udp_pseudo_hdr {
     unsigned int srcaddr;
     unsigned int dstaddr;
     unsigned char zero;
     unsigned char protocol;
     unsigned short udp_length;
-} __attribute__((packed));
+};
 
-struct udp_checksum_hdr {
+struct [[gnu::packed]] udp_checksum_hdr {
     struct udp_pseudo_hdr pseudo_hdr;
     struct udp_hdr hdr;
     unsigned char data[2040];
-} __attribute__((packed));
+};
 
 struct NICINFO {
     char ifname[IFNAMSIZ];
@@ -126,69 +126,73 @@ struct NICsStatus {
     bool is_up;
 };
 
-int sockets_open();
-enum ADAPTER_TYPE get_nic_type(const char *ifname);
-unsigned short ComputeTcpPseudoHeaderChecksum(
+extern int sockets_open();
+extern enum ADAPTER_TYPE get_nic_type(const char *ifname);
+extern unsigned short ComputeTcpPseudoHeaderChecksum(
     const struct IPHeader *ipheader,
     const struct TCPHeader *tcpheader,
     const unsigned char *databuf,
     int length
 );
-unsigned short ComputeUdpPseudoHeaderChecksumV4(
+extern unsigned short ComputeUdpPseudoHeaderChecksumV4(
     const struct IPHeader *ipheader,
     const struct udp_hdr *udpheader,
     const unsigned char *databuf,
     int length
 );
-unsigned short checksum(unsigned short *data, unsigned int len);
-struct NICINFO *get_nics_info(const char *ifname);
-void free_nics_info(struct NICINFO *info);
-bool get_dns(struct in_addr *dst);
-bool get_alternate_dns(char *dst, int &counts);
-bool get_gateway(struct in_addr *result, const char *ifname);
-unsigned short get_speed_wl(int fd, char *ifname);
-unsigned short get_speed(int fd, char *ifname);
-bool check_manualip_indirectory(
+extern unsigned short checksum(unsigned short *data, unsigned int len);
+extern struct NICINFO *get_nics_info(const char *ifname);
+extern void free_nics_info(struct NICINFO *info);
+extern bool get_dns(struct in_addr *dst);
+extern bool get_alternate_dns(char *dst, int &counts);
+extern bool get_gateway(struct in_addr *result, const char *ifname);
+extern unsigned short get_speed_wl(int fd, char *ifname);
+extern unsigned short get_speed(int fd, char *ifname);
+extern bool check_manualip_indirectory(
     const char *ipaddr,
     const char *dir,
     bool incl_subdir
 );
-bool check_manualip_infile(const char *ipaddr, const char *file);
-bool check_dhcp([[maybe_unused]] const char *ifname, const char *ipaddr);
-bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6]);
-int check_nic_status(const char *ifname);
-bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only);
-[[maybe_unused]] int get_nic_list(
+extern bool check_manualip_infile(const char *ipaddr, const char *file);
+extern bool check_dhcp([[maybe_unused]] const char *ifname, const char *ipaddr);
+extern bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6]);
+extern int check_nic_status(const char *ifname);
+extern bool get_nic_in_use(std::vector<std::string> &nic_list,
+                           bool wireless_only);
+[[maybe_unused]] extern int get_nic_list(
     [[maybe_unused]] std::vector<std::string> list
 );
-bool get_nic_speed(char *dst, const char *ifname);
-bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only);
-unsigned int InitIpv4Header(
+extern bool get_nic_speed(char *dst, const char *ifname);
+extern bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only);
+extern unsigned int InitIpv4Header(
     char *header_c,
     char *srcaddr,
     char *dstaddr,
     unsigned int datalen
 );
-unsigned int InitUdpHeader(
+extern unsigned int InitUdpHeader(
     char *header_c,
     int srcport,
     int dstport,
     int datalen
 );
-bool Is8021xGroupAddr(unsigned char macaddr[6]);
-bool IsEqualIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4]);
-bool IsEqualMac(unsigned char macaddr1[6], unsigned char macaddr2[6]);
-bool IsGetDhcpIpp(unsigned char ip[4]);
-bool IsHostDstMac(unsigned char macaddr1[6], unsigned char macaddr2[6]);
-bool IsMulDstMac(unsigned char macaddr[6]);
-bool IsStarGroupDstMac(unsigned char macaddr[6]);
-void createUdpBindSocket(unsigned short port);
-bool isNoChangeIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4]);
-void stop_dhclient_asyn();
-bool dhclient_asyn(const char *ipaddr, [[maybe_unused]] sem_t *semaphore);
-void *dhclient_thread(void *varg);
-void dhclient_exit();
-void disable_enable_nic(const char *ifname);
-void get_all_nics_statu(std::vector<struct NICsStatus> &dest);
+extern bool Is8021xGroupAddr(unsigned char macaddr[6]);
+extern bool IsEqualIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4]);
+extern bool IsEqualMac(unsigned char macaddr1[6], unsigned char macaddr2[6]);
+extern bool IsGetDhcpIpp(unsigned char ip[4]);
+extern bool IsHostDstMac(unsigned char macaddr1[6], unsigned char macaddr2[6]);
+extern bool IsMulDstMac(unsigned char macaddr[6]);
+extern bool IsStarGroupDstMac(unsigned char macaddr[6]);
+extern void createUdpBindSocket(unsigned short port);
+extern bool isNoChangeIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4]);
+extern void stop_dhclient_asyn();
+extern bool dhclient_asyn(
+    const char *ipaddr,
+    [[maybe_unused]] sem_t *semaphore
+);
+extern void *dhclient_thread(void *varg);
+extern void dhclient_exit();
+extern void disable_enable_nic(const char *ifname);
+extern void get_all_nics_statu(std::vector<struct NICsStatus> &dest);
 
 #endif // NETUTIL_H_INCLUDED

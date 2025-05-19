@@ -141,7 +141,7 @@ struct NICINFO *get_nics_info(const char *ifname)
 
     if (get_dns(&dns_addr)) {}
 
-//        swap32(reinterpret_cast<unsigned char *>(&dns_addr.s_addr));
+//        swap32(static_cast<unsigned char *>(&dns_addr.s_addr));
 
     for (struct ifaddrs *cur_if = ifap; cur_if; cur_if = cur_if->ifa_next) {
         interface_added = false;
@@ -202,7 +202,7 @@ struct NICINFO *get_nics_info(const char *ifname)
 
             if (get_gateway(&cur_info->gateway, cur_if->ifa_name)) {
                 memset(cur_info->unknown, 0, sizeof(cur_info->unknown));
-//                swap32(reinterpret_cast<unsigned char *>(&cur_info->gateway.s_addr));
+//                swap32(static_cast<unsigned char *>(&cur_info->gateway.s_addr));
 
             } else
                 memset(&cur_info->gateway, 0, sizeof(cur_info->gateway));
@@ -410,7 +410,7 @@ unsigned short get_speed(int fd, char *ifname)
     struct ifreq ifr = {};
     ecmd.cmd = ETHTOOL_GSET;
     strncpy(ifr.ifr_name, ifname, IFNAMSIZ - 1);
-    ifr.ifr_data = reinterpret_cast<__caddr_t>(&ecmd);
+    ifr.ifr_data = reinterpret_cast<caddr_t>(&ecmd);
     return ioctl(fd, SIOCETHTOOL, &ifr) ? 0 : ethtool_cmd_speed(&ecmd);
 }
 
@@ -737,9 +737,7 @@ bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only)
 
 // ????????
 // lshal 2>&- |grep net.interface | awk -F\"'\" '{print$2}'
-[[maybe_unused]] int get_nic_list(
-    [[maybe_unused]] std::vector<std::string> list
-)
+int get_nic_list([[maybe_unused]] std::vector<std::string> list)
 {
     return 0;
 }
@@ -931,7 +929,7 @@ void stop_dhclient_asyn()
 bool dhclient_asyn(const char *ipaddr, [[maybe_unused]] sem_t *semaphore)
 {
     DHClientThreadStruct *arg = new DHClientThreadStruct;
-    pthread_t thread_key = 0;
+    pthread_t thread_key;
     stop_dhclient_asyn();
     Sleep(1000);
     strcpy(arg->ipaddr, ipaddr);
@@ -946,7 +944,7 @@ bool dhclient_asyn(const char *ipaddr, [[maybe_unused]] sem_t *semaphore)
 
 void *dhclient_thread(void *varg)
 {
-    DHClientThreadStruct *arg = reinterpret_cast<DHClientThreadStruct *>(varg);
+    DHClientThreadStruct *arg = static_cast<DHClientThreadStruct *>(varg);
 
     if (get_os_type() != OS_FEDORA || isFileExist("/sbin/dhclient-script")) {
         if (get_os_type() != OS_FEDORA)
@@ -1142,10 +1140,10 @@ void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname)
 
             if (!ipaddr.empty() && !netmask.empty()) {
                 strcpy(ifr.ifr_name, ifname);
-                reinterpret_cast<struct sockaddr_in *>(&ifr.ifr_addr)
-                ->sin_addr.s_addr = inet_addr(ipaddr.c_str());
-                reinterpret_cast<struct sockaddr_in *>(&ifr.ifr_netmask)
-                ->sin_addr.s_addr = inet_addr(netmask.c_str());
+                reinterpret_cast<struct sockaddr_in *>
+                (&ifr.ifr_addr)->sin_addr.s_addr = inet_addr(ipaddr.c_str());
+                reinterpret_cast<struct sockaddr_in *>
+                (&ifr.ifr_netmask)->sin_addr.s_addr = inet_addr(netmask.c_str());
                 // may be this is a inline function's name
                 std::cout << "____" << "get_gateway_from_file"
                           << " [set ip mask]" << "ifconfig " << ifname << " "
@@ -1155,13 +1153,14 @@ void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname)
             }
 
             if (!gateway.empty()) {
-                reinterpret_cast<struct sockaddr_in *>(&route.rt_gateway)
-                ->sin_addr.s_addr = *gatewayd = inet_addr(gateway.c_str());
+                reinterpret_cast<struct sockaddr_in *>
+                (&route.rt_gateway)->sin_addr.s_addr = *gatewayd =
+                        inet_addr(gateway.c_str());
                 std::cout << "get_gateway_from_file GATEWAY:"
-                          << reinterpret_cast<char *>(&gatewayd)[0]
-                          << ':' << reinterpret_cast<char *>(&gatewayd)[1]
-                          << ':' << reinterpret_cast<char *>(&gatewayd)[2]
-                          << ':' << reinterpret_cast<char *>(&gatewayd)[3]
+                          << reinterpret_cast<char *>(gatewayd)[0]
+                          << ':' << reinterpret_cast<char *>(gatewayd)[1]
+                          << ':' << reinterpret_cast<char *>(gatewayd)[2]
+                          << ':' << reinterpret_cast<char *>(gatewayd)[3]
                           << ';' << std::endl;
                 ioctl(fd, SIOCADDRT, &route);
                 exit_ok = true;

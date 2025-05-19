@@ -13,13 +13,16 @@ struct tagMsgItem {
     std::string msg;
 };
 
-void CreateNewMsgFile();
-void AddMsgItem(int type, const std::string &msg);
-void DelMsgItem(int type, const std::string &msg);
-int GetMsgArray(std::vector<struct tagMsgItem> &msgarr);
-int GetMsgArray_Ex(std::vector<struct tagMsgItem> &msgarr, bool replace_crlf);
-const std::string &GetMessageType(int type);
-void print_msg_item(tagMsgItem *item);
-void print_msg_item_header();
+extern void CreateNewMsgFile();
+extern void AddMsgItem(int type, const std::string &msg);
+extern void DelMsgItem(int type, const std::string &msg);
+extern int GetMsgArray(std::vector<struct tagMsgItem> &msgarr);
+extern int GetMsgArray_Ex(
+    std::vector<struct tagMsgItem> &msgarr,
+    bool replace_crlf
+);
+extern const std::string &GetMessageType(int type);
+extern void print_msg_item(tagMsgItem *item);
+extern void print_msg_item_header();
 
 #endif // MSGUTIL_H_INCLUDED

@@ -6,6 +6,7 @@ class CLogFile
     public:
         CLogFile();
 
+        [[gnu::format(printf, 2, 3)]]
         void AppendText(const char *format, ...);
         void AppendText_V(const char *format, va_list va);
         // TODO: prio arg is unknown

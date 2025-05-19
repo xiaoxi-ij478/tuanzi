@@ -88,7 +88,7 @@ void replace_all_distinct(
         str.replace(special_pos, srcstr.length(), dststr);
 }
 
-[[noreturn]] void chk_call_back(int)
+void chk_call_back(int)
 {
     rj_printf_debug("程序资源遭到破坏\n");
     exit(0);
@@ -115,20 +115,20 @@ void ChangeSelfSvrParam(void *)
     logFile.AppendText("change self svr param");
 }
 
-[[maybe_unused]] void CoInitialize()
+void CoInitialize()
 {}
 
-[[maybe_unused]] void CoUnInitialize(unsigned int)
+void CoUnInitialize(unsigned int)
 {}
 
-[[maybe_unused]] std::string DWordToString(unsigned int a)
+std::string DWordToString(unsigned int a)
 {
     std::ostringstream oss;
     oss << a;
     return oss.str();
 }
 
-[[maybe_unused]] bool DecryptSuConfig()
+bool DecryptSuConfig()
 {
     std::ifstream ifs("SuConfig.dat", std::ios::binary);
     std::ofstream ofs("SuConfig_Decrypt.dat", std::ios::binary);
@@ -168,7 +168,7 @@ void ChangeSelfSvrParam(void *)
     return true;
 }
 
-[[maybe_unused]] bool EncryptSuConfig()
+bool EncryptSuConfig()
 {
     std::ifstream ifs("SuConfig.dat", std::ios::binary);
     std::ofstream ofs("SuConfig_Encrypt.dat", std::ios::binary);
@@ -211,7 +211,7 @@ void ChangeSelfSvrParam(void *)
     return true;
 }
 
-[[maybe_unused]] void exec_cmd(const char *cmd, char *buf, int buflen)
+void exec_cmd(const char *cmd, char *buf, int buflen)
 {
     FILE *fp = popen(cmd, "r");
     unsigned int read_len = 0;
@@ -233,9 +233,7 @@ void ChangeSelfSvrParam(void *)
     pclose(fp);
 }
 
-[[maybe_unused]] float get_fedora_lib_version(
-    [[maybe_unused]] const char *pkgname
-)
+float get_fedora_lib_version([[maybe_unused]] const char *pkgname)
 {
     // I'm a Debian fan, so I don't know how to use yum
     // yum list installed |grep $pkgname |awk 'NR==1 {print $2}'
@@ -315,7 +313,7 @@ int FindSub(
     return -1;
 }
 
-[[maybe_unused]] int GKillTimer(timer_t timer)
+int GKillTimer(timer_t timer)
 {
     int ret = 0;
 
@@ -326,7 +324,7 @@ int FindSub(
     return -1;
 }
 
-[[maybe_unused]] void GOnTimer(union sigval)
+void GOnTimer(union sigval)
 {}
 
 void GSNRecvPacter(unsigned char *, int)
@@ -364,7 +362,7 @@ timer_t GSetTimer(
            : timerid;
 }
 
-[[maybe_unused]] void GetMD5File(const char *filename, char *result)
+void GetMD5File(const char *filename, char *result)
 {
     std::ifstream ifs(filename);
     unsigned char digest[16] = {};
@@ -412,7 +410,7 @@ void ParseString(
     }
 }
 
-[[maybe_unused]] void TrimLeft(std::string &str, std::string chars)
+void TrimLeft(std::string &str, std::string chars)
 {
     if (str.find_first_not_of(chars) == std::string::npos)
         str.clear();
@@ -420,7 +418,7 @@ void ParseString(
     str.erase(0, str.find_first_not_of(chars) - 1);
 }
 
-[[maybe_unused]] void TrimRight(std::string &str, std::string chars)
+void TrimRight(std::string &str, std::string chars)
 {
     if (str.find_last_not_of(chars) == std::string::npos)
         str.clear();
@@ -499,7 +497,7 @@ std::string HexToString(const unsigned char *buf, int buflen)
 }
 
 // should be used to decode mac address
-[[maybe_unused]] int ASCIIStrtoChar(std::string str, unsigned char *buf)
+int ASCIIStrtoChar(std::string str, unsigned char *buf)
 {
     if (!str.length())
         return 0;
@@ -687,7 +685,13 @@ int MemCmpare(const void *buf1, int begin, int end, const void *buf2, int len)
     if (!buf1 || !buf2 || end - begin + 1 < len)
         return -2;
 
-    return !!memcmp(buf1 + begin, buf2, len);
+    return
+        !!memcmp(
+            reinterpret_cast<const void *>(
+                reinterpret_cast<const char *>(buf1) + begin
+            ),
+            buf2, len
+        );
 }
 
 void RcvACLParam(void *arg)
@@ -733,7 +737,7 @@ void RcvStartAuthNotification()
     logFile.AppendText("recv start auth notification");
 }
 
-[[maybe_unused]] void StrToLower(char *str)
+void StrToLower(char *str)
 {
     if (!str || !strlen(str))
         return;

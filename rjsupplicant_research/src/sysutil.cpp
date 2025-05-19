@@ -1,7 +1,7 @@
 #include "util.h"
 #include "sysutil.h"
 
-[[maybe_unused]] void check_run_ibus()
+void check_run_ibus()
 {
     // whereis ibus-daemon|awk '{print $2}'
     // if the above output is null then
@@ -18,7 +18,7 @@
     // g_bDoRunIbus = 1;
 }
 
-[[maybe_unused]] void check_stop_ibus()
+void check_stop_ibus()
 {
     // if not g_bDoRunIbus return;
     // ps -C ibus-daemon -f|grep root | awk '{print $2}'
@@ -31,9 +31,7 @@
     // rj_printf_debug("%s kill ibus by exit,cmd=%s\n", __func__, $(pidof ibus-daemon));
 }
 
-[[maybe_unused]] bool check_service_status(
-    [[maybe_unused]] const char *service_name
-)
+bool check_service_status([[maybe_unused]] const char *service_name)
 {
     // this function is used to check and kill services,
     // so we deliberately don't implement it
@@ -42,9 +40,7 @@
     return false;
 }
 
-[[maybe_unused]] bool check_service_status2(
-    [[maybe_unused]] const char *service_name
-)
+bool check_service_status2([[maybe_unused]] const char *service_name)
 {
     // same as above
     // systemctl status $service_name.service 2>&- | awk '{if($1~/Active/) print $2}' |
@@ -52,28 +48,26 @@
     return false;
 }
 
-[[maybe_unused]] bool service_start([[maybe_unused]] const char *service_name)
+bool service_start([[maybe_unused]] const char *service_name)
 {
     // service $service_name start 2>&-
     // check_service_status $service_name || service_start2 $service_name
     return true;
 }
 
-[[maybe_unused]] bool service_start2(
-    [[maybe_unused]] const char *service_name
-)
+bool service_start2([[maybe_unused]] const char *service_name)
 {
     // systemctl start $service_name.service 2>&-
     return true;
 }
 
-[[maybe_unused]] bool service_stop([[maybe_unused]] const char *service_name)
+bool service_stop([[maybe_unused]] const char *service_name)
 {
     // service $service_name stop 2>&-
     return true;
 }
 
-[[maybe_unused]] bool service_stop2([[maybe_unused]] const char *service_name)
+bool service_stop2([[maybe_unused]] const char *service_name)
 {
     // systemctl stop $service_name.service 2>&-
     return true;

@@ -8,18 +8,18 @@ enum MODIFY_MODE {
     AFTER_LOGIN_ENABLE
 };
 
-bool AddAutoRun(const char *arg);
-bool DelAutoRun(const char *arg);
-int auto_run(const char *exe, enum MODIFY_MODE mode, const char *arg);
-int before_login_enable(
+extern bool AddAutoRun(const char *arg);
+extern bool DelAutoRun(const char *arg);
+extern int auto_run(const char *exe, enum MODIFY_MODE mode, const char *arg);
+extern int before_login_enable(
     [[maybe_unused]] const char *exe,
     [[maybe_unused]] const char *arg
 );
-int before_login_disable([[maybe_unused]] const char *exe);
-int profile_add(
+extern int before_login_disable([[maybe_unused]] const char *exe);
+extern int profile_add(
     [[maybe_unused]] const char *exe,
     [[maybe_unused]] const char *arg
 );
-int profile_del([[maybe_unused]] const char *exe);
+extern int profile_del([[maybe_unused]] const char *exe);
 
 #endif // AUTORUN_H_INCLUDED

@@ -20,6 +20,9 @@ extern std::string alt_update_message;
 extern int g_rwpipe[2];
 extern timer_t g_runModetimer;
 [[maybe_unused]] extern bool g_bDoRunIbus;
+extern pthread_rwlock_t g_fileLock;
+extern unsigned char g_pAppData[1820];
+extern unsigned char g_pDllData[2035];
 
 #ifdef USE_EXTERNAL_LIBRT
 extern int (*my_timer_create)(
@@ -46,7 +49,6 @@ extern int (*my_timer_getoverrun)(timer_t timerid);
 #define my_timer_delete     timer_delete
 #define my_timer_getoverrun timer_getoverrun
 #endif // USE_EXTERNAL_LIBRT
-
 
 extern CLogFile logFile;
 extern CLogFile logFile_debug;

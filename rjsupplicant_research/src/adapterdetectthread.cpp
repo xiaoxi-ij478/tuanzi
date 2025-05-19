@@ -209,7 +209,7 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
             g_log_Wireless.AppendText("Other nic name:%s", cur_info->ifname);
             strncpy(ifr.ifr_name, cur_info->ifname, IFNAMSIZ - 1);
             evalue.cmd = ETHTOOL_GLINK;
-            ifr.ifr_data = reinterpret_cast<__caddr_t>(&evalue);
+            ifr.ifr_data = reinterpret_cast<caddr_t>(&evalue);
 
             if (ioctl(socket_fd, SIOCGIFFLAGS, &ifr) < 0) {
                 if (ioctl(socket_fd, SIOCETHTOOL, &ifr) >= 0 && evalue.data == 1) {
@@ -311,7 +311,7 @@ void CAdapterDetectThread::adapter_state_check()
     struct ethtool_value evalue = {};
     strncpy(ifr.ifr_name, nic_name, IFNAMSIZ - 1);
     evalue.cmd = ETHTOOL_GLINK;
-    ifr.ifr_data = reinterpret_cast<__caddr_t>(&evalue);
+    ifr.ifr_data = reinterpret_cast<caddr_t>(&evalue);
 
     if (ioctl(socket_fd, SIOCGIFFLAGS, &ifr) < 0) {
         g_log_Wireless.AppendText("ioctl SIOCGIFFLAGS error:%s", strerror(errno));

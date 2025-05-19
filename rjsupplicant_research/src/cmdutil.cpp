@@ -2,7 +2,7 @@
 #include "changelanguage.h"
 #include "cmdutil.h"
 
-[[maybe_unused]] void message_info(const char *format, ...)
+void message_info(const char *format, ...)
 {
     va_list arg;
     va_start(arg, format);
@@ -10,12 +10,12 @@
     va_end(arg);
 }
 
-[[maybe_unused]] void message_info(std::string str)
+void message_info(std::string str)
 {
     std::cout << str;
 }
 
-[[noreturn]] void display_usage()
+void display_usage()
 {
 #define PRINT_USAGE(head, help_str_id) \
     do { \

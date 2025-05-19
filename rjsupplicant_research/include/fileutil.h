@@ -1,12 +1,12 @@
 #ifndef FILEUTIL_H_INCLUDED
 #define FILEUTIL_H_INCLUDED
 
-unsigned long get_file_size(const char *filename);
-void DeleteFile(const char *filename);
-int cmd_mkdir(const char *dirname);
-void removeFileOrDir(const char *filename);
-int get_sh_name(const char *src, const char *dst);
-bool decompressFile(const char *cfilename, const char *cdestdir);
-bool isFileExist(const char *filename);
+extern unsigned long get_file_size(const char *filename);
+extern void DeleteFile(const char *filename);
+extern int cmd_mkdir(const char *dirname);
+extern void removeFileOrDir(const char *filename);
+extern int get_sh_name(const char *src, const char *dst);
+extern bool decompressFile(const char *cfilename, const char *cdestdir);
+extern bool isFileExist(const char *filename);
 
 #endif // FILEUTIL_H_INCLUDED

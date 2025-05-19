@@ -27,6 +27,7 @@ class CHttpConnection
         );
         bool readHttpHeader(int fd);
         int sendRequest(const char *addr, int port, const char *request);
+        [[gnu::format(printf, 2, 3)]]
         void setError(const char *format, ...);
         void setErrorCode(int error);
         void setErrorCode(int error, const char *prefix);

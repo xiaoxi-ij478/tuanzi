@@ -20,6 +20,7 @@ enum DHCP_MODE {
     DHCP_SERVER
 };
 
+[[gnu::format(printf, 1, 2)]]
 static int iniparser_error_callback(const char *format, ...)
 {
     // redirect iniparser issue to g_logSystem

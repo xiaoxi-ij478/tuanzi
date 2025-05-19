@@ -17,7 +17,7 @@ CTcp::CTcp(const struct TcpInfo &info) :
     socks5_request_domain_len(),
     r2h_trans_times(),
     h2r_trans_times(),
-    trans_direction(TRANS_INVALID),
+    trans_direction(TRANS_MINE),
     tcpinfo(info)
 {}
 
@@ -222,7 +222,7 @@ bool CTcp::GetHttpReqAddr_Port(const struct TCPIP &pkg)
     return true;
 }
 
-bool CTcp::GetMmsReqAddr_Port([[maybe_unused]] const struct TCPIP &pkg) const
+bool CTcp::GetMmsReqAddr_Port([[maybe_unused]] const struct TCPIP &pkg)
 {
     return request_type == REQUEST_MMS;
 }
@@ -293,14 +293,12 @@ bool CTcp::GetPop3ReqAddr_Port(const struct TCPIP &pkg)
     return true;
 }
 
-bool CTcp::GetSocks4AReqAddr_Port(
-    [[maybe_unused]] const struct TCPIP &pkg
-) const
+bool CTcp::GetSocks4AReqAddr_Port([[maybe_unused]] const struct TCPIP &pkg)
 {
     return request_type == REQUEST_SOCK4A;
 }
 
-bool CTcp::GetSocks4ReqAddr_Port([[maybe_unused]] const struct TCPIP &pkg) const
+bool CTcp::GetSocks4ReqAddr_Port([[maybe_unused]]const struct TCPIP &pkg)
 {
     return request_type == REQUEST_SOCK4;
 }
@@ -399,12 +397,12 @@ bool CTcp::GetSocks5ReqAddr_Port(const struct TCPIP &pkg)
     return true;
 }
 
-bool CTcp::GetTelnetReqAddr_Port([[maybe_unused]] const struct TCPIP &pkg) const
+bool CTcp::GetTelnetReqAddr_Port([[maybe_unused]] const struct TCPIP &pkg)
 {
     return false;
 }
 
-bool CTcp::IsFtpType(const struct TCPIP &pkg) const
+bool CTcp::IsFtpType(const struct TCPIP &pkg)
 {
     int trans_times[2] = {};
     QueryTransTimes(trans_times[1], trans_times[0]);
@@ -412,7 +410,7 @@ bool CTcp::IsFtpType(const struct TCPIP &pkg) const
            MemCmpare(pkg.content, 0, pkg.content_length - 1, "220", strlen("220"));
 }
 
-bool CTcp::IsHttpType(const struct TCPIP &pkg) const
+bool CTcp::IsHttpType(const struct TCPIP &pkg)
 {
     int space_pos = 0;
     int space_pos2 = 0;
@@ -455,7 +453,7 @@ bool CTcp::IsHttpType(const struct TCPIP &pkg) const
     return true;
 }
 
-bool CTcp::IsMine(const struct TCPIP &pkg) const
+bool CTcp::IsMine(const struct TCPIP &pkg)
 {
     return QueryAndUpdate(pkg);
 }
@@ -528,7 +526,7 @@ bool CTcp::IsMmsType(const struct TCPIP &pkg)
     return true;
 }
 
-bool CTcp::IsNntpType(const struct TCPIP &pkg) const
+bool CTcp::IsNntpType(const struct TCPIP &pkg)
 {
     int trans_times[2] = {};
     QueryTransTimes(trans_times[1], trans_times[0]);
@@ -547,9 +545,11 @@ bool CTcp::IsNntpType(const struct TCPIP &pkg) const
         MemCmpare(pkg.content, 0, pkg.content_length - 1, "200", strlen("200"))
     )
         return false;
+
+    return true;
 }
 
-bool CTcp::IsPop3Type(const struct TCPIP &pkg) const
+bool CTcp::IsPop3Type(const struct TCPIP &pkg)
 {
     int trans_times[2] = {};
     QueryTransTimes(trans_times[1], trans_times[0]);
@@ -568,6 +568,8 @@ bool CTcp::IsPop3Type(const struct TCPIP &pkg) const
         MemCmpare(pkg.content, 0, pkg.content_length - 1, "+OK", strlen("+OK"))
     )
         return false;
+
+    return true;
 }
 
 bool CTcp::IsSocks4AType(const struct TCPIP &pkg)
@@ -649,12 +651,12 @@ bool CTcp::IsSocks5Type(const struct TCPIP &pkg)
     return true;
 }
 
-bool CTcp::IsTelnetType(const struct TCPIP &pkg) const
+bool CTcp::IsTelnetType([[maybe_unused]] const struct TCPIP &pkg)
 {
     return false;
 }
 
-int CTcp::QueryAndUpdate(const struct TCPIP &pkg) const
+int CTcp::QueryAndUpdate(const struct TCPIP &pkg)
 {
     if (
         pkg.ipheader->srcaddr == tcpinfo.srcaddr &&
@@ -704,7 +706,7 @@ int CTcp::QueryAndUpdate(const struct TCPIP &pkg) const
     return TRANS_MINE;
 }
 
-int CTcp::QueryProtocolType(const struct TCPIP &pkg, unsigned int flag) const
+int CTcp::QueryProtocolType(const struct TCPIP &pkg, unsigned int flag)
 {
     if (flag & 4 && IsHttpType(pkg))
         return 1;

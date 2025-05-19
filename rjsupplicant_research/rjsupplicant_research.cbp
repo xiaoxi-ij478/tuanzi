@@ -15,6 +15,7 @@
 				<Compiler>
 					<Add option="-ggdb3" />
 					<Add option="-g" />
+					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -24,6 +25,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -117,6 +119,7 @@
 		<Unit filename="include/threadutil.h" />
 		<Unit filename="include/timeutil.h" />
 		<Unit filename="include/util.h" />
+		<Unit filename="include/vz_apiapp.h" />
 		<Unit filename="include/waithandle.h" />
 		<Unit filename="include/xmlparser.h" />
 		<Unit filename="src/adapterdetectthread.cpp" />
@@ -161,6 +164,7 @@
 		<Unit filename="src/threadutil.cpp" />
 		<Unit filename="src/timeutil.cpp" />
 		<Unit filename="src/util.cpp" />
+		<Unit filename="src/vz_apiapp.cpp" />
 		<Unit filename="src/waithandle.cpp" />
 		<Unit filename="src/xmlparser.cpp" />
 		<Extensions>

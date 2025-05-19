@@ -35,40 +35,40 @@ enum SOCKS_CONNREQ_COMMAND : unsigned char {
     SOCKS_CONNREQ_UDP_CONN
 };
 
-struct Socks4ConnReq {
+struct [[gnu::packed]] Socks4ConnReq {
     unsigned char version;
     enum SOCKS_CONNREQ_COMMAND command;
     unsigned short port;
     struct in_addr ip;
     char id[];
-} __attribute__((packed));
+};
 
-struct Socks4AConnReq {
+struct [[gnu::packed]] Socks4AConnReq {
     unsigned char version;
     enum SOCKS_CONNREQ_COMMAND command;
     unsigned short port;
     struct in_addr ip;
     char id_domain[];
-} __attribute__((packed));
+};
 
 #define GET_SOCKS4A_DOMAIN(content) \
-    ((reinterpret_cast<struct Socks4AConnReq *>(content)->id_domain) + \
-     strlen(reinterpret_cast<struct Socks4AConnReq *>(content)->id_domain) + 1)
+    ((static_cast<struct Socks4AConnReq *>(content)->id_domain) + \
+     strlen(static_cast<struct Socks4AConnReq *>(content)->id_domain) + 1)
 
-struct Socks5IPv4 {
+struct [[gnu::packed]] Socks5IPv4 {
     struct in_addr ipv4_addr;
     unsigned short port;
-} __attribute__((packed));
+};
 
-struct Socks5IPv6 {
+struct [[gnu::packed]] Socks5IPv6 {
     struct in6_addr ipv6_addr;
     unsigned short port;
-} __attribute__((packed));
+};
 
-struct Socks5Domain {
+struct [[gnu::packed]] Socks5Domain {
     unsigned char addr_len;
     char addr_and_port[257];
-} __attribute__((packed));
+};
 
 union Socks5AddrUnion {
     struct Socks5IPv4 ipv4_addr;
@@ -76,17 +76,17 @@ union Socks5AddrUnion {
     struct Socks5Domain domain_addr;
 };
 
-struct Socks5ConnReqHeader {
+struct [[gnu::packed]] Socks5ConnReqHeader {
     unsigned char version;
     enum SOCKS_CONNREQ_COMMAND command;
     unsigned char reserved_must_be_0;
     enum SOCKS5_ADDRTYPE addr_type;
-} __attribute__((packed));
+};
 
-struct Socks5ConnReq {
+struct [[gnu::packed]] Socks5ConnReq {
     struct Socks5ConnReqHeader request_header;
     union Socks5AddrUnion addr;
-} __attribute__((packed));
+};
 
 #define GET_SOCKS5_REQUEST_ADDR(content) \
     (reinterpret_cast<union Socks5AddrUnion *> \
@@ -122,17 +122,17 @@ enum PlayIncarnation : unsigned int {
 };
 
 union MMSMessage {
-    struct {
+    struct [[gnu::packed]] {
         unsigned int chunkLen;
         unsigned int MID;
         enum PlayIncarnation playIncarnation;
         unsigned int MacToViewerProtocolRevision;
         unsigned int ViewerToMacProtocolRevision;
         wchar_t subscriberName[];
-    } LinkViewerToMacConnect __attribute__((packed));
+    } LinkViewerToMacConnect;
 };
 
-struct MMSTcpMessage {
+struct [[gnu::packed]] MMSTcpMessage {
     unsigned char rep;
     unsigned char version;
     unsigned char versionMinor;
@@ -145,15 +145,15 @@ struct MMSTcpMessage {
     unsigned short MBZ;
     unsigned long timeSent;
     union MMSMessage message;
-} __attribute__((packed));
+};
 
 struct TcpInfo {
-  in_addr_t dstaddr;
-  in_addr_t srcaddr;
-  unsigned short dstport;
-  unsigned short srcport;
-  unsigned int h2r_last_seq;
-  unsigned int r2h_last_seq;
+    in_addr_t dstaddr;
+    in_addr_t srcaddr;
+    unsigned short dstport;
+    unsigned short srcport;
+    unsigned int h2r_last_seq;
+    unsigned int r2h_last_seq;
 };
 
 struct TCPIP {
@@ -175,26 +175,26 @@ class CTcp
 
         bool GetFtpReqAddr_Port(const struct TCPIP &pkg);
         bool GetHttpReqAddr_Port(const struct TCPIP &pkg);
-        bool GetMmsReqAddr_Port(const struct TCPIP &pkg) const;
+        bool GetMmsReqAddr_Port(const struct TCPIP &pkg);
         bool GetNntpReqAddr_Port(const struct TCPIP &pkg);
         bool GetPop3ReqAddr_Port(const struct TCPIP &pkg);
-        bool GetSocks4AReqAddr_Port(const struct TCPIP &pkg) const;
-        bool GetSocks4ReqAddr_Port(const struct TCPIP &pkg) const;
+        bool GetSocks4AReqAddr_Port(const struct TCPIP &pkg);
+        bool GetSocks4ReqAddr_Port(const struct TCPIP &pkg);
         bool GetSocks5ReqAddr_Port(const struct TCPIP &pkg);
-        bool GetTelnetReqAddr_Port(const struct TCPIP &pkg) const;
+        bool GetTelnetReqAddr_Port(const struct TCPIP &pkg);
 
-        bool IsFtpType(const struct TCPIP &pkg) const;
-        bool IsHttpType(const struct TCPIP &pkg) const;
-        bool IsMine(const struct TCPIP &pkg) const;
+        bool IsFtpType(const struct TCPIP &pkg);
+        bool IsHttpType(const struct TCPIP &pkg);
+        bool IsMine(const struct TCPIP &pkg);
         bool IsMmsType(const struct TCPIP &pkg);
-        bool IsNntpType(const struct TCPIP &pkg) const;
-        bool IsPop3Type(const struct TCPIP &pkg) const;
+        bool IsNntpType(const struct TCPIP &pkg);
+        bool IsPop3Type(const struct TCPIP &pkg);
         bool IsSocks4AType(const struct TCPIP &pkg);
         bool IsSocks4Type(const struct TCPIP &pkg);
         bool IsSocks5Type(const struct TCPIP &pkg);
-        bool IsTelnetType(const struct TCPIP &pkg) const;
-        int QueryAndUpdate(const struct TCPIP &pkg) const;
-        int QueryProtocolType(const struct TCPIP &pkg, unsigned int flag) const;
+        bool IsTelnetType(const struct TCPIP &pkg);
+        int QueryAndUpdate(const struct TCPIP &pkg);
+        int QueryProtocolType(const struct TCPIP &pkg, unsigned int flag);
         enum TRANS_DIRECTION QueryTransTimes(
             int &r2h_trans_times,
             int &h2r_trans_times

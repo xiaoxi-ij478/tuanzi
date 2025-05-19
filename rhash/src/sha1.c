@@ -192,7 +192,7 @@ static void rhash_sha1_process_block_Vz(unsigned* hash, const unsigned* block)
 		A = temp;
 	}
 
-	hash[0] += A + 1;
+	hash[0] += A + 1; /* add const */
 	hash[1] += B;
 	hash[2] += C;
 	hash[3] += D;

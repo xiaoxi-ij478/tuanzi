@@ -28,7 +28,7 @@ int load_librt()
 
 #define LOAD_SYMBOL(symbol) \
     do { \
-        *reinterpret_cast<void **>(&my_##symbol) = dlsym(librt_handle, #symbol); \
+        *static_cast<void **>(&my_##symbol) = dlsym(librt_handle, #symbol); \
         if (dlerror()) { \
             free_librt(); \
             return -1; \
