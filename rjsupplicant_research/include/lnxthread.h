@@ -57,7 +57,7 @@ class CLnxThread
 
     private:
         void KillAllTimer();
-        void SafeExitThread(unsigned int off_msec);
+        void SafeExitThread(unsigned off_msec);
         // the original implementation set it as a static method with
         // an object pointer argument
         // but here we set it as a member function

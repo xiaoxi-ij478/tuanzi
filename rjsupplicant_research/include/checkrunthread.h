@@ -5,10 +5,10 @@ class CCheckRunThread
 {
     public:
         static bool StartThread(int *result, void (*callback)(int));
-        static unsigned int StopThread();
+        static unsigned StopThread();
 
     private:
-        static unsigned int create_sem_and_lock();
+        static unsigned create_sem_and_lock();
         static void *thread_function([[maybe_unused]] void *arg);
 
         static bool started;

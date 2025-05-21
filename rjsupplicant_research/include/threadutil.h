@@ -18,13 +18,13 @@ extern void SetEvent(WAIT_HANDLE *wait_handle, bool broadcast);
 extern bool TerminateThread(pthread_t thread_key);
 extern bool PostThreadMessage(
     pthread_t thread_key,
-    unsigned int mtype,
+    unsigned mtype,
     void *buf,
     unsigned long buflen
 );
 extern bool GPostThreadMessage(
     int msqid,
-    unsigned int mtype,
+    unsigned mtype,
     void *buf,
     unsigned long buflen
 );

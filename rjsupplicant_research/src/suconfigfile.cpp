@@ -85,13 +85,13 @@ void CSuConfigFile::EnablePrivilege(
 )
 {}
 
-unsigned int CSuConfigFile::GetPrivateProfileInt(
+unsigned CSuConfigFile::GetPrivateProfileInt(
     const char *domain,
     const char *key,
-    unsigned int defval
+    unsigned defval
 )
 {
-    unsigned int ret = 0;
+    unsigned ret = 0;
     dictionary *ini = nullptr;
     std::string cfgpath;
     std::string dkey(domain);
@@ -135,8 +135,8 @@ void CSuConfigFile::GetPrivateProfileString(
 }
 
 void CSuConfigFile::GetSysUPTime(
-    [[maybe_unused]] unsigned int &a1,
-    [[maybe_unused]] unsigned int &a2
+    [[maybe_unused]] unsigned &a1,
+    [[maybe_unused]] unsigned &a2
 )
 {}
 

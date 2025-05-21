@@ -7,11 +7,11 @@ class CMD5ForVz
         CMD5ForVz();
         virtual ~CMD5ForVz();
 
-        void Update(unsigned char *buf, unsigned int buflen);
+        void Update(unsigned char *buf, unsigned buflen);
         char *Final();
         void Final2CharBuff(unsigned char *buf, int buflen);
 
-        static char *GetMD5(unsigned char *buf, unsigned int buflen);
+        static char *GetMD5(unsigned char *buf, unsigned buflen);
         static void GetCharMd5(
             unsigned char *dst,
             unsigned char *src,

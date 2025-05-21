@@ -10,7 +10,7 @@ CBackoffReAuthenticationManager &CBackoffReAuthenticationManager::Instance()
     return thisObj;
 }
 
-unsigned int CBackoffReAuthenticationManager::GetReAuthenticationTimerElapse()
+unsigned CBackoffReAuthenticationManager::GetReAuthenticationTimerElapse()
 const
 {
     if (reauth_count < 4) {

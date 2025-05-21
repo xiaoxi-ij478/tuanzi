@@ -73,7 +73,7 @@ struct su_wpa_ie {
 };
 
 struct SupfWlanScanRes {
-    unsigned int flags;
+    unsigned flags;
     unsigned char ssid[33];
     size_t ssid_len;
     unsigned char bssid[6];

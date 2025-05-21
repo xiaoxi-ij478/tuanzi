@@ -10,7 +10,7 @@ enum LANG {
 struct tagSectionUnit {
     tagSectionUnit(unsigned id, const std::string &str) : id(id), str(str)
     {}
-    unsigned int id;
+    unsigned id;
     std::string str;
 };
 
@@ -21,7 +21,7 @@ class CChangeLanguage
         enum LANG GetLanguage() const;
         bool InitLanguage();
         static CChangeLanguage &Instance();
-        const std::string &LoadString(unsigned int str_id) const;
+        const std::string &LoadString(unsigned str_id) const;
         bool SetLanguage(enum LANG lang_id);
 
     private:

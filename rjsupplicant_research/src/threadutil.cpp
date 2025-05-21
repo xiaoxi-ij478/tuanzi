@@ -62,7 +62,7 @@ int WaitForMultipleObjects(
     // it does any more. So just left here for now.
     return 0;
 //    long TickCount = 0;
-//    unsigned int i = 0, j = 0;
+//    unsigned i = 0, j = 0;
 //    int wait_result = -1;
 //    bool *wait_flags = nullptr;
 //    WAIT_HANDLE *cevents = events;
@@ -267,7 +267,7 @@ bool TerminateThread(pthread_t thread_key)
 
 bool PostThreadMessage(
     pthread_t thread_key,
-    unsigned int mtype,
+    unsigned mtype,
     void *buf,
     unsigned long buflen
 )
@@ -283,7 +283,7 @@ bool PostThreadMessage(
 
 bool GPostThreadMessage(
     int msqid,
-    unsigned int mtype,
+    unsigned mtype,
     void *buf,
     unsigned long buflen
 )

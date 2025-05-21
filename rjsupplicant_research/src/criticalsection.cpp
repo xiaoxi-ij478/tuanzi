@@ -7,7 +7,7 @@ CRITICAL_SECTION::CRITICAL_SECTION() :
 
 CRITICAL_SECTION::~CRITICAL_SECTION()
 {
-    unsigned int ret;
+    unsigned ret;
 
     if (!inited)
         return;
@@ -19,7 +19,7 @@ CRITICAL_SECTION::~CRITICAL_SECTION()
         g_logSystem.AppendText("pthread_mutex_destroy return %d", ret);
 }
 
-unsigned int CRITICAL_SECTION::enter()
+unsigned CRITICAL_SECTION::enter()
 {
     int ret = pthread_mutex_lock(&pthread_mutex);
 
@@ -29,9 +29,9 @@ unsigned int CRITICAL_SECTION::enter()
     return !ret;
 }
 
-unsigned int CRITICAL_SECTION::Delete()
+unsigned CRITICAL_SECTION::Delete()
 {
-    unsigned int ret;
+    unsigned ret;
 
     if (!inited)
         return 1;
@@ -46,7 +46,7 @@ unsigned int CRITICAL_SECTION::Delete()
     return 1; // !ret;
 }
 
-unsigned int CRITICAL_SECTION::init()
+unsigned CRITICAL_SECTION::init()
 {
     if (pthread_mutexattr_init(&pthread_mutexattr))
         return 0;
@@ -66,9 +66,9 @@ unsigned int CRITICAL_SECTION::init()
     return 1;
 }
 
-unsigned int CRITICAL_SECTION::leave()
+unsigned CRITICAL_SECTION::leave()
 {
-    unsigned int ret;
+    unsigned ret;
     ret = pthread_mutex_unlock(&pthread_mutex);
 
     if (pthread_mutex_unlock(&pthread_mutex))

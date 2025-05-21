@@ -6,10 +6,10 @@ class CSuDES
     public:
         CSuDES();
         virtual ~CSuDES();
-        int Decrypts(unsigned char *buf, unsigned int buflen) const;
-        int Encrypts(unsigned char *buf, unsigned int buflen) const;
-        int SetIVBuf(const unsigned char *iv, unsigned int ivlen) const;
-        int SetKeyBuf(const unsigned char *key, unsigned int keylen) const;
+        int Decrypts(unsigned char *buf, unsigned buflen) const;
+        int Encrypts(unsigned char *buf, unsigned buflen) const;
+        int SetIVBuf(const unsigned char *iv, unsigned ivlen) const;
+        int SetKeyBuf(const unsigned char *key, unsigned keylen) const;
 
     private:
         unsigned char *ivbuf;

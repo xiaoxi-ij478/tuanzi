@@ -524,6 +524,7 @@ void ampheck_ripemd128_transform(struct ampheck_ripemd128 *ctx, const uint8_t *d
   this->h[3] = this->h[0] + wv[6] + wv[1];
   return result;
 }*/
+
 /* modified */
 void ampheck_ripemd128_transform_Vz(struct ampheck_ripemd128 *ctx, const uint8_t *data, size_t blocks)
 {

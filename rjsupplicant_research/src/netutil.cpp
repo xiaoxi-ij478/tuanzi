@@ -97,12 +97,12 @@ unsigned short ComputeUdpPseudoHeaderChecksumV4(
            );
 }
 
-unsigned short checksum(unsigned short *data, unsigned int len)
+unsigned short checksum(unsigned short *data, unsigned len)
 {
-    unsigned int checksum = 0;
+    unsigned checksum = 0;
 
     // add up all the complete words
-    for (unsigned int i = 0; i < len >> 1; i++)
+    for (unsigned i = 0; i < len >> 1; i++)
         checksum += *data++;
 
     // add the additional one padding to word if exists
@@ -550,7 +550,7 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
     struct icmp_pkg package = {}, recv_package = {};
     struct sockaddr_in dest_addr = { AF_INET, 0, ipaddr };
     struct timeval wait_sec = { 3, 0 };
-    unsigned int dest_addrlen = sizeof(dest_addr);
+    unsigned dest_addrlen = sizeof(dest_addr);
     fd_set listen_fds;
 
     if (!ifs)
@@ -790,11 +790,11 @@ bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only)
     return get_nic_in_use(nic_list, wireless_only);
 }
 
-unsigned int InitIpv4Header(
+unsigned InitIpv4Header(
     char *header_c,
     char *srcaddr,
     char *dstaddr,
-    unsigned int datalen
+    unsigned datalen
 )
 {
     struct IPHeader *header = reinterpret_cast<struct IPHeader *>(header_c);
@@ -819,7 +819,7 @@ unsigned int InitIpv4Header(
     return sizeof(struct IPHeader);
 }
 
-unsigned int InitUdpHeader(
+unsigned InitUdpHeader(
     char *header_c,
     int srcport,
     int dstport,

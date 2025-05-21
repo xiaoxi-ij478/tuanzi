@@ -67,7 +67,7 @@ class CDownLoadThread : public CLnxThread
             const char *suffix,
             char *domain,
             char *path,
-            unsigned int *port,
+            unsigned *port,
             char *username,
             char *password
         );
@@ -79,7 +79,7 @@ class CDownLoadThread : public CLnxThread
             char *path,
             char *username,
             char *password,
-            unsigned int *port
+            unsigned *port
         ) const;
         int ftp_receive(
             struct ftp_host_info_s *ftp_info,
@@ -102,7 +102,7 @@ class CDownLoadThread : public CLnxThread
         int get_local_path(const char *default_path, char *final_path) const;
         int get_remote_file(
             const char *domain,
-            unsigned int port,
+            unsigned port,
             const char *server_path,
             const char *default_path,
             const char *suffix
@@ -116,7 +116,7 @@ class CDownLoadThread : public CLnxThread
             const char *suffix,
             char *domain,
             char *path,
-            unsigned int *port
+            unsigned *port
         );
         int http_parse_response_head(
             const char *header,
@@ -126,17 +126,17 @@ class CDownLoadThread : public CLnxThread
             const char *url,
             char *domain,
             char *path,
-            unsigned int *port
+            unsigned *port
         ) const;
         int http_send(
             int *fd,
             const char *domain,
-            unsigned int port,
+            unsigned port,
             const char *path
         ) const;
         int is_exist_dir(const char *dir) const;
 //        int my_strnicmp(const char *src, const char *dst, int len) const;
-        void set_nport(struct len_and_sockaddr *addr, unsigned int port) const;
+        void set_nport(struct len_and_sockaddr *addr, unsigned port) const;
         struct len_and_sockaddr *str2sockaddr(
             const char *straddr,
             int port,

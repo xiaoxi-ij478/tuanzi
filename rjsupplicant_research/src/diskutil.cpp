@@ -102,7 +102,7 @@ int getdiskid(char *buf, int buflen)
     std::vector<std::string> val;
     struct hd_driveid serialid = {};
     int fd = 0;
-    unsigned int pos = 0;
+    unsigned pos = 0;
     memset(buf, 0, buflen);
 
     if (!ifs) {

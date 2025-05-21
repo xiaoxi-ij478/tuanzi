@@ -18,10 +18,10 @@ class CSuConfigFile
 
         static void Lock();
         static void Unlock();
-        static unsigned int GetPrivateProfileInt(
+        static unsigned GetPrivateProfileInt(
             const char *domain,
             const char *key,
-            unsigned int defval
+            unsigned defval
         );
         static void GetPrivateProfileString(
             const char *domain,
@@ -39,8 +39,8 @@ class CSuConfigFile
             [[maybe_unused]] bool a2
         );
         [[maybe_unused]] static void GetSysUPTime(
-            [[maybe_unused]] unsigned int &a1,
-            [[maybe_unused]] unsigned int &a2
+            [[maybe_unused]] unsigned &a1,
+            [[maybe_unused]] unsigned &a2
         );
         [[maybe_unused]] static void LogToFile(
             [[maybe_unused]] const char *str

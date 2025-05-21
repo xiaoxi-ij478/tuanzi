@@ -116,18 +116,18 @@ struct [[gnu::packed]] Socks5ConnReq {
      GET_SOCKS5_REQUEST_ADDR_DOMAIN(content).addr_len + \
      sizeof(unsigned short))
 
-enum PlayIncarnation : unsigned int {
+enum PlayIncarnation : unsigned {
     MMS_DISABLE_PACKET_PAIR = 0xf0f0f0ef,
     MMS_USE_PACKET_PAIR = 0xf0f0f0f0
 };
 
 union MMSMessage {
     struct [[gnu::packed]] {
-        unsigned int chunkLen;
-        unsigned int MID;
+        unsigned chunkLen;
+        unsigned MID;
         enum PlayIncarnation playIncarnation;
-        unsigned int MacToViewerProtocolRevision;
-        unsigned int ViewerToMacProtocolRevision;
+        unsigned MacToViewerProtocolRevision;
+        unsigned ViewerToMacProtocolRevision;
         wchar_t subscriberName[];
     } LinkViewerToMacConnect;
 };
@@ -137,10 +137,10 @@ struct [[gnu::packed]] MMSTcpMessage {
     unsigned char version;
     unsigned char versionMinor;
     unsigned char padding;
-    unsigned int sessionId;
-    unsigned int messageLength;
-    unsigned int seal;
-    unsigned int chunkCount;
+    unsigned sessionId;
+    unsigned messageLength;
+    unsigned seal;
+    unsigned chunkCount;
     unsigned short seq;
     unsigned short MBZ;
     unsigned long timeSent;
@@ -152,8 +152,8 @@ struct TcpInfo {
     in_addr_t srcaddr;
     unsigned short dstport;
     unsigned short srcport;
-    unsigned int h2r_last_seq;
-    unsigned int r2h_last_seq;
+    unsigned h2r_last_seq;
+    unsigned r2h_last_seq;
 };
 
 struct TCPIP {
@@ -161,7 +161,7 @@ struct TCPIP {
     struct IPHeader *ipheader;
     struct TCPHeader *tcpheader;
     unsigned char *content;
-    unsigned int content_length;
+    unsigned content_length;
 };
 
 class CTcp
@@ -194,7 +194,7 @@ class CTcp
         bool IsSocks5Type(const struct TCPIP &pkg);
         bool IsTelnetType(const struct TCPIP &pkg);
         int QueryAndUpdate(const struct TCPIP &pkg);
-        int QueryProtocolType(const struct TCPIP &pkg, unsigned int flag);
+        int QueryProtocolType(const struct TCPIP &pkg, unsigned flag);
         enum TRANS_DIRECTION QueryTransTimes(
             int &r2h_trans_times,
             int &h2r_trans_times
@@ -210,8 +210,8 @@ class CTcp
         } socks5_request_addr;
         struct Socks5ConnReqHeader socks5_request_header;
         unsigned char socks5_request_domain_len;
-        unsigned int r2h_trans_times;
-        unsigned int h2r_trans_times;
+        unsigned r2h_trans_times;
+        unsigned h2r_trans_times;
         enum TRANS_DIRECTION trans_direction;
         struct TcpInfo tcpinfo;
 

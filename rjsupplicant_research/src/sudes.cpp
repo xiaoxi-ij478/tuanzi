@@ -9,7 +9,7 @@ CSuDES::~CSuDES()
     delete[] keybuf;
 }
 
-int CSuDES::Decrypts(unsigned char *buf, unsigned int buflen) const
+int CSuDES::Decrypts(unsigned char *buf, unsigned buflen) const
 {
     unsigned char tmp1[8] = {}, tmp2[8] = {}, tmp3[8] = {};
     assert(buf && buflen);
@@ -43,7 +43,7 @@ int CSuDES::Decrypts(unsigned char *buf, unsigned int buflen) const
     return 0;
 }
 
-int CSuDES::Encrypts(unsigned char *buf, unsigned int buflen) const
+int CSuDES::Encrypts(unsigned char *buf, unsigned buflen) const
 {
     unsigned char tmp1[8] = {}, tmp2[8] = {};
     assert(buf && buflen);
@@ -76,7 +76,7 @@ int CSuDES::Encrypts(unsigned char *buf, unsigned int buflen) const
     return 0;
 }
 
-int CSuDES::SetIVBuf(const unsigned char *iv, unsigned int ivlen) const
+int CSuDES::SetIVBuf(const unsigned char *iv, unsigned ivlen) const
 {
     assert(iv);
 
@@ -87,7 +87,7 @@ int CSuDES::SetIVBuf(const unsigned char *iv, unsigned int ivlen) const
     return 0;
 }
 
-int CSuDES::SetKeyBuf(const unsigned char *key, unsigned int keylen) const
+int CSuDES::SetKeyBuf(const unsigned char *key, unsigned keylen) const
 {
     assert(key);
 

@@ -14,7 +14,7 @@ class CCustomizeInfo
         std::string chs;
         std::string eng;
         std::string ip;
-        unsigned int port;
+        unsigned port;
         std::string main_icon;
         std::string success_icon;
         std::string failed_ico;

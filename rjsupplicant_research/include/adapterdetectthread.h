@@ -51,7 +51,7 @@ class CAdapterDetectThread : public CLnxThread
             bool disallow_multi_nic_ip,
             char *errmsg
         ) const;
-        bool StopDetect(unsigned int flag) const;
+        bool StopDetect(unsigned flag) const;
 
     protected:
         bool InitInstance() override;

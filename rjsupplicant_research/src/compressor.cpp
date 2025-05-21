@@ -25,23 +25,23 @@ static unsigned char pc_table[32768] = {}; /* orig name: pcTable    */
  * the previous char and the previous previous char shift left by 7, then XOR
  */
 
-unsigned int Decompress(
+unsigned Decompress(
     const unsigned char *in,
     unsigned char *out,
-    unsigned int in_len,
-    unsigned int out_len
+    unsigned in_len,
+    unsigned out_len
 )
 {
-    unsigned int in_pos = 0, out_pos = 0;
+    unsigned in_pos = 0, out_pos = 0;
     unsigned char prev_prev_char = 0, prev_char = 0, cur_char = 0;
     unsigned char master_byte = 0;
-    unsigned int uncompressed_size = 0;
+    unsigned uncompressed_size = 0;
     memset(pc_table, ' ', sizeof(pc_table));
 
     while (in_pos < in_len) {
         master_byte = in[in_pos++];
 
-        for (unsigned int j = 0; j < 8; j++) {
+        for (unsigned j = 0; j < 8; j++) {
             if (master_byte & 1)
                 cur_char = pc_table[prev_char ^ (prev_prev_char << 7)];
 
@@ -70,23 +70,23 @@ unsigned int Decompress(
     return uncompressed_size;
 }
 
-unsigned int Compress(
+unsigned Compress(
     const unsigned char *in,
     unsigned char *out,
-    unsigned int in_len,
-    unsigned int out_len
+    unsigned in_len,
+    unsigned out_len
 )
 {
-    unsigned int in_pos = 0, out_pos = 0;
+    unsigned in_pos = 0, out_pos = 0;
     unsigned char prev_prev_char = 0, prev_char = 0, cur_char = 0;
     unsigned char master_byte = 0;
     unsigned char buffer[8] = {};
     unsigned char buffer_index = 0;
-    unsigned int compressed_size = 0;
+    unsigned compressed_size = 0;
     memset(pc_table, ' ', sizeof(pc_table));
 
     while (in_pos < in_len) {
-        for (unsigned int j = 0; j < 8; j++) {
+        for (unsigned j = 0; j < 8; j++) {
             cur_char = in[in_pos++];
 
             if (pc_table[prev_char ^ (prev_prev_char << 7)] == cur_char)
@@ -111,7 +111,7 @@ unsigned int Compress(
             if (out_pos >= out_len)
                 return out_pos;
 
-            for (unsigned int j = 0; j < buffer_index; j++) {
+            for (unsigned j = 0; j < buffer_index; j++) {
                 out[out_pos++] = buffer[j];
 
                 if (out_pos >= out_len)

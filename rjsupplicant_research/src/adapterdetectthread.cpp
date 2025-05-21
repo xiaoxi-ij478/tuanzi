@@ -73,7 +73,7 @@ bool CAdapterDetectThread::StartDetect(
     return true;
 }
 
-bool CAdapterDetectThread::StopDetect(unsigned int flag) const
+bool CAdapterDetectThread::StopDetect(unsigned flag) const
 {
     if (flag & 3) {
         if (PostThreadMessage(

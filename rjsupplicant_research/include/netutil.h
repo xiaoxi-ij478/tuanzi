@@ -18,25 +18,25 @@ enum ADAPTER_TYPE {
 };
 
 struct [[gnu::packed]] IPHeader {
-    unsigned int version: 4;
-    unsigned int ihl: 4;
+    unsigned version: 4;
+    unsigned ihl: 4;
     unsigned char tos;
     unsigned short total_length;
     unsigned short ipid;
     unsigned char flags: 3;
-    unsigned int fragment_offset: 13;
+    unsigned fragment_offset: 13;
     unsigned char ttl;
     unsigned char protocol;
     unsigned short header_checksum;
-    unsigned int srcaddr;
-    unsigned int dstaddr;
+    unsigned srcaddr;
+    unsigned dstaddr;
 };
 
 struct [[gnu::packed]] TCPHeader {
     unsigned short srcport;
     unsigned short dstport;
-    unsigned int seq;
-    unsigned int ack;
+    unsigned seq;
+    unsigned ack;
     unsigned char offset: 4;
     unsigned char reserved: 4;
     unsigned char flags;
@@ -46,8 +46,8 @@ struct [[gnu::packed]] TCPHeader {
 };
 
 struct [[gnu::packed]] TCPPseudoHeader {
-    unsigned int srcaddr;
-    unsigned int dstaddr;
+    unsigned srcaddr;
+    unsigned dstaddr;
     unsigned char zero;
     unsigned char protocol;
     unsigned short tcp_length;
@@ -67,8 +67,8 @@ struct [[gnu::packed]] udp_hdr {
 };
 
 struct [[gnu::packed]] udp_pseudo_hdr {
-    unsigned int srcaddr;
-    unsigned int dstaddr;
+    unsigned srcaddr;
+    unsigned dstaddr;
     unsigned char zero;
     unsigned char protocol;
     unsigned short udp_length;
@@ -89,13 +89,13 @@ struct NICINFO {
     struct in_addr dns;
     struct in_addr gateway;
     char unknown[6];
-    unsigned int ipaddr_count;
+    unsigned ipaddr_count;
     struct IPAddrNode {
         struct in_addr ipaddr;
         struct in_addr netmask;
         struct IPAddrNode *next;
     } *ipaddrs;
-    unsigned int ipaddr6_count;
+    unsigned ipaddr6_count;
     struct IP6AddrNode {
         struct in6_addr ipaddr;
         struct in6_addr netmask;
@@ -140,7 +140,7 @@ extern unsigned short ComputeUdpPseudoHeaderChecksumV4(
     const unsigned char *databuf,
     int length
 );
-extern unsigned short checksum(unsigned short *data, unsigned int len);
+extern unsigned short checksum(unsigned short *data, unsigned len);
 extern struct NICINFO *get_nics_info(const char *ifname);
 extern void free_nics_info(struct NICINFO *info);
 extern bool get_dns(struct in_addr *dst);
@@ -164,13 +164,13 @@ extern bool get_nic_in_use(std::vector<std::string> &nic_list,
 );
 extern bool get_nic_speed(char *dst, const char *ifname);
 extern bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only);
-extern unsigned int InitIpv4Header(
+extern unsigned InitIpv4Header(
     char *header_c,
     char *srcaddr,
     char *dstaddr,
-    unsigned int datalen
+    unsigned datalen
 );
-extern unsigned int InitUdpHeader(
+extern unsigned InitUdpHeader(
     char *header_c,
     int srcport,
     int dstport,

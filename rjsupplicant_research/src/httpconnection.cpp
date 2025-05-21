@@ -248,7 +248,7 @@ bool CHttpConnection::readHttpHeader(int fd)
     fd_set listen_fd;
     struct timeval timeout = { connect_timeout, 0 };
     unsigned char newline = 0;
-    unsigned int pos = 0;
+    unsigned pos = 0;
 
     while (pos <= sizeof(reply_header)) {
         FD_ZERO(&listen_fd);

@@ -5,11 +5,11 @@ class CBackoffReAuthenticationManager
 {
     public:
         static CBackoffReAuthenticationManager &Instance();
-        unsigned int GetReAuthenticationTimerElapse() const;
+        unsigned GetReAuthenticationTimerElapse() const;
         bool IsNeedReAuthentication() const;
         void Reset();
 
-        unsigned int reauth_count;
+        unsigned reauth_count;
         timer_t reauth_timer;
 
     private:

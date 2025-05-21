@@ -468,7 +468,7 @@ bool CTcp::IsMmsType(const struct TCPIP &pkg)
 {
     wchar_t *wchar_buf = nullptr;
     char *char_buf = nullptr;
-    unsigned int char_buflen = 0;
+    unsigned char_buflen = 0;
     int host_pos = 0;
     struct MMSTcpMessage *message =
             reinterpret_cast<struct MMSTcpMessage *>(pkg.content);
@@ -706,7 +706,7 @@ int CTcp::QueryAndUpdate(const struct TCPIP &pkg)
     return TRANS_MINE;
 }
 
-int CTcp::QueryProtocolType(const struct TCPIP &pkg, unsigned int flag)
+int CTcp::QueryProtocolType(const struct TCPIP &pkg, unsigned flag)
 {
     if (flag & 4 && IsHttpType(pkg))
         return 1;

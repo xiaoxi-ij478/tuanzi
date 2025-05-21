@@ -80,7 +80,7 @@ bool CChangeLanguage::InitLanguage()
     return true;
 }
 
-const std::string &CChangeLanguage::LoadString(unsigned int str_id) const
+const std::string &CChangeLanguage::LoadString(unsigned str_id) const
 {
     static std::string none;
 

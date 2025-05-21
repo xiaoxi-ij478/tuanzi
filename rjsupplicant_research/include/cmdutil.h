@@ -10,7 +10,7 @@ extern unsigned short get_tc_width();
 extern void rj_printf_debug(const char *format, ...);
 extern void format_tc_string(
     unsigned short tc_width,
-    unsigned int indent_len,
+    unsigned indent_len,
     const std::string &str
 );
 extern void fill_tc_left_char(int len, char c);

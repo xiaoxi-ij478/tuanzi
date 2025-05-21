@@ -72,7 +72,7 @@ static int semaphore_p(int semid, unsigned short semnum)
 
 bool CCheckRunThread::StartThread(int *result, void (*callback)(int))
 {
-    unsigned int sem_and_lock;
+    unsigned sem_and_lock;
 
     if (started) {
         *result = 8;
@@ -104,7 +104,7 @@ bool CCheckRunThread::StartThread(int *result, void (*callback)(int))
     }
 }
 
-unsigned int CCheckRunThread::StopThread()
+unsigned CCheckRunThread::StopThread()
 {
     void *thread_return = nullptr;
 
@@ -128,9 +128,9 @@ unsigned int CCheckRunThread::StopThread()
     }
 }
 
-unsigned int CCheckRunThread::create_sem_and_lock()
+unsigned CCheckRunThread::create_sem_and_lock()
 {
-    unsigned int i = 0;
+    unsigned i = 0;
     struct sembuf sops = { 1, -1, IPC_NOWAIT | SEM_UNDO };
     // I copied the code from IDA and simply did a few modification
     // so the result may be hard to understand

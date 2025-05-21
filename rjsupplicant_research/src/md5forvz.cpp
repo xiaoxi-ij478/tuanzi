@@ -8,7 +8,7 @@ CMD5ForVz::CMD5ForVz() : ctx()
 CMD5ForVz::~CMD5ForVz()
 {}
 
-void CMD5ForVz::Update(unsigned char *buf, unsigned int buflen)
+void CMD5ForVz::Update(unsigned char *buf, unsigned buflen)
 {
     MD5Update_Vz(&ctx, buf, buflen);
 }
@@ -48,7 +48,7 @@ void CMD5ForVz::Final2CharBuff(unsigned char *buf, int buflen)
     MD5Final_Vz(buf, &ctx);
 }
 
-char *CMD5ForVz::GetMD5(unsigned char *buf, unsigned int buflen)
+char *CMD5ForVz::GetMD5(unsigned char *buf, unsigned buflen)
 {
     CMD5ForVz cksum;
     cksum.Update(buf, buflen);

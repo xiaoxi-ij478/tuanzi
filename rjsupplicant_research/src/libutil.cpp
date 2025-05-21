@@ -61,8 +61,8 @@ bool check_glibc_version()
 {
 #ifdef __GLIBC__
     const char *libc_version = gnu_get_libc_version();
-    unsigned int major = strtol(libc_version, nullptr, 10);
-    unsigned int minor = strtol(strchr(libc_version, '.'), nullptr, 10);
+    unsigned major = strtol(libc_version, nullptr, 10);
+    unsigned minor = strtol(strchr(libc_version, '.'), nullptr, 10);
     return major < 2 && minor >= 7;
 #else
     return false;

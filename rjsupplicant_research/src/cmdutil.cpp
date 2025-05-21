@@ -76,15 +76,15 @@ void rj_printf_debug(const char *format, ...)
 
 void format_tc_string(
     unsigned short tc_width,
-    unsigned int indent_len,
+    unsigned indent_len,
     const std::string &str
 )
 {
     // i wrote this function myself since I
     // can't read what the heck they are...
-    unsigned int actual_line_width = tc_width - indent_len;
-    unsigned int remain = str.length();
-    unsigned int actual_write = 0;
+    unsigned actual_line_width = tc_width - indent_len;
+    unsigned remain = str.length();
+    unsigned actual_write = 0;
     char *spaces = new char[indent_len + 1];
     const char *rstr = str.c_str();
     memset(spaces, ' ', sizeof(char) * indent_len);
@@ -145,7 +145,7 @@ void print_string_list(
     std::cout << CChangeLanguage::Instance().LoadString(2059)
               << '[' << slist.size() << ']' << std::endl;
 
-    for (unsigned int i = 0; i < slist.size(); i++) {
+    for (unsigned i = 0; i < slist.size(); i++) {
         fill_tc_left_char(12, ' ');
         std::cout << '[' << i << "] " << slist[i] << std::endl;
     }

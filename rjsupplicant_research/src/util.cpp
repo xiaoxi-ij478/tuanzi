@@ -118,10 +118,10 @@ void ChangeSelfSvrParam(void *)
 void CoInitialize()
 {}
 
-void CoUnInitialize(unsigned int)
+void CoUnInitialize(unsigned)
 {}
 
-std::string DWordToString(unsigned int a)
+std::string DWordToString(unsigned a)
 {
     std::ostringstream oss;
     oss << a;
@@ -214,7 +214,7 @@ bool EncryptSuConfig()
 void exec_cmd(const char *cmd, char *buf, int buflen)
 {
     FILE *fp = popen(cmd, "r");
-    unsigned int read_len = 0;
+    unsigned read_len = 0;
 
     if (!fp) {
         rj_printf_debug("exec_cmd popen null:%s\n", strerror(errno));
@@ -241,7 +241,7 @@ float get_fedora_lib_version([[maybe_unused]] const char *pkgname)
     return 0.0;
 }
 
-unsigned int addStringOnLineHead(
+unsigned addStringOnLineHead(
     const char *in_filename,
     const char *out_filename,
     const char *add_line_contain,
@@ -251,7 +251,7 @@ unsigned int addStringOnLineHead(
     std::ifstream ifs(in_filename);
     std::ofstream ofs(out_filename, std::ios::trunc);
     std::string line;
-    unsigned int modified_line = 0;
+    unsigned modified_line = 0;
 
     if (!ifs || !ofs) {
         g_log_Wireless.AppendText("addStringOnLineHead open file failed.");
@@ -286,10 +286,10 @@ int FindChar(char to_find, const char *str, int begin, int end)
 
 int FindSub(
     const char *to_find_buf,
-    unsigned int to_find_buf_len,
+    unsigned to_find_buf_len,
     const char *buf,
-    unsigned int begin,
-    unsigned int end
+    unsigned begin,
+    unsigned end
 )
 {
     bool match = true;
@@ -297,8 +297,8 @@ int FindSub(
     if (!buf || end - begin + 1 < to_find_buf_len)
         return -1;
 
-    for (unsigned int i = begin; i < end; i++) {
-        for (unsigned int j = 0; j < to_find_buf_len; j++)
+    for (unsigned i = begin; i < end; i++) {
+        for (unsigned j = 0; j < to_find_buf_len; j++)
             if (to_find_buf[j] != buf[i + j]) {
                 match = false;
                 break;
@@ -382,7 +382,7 @@ void GetMD5File(const char *filename, char *result)
     ifs.close();
     MD5Final(digest, &ctx);
 
-    for (unsigned int i = 0; i < 16; i++) {
+    for (unsigned i = 0; i < 16; i++) {
         *result++ = (digest[i] >> 4) + '0';
         *result++ = (digest[i] & 0xf) + '0';
     }
@@ -431,10 +431,10 @@ void HIPacketUpdate(unsigned char *, int)
     logFile.AppendText("receive hi packet update command!");
 }
 
-unsigned int HexCharToAscii(
+unsigned HexCharToAscii(
     const std::string &str,
     unsigned char *buf,
-    unsigned int buflen
+    unsigned buflen
 )
 {
     if (str.length() & 1 || buflen < str.length() << 1)
@@ -538,12 +538,12 @@ int ASCIIStrtoChar(std::string str, unsigned char *buf)
     return str.length() > 254 ? 255 : str.length();
 }
 
-std::string AsciiToStr(const unsigned char *buf, const unsigned int &len)
+std::string AsciiToStr(const unsigned char *buf, const unsigned &len)
 {
     return std::string(reinterpret_cast<const char *>(buf), len);
 }
 
-unsigned int MD5StrtoUChar(std::string str, unsigned char *buf)
+unsigned MD5StrtoUChar(std::string str, unsigned char *buf)
 {
     if (!str.length())
         return 0;
@@ -742,7 +742,7 @@ void StrToLower(char *str)
     if (!str || !strlen(str))
         return;
 
-    for (unsigned int i = 0; i < strlen(str); i++)
+    for (unsigned i = 0; i < strlen(str); i++)
         str[i] = tolower(str[i]);
 }
 

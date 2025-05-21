@@ -405,7 +405,7 @@ void CLnxThread::LnxEndThread()
         this->~CLnxThread();
 }
 
-void CLnxThread::SafeExitThread(unsigned int off_msec)
+void CLnxThread::SafeExitThread(unsigned off_msec)
 {
     int retval = 0;
 

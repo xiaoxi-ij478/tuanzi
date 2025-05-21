@@ -19,8 +19,8 @@ extern void replace_all_distinct(
 extern bool set_msg_config(const std::string &key, int val);
 extern void ChangeSelfSvrParam(void *);
 [[maybe_unused]] extern void CoInitialize();
-[[maybe_unused]] extern void CoUnInitialize(unsigned int);
-[[maybe_unused]] extern std::string DWordToString(unsigned int a);
+[[maybe_unused]] extern void CoUnInitialize(unsigned);
+[[maybe_unused]] extern std::string DWordToString(unsigned a);
 [[maybe_unused]] extern bool DecryptSuConfig(); // this is not working
 [[maybe_unused]] extern bool EncryptSuConfig(); // this is not working
 // it would not be used anyway...
@@ -28,7 +28,7 @@ extern void ChangeSelfSvrParam(void *);
 [[maybe_unused]] extern float get_fedora_lib_version(
     [[maybe_unused]] const char *pkgname
 );
-extern unsigned int addStringOnLineHead(
+extern unsigned addStringOnLineHead(
     const char *in_filename,
     const char *out_filename,
     const char *add_line_contain,
@@ -37,10 +37,10 @@ extern unsigned int addStringOnLineHead(
 extern int FindChar(char to_find, const char *str, int begin, int end);
 extern int FindSub(
     const char *to_find_buf,
-    unsigned int to_find_buf_len,
+    unsigned to_find_buf_len,
     const char *buf,
-    unsigned int begin,
-    unsigned int end
+    unsigned begin,
+    unsigned end
 );
 [[maybe_unused]] extern int GKillTimer(timer_t timer);
 [[maybe_unused]] extern void GOnTimer(union sigval);
@@ -59,16 +59,16 @@ extern void ParseString(
 [[maybe_unused]] extern void TrimLeft(std::string &str, std::string chars);
 [[maybe_unused]] extern void TrimRight(std::string &str, std::string chars);
 extern void HIPacketUpdate(unsigned char *, int);
-extern unsigned int HexCharToAscii(
+extern unsigned HexCharToAscii(
     const std::string &str,
     unsigned char *buf,
-    unsigned int buflen
+    unsigned buflen
 );
 extern std::string HexToString(const unsigned char *buf, int buflen);
 [[maybe_unused]] extern int ASCIIStrtoChar(std::string str, unsigned char *buf);
 extern std::string AsciiToStr(
     const unsigned char *buf,
-    const unsigned int &len
+    const unsigned &len
 );
 extern bool SuCreateDirectory(const std::string &dirname);
 extern bool post_command(char c);
