@@ -166,7 +166,7 @@ MD5_CTX *context;                                        /* context */
  */
 void MD5Update (context, input, inputLen)
 MD5_CTX *context;                                        /* context */
-unsigned char *input;                                /* input block */
+const unsigned char *input;                          /* input block */
 unsigned int inputLen;                     /* length of input block */
 {
   unsigned int i, index, partLen;
@@ -206,7 +206,7 @@ unsigned int inputLen;                     /* length of input block */
 /* modified */
 void MD5Update_Vz (context, input, inputLen)
 MD5_CTX *context;                                        /* context */
-unsigned char *input;                                /* input block */
+const unsigned char *input;                                /* input block */
 unsigned int inputLen;                     /* length of input block */
 {
   unsigned int i, index, partLen;

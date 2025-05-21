@@ -157,7 +157,7 @@ struct TcpInfo {
 };
 
 struct TCPIP {
-    char pad[8];
+    unsigned long pad;
     struct IPHeader *ipheader;
     struct TCPHeader *tcpheader;
     unsigned char *content;

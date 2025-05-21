@@ -8,11 +8,12 @@ bool bLoadLib = false;
 bool updteParam = false;
 std::string update_message;
 std::string alt_update_message;
-int g_rwpipe[2];
+int g_rwpipe[2] = {};
 timer_t g_runModetimer;
 bool g_bDoRunIbus = false;
 pthread_rwlock_t g_fileLock;
-unsigned char g_pAppData[1820] = {
+unsigned char e_pMd5Chanllenge[16] = {};
+const unsigned char g_pAppData[1820] = {
     0x20, 0x12, 0x10, 0x26, 0x13, 0x44, 0x01, 0x20, 0xD4, 0xF6,
     0x7C, 0x00, 0xF8, 0xFA, 0x7C, 0x99, 0x0C, 0x82, 0x4C, 0x00,
     0xDC, 0x00, 0x21, 0x01, 0x08, 0xFB, 0x7C, 0x00, 0xB2, 0x26,
@@ -196,7 +197,7 @@ unsigned char g_pAppData[1820] = {
     0x31, 0x31, 0x31, 0x31, 0x31, 0x31, 0x31, 0x31, 0x31, 0x31,
     0x31, 0x31, 0x31, 0x31, 0x31, 0x31, 0x31, 0x00, 0x00, 0x00
 };
-unsigned char g_pDllData[2035] = {
+const unsigned char g_pDllData[2035] = {
     0x20, 0x12, 0x10, 0x26, 0x13, 0x44, 0x01, 0x20, 0x63, 0x70,
     0x70, 0x20, 0x3A, 0x20, 0x44, 0x65, 0x66, 0x69, 0x6E, 0x65,
     0x73, 0x20, 0x74, 0x68, 0x65, 0x20, 0x63, 0x6C, 0x61, 0x73,
@@ -408,19 +409,19 @@ int (*my_timer_create)(
     clockid_t clockid,
     struct sigevent *sevp,
     timer_t *timerid
-) = &timer_create;
+) = nullptr;
 int (*my_timer_gettime)(
     timer_t timerid,
     struct itimerspec *curr_value
-) = &timer_gettime;
+) = nullptr;
 int (*my_timer_settime)(
     timer_t timerid,
     int flags,
     const struct itimerspec *new_value,
     struct itimerspec *old_value
-) = &timer_settime;
-int (*my_timer_delete)(timer_t timerid) = &timer_delete;
-int (*my_timer_getoverrun)(timer_t timerid) = &timer_getoverrun;
+) = nullptr;
+int (*my_timer_delete)(timer_t timerid) = nullptr;
+int (*my_timer_getoverrun)(timer_t timerid) = nullptr;
 #endif // USE_EXTERNAL_LIBRT
 
 CLogFile logFile;

@@ -9,6 +9,7 @@ build/
 *.o*
 *.so*
 *.a*
+*.save
 *~
 compile_commands.json
 cscope.out

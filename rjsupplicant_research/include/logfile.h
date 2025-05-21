@@ -1,6 +1,10 @@
 #ifndef LOGFILE_H
 #define LOGFILE_H
 
+// most of the functions in this class in the original implementation
+// are just stubs
+// maybe because they are disabled in the production release
+// but I choose to implement them
 class CLogFile
 {
     public:

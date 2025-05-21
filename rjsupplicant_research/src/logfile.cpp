@@ -32,9 +32,9 @@ void CLogFile::GetTimeString(char *dst)
 void CLogFile::HexPrinter(const unsigned char *arr, unsigned len)
 {
     ofs << std::setprecision(2) << std::hex;
-    std::for_each(arr, arr + len, [this](const unsigned char i) {
-        ofs << i;
-    });
+    // *INDENT-OFF*
+    std::for_each(arr, arr + len, [this](const unsigned char i) { ofs << i; });
+    // *INDENT-ON*
     ofs << std::setprecision(ofs_orig_precision) << std::dec;
 }
 

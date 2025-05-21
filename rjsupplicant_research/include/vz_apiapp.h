@@ -1,14 +1,14 @@
 #ifndef VZ_APIAPP_H
 #define VZ_APIAPP_H
 
-// the first part is the appdata's hash algorithm, and
-// the second part is the dlldata's hash algorithm
+// the first part is the appdata/upper_data's hash algorithm, and
+// the second part is the dlldata/lower_data's hash algorithm
 enum HASH_TYPE {
-    MD5_MD5_WHIRLPOOL,
-    SHA1_SHA1_WHIRLPOOL,
-    RIPEMD128_SHA1_WHIRLPOOL,
-    TIGER_RIPEMD128_WHIRLPOOL,
-    TIGER_SHA1_WHIRLPOOL
+    HASH_MD5_MD5,
+    HASH_SHA1_SHA1,
+    HASH_RIPEMD128_SHA1,
+    HASH_TIGER_RIPEMD128,
+    HASH_TIGER_SHA1
 };
 
 class CVz_APIApp
@@ -17,22 +17,26 @@ class CVz_APIApp
         CVz_APIApp();
         ~CVz_APIApp();
 
-        void V3HeartbeatAPI(
-            unsigned char *,
-            unsigned,
-            unsigned char *,
-            unsigned
+        void Vz_API(
+            char *result,
+            const char *md5_challenge,
+            [[maybe_unused]] const char *a4
         );
-        void Vz_API(char *, char *, const char *);
+        static void V3HeartbeatAPI(
+            const unsigned char *data,
+            unsigned datalen,
+            unsigned char *result,
+            enum HASH_TYPE hash_type
+        );
 
     private:
-        void *GetAppData(int &size);
-        void *GetDllData(int &size);
-        void *GetFileData(int &size, const char *filename);
+        void *GetAppData(unsigned int &size);
+        void *GetDllData(unsigned int &size);
+        void *GetFileData(unsigned int &size, const char *filename);
         void PrepareData(
             char *result,
             enum HASH_TYPE hash_type,
-            char *md5_challenge,
+            const char *md5_challenge,
             [[maybe_unused]] const char *a5
         );
 };

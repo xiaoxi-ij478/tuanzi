@@ -8,7 +8,7 @@ CMD5Checksum::CMD5Checksum() : ctx()
 CMD5Checksum::~CMD5Checksum()
 {}
 
-void CMD5Checksum::Update(unsigned char *buf, unsigned buflen)
+void CMD5Checksum::Update(const unsigned char *buf, unsigned buflen)
 {
     MD5Update(&ctx, buf, buflen);
 }
@@ -48,7 +48,7 @@ void CMD5Checksum::Final2CharBuff(unsigned char *buf, int buflen)
     MD5Final(buf, &ctx);
 }
 
-char *CMD5Checksum::GetMD5(unsigned char *buf, unsigned buflen)
+char *CMD5Checksum::GetMD5(const unsigned char *buf, unsigned buflen)
 {
     CMD5Checksum cksum;
     cksum.Update(buf, buflen);
@@ -57,7 +57,7 @@ char *CMD5Checksum::GetMD5(unsigned char *buf, unsigned buflen)
 
 void CMD5Checksum::GetCharMd5(
     unsigned char *dst,
-    unsigned char *src,
+    const unsigned char *src,
     int srclen,
     int dstlen
 )

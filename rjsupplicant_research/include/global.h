@@ -21,8 +21,9 @@ extern int g_rwpipe[2];
 extern timer_t g_runModetimer;
 [[maybe_unused]] extern bool g_bDoRunIbus;
 extern pthread_rwlock_t g_fileLock;
-extern unsigned char g_pAppData[1820];
-extern unsigned char g_pDllData[2035];
+extern unsigned char e_pMd5Chanllenge[16];
+extern const unsigned char g_pAppData[1820];
+extern const unsigned char g_pDllData[2035];
 
 #ifdef USE_EXTERNAL_LIBRT
 extern int (*my_timer_create)(

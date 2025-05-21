@@ -223,7 +223,7 @@ bool CSuConfigFile::UpdateConfig()
     std::ifstream ifs(filename, std::ios::binary);
     std::ofstream ofs(cfg_filename, std::ios::binary);
     unsigned long orig_size = 0;
-    unsigned long compressed_size = 0;
+    unsigned long comp_size = 0;
     unsigned char *ibuf = nullptr;
     unsigned char *obuf = nullptr;
 
@@ -243,14 +243,14 @@ bool CSuConfigFile::UpdateConfig()
     ibuf = new unsigned char[orig_size];
     ifs.read(reinterpret_cast<char *>(ibuf), orig_size);
     ifs.close();
-    compressed_size = Compress(ibuf, obuf, orig_size, 0);
-    obuf = new unsigned char[compressed_size];
-    Compress(ibuf, obuf, orig_size, compressed_size);
-    std::for_each(obuf, obuf + compressed_size + 1, [](unsigned char &i) {
-        i = ~i;
-    });
+    comp_size = Compress(ibuf, obuf, orig_size, 0);
+    obuf = new unsigned char[comp_size];
+    Compress(ibuf, obuf, orig_size, comp_size);
+    // *INDENT-OFF*
+    std::for_each(obuf, obuf + comp_size + 1, [](unsigned char &i) { i = ~i; });
+    // *INDENT-ON*
 
-    if (!ofs.write(reinterpret_cast<const char *>(obuf), compressed_size)) {
+    if (!ofs.write(reinterpret_cast<const char *>(obuf), comp_size)) {
         g_logSystem.AppendText("ERROR: write file %s failed.\n", cfg_filename.c_str());
         delete[] obuf;
         obuf = nullptr;
