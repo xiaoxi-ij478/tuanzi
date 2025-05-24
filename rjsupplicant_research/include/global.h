@@ -8,7 +8,7 @@
 extern std::string g_strAppPath;
 extern std::string g_runLogFile;
 extern std::string g_strNotify;
-[[maybe_unused]] extern std::string g_strError;
+extern std::string g_strError;
 extern bool bLoadLib; // librt loaded
 // used in update procedure
 extern bool updteParam; // update requested
@@ -19,7 +19,7 @@ extern std::string update_message;
 extern std::string alt_update_message;
 extern int g_rwpipe[2];
 extern timer_t g_runModetimer;
-[[maybe_unused]] extern bool g_bDoRunIbus;
+extern bool g_bDoRunIbus;
 extern pthread_rwlock_t g_fileLock;
 extern unsigned char e_pMd5Chanllenge[16];
 extern const unsigned char g_pAppData[1820];

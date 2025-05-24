@@ -5,6 +5,8 @@
 // are just stubs
 // maybe because they are disabled in the production release
 // but I choose to implement them
+// so the exact implementation may be much different from mine
+
 class CLogFile
 {
     public:
@@ -30,7 +32,7 @@ class CLogFile
 
         static void GetTimeString(char *dst);
 
-        std::ofstream ofs;
+        std::string log_filename;
         int prio;
         std::streamsize ofs_orig_precision;
 };

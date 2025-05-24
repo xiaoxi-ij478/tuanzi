@@ -13,8 +13,8 @@ class ProxyClientTcp : public CTcp
 
         int TryDetectTCPIP(
             const struct TCPIP &pkg,
-            const ProxySerTcp *server,
-            unsigned int flag
+            ProxySerTcp *server,
+            unsigned flag
         );
         bool IsExpired() const;
 
@@ -32,9 +32,9 @@ class ProxyClientTcp : public CTcp
         int HandleTelnet(const struct TCPIP &pkg, const ProxySerTcp *server);
 
         ProxySerTcp *bound_proxy_ser_tcp;
-        unsigned int field_190;
+        unsigned field_190;
         bool found_ser;
-        unsigned int find_ser_times; // m_findSerTimes
+        unsigned find_ser_times; // m_findSerTimes
         unsigned long creation_time;
         ProxyClientTcp *prev;
         ProxyClientTcp *next;

@@ -3,7 +3,7 @@
 
 [[maybe_unused, gnu::format(printf, 1, 2)]]
 extern void message_info(const char *format, ...);
-[[maybe_unused]] extern void message_info(std::string str);
+extern void message_info(std::string str);
 [[noreturn]] extern void display_usage();
 extern unsigned short get_tc_width();
 [[gnu::format(printf, 1, 2)]]

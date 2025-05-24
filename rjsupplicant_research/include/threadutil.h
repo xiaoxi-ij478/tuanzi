@@ -7,11 +7,11 @@ extern int WaitForSingleObject(
     WAIT_HANDLE *event,
     unsigned long off_msec
 );
-[[maybe_unused]] extern int WaitForMultipleObjects(
-    [[maybe_unused]] int event_count,
-    [[maybe_unused]] WAIT_HANDLE *events,
-    [[maybe_unused]] bool wait_all,
-    [[maybe_unused]] unsigned long no_obj_waittime
+extern int WaitForMultipleObjects(
+    int event_count,
+    WAIT_HANDLE *events,
+    bool wait_all,
+    unsigned long no_obj_waittime
 );
 extern void CloseHandle(WAIT_HANDLE *wait_handle);
 extern void SetEvent(WAIT_HANDLE *wait_handle, bool broadcast);

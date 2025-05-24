@@ -17,11 +17,7 @@ class CVz_APIApp
         CVz_APIApp();
         ~CVz_APIApp();
 
-        void Vz_API(
-            char *result,
-            const char *md5_challenge,
-            [[maybe_unused]] const char *a4
-        ) const;
+        void Vz_API(char *result, const char *md5_challenge, const char *a4) const;
         static void V3HeartbeatAPI(
             const unsigned char *data,
             unsigned datalen,
@@ -30,14 +26,14 @@ class CVz_APIApp
         );
 
     private:
-        void *GetAppData(unsigned int &size) const;
-        void *GetDllData(unsigned int &size) const;
-        void *GetFileData(unsigned int &size, const char *filename) const;
+        void *GetAppData(unsigned &size) const;
+        void *GetDllData(unsigned &size) const;
+        void *GetFileData(unsigned &size, const char *filename) const;
         void PrepareData(
             char *result,
             enum HASH_TYPE hash_type,
             const char *md5_challenge,
-            [[maybe_unused]] const char *a5
+            const char *a5
         ) const;
 };
 

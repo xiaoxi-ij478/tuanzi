@@ -1,17 +1,21 @@
 #include "global.h"
 #include "logfile.h"
 
-CLogFile::CLogFile() : ofs(), prio(), ofs_orig_precision(ofs.precision())
+CLogFile::CLogFile() :
+    log_filename(),
+    prio(),
+    ofs_orig_precision(ofs.precision())
 {}
 
 void CLogFile::CreateLogFile_S(const std::string &filename, int prio)
 {
-    CreateLogFile(filename.c_str(), prio);
+    log_filename = filename;
+    this->prio = prio;
 }
 
 void CLogFile::CreateLogFile(const char *filename, int prio)
 {
-    ofs.open(filename, std::ios::app);
+    log_filename = filename;
     this->prio = prio;
 }
 
@@ -81,10 +85,10 @@ void CLogFile::AppendText_V(const char *format, va_list va)
 {
     char s[2048] = {};
     vsnprintf(s, sizeof(s), format, va);
-    ofs << s;
+    WriteString(s);
 }
 
 void CLogFile::WriteString(const char *str)
 {
-    ofs << str;
+    LogToFile(str, log_filename, true, true);
 }

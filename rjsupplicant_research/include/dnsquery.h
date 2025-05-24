@@ -31,7 +31,7 @@ class CDNSQuery
         static void UpdateHostEntList(struct CHostEnt *entry);
         static void AddToHostEntList(struct CHostEnt *entry);
         static void GetHostByName(char *hostname, struct CHostEnt **dest);
-        static void *thread_function([[maybe_unused]] void *arg);
+        static void *thread_function(void *arg);
 
         static bool running; // m_bRunning
         static int msgid; // m_msgid

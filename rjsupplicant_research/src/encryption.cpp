@@ -1,6 +1,6 @@
 #include "encryption.h"
 
-const char *CEncryption::key = "abcdf12348";
+[[maybe_unused]] const char *CEncryption::key = "abcdf12348";
 const char *CEncryption::enc_strs =
     "~!:?$*<(qw2e5o7i8x12c6m67s98w43d2l45we82q3iuu1z4xle23rt4oxclle34e54u6r8m";
 const char *CEncryption::base64_chars =

@@ -107,6 +107,9 @@
 		<Unit filename="include/md5forvz.h" />
 		<Unit filename="include/msgutil.h" />
 		<Unit filename="include/netutil.h" />
+		<Unit filename="include/protocols.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="include/proxyclienttcp.h" />
 		<Unit filename="include/proxysertcp.h" />
 		<Unit filename="include/psutil.h" />

@@ -42,7 +42,7 @@ void CVz_APIApp::V3HeartbeatAPI(
     const unsigned char *data,
     unsigned datalen,
     unsigned char *result,
-    // otherwise astyle treats it as enumerate description
+    // otherwise astyle treats it as enumerate declaration
     // *INDENT-OFF*
     enum HASH_TYPE hash_type
     // *INDENT-ON*
@@ -138,7 +138,8 @@ void CVz_APIApp::V3HeartbeatAPI(
                 sizeof(lower_data_sha1) + sizeof(upper_data_sha1) + 16
             );
             rhash_whirlpool_final_Vz(&whirlpool_context, whirlpool_dstbuf);
-break;
+            break;
+
         case HASH_RIPEMD128_SHA1:
             ampheck_ripemd128_init_Vz(&ripemd128_context);
             ampheck_ripemd128_update_Vz(&ripemd128_context, upper_data, upper_data_len);
@@ -257,7 +258,7 @@ void CVz_APIApp::Vz_API(
     );
 }
 
-void *CVz_APIApp::GetAppData(unsigned int &size) const
+void *CVz_APIApp::GetAppData(unsigned &size) const
 {
     return
         memcpy(
@@ -267,7 +268,7 @@ void *CVz_APIApp::GetAppData(unsigned int &size) const
         );
 }
 
-void *CVz_APIApp::GetDllData(unsigned int &size) const
+void *CVz_APIApp::GetDllData(unsigned &size) const
 {
     return
         memcpy(
@@ -277,7 +278,7 @@ void *CVz_APIApp::GetDllData(unsigned int &size) const
         );
 }
 
-void *CVz_APIApp::GetFileData(unsigned int &size, const char *filename) const
+void *CVz_APIApp::GetFileData(unsigned &size, const char *filename) const
 {
     std::ifstream ifs;
     unsigned char *ret = nullptr;

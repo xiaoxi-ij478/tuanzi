@@ -154,14 +154,14 @@ extern bool check_manualip_indirectory(
     bool incl_subdir
 );
 extern bool check_manualip_infile(const char *ipaddr, const char *file);
-extern bool check_dhcp([[maybe_unused]] const char *ifname, const char *ipaddr);
+extern bool check_dhcp(const char *ifname, const char *ipaddr);
 extern bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6]);
 extern int check_nic_status(const char *ifname);
-extern bool get_nic_in_use(std::vector<std::string> &nic_list,
-                           bool wireless_only);
-[[maybe_unused]] extern int get_nic_list(
-    [[maybe_unused]] std::vector<std::string> list
+extern bool get_nic_in_use(
+    std::vector<std::string> &nic_list,
+    bool wireless_only
 );
+extern int get_nic_list(std::vector<std::string> list);
 extern bool get_nic_speed(char *dst, const char *ifname);
 extern bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only);
 extern unsigned InitIpv4Header(
@@ -186,10 +186,7 @@ extern bool IsStarGroupDstMac(unsigned char macaddr[6]);
 extern void createUdpBindSocket(unsigned short port);
 extern bool isNoChangeIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4]);
 extern void stop_dhclient_asyn();
-extern bool dhclient_asyn(
-    const char *ipaddr,
-    [[maybe_unused]] sem_t *semaphore
-);
+extern bool dhclient_asyn(const char *ipaddr, sem_t *semaphore);
 extern void *dhclient_thread(void *varg);
 extern void dhclient_exit();
 extern void disable_enable_nic(const char *ifname);

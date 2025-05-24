@@ -8,15 +8,15 @@
 CDNSQuery CTcp::dns_queryer;
 
 CTcp::CTcp(const struct TcpInfo &info) :
-    request_type(REQUEST_INVALID),
+    request_type(REQUEST_UNKNOWN_N1),
     reqaddr_int(-1),
     reqport(),
     hostent(),
     socks5_request_addr(),
     socks5_request_header(),
     socks5_request_domain_len(),
-    r2h_trans_times(),
-    h2r_trans_times(),
+    recv_data_times(),
+    send_data_times(),
     trans_direction(TRANS_MINE),
     tcpinfo(info)
 {}
@@ -322,7 +322,7 @@ bool CTcp::GetSocks5ReqAddr_Port(const struct TCPIP &pkg)
         return false;
 
     switch (request->request_header.command) {
-        case SOCKS_CONNREQ_UDP_CONN:
+        case SOCKS_REQUEST_UDP_CONN:
             switch (request->request_header.addr_type) {
                 case SOCKS5_ADDR_IPV4:
                     if (pkg.content_length == GET_SOCKS5_REQUEST_SIZE_IPV4(request)) {
@@ -347,11 +347,11 @@ bool CTcp::GetSocks5ReqAddr_Port(const struct TCPIP &pkg)
 
             break;
 
-        case SOCKS_CONNREQ_TCP_BIND:
+        case SOCKS_REQUEST_TCP_BIND:
             return false;
     }
 
-//    case SOCKS_CONNREQ_TCP_CONN:
+//    case SOCKS_REQUEST_TCP_CONN:
     switch (request->request_header.addr_type) {
         case SOCKS5_ADDR_IPV4:
             if (pkg.content_length != GET_SOCKS5_REQUEST_SIZE_IPV4(request))
@@ -404,7 +404,7 @@ bool CTcp::GetTelnetReqAddr_Port([[maybe_unused]] const struct TCPIP &pkg)
 
 bool CTcp::IsFtpType(const struct TCPIP &pkg)
 {
-    int trans_times[2] = {};
+    unsigned trans_times[2] = {};
     QueryTransTimes(trans_times[1], trans_times[0]);
     return trans_times[0] == 1 && !trans_times[1] &&
            MemCmpare(pkg.content, 0, pkg.content_length - 1, "220", strlen("220"));
@@ -458,12 +458,6 @@ bool CTcp::IsMine(const struct TCPIP &pkg)
     return QueryAndUpdate(pkg);
 }
 
-// see https://web.archive.org/web/20090219134914/http://download.microsoft.com/download/9/5/E/95EF66AF-9026-4BB0-A41D-A4F81802D92C/%5BMS-MMSP%5D.pdf
-// from https://en.wikipedia.org/wiki/Microsoft_Media_Server
-// LinkViewerToMacConnect
-// and
-// https://web.archive.org/web/20081204082646/http://download.microsoft.com/download/9/5/E/95EF66AF-9026-4BB0-A41D-A4F81802D92C/%5BMS-GLOS%5D.pdf
-// for why the Unicode is UTF-16LE
 bool CTcp::IsMmsType(const struct TCPIP &pkg)
 {
     wchar_t *wchar_buf = nullptr;
@@ -528,7 +522,7 @@ bool CTcp::IsMmsType(const struct TCPIP &pkg)
 
 bool CTcp::IsNntpType(const struct TCPIP &pkg)
 {
-    int trans_times[2] = {};
+    unsigned trans_times[2] = {};
     QueryTransTimes(trans_times[1], trans_times[0]);
 
     if (
@@ -551,7 +545,7 @@ bool CTcp::IsNntpType(const struct TCPIP &pkg)
 
 bool CTcp::IsPop3Type(const struct TCPIP &pkg)
 {
-    int trans_times[2] = {};
+    unsigned trans_times[2] = {};
     QueryTransTimes(trans_times[1], trans_times[0]);
 
     if (
@@ -580,7 +574,7 @@ bool CTcp::IsSocks4AType(const struct TCPIP &pkg)
     if (pkg.content_length <= sizeof(struct Socks4AConnReq) + 1)
         return false;
 
-    if (request->version != 4 || request->command != SOCKS_CONNREQ_TCP_CONN)
+    if (request->version != 4 || request->command != SOCKS_REQUEST_TCP_CONN)
         return false;
 
     if (ntohl(request->ip.s_addr) > 255)
@@ -613,7 +607,7 @@ bool CTcp::IsSocks4Type(const struct TCPIP &pkg)
     if (pkg.content_length <= sizeof(struct Socks4ConnReq))
         return false;
 
-    if (request->version != 4 || request->command != SOCKS_CONNREQ_TCP_BIND)
+    if (request->version != 4 || request->command != SOCKS_REQUEST_TCP_BIND)
         return false;
 
     if (
@@ -639,7 +633,7 @@ bool CTcp::IsSocks5Type(const struct TCPIP &pkg)
 
     if (
         request->request_header.version != 5 ||
-        request->request_header.command != SOCKS_CONNREQ_TCP_CONN ||
+        request->request_header.command != SOCKS_REQUEST_TCP_CONN ||
         (
             request->request_header.reserved_must_be_0 &&
             request->request_header.reserved_must_be_0 != 2
@@ -664,21 +658,21 @@ int CTcp::QueryAndUpdate(const struct TCPIP &pkg)
         ntohs(pkg.tcpheader->srcport) == tcpinfo.srcport &&
         ntohs(pkg.tcpheader->dstport) == tcpinfo.dstport
     ) {
-        if (tcpinfo.r2h_last_seq != bswap_64(pkg.tcpheader->seq)) {
-            if (tcpinfo.r2h_last_seq >= bswap_64(pkg.tcpheader->seq))
-                return TRANS_R2H;
+        if (tcpinfo.recv_last_seq != bswap_64(pkg.tcpheader->seq)) {
+            if (tcpinfo.recv_last_seq >= bswap_64(pkg.tcpheader->seq))
+                return TRANS_RECV;
 
             g_logFile_proxy.AppendText(
                 "CTcp::Query may be losted R to H packet Last Seq:%u,Now Seq:%u\r\n",
-                tcpinfo.r2h_last_seq,
+                tcpinfo.recv_last_seq,
                 bswap_64(pkg.tcpheader->seq)
             );
         }
 
-        r2h_trans_times++;
-        trans_direction = TRANS_R2H;
-        tcpinfo.r2h_last_seq = pkg.content_length + bswap_64(pkg.tcpheader->seq);
-        return TRANS_R2H;
+        recv_data_times++;
+        trans_direction = TRANS_RECV;
+        tcpinfo.recv_last_seq = pkg.content_length + bswap_64(pkg.tcpheader->seq);
+        return TRANS_RECV;
     }
 
     if (
@@ -687,51 +681,55 @@ int CTcp::QueryAndUpdate(const struct TCPIP &pkg)
         ntohs(pkg.tcpheader->srcport) == tcpinfo.dstport &&
         ntohs(pkg.tcpheader->dstport) == tcpinfo.srcport
     ) {
-        if (tcpinfo.h2r_last_seq != bswap_64(pkg.tcpheader->seq)) {
-            if (tcpinfo.h2r_last_seq >= bswap_64(pkg.tcpheader->seq))
-                return TRANS_H2R;
+        if (tcpinfo.send_last_seq != bswap_64(pkg.tcpheader->seq)) {
+            if (tcpinfo.send_last_seq >= bswap_64(pkg.tcpheader->seq))
+                return TRANS_SEND;
 
             g_logFile_proxy.AppendText(
                 "CTcp::Query may be losted H to R packet Last Seq:%u,Now Seq:%u\r\n",
-                tcpinfo.h2r_last_seq,
+                tcpinfo.send_last_seq,
                 bswap_64(pkg.tcpheader->seq)
             );
-            h2r_trans_times++;
-            trans_direction = TRANS_H2R;
-            tcpinfo.h2r_last_seq = pkg.content_length + bswap_64(pkg.tcpheader->seq);
-            return TRANS_H2R;
+            send_data_times++;
+            trans_direction = TRANS_SEND;
+            tcpinfo.send_last_seq = pkg.content_length + bswap_64(pkg.tcpheader->seq);
+            return TRANS_SEND;
         }
     }
 
     return TRANS_MINE;
 }
 
-int CTcp::QueryProtocolType(const struct TCPIP &pkg, unsigned flag)
+enum REQUEST_TYPE CTcp::QueryProtocolType(
+    const struct TCPIP &pkg,
+    unsigned flag
+)
 {
-    if (flag & 4 && IsHttpType(pkg))
-        return 1;
+    if (IsHttpType(pkg))
+        if (flag & 4)
+            return REQUEST_HTTP;
 
     if (!(flag & 2))
-        return 0;
+        return REQUEST_INVALID/*0*/;
 
     if (IsSocks4Type(pkg))
-        return 2;
+        return REQUEST_SOCK4;
 
     if (IsSocks4AType(pkg))
-        return 3;
+        return REQUEST_SOCK4A;
 
     if (IsSocks5Type(pkg))
-        return 4;
+        return REQUEST_SOCK5;
 
-    return 0;
+    return REQUEST_INVALID/*0*/;
 }
 
 enum TRANS_DIRECTION CTcp::QueryTransTimes(
-    unsigned &r2h_trans_times,
-    unsigned &h2r_trans_times
+    unsigned &recv_data_times,
+    unsigned &send_data_times
 ) const
 {
-    r2h_trans_times = this->r2h_trans_times;
-    h2r_trans_times = this->h2r_trans_times;
+    recv_data_times = this->recv_data_times;
+    send_data_times = this->send_data_times;
     return trans_direction;
 }

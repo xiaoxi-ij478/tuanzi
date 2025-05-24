@@ -14,8 +14,8 @@ class ProxySerTcp : public CTcp
 
         int FindClientTcp(
             const struct TCPIP &pkg,
-            ProxyClientTcp *,
-            unsigned int
+            ProxyClientTcp *client,
+            unsigned flag
         );
         bool IsExpired() const;
 

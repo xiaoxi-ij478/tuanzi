@@ -18,16 +18,14 @@ extern void replace_all_distinct(
 [[noreturn]] extern void chk_call_back(int);
 extern bool set_msg_config(const std::string &key, int val);
 extern void ChangeSelfSvrParam(void *);
-[[maybe_unused]] extern void CoInitialize();
-[[maybe_unused]] extern void CoUnInitialize(unsigned);
-[[maybe_unused]] extern std::string DWordToString(unsigned a);
-[[maybe_unused]] extern bool DecryptSuConfig(); // this is not working
-[[maybe_unused]] extern bool EncryptSuConfig(); // this is not working
+extern void CoInitialize();
+extern void CoUnInitialize(unsigned);
+extern std::string DWordToString(unsigned a);
+extern bool DecryptSuConfig(); // this is not working
+extern bool EncryptSuConfig(); // this is not working
 // it would not be used anyway...
-[[maybe_unused]] extern void exec_cmd(const char *cmd, char *buf, int buflen);
-[[maybe_unused]] extern float get_fedora_lib_version(
-    [[maybe_unused]] const char *pkgname
-);
+extern void exec_cmd(const char *cmd, char *buf, int buflen);
+extern float get_fedora_lib_version(const char *pkgname);
 extern unsigned addStringOnLineHead(
     const char *in_filename,
     const char *out_filename,
@@ -42,22 +40,22 @@ extern int FindSub(
     unsigned begin,
     unsigned end
 );
-[[maybe_unused]] extern int GKillTimer(timer_t timer);
-[[maybe_unused]] extern void GOnTimer(union sigval);
+extern int GKillTimer(timer_t timer);
+extern void GOnTimer(union sigval);
 extern void GSNRecvPacter(unsigned char *, int);
 extern timer_t GSetTimer(
     int off_msec,
     void (*thread_function)(union sigval),
     struct TIMERPARAM *timer
 );
-[[maybe_unused]] extern void GetMD5File(const char *filename, char *result);
+extern void GetMD5File(const char *filename, char *result);
 extern void ParseString(
     const std::string &str,
     char delim,
     std::vector<std::string> &dest
 );
-[[maybe_unused]] extern void TrimLeft(std::string &str, std::string chars);
-[[maybe_unused]] extern void TrimRight(std::string &str, std::string chars);
+extern void TrimLeft(std::string &str, std::string chars);
+extern void TrimRight(std::string &str, std::string chars);
 extern void HIPacketUpdate(unsigned char *, int);
 extern unsigned HexCharToAscii(
     const std::string &str,
@@ -65,7 +63,7 @@ extern unsigned HexCharToAscii(
     unsigned buflen
 );
 extern std::string HexToString(const unsigned char *buf, int buflen);
-[[maybe_unused]] extern int ASCIIStrtoChar(std::string str, unsigned char *buf);
+extern int ASCIIStrtoChar(std::string str, unsigned char *buf);
 extern std::string AsciiToStr(
     const unsigned char *buf,
     const unsigned &len
@@ -89,11 +87,11 @@ extern void RcvACLParam(void *arg);
 extern void RcvCMD_GetProcessAndNetworkInfo();
 extern void RcvFlowMonitorParam(void *arg);
 extern void RcvIPMACChangeNotify();
-extern void RcvLoginURL([[maybe_unused]] const std::string &arg);
+extern void RcvLoginURL(const std::string &arg);
 extern void RcvNetSecParam(void *arg);
 extern void RcvOpenUtrustUrlCmd(const std::string &arg);
 extern void RcvStartAuthNotification();
-[[maybe_unused]] extern void StrToLower(char *str);
+extern void StrToLower(char *str);
 extern bool convertInt(const char *str, int &result);
 extern void decode(unsigned char *buf, int buflen);
 extern void encode(unsigned char *buf, int buflen);
