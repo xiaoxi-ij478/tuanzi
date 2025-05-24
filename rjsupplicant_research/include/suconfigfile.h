@@ -1,5 +1,5 @@
-#ifndef SUCONFIGFILE_H
-#define SUCONFIGFILE_H
+#ifndef SUCONFIGFILE_H_INCLUDED
+#define SUCONFIGFILE_H_INCLUDED
 
 #include "criticalsection.h"
 
@@ -49,4 +49,4 @@ class CSuConfigFile
         static CRITICAL_SECTION CSuConfigFileLock;
 };
 
-#endif // SUCONFIGFILE_H
+#endif // SUCONFIGFILE_H_INCLUDED

@@ -1,9 +1,9 @@
-#ifndef TCP_H
-#define TCP_H
+#ifndef TCP_H_INCLUDED
+#define TCP_H_INCLUDED
 
 #include "netutil.h"
 #include "dnsquery.h"
-#include "protocols.h"
+#include "stdpkgs.h"
 
 enum REQUEST_TYPE {
     REQUEST_UNKNOWN_N1 = -1,
@@ -103,4 +103,4 @@ class CTcp
         enum TRANS_DIRECTION trans_direction;
 };
 
-#endif // TCP_H
+#endif // TCP_H_INCLUDED

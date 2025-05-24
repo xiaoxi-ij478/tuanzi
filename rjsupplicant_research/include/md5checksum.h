@@ -1,5 +1,5 @@
-#ifndef MD5CHECKSUM_H
-#define MD5CHECKSUM_H
+#ifndef MD5CHECKSUM_H_INCLUDED
+#define MD5CHECKSUM_H_INCLUDED
 
 class CMD5Checksum
 {
@@ -23,4 +23,4 @@ class CMD5Checksum
         MD5_CTX ctx;
 };
 
-#endif // MD5CHECKSUM_H
+#endif // MD5CHECKSUM_H_INCLUDED

@@ -1,5 +1,5 @@
-#ifndef LNXTHREAD_H
-#define LNXTHREAD_H
+#ifndef LNXTHREAD_H_INCLUDED
+#define LNXTHREAD_H_INCLUDED
 
 #include "waithandle.h"
 
@@ -83,4 +83,4 @@ class CLnxThread
         pthread_mutex_t pthread_mutex;
 };
 
-#endif // LNXTHREAD_H
+#endif // LNXTHREAD_H_INCLUDED

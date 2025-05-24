@@ -1,5 +1,5 @@
-#ifndef HTTPCONNECTION_H
-#define HTTPCONNECTION_H
+#ifndef HTTPCONNECTION_H_INCLUDED
+#define HTTPCONNECTION_H_INCLUDED
 
 class CHttpConnection
 {
@@ -42,4 +42,4 @@ class CHttpConnection
         std::string http_request_header;
 };
 
-#endif // HTTPCONNECTION_H
+#endif // HTTPCONNECTION_H_INCLUDED

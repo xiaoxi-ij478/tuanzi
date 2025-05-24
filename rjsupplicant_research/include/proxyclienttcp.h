@@ -1,5 +1,5 @@
-#ifndef PROXYCLIENTTCP_H
-#define PROXYCLIENTTCP_H
+#ifndef PROXYCLIENTTCP_H_INCLUDED
+#define PROXYCLIENTTCP_H_INCLUDED
 
 #include "tcp.h"
 #include "proxysertcp.h"
@@ -40,4 +40,4 @@ class ProxyClientTcp : public CTcp
         ProxyClientTcp *next;
 };
 
-#endif // PROXYCLIENTTCP_H
+#endif // PROXYCLIENTTCP_H_INCLUDED

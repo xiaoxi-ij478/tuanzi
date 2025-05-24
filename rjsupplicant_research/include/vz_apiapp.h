@@ -1,5 +1,5 @@
-#ifndef VZ_APIAPP_H
-#define VZ_APIAPP_H
+#ifndef VZ_APIAPP_H_INCLUDED
+#define VZ_APIAPP_H_INCLUDED
 
 // the first part is the appdata/upper_data's hash algorithm, and
 // the second part is the dlldata/lower_data's hash algorithm
@@ -37,4 +37,4 @@ class CVz_APIApp
         ) const;
 };
 
-#endif // VZ_APIAPP_H
+#endif // VZ_APIAPP_H_INCLUDED

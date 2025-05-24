@@ -107,14 +107,12 @@
 		<Unit filename="include/md5forvz.h" />
 		<Unit filename="include/msgutil.h" />
 		<Unit filename="include/netutil.h" />
-		<Unit filename="include/protocols.h">
-			<Option target="Debug" />
-		</Unit>
 		<Unit filename="include/proxyclienttcp.h" />
 		<Unit filename="include/proxysertcp.h" />
 		<Unit filename="include/psutil.h" />
 		<Unit filename="include/saveconfigureinfo.h" />
 		<Unit filename="include/signals.h" />
+		<Unit filename="include/stdpkgs.h" />
 		<Unit filename="include/suconfigfile.h" />
 		<Unit filename="include/sudes.h" />
 		<Unit filename="include/supf.h" />

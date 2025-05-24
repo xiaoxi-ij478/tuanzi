@@ -1,5 +1,5 @@
-#ifndef HELLOPROCESSOR_H
-#define HELLOPROCESSOR_H
+#ifndef HELLOPROCESSOR_H_INCLUDED
+#define HELLOPROCESSOR_H_INCLUDED
 
 class CHelloProcessor
 {
@@ -12,4 +12,4 @@ class CHelloProcessor
     private:
 };
 
-#endif // HELLOPROCESSOR_H
+#endif // HELLOPROCESSOR_H_INCLUDED

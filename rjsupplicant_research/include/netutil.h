@@ -17,69 +17,6 @@ enum ADAPTER_TYPE {
     ADAPTER_WIRED
 };
 
-struct [[gnu::packed]] IPHeader {
-    unsigned version: 4;
-    unsigned ihl: 4;
-    unsigned char tos;
-    unsigned short total_length;
-    unsigned short ipid;
-    unsigned char flags: 3;
-    unsigned fragment_offset: 13;
-    unsigned char ttl;
-    unsigned char protocol;
-    unsigned short header_checksum;
-    unsigned srcaddr;
-    unsigned dstaddr;
-};
-
-struct [[gnu::packed]] TCPHeader {
-    unsigned short srcport;
-    unsigned short dstport;
-    unsigned seq;
-    unsigned ack;
-    unsigned char offset: 4;
-    unsigned char reserved: 4;
-    unsigned char flags;
-    unsigned short window;
-    unsigned short checksum;
-    unsigned short urgent_pointer;
-};
-
-struct [[gnu::packed]] TCPPseudoHeader {
-    unsigned srcaddr;
-    unsigned dstaddr;
-    unsigned char zero;
-    unsigned char protocol;
-    unsigned short tcp_length;
-};
-
-struct [[gnu::packed]] TCPChecksumHeader {
-    struct TCPPseudoHeader pseudo_header;
-    struct TCPHeader header;
-    unsigned char data[2024];
-};
-
-struct [[gnu::packed]] udp_hdr {
-    unsigned short srcport;
-    unsigned short dstport;
-    unsigned short length;
-    unsigned short checksum;
-};
-
-struct [[gnu::packed]] udp_pseudo_hdr {
-    unsigned srcaddr;
-    unsigned dstaddr;
-    unsigned char zero;
-    unsigned char protocol;
-    unsigned short udp_length;
-};
-
-struct [[gnu::packed]] udp_checksum_hdr {
-    struct udp_pseudo_hdr pseudo_hdr;
-    struct udp_hdr hdr;
-    unsigned char data[2040];
-};
-
 struct NICINFO {
     char ifname[IFNAMSIZ];
     unsigned char hwaddr[6];
@@ -102,15 +39,6 @@ struct NICINFO {
         struct IP6AddrNode *next;
     } *ip6addrs;
     struct NICINFO *next;
-};
-
-struct icmp_pkg {
-    unsigned char icmp_type;
-    unsigned char icmp_code;
-    unsigned short icmp_cksum;
-    unsigned short icmp_id;
-    unsigned short icmp_seq;
-    char icmp_data[40];
 };
 
 struct DHClientThreadStruct {

@@ -1,5 +1,5 @@
-#ifndef SAVECONFIGUREINFO_H
-#define SAVECONFIGUREINFO_H
+#ifndef SAVECONFIGUREINFO_H_INCLUDED
+#define SAVECONFIGUREINFO_H_INCLUDED
 
 class SaveConfigureInfo
 {
@@ -12,4 +12,4 @@ class SaveConfigureInfo
     private:
 };
 
-#endif // SAVECONFIGUREINFO_H
+#endif // SAVECONFIGUREINFO_H_INCLUDED

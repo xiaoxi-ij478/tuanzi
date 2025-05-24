@@ -1,5 +1,5 @@
-#ifndef SURADIUSPRIVATE_H
-#define SURADIUSPRIVATE_H
+#ifndef SURADIUSPRIVATE_H_INCLUDED
+#define SURADIUSPRIVATE_H_INCLUDED
 
 class SuRadiusPrivate
 {
@@ -12,4 +12,4 @@ class SuRadiusPrivate
     private:
 };
 
-#endif // SURADIUSPRIVATE_H
+#endif // SURADIUSPRIVATE_H_INCLUDED

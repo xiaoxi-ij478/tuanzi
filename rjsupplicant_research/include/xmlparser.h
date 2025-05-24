@@ -1,5 +1,5 @@
-#ifndef XMLPARSER_H
-#define XMLPARSER_H
+#ifndef XMLPARSER_H_INCLUDED
+#define XMLPARSER_H_INCLUDED
 
 #include "tinyxml.h"
 
@@ -39,4 +39,4 @@ class XML_PARSER : public TiXmlDocument
         TiXmlNode *currentElement;
 };
 
-#endif // XMLPARSER_H
+#endif // XMLPARSER_H_INCLUDED

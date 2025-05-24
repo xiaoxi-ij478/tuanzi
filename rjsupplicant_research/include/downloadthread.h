@@ -1,5 +1,5 @@
-#ifndef DOWNLOADTHREAD_H
-#define DOWNLOADTHREAD_H
+#ifndef DOWNLOADTHREAD_H_INCLUDED
+#define DOWNLOADTHREAD_H_INCLUDED
 
 #include "lnxthread.h"
 
@@ -173,4 +173,4 @@ class CDownLoadThread : public CLnxThread
         bool read_only_once; // for test?
 };
 
-#endif // DOWNLOADTHREAD_H
+#endif // DOWNLOADTHREAD_H_INCLUDED

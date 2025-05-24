@@ -1,5 +1,5 @@
-#ifndef CHANGELANGUAGE_H
-#define CHANGELANGUAGE_H
+#ifndef CHANGELANGUAGE_H_INCLUDED
+#define CHANGELANGUAGE_H_INCLUDED
 
 enum LANG {
     LANG_INVALID,
@@ -33,4 +33,4 @@ class CChangeLanguage
         static std::string translate_filename;
 };
 
-#endif // CHANGELANGUAGE_H
+#endif // CHANGELANGUAGE_H_INCLUDED

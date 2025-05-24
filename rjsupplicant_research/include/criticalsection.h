@@ -1,5 +1,5 @@
-#ifndef CRITICAL_SECTION_H
-#define CRITICAL_SECTION_H
+#ifndef CRITICALSECTION_H_INCLUDED
+#define CRITICALSECTION_H_INCLUDED
 
 // the mutex lock
 // uses the name from Windows
@@ -37,4 +37,4 @@ class CRITICAL_SECTION
 };
 
 
-#endif // CRITICAL_SECTION_H
+#endif // CRITICALSECTION_H_INCLUDED

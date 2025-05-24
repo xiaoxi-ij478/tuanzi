@@ -1,5 +1,5 @@
-#ifndef DNSQUERY_H
-#define DNSQUERY_H
+#ifndef DNSQUERY_H_INCLUDED
+#define DNSQUERY_H_INCLUDED
 
 #define POST_DNS_QUERY_MTYPE 0x7DA
 #define STOP_DNS_QUERY_MTYPE 0x7DB
@@ -41,4 +41,4 @@ class CDNSQuery
         static struct CHostEnt *hostent_list_hdr; // m_hostEntListHdr
 };
 
-#endif // DNSQUERY_H
+#endif // DNSQUERY_H_INCLUDED

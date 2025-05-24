@@ -2,7 +2,7 @@
 #include "global.h"
 #include "dnsquery.h"
 #include "util.h"
-#include "protocols.h"
+#include "stdpkgs.h"
 #include "proxyclienttcp.h"
 
 ProxyClientTcp::ProxyClientTcp(const struct TcpInfo &info) :

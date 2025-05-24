@@ -1,5 +1,5 @@
-#ifndef CHECKRUNTHREAD_H
-#define CHECKRUNTHREAD_H
+#ifndef CHECKRUNTHREAD_H_INCLUDED
+#define CHECKRUNTHREAD_H_INCLUDED
 
 class CCheckRunThread
 {
@@ -17,4 +17,4 @@ class CCheckRunThread
         static void (*callback)(int); // original name: m_callback
 };
 
-#endif // CHECKRUNTHREAD_H
+#endif // CHECKRUNTHREAD_H_INCLUDED

@@ -1,5 +1,5 @@
-#ifndef SUDES_H
-#define SUDES_H
+#ifndef SUDES_H_INCLUDED
+#define SUDES_H_INCLUDED
 
 class CSuDES
 {
@@ -16,4 +16,4 @@ class CSuDES
         unsigned char *keybuf;
 };
 
-#endif // SUDES_H
+#endif // SUDES_H_INCLUDED

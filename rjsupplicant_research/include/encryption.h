@@ -1,5 +1,5 @@
-#ifndef ENCRYPTION_H
-#define ENCRYPTION_H
+#ifndef ENCRYPTION_H_INCLUDED
+#define ENCRYPTION_H_INCLUDED
 
 class CEncryption
 {
@@ -20,4 +20,4 @@ class CEncryption
         static const char base64_cbytes[128];
 };
 
-#endif // ENCRYPTION_H
+#endif // ENCRYPTION_H_INCLUDED

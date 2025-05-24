@@ -1,5 +1,5 @@
-#ifndef PROXYSERTCP_H
-#define PROXYSERTCP_H
+#ifndef PROXYSERTCP_H_INCLUDED
+#define PROXYSERTCP_H_INCLUDED
 
 #include "tcp.h"
 
@@ -28,4 +28,4 @@ class ProxySerTcp : public CTcp
         unsigned long creation_time;
 };
 
-#endif // PROXYSERTCP_H
+#endif // PROXYSERTCP_H_INCLUDED

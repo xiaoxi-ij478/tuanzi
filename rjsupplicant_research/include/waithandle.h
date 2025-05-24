@@ -1,5 +1,5 @@
-#ifndef WAITHANDLE_H
-#define WAITHANDLE_H
+#ifndef WAITHANDLE_H_INCLUDED
+#define WAITHANDLE_H_INCLUDED
 
 // we must not #include lnxthread.h since CLnxThread include WAIT_HANDLE
 // as its member, so we must be included AFTER lnxthread.h
@@ -25,4 +25,4 @@ class WAIT_HANDLE2 : public WAIT_HANDLE
         CLnxThread *calling_thread;
 };
 
-#endif // WAITHANDLE_H
+#endif // WAITHANDLE_H_INCLUDED

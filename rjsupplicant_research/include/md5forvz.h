@@ -1,5 +1,5 @@
-#ifndef MD5FORVZ_H
-#define MD5FORVZ_H
+#ifndef MD5FORVZ_H_INCLUDED
+#define MD5FORVZ_H_INCLUDED
 
 class CMD5ForVz
 {
@@ -23,4 +23,4 @@ class CMD5ForVz
         MD5_CTX ctx;
 };
 
-#endif // MD5FORVZ_H
+#endif // MD5FORVZ_H_INCLUDED

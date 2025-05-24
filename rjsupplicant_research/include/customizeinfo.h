@@ -1,5 +1,5 @@
-#ifndef CUSTOMIZEINFO_H
-#define CUSTOMIZEINFO_H
+#ifndef CUSTOMIZEINFO_H_INCLUDED
+#define CUSTOMIZEINFO_H_INCLUDED
 
 #include "xmlparser.h"
 
@@ -27,4 +27,4 @@ class CCustomizeInfo
         int Load(XML_PARSER &parser);
 };
 
-#endif // CUSTOMIZEINFO_H
+#endif // CUSTOMIZEINFO_H_INCLUDED

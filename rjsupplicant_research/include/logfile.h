@@ -1,5 +1,5 @@
-#ifndef LOGFILE_H
-#define LOGFILE_H
+#ifndef LOGFILE_H_INCLUDED
+#define LOGFILE_H_INCLUDED
 
 // most of the functions in this class in the original implementation
 // are just stubs
@@ -36,4 +36,4 @@ class CLogFile
         int prio;
 };
 
-#endif // LOGFILE_H
+#endif // LOGFILE_H_INCLUDED

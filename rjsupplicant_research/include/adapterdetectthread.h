@@ -1,5 +1,5 @@
-#ifndef ADAPTERDETECTTHREAD_H
-#define ADAPTERDETECTTHREAD_H
+#ifndef ADAPTERDETECTTHREAD_H_INCLUDED
+#define ADAPTERDETECTTHREAD_H_INCLUDED
 
 #include "global.h"
 #include "lnxthread.h"
@@ -78,4 +78,4 @@ class CAdapterDetectThread : public CLnxThread
         enum ADAPTER_STATUS status;
 };
 
-#endif // ADAPTERDETECTTHREAD_H
+#endif // ADAPTERDETECTTHREAD_H_INCLUDED

@@ -1,5 +1,5 @@
-#ifndef CONTEXTCONTROLTHREAD_H
-#define CONTEXTCONTROLTHREAD_H
+#ifndef CONTEXTCONTROLTHREAD_H_INCLUDED
+#define CONTEXTCONTROLTHREAD_H_INCLUDED
 
 #include "lnxthread.h"
 
@@ -14,4 +14,4 @@ class CContextControlThread : public CLnxThread
     private:
 };
 
-#endif // CONTEXTCONTROLTHREAD_H
+#endif // CONTEXTCONTROLTHREAD_H_INCLUDED
