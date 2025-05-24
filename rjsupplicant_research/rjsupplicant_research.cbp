@@ -108,7 +108,7 @@
 		<Unit filename="include/msgutil.h" />
 		<Unit filename="include/netutil.h" />
 		<Unit filename="include/protocols.h">
-			<Option target="&lt;{~None~}&gt;" />
+			<Option target="Debug" />
 		</Unit>
 		<Unit filename="include/proxyclienttcp.h" />
 		<Unit filename="include/proxysertcp.h" />

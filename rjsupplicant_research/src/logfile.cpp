@@ -1,10 +1,7 @@
 #include "global.h"
 #include "logfile.h"
 
-CLogFile::CLogFile() :
-    log_filename(),
-    prio(),
-    ofs_orig_precision(ofs.precision())
+CLogFile::CLogFile() : log_filename(), prio()
 {}
 
 void CLogFile::CreateLogFile_S(const std::string &filename, int prio)
@@ -35,11 +32,13 @@ void CLogFile::GetTimeString(char *dst)
 
 void CLogFile::HexPrinter(const unsigned char *arr, unsigned len)
 {
-    ofs << std::setprecision(2) << std::hex;
-    // *INDENT-OFF*
-    std::for_each(arr, arr + len, [this](const unsigned char i) { ofs << i; });
-    // *INDENT-ON*
-    ofs << std::setprecision(ofs_orig_precision) << std::dec;
+    char *s = new char[len * 2];
+
+    for (unsigned int i = 0; i < len; i++)
+        sprintf(s + i * 2, "%02x", arr[i]);
+
+    WriteString(s);
+    delete[] s;
 }
 
 void CLogFile::LogToFile(
@@ -90,5 +89,5 @@ void CLogFile::AppendText_V(const char *format, va_list va)
 
 void CLogFile::WriteString(const char *str)
 {
-    LogToFile(str, log_filename, true, true);
+    LogToFile(str, log_filename.c_str(), true, true);
 }

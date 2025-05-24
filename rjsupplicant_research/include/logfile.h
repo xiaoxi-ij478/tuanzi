@@ -34,7 +34,6 @@ class CLogFile
 
         std::string log_filename;
         int prio;
-        std::streamsize ofs_orig_precision;
 };
 
 #endif // LOGFILE_H

@@ -1,4 +1,5 @@
 #include "timeutil.h"
+#include "proxyclienttcp.h"
 #include "proxysertcp.h"
 
 ProxySerTcp::ProxySerTcp(const struct TcpInfo &info) :

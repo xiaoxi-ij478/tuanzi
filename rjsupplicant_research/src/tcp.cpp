@@ -12,13 +12,13 @@ CTcp::CTcp(const struct TcpInfo &info) :
     reqaddr_int(-1),
     reqport(),
     hostent(),
+    tcpinfo(info),
     socks5_request_addr(),
     socks5_request_header(),
     socks5_request_domain_len(),
     recv_data_times(),
     send_data_times(),
-    trans_direction(TRANS_MINE),
-    tcpinfo(info)
+    trans_direction(TRANS_MINE)
 {}
 
 CTcp::~CTcp()
@@ -349,9 +349,11 @@ bool CTcp::GetSocks5ReqAddr_Port(const struct TCPIP &pkg)
 
         case SOCKS_REQUEST_TCP_BIND:
             return false;
+
+        case SOCKS_REQUEST_TCP_CONN:
+            break;
     }
 
-//    case SOCKS_REQUEST_TCP_CONN:
     switch (request->request_header.addr_type) {
         case SOCKS5_ADDR_IPV4:
             if (pkg.content_length != GET_SOCKS5_REQUEST_SIZE_IPV4(request))
@@ -710,7 +712,7 @@ enum REQUEST_TYPE CTcp::QueryProtocolType(
             return REQUEST_HTTP;
 
     if (!(flag & 2))
-        return REQUEST_INVALID/*0*/;
+        return REQUEST_UNKNOWN_N1;
 
     if (IsSocks4Type(pkg))
         return REQUEST_SOCK4;
@@ -721,7 +723,7 @@ enum REQUEST_TYPE CTcp::QueryProtocolType(
     if (IsSocks5Type(pkg))
         return REQUEST_SOCK5;
 
-    return REQUEST_INVALID/*0*/;
+    return REQUEST_UNKNOWN_N1;
 }
 
 enum TRANS_DIRECTION CTcp::QueryTransTimes(
