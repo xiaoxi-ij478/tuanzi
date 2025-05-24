@@ -5,8 +5,8 @@
 #include "dnsquery.h"
 
 enum REQUEST_TYPE {
-    REQUEST_INVALID,
-    REQUEST_HTTP,
+    REQUEST_INVALID = -1,
+    REQUEST_HTTP = 1,
     REQUEST_SOCK4,
     REQUEST_SOCK4A,
     REQUEST_SOCK5,
@@ -170,9 +170,25 @@ class CTcp
         CTcp(const struct TcpInfo &info);
         ~CTcp();
 
-    private:
         bool GetReqAddr_Port(const struct TCPIP &pkg, bool query_hostname);
+        int QueryAndUpdate(const struct TCPIP &pkg);
+        int QueryProtocolType(const struct TCPIP &pkg, unsigned flag);
+        enum TRANS_DIRECTION QueryTransTimes(
+            unsigned &r2h_trans_times,
+            unsigned &h2r_trans_times
+        ) const;
 
+    protected:
+        enum REQUEST_TYPE request_type;
+        char reqaddr_char[64];
+        in_addr_t reqaddr_int;
+        unsigned short reqport;
+        struct CHostEnt *hostent;
+        struct TcpInfo tcpinfo;
+
+        static CDNSQuery dns_queryer; // m_dns
+
+    private:
         bool GetFtpReqAddr_Port(const struct TCPIP &pkg);
         bool GetHttpReqAddr_Port(const struct TCPIP &pkg);
         bool GetMmsReqAddr_Port(const struct TCPIP &pkg);
@@ -193,17 +209,7 @@ class CTcp
         bool IsSocks4Type(const struct TCPIP &pkg);
         bool IsSocks5Type(const struct TCPIP &pkg);
         bool IsTelnetType(const struct TCPIP &pkg);
-        int QueryAndUpdate(const struct TCPIP &pkg);
-        int QueryProtocolType(const struct TCPIP &pkg, unsigned flag);
-        enum TRANS_DIRECTION QueryTransTimes(
-            int &r2h_trans_times,
-            int &h2r_trans_times
-        ) const;
-        enum REQUEST_TYPE request_type;
-        char reqaddr_char[64];
-        in_addr_t reqaddr_int;
-        unsigned short reqport;
-        struct CHostEnt *hostent;
+
         struct {
             struct Socks5ConnReqHeader request_header;
             char may_be_address[0x101 - sizeof(struct Socks5ConnReqHeader)];
@@ -213,9 +219,6 @@ class CTcp
         unsigned r2h_trans_times;
         unsigned h2r_trans_times;
         enum TRANS_DIRECTION trans_direction;
-        struct TcpInfo tcpinfo;
-
-        static CDNSQuery dns_queryer; // m_dns
 };
 
 #endif // TCP_H

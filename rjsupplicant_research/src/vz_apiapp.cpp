@@ -233,7 +233,7 @@ void CVz_APIApp::Vz_API(
     char *result,
     const char *md5_challenge,
     [[maybe_unused]] const char *a4
-)
+) const
 {
     char random_staff[256] = {};
     srand(time(nullptr));
@@ -257,7 +257,7 @@ void CVz_APIApp::Vz_API(
     );
 }
 
-void *CVz_APIApp::GetAppData(unsigned int &size)
+void *CVz_APIApp::GetAppData(unsigned int &size) const
 {
     return
         memcpy(
@@ -267,7 +267,7 @@ void *CVz_APIApp::GetAppData(unsigned int &size)
         );
 }
 
-void *CVz_APIApp::GetDllData(unsigned int &size)
+void *CVz_APIApp::GetDllData(unsigned int &size) const
 {
     return
         memcpy(
@@ -277,7 +277,7 @@ void *CVz_APIApp::GetDllData(unsigned int &size)
         );
 }
 
-void *CVz_APIApp::GetFileData(unsigned int &size, const char *filename)
+void *CVz_APIApp::GetFileData(unsigned int &size, const char *filename) const
 {
     std::ifstream ifs;
     unsigned char *ret = nullptr;
@@ -304,7 +304,7 @@ void CVz_APIApp::PrepareData(
     enum HASH_TYPE hash_type,
     const char *md5_challenge,
     [[maybe_unused]] const char *a5
-)
+) const
 {
     unsigned appdata_len = 0;
     unsigned dlldata_len = 0;

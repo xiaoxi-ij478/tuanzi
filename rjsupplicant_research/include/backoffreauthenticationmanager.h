@@ -9,11 +9,11 @@ class CBackoffReAuthenticationManager
         bool IsNeedReAuthentication() const;
         void Reset();
 
-        unsigned reauth_count;
-        timer_t reauth_timer;
-
     private:
         CBackoffReAuthenticationManager();
+
+        unsigned reauth_count;
+        timer_t reauth_timer;
 };
 
 #endif // BACKOFFREAUTHENTICATIONMANAGER_H

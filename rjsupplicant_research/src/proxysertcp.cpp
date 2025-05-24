@@ -1,17 +1,15 @@
 #include "timeutil.h"
 #include "proxysertcp.h"
 
-ProxySerTcp::ProxySerTcp(const TcpInfo &tcpinfo) :
-    CTcp(tcpinfo),
-    proxy_client_tcp(),
-    pad1(),
-    pad2(),
-    pad3(),
+ProxySerTcp::ProxySerTcp(const struct TcpInfo &info) :
+    CTcp(info),
+    bound_proxy_client_tcp(),
+    prev(),
+    next(),
     creation_time(GetTickCount())
-{
-}
+{}
 
-bool ProxySerTcp::IsExpired()
+bool ProxySerTcp::IsExpired() const
 {
     return false;
 }

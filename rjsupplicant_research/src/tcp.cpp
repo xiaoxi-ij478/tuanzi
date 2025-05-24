@@ -727,8 +727,8 @@ int CTcp::QueryProtocolType(const struct TCPIP &pkg, unsigned flag)
 }
 
 enum TRANS_DIRECTION CTcp::QueryTransTimes(
-    int &r2h_trans_times,
-    int &h2r_trans_times
+    unsigned &r2h_trans_times,
+    unsigned &h2r_trans_times
 ) const
 {
     r2h_trans_times = this->r2h_trans_times;
