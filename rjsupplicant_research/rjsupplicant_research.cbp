@@ -14,6 +14,7 @@
 				<Option parameters="--help" />
 				<Compiler>
 					<Add option="-ggdb3" />
+					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -23,6 +24,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -97,6 +99,7 @@
 		<Unit filename="include/hellothread.h" />
 		<Unit filename="include/hostentutil.h" />
 		<Unit filename="include/httpconnection.h" />
+		<Unit filename="include/isproser.h" />
 		<Unit filename="include/libutil.h" />
 		<Unit filename="include/lnxthread.h" />
 		<Unit filename="include/logfile.h" />
@@ -147,6 +150,7 @@
 		<Unit filename="src/hellothread.cpp" />
 		<Unit filename="src/hostentutil.cpp" />
 		<Unit filename="src/httpconnection.cpp" />
+		<Unit filename="src/isproser.cpp" />
 		<Unit filename="src/libutil.cpp" />
 		<Unit filename="src/lnxthread.cpp" />
 		<Unit filename="src/logfile.cpp" />

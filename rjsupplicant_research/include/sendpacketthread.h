@@ -28,7 +28,7 @@ class CSendPacketThread : public CLnxThread
 
         char adapter_name[100];
         pcap_t *pcap_handle;
-        pthread_mutex_t pthread_mutex;
+        pthread_mutex_t pthread_mutex2;
         bool started;
 };
 

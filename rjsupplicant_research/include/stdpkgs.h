@@ -3,26 +3,26 @@
 
 // for SOCKS related knowledge see https://zh.wikipedia.org/wiki/SOCKS
 
-enum SOCKS5_ADDRTYPE : unsigned char {
+enum SOCKS5_ADDRTYPE : uint8_t {
     SOCKS5_ADDR_IPV4 = 1,
     SOCKS5_ADDR_DOMAIN = 3,
     SOCKS5_ADDR_IPV6
 };
 
-enum SOCKS_REQUEST_COMMAND : unsigned char {
+enum SOCKS_REQUEST_COMMAND : uint8_t {
     SOCKS_REQUEST_TCP_CONN = 1,
     SOCKS_REQUEST_TCP_BIND,
     SOCKS_REQUEST_UDP_CONN
 };
 
-enum SOCKS4_RESPONSE_CODE : unsigned char {
+enum SOCKS4_RESPONSE_CODE : uint8_t {
     SOCKS4_RESPONSE_GRANTED = 0x5A,
     SOCKS4_RESPONSE_REJECTED,
     SOCKS4_RESPONSE_REJECTED_CLIENT_NO_IDENTD,
     SOCKS4_RESPONSE_REJECTED_CLIENT_IDENTD_FAILED
 };
 
-enum SOCKS5_RESPONSE_CODE : unsigned char {
+enum SOCKS5_RESPONSE_CODE : uint8_t {
     SOCKS5_RESPONSE_GRANTED,
     SOCKS5_RESPONSE_GENERAL_FAILURE,
     SOCKS5_RESPONSE_CONNECTION_DISALLOWED,
@@ -35,17 +35,17 @@ enum SOCKS5_RESPONSE_CODE : unsigned char {
 };
 
 struct [[gnu::packed]] Socks4ConnReq {
-    unsigned char version;
+    uint8_t version;
     enum SOCKS_REQUEST_COMMAND command;
-    unsigned short port;
+    uint16_t port;
     struct in_addr ip;
     char id[];
 };
 
 struct [[gnu::packed]] Socks4AConnReq {
-    unsigned char version;
+    uint8_t version;
     enum SOCKS_REQUEST_COMMAND command;
-    unsigned short port;
+    uint16_t port;
     struct in_addr ip;
     char id_domain[];
 };
@@ -55,25 +55,25 @@ struct [[gnu::packed]] Socks4AConnReq {
      strlen(static_cast<struct Socks4AConnReq *>(content)->id_domain) + 1)
 
 struct [[gnu::packed]] Socks4ConnResp {
-    unsigned char version;
+    uint8_t version;
     enum SOCKS4_RESPONSE_CODE reply_code;
-    unsigned short port;
+    uint16_t port;
     struct in_addr ip;
 };
 
 struct [[gnu::packed]] Socks5IPv4 {
     struct in_addr ipv4_addr;
-    unsigned short port;
+    uint16_t port;
 };
 
 struct [[gnu::packed]] Socks5IPv6 {
     struct in6_addr ipv6_addr;
-    unsigned short port;
+    uint16_t port;
 };
 
 struct [[gnu::packed]] Socks5Domain {
-    unsigned char addr_len;
-    char addr_and_port[255 + 2];
+    uint8_t addr_len;
+    uint8_t addr_and_port[255 + 2];
 };
 
 union Socks5AddrUnion {
@@ -83,9 +83,9 @@ union Socks5AddrUnion {
 };
 
 struct [[gnu::packed]] Socks5ConnReqHeader {
-    unsigned char version;
+    uint8_t version;
     enum SOCKS_REQUEST_COMMAND command;
-    unsigned char reserved_must_be_0; // this field may be special to the program
+    uint8_t reserved_must_be_0; // this field may be special to the program
     enum SOCKS5_ADDRTYPE addr_type;
 };
 
@@ -95,9 +95,9 @@ struct [[gnu::packed]] Socks5ConnReq {
 };
 
 struct [[gnu::packed]] Socks5ConnRespHeader {
-    unsigned char version;
+    uint8_t version;
     enum SOCKS5_RESPONSE_CODE response_code;
-    unsigned char reserved_must_be_0; // this field may be special to the program
+    uint8_t reserved_must_be_0; // this field may be special to the program
     enum SOCKS5_ADDRTYPE addr_type;
 };
 
@@ -110,7 +110,7 @@ struct [[gnu::packed]] Socks5ConnResp {
     (reinterpret_cast<struct Socks5ConnReq *>(content)->addr.domain_addr)
 
 #define GET_SOCKS5_REQUEST_PORT_DOMAIN(content) \
-    (*reinterpret_cast<unsigned short *> \
+    (*reinterpret_cast<uint16_t *> \
      ((GET_SOCKS5_REQUEST_ADDR_DOMAIN(content).addr_and_port + \
        GET_SOCKS5_REQUEST_ADDR_DOMAIN(content).addr_len)))
 
@@ -124,11 +124,11 @@ struct [[gnu::packed]] Socks5ConnResp {
 
 #define GET_SOCKS5_REQUEST_SIZE_DOMAIN(content) \
     (sizeof(struct Socks5ConnReqHeader) + \
-     sizeof(unsigned char) + \
+     sizeof(uint8_t) + \
      GET_SOCKS5_REQUEST_ADDR_DOMAIN(content).addr_len + \
-     sizeof(unsigned short))
+     sizeof(uint16_t))
 
-enum PlayIncarnation : unsigned {
+enum PlayIncarnation : uint32_t {
     MMS_DISABLE_PACKET_PAIR = 0xf0f0f0ef,
     MMS_USE_PACKET_PAIR = 0xf0f0f0f0
 };
@@ -142,100 +142,70 @@ enum PlayIncarnation : unsigned {
 
 union MMSMessage {
     struct [[gnu::packed]] {
-        unsigned chunkLen;
-        unsigned MID;
+        uint32_t chunkLen;
+        uint32_t MID;
         enum PlayIncarnation playIncarnation;
-        unsigned MacToViewerProtocolRevision;
-        unsigned ViewerToMacProtocolRevision;
+        uint32_t MacToViewerProtocolRevision;
+        uint32_t ViewerToMacProtocolRevision;
         wchar_t subscriberName[];
     } LinkViewerToMacConnect;
 };
 
 struct [[gnu::packed]] MMSTcpMessage {
-    unsigned char rep;
-    unsigned char version;
-    unsigned char versionMinor;
-    unsigned char padding;
-    unsigned sessionId;
-    unsigned messageLength;
-    unsigned seal;
-    unsigned chunkCount;
-    unsigned short seq;
-    unsigned short MBZ;
-    unsigned long timeSent;
+    uint8_t rep;
+    uint8_t version;
+    uint8_t versionMinor;
+    uint8_t padding;
+    uint32_t sessionId;
+    uint32_t messageLength;
+    uint32_t seal;
+    uint32_t chunkCount;
+    uint16_t seq;
+    uint16_t MBZ;
+    uint64_t timeSent;
     union MMSMessage message;
 };
 
-struct [[gnu::packed]] IPHeader {
-    unsigned version: 4;
-    unsigned ihl: 4;
-    unsigned char tos;
-    unsigned short total_length;
-    unsigned short ipid;
-    unsigned char flags: 3;
-    unsigned fragment_offset: 13;
-    unsigned char ttl;
-    unsigned char protocol;
-    unsigned short header_checksum;
-    unsigned srcaddr;
-    unsigned dstaddr;
+struct [[gnu::packed]] MacAddrs {
+    struct ether_addr srcaddr;
+    struct ether_addr dstaddr;
 };
 
-struct [[gnu::packed]] TCPHeader {
-    unsigned short srcport;
-    unsigned short dstport;
-    unsigned seq;
-    unsigned ack;
-    unsigned char offset: 4;
-    unsigned char reserved: 4;
-    unsigned char flags;
-    unsigned short window;
-    unsigned short checksum;
-    unsigned short urgent_pointer;
+struct [[gnu::packed]] tcp_pseudo_hdr {
+    uint32_t saddr;
+    uint32_t daddr;
+    uint8_t zero;
+    uint8_t protocol;
+    uint16_t tcp_length;
 };
 
-struct [[gnu::packed]] TCPPseudoHeader {
-    unsigned srcaddr;
-    unsigned dstaddr;
-    unsigned char zero;
-    unsigned char protocol;
-    unsigned short tcp_length;
-};
-
-struct [[gnu::packed]] TCPChecksumHeader {
-    struct TCPPseudoHeader pseudo_header;
-    struct TCPHeader header;
-    unsigned char data[2024];
-};
-
-struct [[gnu::packed]] udp_hdr {
-    unsigned short srcport;
-    unsigned short dstport;
-    unsigned short length;
-    unsigned short checksum;
+struct [[gnu::packed]] tcp_checksum_hdr {
+    struct tcp_pseudo_hdr pseudo_header;
+    struct tcphdr real_header;
+    uint8_t data[2024];
 };
 
 struct [[gnu::packed]] udp_pseudo_hdr {
-    unsigned srcaddr;
-    unsigned dstaddr;
-    unsigned char zero;
-    unsigned char protocol;
-    unsigned short udp_length;
+    uint32_t saddr;
+    uint32_t daddr;
+    uint8_t zero;
+    uint8_t protocol;
+    uint16_t udp_length;
 };
 
 struct [[gnu::packed]] udp_checksum_hdr {
-    struct udp_pseudo_hdr pseudo_hdr;
-    struct udp_hdr hdr;
-    unsigned char data[2040];
+    struct udp_pseudo_hdr pseudo_header;
+    struct udphdr real_header;
+    uint8_t data[2040];
 };
 
 struct icmp_pkg {
-    unsigned char icmp_type;
-    unsigned char icmp_code;
-    unsigned short icmp_cksum;
-    unsigned short icmp_id;
-    unsigned short icmp_seq;
-    char icmp_data[40];
+    uint8_t icmp_type;
+    uint8_t icmp_code;
+    uint16_t icmp_cksum;
+    uint16_t icmp_id;
+    uint16_t icmp_seq;
+    uint8_t icmp_data[40];
 };
 
 #endif // STDPKGS_H_INCLUDED

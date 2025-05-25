@@ -61,9 +61,9 @@ class CAdapterDetectThread : public CLnxThread
 
     private:
         void MultipleAdaptesOrIPCheck() const;
-        void OnStartDetect(void *arg);
-        void OnStopDetect(void *arg);
-        void OnTimer(void *arg); // called by DispathMessage
+        void OnStartDetect(unsigned long buflen, void *buf);
+        void OnStopDetect(unsigned long buflen, void *buf);
+        void OnTimer(unsigned long buflen, void *buf); // called by DispathMessage
         void adapter_state_check();
 
         char nic_name[MAX_NIC_NAME_LEN];

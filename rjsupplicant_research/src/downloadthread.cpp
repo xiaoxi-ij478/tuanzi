@@ -37,12 +37,15 @@ bool CDownLoadThread::DispathMessage(struct LNXMSG *msg)
     rj_printf_debug("CDownLoadThread getmsg id=%d\n", msg->mtype);
 
     if (msg->mtype == START_THREAD_MTYPE)
-        OnStartThread(msg->buf, msg->buflen);
+        OnStartThread(msg->buflen, msg->buf);
 
     return true;
 }
 
-bool CDownLoadThread::OnStartThread(void *, unsigned long)
+bool CDownLoadThread::OnStartThread(
+    [[maybe_unused]] unsigned long buflen,
+    [[maybe_unused]] void *buf
+)
 {
     if (!down_para_set)
         rj_printf_debug("error ,no para has been set!");

@@ -94,15 +94,15 @@ bool CAdapterDetectThread::DispathMessage(struct LNXMSG *msg)
 {
     switch (msg->mtype) {
         case START_DETECT_MTYPE:
-            OnStartDetect(msg->buflen);
+            OnStartDetect(msg->buflen, msg->buf);
             break;
 
         case STOP_DETECT_MTYPE:
-            OnStopDetect(msg->buflen);
+            OnStopDetect(msg->buflen, msg->buf);
             break;
 
         case ON_TIMER_MTYPE:
-            OnTimer(msg->buflen);
+            OnTimer(msg->buflen, msg->buf);
             break;
     }
 
@@ -238,9 +238,12 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
     free_nics_info(nic_infos);
 }
 
-void CAdapterDetectThread::OnStartDetect(void *arg)
+void CAdapterDetectThread::OnStartDetect(
+    unsigned long buflen,
+    [[maybe_unused]] void *buf
+)
 {
-    DetectNICInfo *info = static_cast<DetectNICInfo *>(arg);
+    DetectNICInfo *info = reinterpret_cast<DetectNICInfo *>(buflen);
 
     if (proxy_detect_timerid)
         KillTimer(proxy_detect_timerid);
@@ -265,26 +268,28 @@ void CAdapterDetectThread::OnStartDetect(void *arg)
     );
 }
 
-void CAdapterDetectThread::OnStopDetect(void *arg)
+void CAdapterDetectThread::OnStopDetect(
+    unsigned long buflen,
+    [[maybe_unused]] void *buf
+)
 {
-    unsigned long flag = reinterpret_cast<unsigned long>(arg);
-
-    if (flag & STOP_PROXY_DETECT_TIMER_FLAG) {
+    if (buflen & STOP_PROXY_DETECT_TIMER_FLAG) {
         g_log_Wireless.AppendText("adapter detect thread stop proxy detect");
         KillTimer(proxy_detect_timerid);
     }
 
-    if (flag & STOP_NIC_STATE_DETECT_TIMER_FLAG) {
+    if (buflen & STOP_NIC_STATE_DETECT_TIMER_FLAG) {
         g_log_Wireless.AppendText("adapter detect thread stop nic state detect");
         KillTimer(proxy_detect_timerid);
     }
 }
 
-void CAdapterDetectThread::OnTimer(void *arg)
+void CAdapterDetectThread::OnTimer(
+    unsigned long buflen,
+    [[maybe_unused]] void *buf
+)
 {
-    unsigned long type = reinterpret_cast<unsigned long>(arg);
-
-    switch (type) {
+    switch (buflen) {
         case PROXY_DETECT_TIMER_MTYPE:
             if (proxy_detect_timerid)
                 MultipleAdaptesOrIPCheck();
@@ -298,7 +303,7 @@ void CAdapterDetectThread::OnTimer(void *arg)
             break;
     }
 
-    OnTimerLeave(type);
+    OnTimerLeave(buflen);
 }
 
 void CAdapterDetectThread::adapter_state_check()

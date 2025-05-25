@@ -54,7 +54,7 @@ class CDownLoadThread : public CLnxThread
         bool DispathMessage(struct LNXMSG *msg) override;
 
     private:
-        bool OnStartThread(void *, unsigned long);
+        bool OnStartThread(unsigned long buflen, void *buf);
         bool download(
             const char *url,
             const char *default_path,

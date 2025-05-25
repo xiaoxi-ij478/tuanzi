@@ -39,62 +39,46 @@ enum ADAPTER_TYPE get_nic_type(const char *ifname)
 }
 
 unsigned short ComputeTcpPseudoHeaderChecksum(
-    const struct IPHeader *ipheader,
-    const struct TCPHeader *tcpheader,
+    const struct iphdr *ipheader,
+    const struct tcphdr *tcpheader,
     const unsigned char *databuf,
     int length
 )
 {
-    struct TCPChecksumHeader header = {};
-    memset(&header, 0, sizeof(header));
+    struct tcp_checksum_hdr header = {};
 #define SET_PSEUDO_HEADER_INFO(name) header.pseudo_header.name = ipheader->name
-    SET_PSEUDO_HEADER_INFO(srcaddr);
-    SET_PSEUDO_HEADER_INFO(dstaddr);
+    SET_PSEUDO_HEADER_INFO(saddr);
+    SET_PSEUDO_HEADER_INFO(daddr);
     SET_PSEUDO_HEADER_INFO(protocol);
-    header.pseudo_header.tcp_length = length + sizeof(header.header);
-#define SET_HEADER_INFO(name) header.header.name = tcpheader->name
-    SET_HEADER_INFO(srcport);
-    SET_HEADER_INFO(dstport);
-    SET_HEADER_INFO(seq);
-    SET_HEADER_INFO(ack);
-    SET_HEADER_INFO(offset);
-    SET_HEADER_INFO(reserved);
-    SET_HEADER_INFO(flags);
-    SET_HEADER_INFO(window);
-    SET_HEADER_INFO(urgent_pointer);
-#undef SET_HEADER_INFO
+    header.pseudo_header.tcp_length = length + sizeof(header.real_header);
+    header.real_header = *tcpheader;
 #undef SET_PSEUDO_HEADER_INFO
     memcpy(header.data, databuf, length);
     return checksum(
                reinterpret_cast<unsigned short *>(&header),
-               length + sizeof(header.header) + sizeof(header.pseudo_header)
+               length + sizeof(header.real_header) + sizeof(header.pseudo_header)
            );
 }
 
 unsigned short ComputeUdpPseudoHeaderChecksumV4(
-    const struct IPHeader *ipheader,
-    const struct udp_hdr *udpheader,
+    const struct iphdr *ipheader,
+    const struct udphdr *udpheader,
     const unsigned char *databuf,
     int length
 )
 {
-    udp_checksum_hdr header;
-    memset(&header, 0, sizeof(header));
-#define SET_PSEUDO_HEADER_INFO(name) header.pseudo_hdr.name = ipheader->name
-    SET_PSEUDO_HEADER_INFO(srcaddr);
-    SET_PSEUDO_HEADER_INFO(dstaddr);
+    struct udp_checksum_hdr header = {};
+#define SET_PSEUDO_HEADER_INFO(name) header.pseudo_header.name = ipheader->name
+    SET_PSEUDO_HEADER_INFO(saddr);
+    SET_PSEUDO_HEADER_INFO(daddr);
     SET_PSEUDO_HEADER_INFO(protocol);
-    header.pseudo_hdr.srcaddr = length + sizeof(header.hdr);
-#define SET_HEADER_INFO(name) header.hdr.name = udpheader->name
-    SET_HEADER_INFO(srcport);
-    SET_HEADER_INFO(dstport);
-    SET_HEADER_INFO(length);
-#undef SET_HEADER_INFO
+    header.pseudo_header.udp_length = length + sizeof(header.real_header);
+    header.real_header = *udpheader;
 #undef SET_PSEUDO_HEADER_INFO
     memcpy(header.data, databuf, length);
     return checksum(
                reinterpret_cast<unsigned short *>(&header),
-               length + sizeof(header.hdr) + sizeof(header.pseudo_hdr)
+               length + sizeof(header.real_header) + sizeof(header.pseudo_header)
            );
 }
 
@@ -798,26 +782,25 @@ unsigned InitIpv4Header(
     unsigned datalen
 )
 {
-    struct IPHeader *header = reinterpret_cast<struct IPHeader *>(header_c);
+    struct iphdr *header = reinterpret_cast<struct iphdr *>(header_c);
     header->version = 4;
     header->ihl = 5;
     header->tos = 0;
-    header->total_length =
-        htons(datalen) + sizeof(struct IPHeader) + sizeof(struct udp_hdr);
-    header->ipid = 0;
-    header->flags = 0;
-    header->fragment_offset = 0;
+    header->tot_len =
+        htons(datalen) + sizeof(struct iphdr) + sizeof(struct udphdr);
+    header->id = 0;
+    header->frag_off = 0;
     header->ttl = 0x80;
     header->protocol = IPPROTO_UDP;
-    header->header_checksum = 0;
-    header->srcaddr = inet_addr(srcaddr);
-    header->dstaddr = inet_addr(dstaddr);
-    header->header_checksum =
+    header->check = 0;
+    header->saddr = inet_addr(srcaddr);
+    header->daddr = inet_addr(dstaddr);
+    header->check =
         checksum(
             reinterpret_cast<unsigned short *>(header_c),
-            sizeof(struct IPHeader)
+            sizeof(struct iphdr)
         );
-    return sizeof(struct IPHeader);
+    return sizeof(struct iphdr);
 }
 
 unsigned InitUdpHeader(
@@ -827,11 +810,12 @@ unsigned InitUdpHeader(
     int datalen
 )
 {
-    struct udp_hdr *header = reinterpret_cast<udp_hdr *>(header_c);
-    header->srcport = srcport;
-    header->dstport = dstport;
-    header->length = datalen + sizeof(struct udp_hdr);
-    return sizeof(struct udp_hdr);
+    struct udphdr *header = reinterpret_cast<udphdr *>(header_c);
+    header->source = srcport;
+    header->dest = dstport;
+    header->len = datalen + sizeof(struct udphdr);
+    header->check = 0;
+    return sizeof(struct udphdr);
 }
 
 bool Is8021xGroupAddr(unsigned char macaddr[6])

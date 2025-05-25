@@ -9,12 +9,12 @@
 class CLnxThread;
 
 struct LNXMSG {
-    long mtype;
+    unsigned long mtype;
     unsigned long buflen;
     void *buf;
 };
 
-#define LNXMSG_MSGSZ offsetof(struct LNXMSG, buf)
+#define LNXMSG_MSGSZ (sizeof(struct LNXMSG) - offsetof(struct LNXMSG, buflen))
 
 struct TIMERPARAM {
     int tflag;

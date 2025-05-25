@@ -655,46 +655,46 @@ bool CTcp::IsTelnetType([[maybe_unused]] const struct TCPIP &pkg)
 int CTcp::QueryAndUpdate(const struct TCPIP &pkg)
 {
     if (
-        pkg.ipheader->srcaddr == tcpinfo.srcaddr &&
-        pkg.ipheader->dstaddr == tcpinfo.dstaddr &&
-        ntohs(pkg.tcpheader->srcport) == tcpinfo.srcport &&
-        ntohs(pkg.tcpheader->dstport) == tcpinfo.dstport
+        pkg.ipheader->saddr == tcpinfo.srcaddr&&
+        pkg.ipheader->daddr == tcpinfo.dstaddr &&
+        ntohs(pkg.tcpheader->source) == tcpinfo.srcport &&
+        ntohs(pkg.tcpheader->dest) == tcpinfo.dstport
     ) {
-        if (tcpinfo.recv_last_seq != bswap_64(pkg.tcpheader->seq)) {
-            if (tcpinfo.recv_last_seq >= bswap_64(pkg.tcpheader->seq))
+        if (tcpinfo.seq != bswap_64(pkg.tcpheader->seq)) {
+            if (tcpinfo.seq >= bswap_64(pkg.tcpheader->seq))
                 return TRANS_RECV;
 
             g_logFile_proxy.AppendText(
                 "CTcp::Query may be losted R to H packet Last Seq:%u,Now Seq:%u\r\n",
-                tcpinfo.recv_last_seq,
+                tcpinfo.seq,
                 bswap_64(pkg.tcpheader->seq)
             );
         }
 
         recv_data_times++;
         trans_direction = TRANS_RECV;
-        tcpinfo.recv_last_seq = pkg.content_length + bswap_64(pkg.tcpheader->seq);
+        tcpinfo.seq = pkg.content_length + bswap_64(pkg.tcpheader->seq);
         return TRANS_RECV;
     }
 
     if (
-        pkg.ipheader->srcaddr == tcpinfo.dstaddr &&
-        pkg.ipheader->dstaddr == tcpinfo.srcaddr &&
-        ntohs(pkg.tcpheader->srcport) == tcpinfo.dstport &&
-        ntohs(pkg.tcpheader->dstport) == tcpinfo.srcport
+        pkg.ipheader->saddr == tcpinfo.dstaddr &&
+        pkg.ipheader->daddr == tcpinfo.srcaddr &&
+        ntohs(pkg.tcpheader->source) == tcpinfo.dstport &&
+        ntohs(pkg.tcpheader->dest) == tcpinfo.srcport
     ) {
-        if (tcpinfo.send_last_seq != bswap_64(pkg.tcpheader->seq)) {
-            if (tcpinfo.send_last_seq >= bswap_64(pkg.tcpheader->seq))
+        if (tcpinfo.ack_seq != bswap_64(pkg.tcpheader->seq)) {
+            if (tcpinfo.ack_seq >= bswap_64(pkg.tcpheader->seq))
                 return TRANS_SEND;
 
             g_logFile_proxy.AppendText(
                 "CTcp::Query may be losted H to R packet Last Seq:%u,Now Seq:%u\r\n",
-                tcpinfo.send_last_seq,
+                tcpinfo.ack_seq,
                 bswap_64(pkg.tcpheader->seq)
             );
             send_data_times++;
             trans_direction = TRANS_SEND;
-            tcpinfo.send_last_seq = pkg.content_length + bswap_64(pkg.tcpheader->seq);
+            tcpinfo.ack_seq = pkg.content_length + bswap_64(pkg.tcpheader->seq);
             return TRANS_SEND;
         }
     }

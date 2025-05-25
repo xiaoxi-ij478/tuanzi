@@ -30,14 +30,14 @@ struct TcpInfo {
     in_addr_t srcaddr;
     unsigned short dstport;
     unsigned short srcport;
-    unsigned send_last_seq;
-    unsigned recv_last_seq;
+    unsigned seq;
+    unsigned ack_seq;
 };
 
 struct TCPIP {
-    unsigned long pad;
-    struct IPHeader *ipheader;
-    struct TCPHeader *tcpheader;
+    unsigned char (*macaddrs)[2][6];
+    struct iphdr *ipheader;
+    struct tcphdr *tcpheader;
     unsigned char *content;
     unsigned content_length;
 };

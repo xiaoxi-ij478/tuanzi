@@ -57,14 +57,14 @@ struct NICsStatus {
 extern int sockets_open();
 extern enum ADAPTER_TYPE get_nic_type(const char *ifname);
 extern unsigned short ComputeTcpPseudoHeaderChecksum(
-    const struct IPHeader *ipheader,
+    const struct iphdr *ipheader,
     const struct TCPHeader *tcpheader,
     const unsigned char *databuf,
     int length
 );
 extern unsigned short ComputeUdpPseudoHeaderChecksumV4(
-    const struct IPHeader *ipheader,
-    const struct udp_hdr *udpheader,
+    const struct iphdr *ipheader,
+    const struct udphdr *udpheader,
     const unsigned char *databuf,
     int length
 );

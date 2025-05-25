@@ -473,13 +473,14 @@ void *CLnxThread::_LnxThreadEntry(void *arg)
     msgid = msgget(calling_thread->thread_key, 0666);
     calling_thread->msgid = msgid;
 
-    if (msgid == -1 ||
-            msgctl(msgid, IPC_RMID, nullptr) == -1 ||
-            (
-                calling_thread->msgid =
-                    msgget(calling_thread->thread_key, 0666 | IPC_CREAT | IPC_EXCL)
-            ) == -1
-       ) {
+    if (
+        msgid == -1 ||
+        msgctl(msgid, IPC_RMID, nullptr) == -1 ||
+        (
+            calling_thread->msgid =
+                msgget(calling_thread->thread_key, 0666 | IPC_CREAT | IPC_EXCL)
+        ) == -1
+    ) {
         g_logSystem.AppendText("msgget error:%s", strerror(errno));
         SetEvent(wait_handle, false);
         calling_thread->LnxEndThread();
