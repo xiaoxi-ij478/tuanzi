@@ -17,7 +17,6 @@
 					<Add option="-Winline" />
 					<Add option="-Wmissing-declarations" />
 					<Add option="-ggdb3" />
-					<Add option="-g" />
 					<Add option="-pipe" />
 					<Add option="-W" />
 					<Add option="-Wstrict-prototypes" />

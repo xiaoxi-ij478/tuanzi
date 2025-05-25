@@ -106,18 +106,12 @@ struct [[gnu::packed]] Socks5ConnResp {
     union Socks5AddrUnion addr;
 };
 
-#define GET_SOCKS5_REQUEST_ADDR(content) \
-    (reinterpret_cast<union Socks5AddrUnion *> \
-     (reinterpret_cast<unsigned char *>(content) + \
-      sizeof(struct Socks5ConnReqHeader)))
-
 #define GET_SOCKS5_REQUEST_ADDR_DOMAIN(content) \
-    (GET_SOCKS5_REQUEST_ADDR(content)->domain_addr)
+    (reinterpret_cast<struct Socks5ConnReq *>(content)->addr.domain_addr)
 
 #define GET_SOCKS5_REQUEST_PORT_DOMAIN(content) \
     (*reinterpret_cast<unsigned short *> \
-     ((reinterpret_cast<char *>(content) + \
-       sizeof(struct Socks5ConnReqHeader) + sizeof(unsigned char) + \
+     ((GET_SOCKS5_REQUEST_ADDR_DOMAIN(content).addr_and_port + \
        GET_SOCKS5_REQUEST_ADDR_DOMAIN(content).addr_len)))
 
 #define GET_SOCKS5_REQUEST_SIZE_IPV4(content) \

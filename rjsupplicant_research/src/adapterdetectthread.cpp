@@ -8,8 +8,8 @@
     ::PostThreadMessage( \
                          control_thread_key, \
                          control_thread_msgid, \
-                         reinterpret_cast<void *>(mtype), \
-                         0 \
+                         mtype, \
+                         nullptr \
                        )
 
 CAdapterDetectThread::CAdapterDetectThread() :
@@ -63,8 +63,8 @@ bool CAdapterDetectThread::StartDetect(
 
     if (!PostThreadMessage(
                 START_DETECT_MTYPE,
-                info,
-                sizeof(struct DetectNICInfo)
+                reinterpret_cast<unsigned long>(info),
+                nullptr
             )) {
         delete info;
         return false;
@@ -76,11 +76,7 @@ bool CAdapterDetectThread::StartDetect(
 bool CAdapterDetectThread::StopDetect(unsigned flag) const
 {
     if (flag & 3) {
-        if (PostThreadMessage(
-                    STOP_DETECT_MTYPE,
-                    reinterpret_cast<void *>(flag),
-                    0
-                ))
+        if (PostThreadMessage(STOP_DETECT_MTYPE, flag, nullptr))
             return true;
 
         g_log_Wireless.AppendText("%s Post message failed", __func__);
@@ -98,15 +94,15 @@ bool CAdapterDetectThread::DispathMessage(struct LNXMSG *msg)
 {
     switch (msg->mtype) {
         case START_DETECT_MTYPE:
-            OnStartDetect(msg->buf);
+            OnStartDetect(msg->buflen);
             break;
 
         case STOP_DETECT_MTYPE:
-            OnStopDetect(msg->buf);
+            OnStopDetect(msg->buflen);
             break;
 
         case ON_TIMER_MTYPE:
-            OnTimer(msg->buf);
+            OnTimer(msg->buflen);
             break;
     }
 
@@ -137,7 +133,7 @@ bool CAdapterDetectThread::InitInstance()
 void CAdapterDetectThread::OnTimer(int tflag) const
 {
     if (OnTimerEnter(tflag)) {
-        if (!PostThreadMessage(ON_TIMER_MTYPE, reinterpret_cast<void *>(tflag), -1))
+        if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, reinterpret_cast<void *>(-1)))
             OnTimerLeave(tflag);
 
     } else

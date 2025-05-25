@@ -14,8 +14,6 @@
 				<Option parameters="--help" />
 				<Compiler>
 					<Add option="-ggdb3" />
-					<Add option="-g" />
-					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -25,7 +23,6 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -50,7 +47,7 @@
 			<Add directory="../ampheck/include" />
 			<Add directory="../rc4/include" />
 			<Add directory="../md5/include" />
-			<Add directory="../libpcap/include" />
+			<Add directory="../pcap" />
 			<Add directory="include" />
 		</Compiler>
 		<Linker>
@@ -111,7 +108,10 @@
 		<Unit filename="include/proxysertcp.h" />
 		<Unit filename="include/psutil.h" />
 		<Unit filename="include/saveconfigureinfo.h" />
+		<Unit filename="include/sendpacketthread.h" />
 		<Unit filename="include/signals.h" />
+		<Unit filename="include/statedata.h" />
+		<Unit filename="include/statevisual.h" />
 		<Unit filename="include/stdpkgs.h" />
 		<Unit filename="include/suconfigfile.h" />
 		<Unit filename="include/sudes.h" />
@@ -159,7 +159,10 @@
 		<Unit filename="src/proxysertcp.cpp" />
 		<Unit filename="src/psutil.cpp" />
 		<Unit filename="src/saveconfigureinfo.cpp" />
+		<Unit filename="src/sendpacketthread.cpp" />
 		<Unit filename="src/signals.cpp" />
+		<Unit filename="src/statedata.cpp" />
+		<Unit filename="src/statevisual.cpp" />
 		<Unit filename="src/suconfigfile.cpp" />
 		<Unit filename="src/sudes.cpp" />
 		<Unit filename="src/supf.cpp" />

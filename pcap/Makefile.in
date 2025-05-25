@@ -112,14 +112,14 @@ shared: libpcap.$(DYEXT)
 #
 libpcap.so: $(OBJ)
 	@rm -f $@
-	ld -shared -o $@.`cat VERSION` $(OBJ)
+	ld -shared -o $@.`cat $(srcdir)/VERSION` $(OBJ)
 
 # the following rule succeeds, but the result is untested.
 libpcap.dylib: $(OBJ)
 	rm -f libpcap*.dylib
-	$(CC) -dynamiclib -undefined error -o libpcap.`cat VERSION`.dylib $(OBJ) \
-		-install_name $(libdir)/libpcap.0.dylib -compatibility_version `cat VERSION` \
-		-current_version `cat VERSION`
+	$(CC) -dynamiclib -undefined error -o libpcap.`cat $(srcdir)/VERSION`.dylib $(OBJ) \
+		-install_name $(libdir)/libpcap.0.dylib -compatibility_version `cat $(srcdir)/VERSION` \
+		-current_version `cat $(srcdir)/VERSION`
 
 
 scanner.c: $(srcdir)/scanner.l
@@ -189,10 +189,10 @@ install: libpcap.a
 
 install-shared: install-shared-$(DYEXT)
 install-shared-so: libpcap.so
-	$(INSTALL_PROGRAM) libpcap.so.`cat VERSION` $(DESTDIR)$(libdir)/libpcap.so.`cat VERSION`
+	$(INSTALL_PROGRAM) libpcap.so.`cat $(srcdir)/VERSION` $(DESTDIR)$(libdir)/libpcap.so.`cat $(srcdir)/VERSION`
 install-shared-dylib: libpcap.dylib
-	$(INSTALL_PROGRAM) libpcap.`cat VERSION`.dylib $(DESTDIR)$(libdir)/libpcap.`cat VERSION`.dylib
-	VER=`cat VERSION`; cd $(DESTDIR)$(libdir) && ln -sf libpcap.$$VER.dylib libpcap.0.dylib;  ln -sf libpcap.0.dylib libpcap.dylib
+	$(INSTALL_PROGRAM) libpcap.`cat $(srcdir)/VERSION`.dylib $(DESTDIR)$(libdir)/libpcap.`cat $(srcdir)/VERSION`.dylib
+	VER=`cat $(srcdir)/VERSION`; cd $(DESTDIR)$(libdir) && ln -sf libpcap.$$VER.dylib libpcap.0.dylib;  ln -sf libpcap.0.dylib libpcap.dylib
 
 uninstall:
 	rm -f $(DESTDIR)$(libdir)/libpcap.a
@@ -212,9 +212,9 @@ distclean: clean
 tags: $(TAGFILES)
 	ctags -wtd $(TAGFILES)
 
-packaging/pcap.spec: packaging/pcap.spec.in VERSION
-	RPMVERSION=`cat VERSION | sed s/-.*//g`; \
-		sed -e s/@VERSION@/$$RPMVERSION/ -e s/@NAME@/libpcap-`cat VERSION`/ $<   > $@
+packaging/pcap.spec: packaging/pcap.spec.in $(srcdir)/VERSION
+	RPMVERSION=`cat $(srcdir)/VERSION | sed s/-.*//g`; \
+		sed -e s/@VERSION@/$$RPMVERSION/ -e s/@NAME@/libpcap-`cat $(srcdir)/VERSION`/ $<   > $@
 
 tar: Makefile packaging/pcap.spec
 	@cwd=`pwd` ; dir=`basename $$cwd` ; name=libpcap-`cat VERSION` ; \

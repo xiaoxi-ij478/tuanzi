@@ -60,3 +60,21 @@ const char *getSupfStateText(enum SupfState state)
             return "";
     }
 }
+
+//void supf_event_callback_fun(
+//    enum SUPF_EVENT_TYPE event_type,
+//    const struct SupfMsgData *msg_data
+//)
+//{
+//    switch (event_type) {
+//        case SUPF_STATE:
+//            if (msg_data)
+//                supf_state_handle(msg_data->msg);
+//
+//            break;
+//
+//        case SUPF_MSG:
+//            supf_msg_handle(msg_data->msg);
+//            break;
+//    }
+//}

@@ -85,7 +85,7 @@ int ProxyClientTcp::TryDetectTCPIP(
     return ret == 1 ? request_type : ret;
 }
 
-bool ProxyClientTcp::IsExpired() const
+bool ProxyClientTcp::IsExpired([[maybe_unused]] unsigned a2) const
 {
     return false;
 }

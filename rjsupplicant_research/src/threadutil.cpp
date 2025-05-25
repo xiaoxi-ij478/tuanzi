@@ -40,8 +40,10 @@ int WaitForSingleObject(
 
     } else
         while (!wait_handle->finished)
-            ret = pthread_cond_wait(&wait_handle->pthread_cond,
-                                    &wait_handle->pthread_mutex);
+            ret = pthread_cond_wait(
+                      &wait_handle->pthread_cond,
+                      &wait_handle->pthread_mutex
+                  );
 
     wait_handle->finished = false;
 
@@ -268,8 +270,8 @@ bool TerminateThread(pthread_t thread_key)
 bool PostThreadMessage(
     pthread_t thread_key,
     unsigned mtype,
-    void *buf,
-    unsigned long buflen
+    unsigned long buflen,
+    void *buf
 )
 {
     int msqid = msgget(thread_key, 0666);
@@ -278,17 +280,17 @@ bool PostThreadMessage(
         thread_key,
         mtype
     );
-    return msqid >= 0 ? GPostThreadMessage(msqid, mtype, buf, buflen) : false;
+    return msqid >= 0 ? GPostThreadMessage(msqid, mtype, buflen, buf) : false;
 }
 
 bool GPostThreadMessage(
     int msqid,
     unsigned mtype,
-    void *buf,
-    unsigned long buflen
+    unsigned long buflen,
+    void *buf
 )
 {
-    struct LNXMSG msg = { mtype, buf, buflen };
+    struct LNXMSG msg = { mtype, buflen, buf };
     int ret = 0;
 
     if (msqid < 0) {

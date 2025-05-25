@@ -4,16 +4,16 @@
 	<Project>
 		<Option title="pcap" />
 		<Option makefile_is_custom="1" />
-		<Option execution_dir="$(target_output_dir)" />
+		<Option execution_dir="." />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<MakeCommands>
-			<Build command="$make -f $makefile shared" />
-			<CompileFile command="$make -f $makefile $file" />
-			<Clean command="$make -f $makefile clean" />
+			<Build command="$make -C $(TARGET_OUTPUT_DIR) -f $makefile shared" />
+			<CompileFile command="$make -C $(TARGET_OUTPUT_DIR) -f $makefile $file" />
+			<Clean command="$make -C $(TARGET_OUTPUT_DIR) -f $makefile distclean" />
 			<DistClean command="$make -f $makefile distclean$target" />
-			<AskRebuildNeeded command="$make -q -f $makefile shared" />
-			<SilentBuild command="$make -f $makefile shared &gt; $(CMD_NULL)" />
+			<AskRebuildNeeded command="$make -C $(TARGET_OUTPUT_DIR) -q -f $makefile shared" />
+			<SilentBuild command="$make -C $(TARGET_OUTPUT_DIR) -f $makefile shared &gt; $(CMD_NULL)" />
 		</MakeCommands>
 		<Build>
 			<Target title="Debug">
@@ -27,7 +27,7 @@
 					<Add option="-g" />
 				</Compiler>
 				<Environment>
-					<Variable name="CFLAGS" value="-g -ggdb3" />
+					<Variable name="CFLAGS" value="-ggdb3" />
 				</Environment>
 				<MakeCommands>
 					<Build command="" />
@@ -68,7 +68,7 @@
 			<Add option="-Wall" />
 		</Compiler>
 		<ExtraCommands>
-			<Add before='$(project_dir)/configure --enable-ipv6 CFLAGS=&quot;$(CFLAGS) -fPIC&quot;' />
+			<Add before='mkdir -p $(TARGET_OUTPUT_DIR); cd $(TARGET_OUTPUT_DIR); $(PROJECT_DIR)configure --enable-ipv6 CFLAGS=&quot;$(CFLAGS) -fPIC&quot;' />
 		</ExtraCommands>
 		<Unit filename="Win32/Include/Gnuc.h" />
 		<Unit filename="Win32/Include/addrinfo.h" />
@@ -115,9 +115,6 @@
 		<Unit filename="arcnet.h" />
 		<Unit filename="atmuni31.h" />
 		<Unit filename="bin/Debug/config.h" />
-		<Unit filename="bpf/net/bpf_filter.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="bpf/net/bpf_filter.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -369,14 +369,24 @@ quit:
     }
 
     if (ret) {
-        ::PostThreadMessage(dl_para.thread_key, dl_para.mtype, nullptr, ret);
+        ::PostThreadMessage(
+            dl_para.thread_key,
+            dl_para.mtype,
+            0,
+            reinterpret_cast<void *>(ret)
+        );
         return -1;
     }
 
     new_save_path = new char[strlen(save_path) + 1];
     strcpy(new_save_path, save_path);
 
-    if (!::PostThreadMessage(dl_para.thread_key, dl_para.mtype, new_save_path, 0))
+    if (!::PostThreadMessage(
+                dl_para.thread_key,
+                dl_para.mtype,
+                reinterpret_cast<unsigned long>(new_save_path),
+                nullptr
+            ))
         delete[] new_save_path;
 
     ftpcmd("QUIT", nullptr, socket_file, reply);
@@ -674,7 +684,12 @@ normal_quit:
         new_save_path = new char[strlen(save_path) + 1];
         strcpy(new_save_path, save_path);
 
-        if (!::PostThreadMessage(dl_para.thread_key, dl_para.mtype, new_save_path, 0))
+        if (!::PostThreadMessage(
+                    dl_para.thread_key,
+                    dl_para.mtype,
+                    reinterpret_cast<unsigned long>(new_save_path),
+                    nullptr
+                ))
             delete[] new_save_path;
     }
 
@@ -694,7 +709,12 @@ error_quit:
         close(file_fd);
 
     if (dl_para.thread_key)
-        ::PostThreadMessage(dl_para.thread_key, dl_para.mtype, nullptr, ret);
+        ::PostThreadMessage(
+            dl_para.thread_key,
+            dl_para.mtype,
+            0,
+            reinterpret_cast<void *>(ret)
+        );
 
     rj_printf_debug("nDownLoadResult=%d\n", ret);
     return -1;

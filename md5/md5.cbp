@@ -15,7 +15,6 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-ggdb3" />
-					<Add option="-g" />
 					<Add option="-DPROTOTYPES" />
 					<Add directory="include" />
 				</Compiler>

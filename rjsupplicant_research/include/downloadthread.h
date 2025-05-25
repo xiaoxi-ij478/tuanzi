@@ -35,7 +35,7 @@ enum DOWNLOAD_STATUS {
 };
 
 struct tagDownLoadPara {
-    pthread_t thread_key; // orig name: pThread
+    pthread_t thread_key; // pThread
     int mtype;
     std::string url;
     std::string default_path;

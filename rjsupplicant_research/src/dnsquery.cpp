@@ -321,26 +321,30 @@ void CDNSQuery::GetHostByName(char *hostname, struct CHostEnt **dest)
 
 void *CDNSQuery::thread_function([[maybe_unused]] void *arg)
 {
-    int rcv_msgid = 0;
     struct DNSQueryStruct msg = {};
     struct CHostEnt *entry = nullptr;
     g_logFile_dns.AppendText("QueryDNSThread start,running...");
 
-    while (rcv_msgid != STOP_DNS_QUERY_MTYPE) {
+    while (true) {
         if (msgrcv(msgid, &msg, DNSQueryStruct_MSGSZ, 0, 0) == -1) {
             std::cerr << "msgrcv failed with error: " << errno << std::endl;
             exit(1);
         }
 
-        if (msg.mtype != POST_DNS_QUERY_MTYPE)
-            continue;
+        switch (msg.mtype) {
+            case STOP_DNS_QUERY_MTYPE:
+                g_logFile_dns.AppendText("Quit reason-rev quit msg");
+                g_logFile_dns.AppendText("QueryDNSThread quit");
+                return nullptr;
 
-        GetHostByName(msg.buf, &entry);
-        AddToHostEntList(entry);
-        g_logFile_dns.AppendText("Add dns query result To list");
+            case POST_DNS_QUERY_MTYPE:
+                GetHostByName(msg.buf, &entry);
+                AddToHostEntList(entry);
+                g_logFile_dns.AppendText("Add dns query result To list");
+                break;
+
+            default:
+                break;
+        }
     }
-
-    g_logFile_dns.AppendText("Quit reason-rev quit msg");
-    g_logFile_dns.AppendText("QueryDNSThread quit");
-    return nullptr;
 }

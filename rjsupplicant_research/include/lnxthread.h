@@ -10,11 +10,11 @@ class CLnxThread;
 
 struct LNXMSG {
     long mtype;
-    void *buf;
     unsigned long buflen;
+    void *buf;
 };
 
-#define LNXMSG_MSGSZ (sizeof(struct LNXMSG) - offsetof(struct LNXMSG, buf))
+#define LNXMSG_MSGSZ offsetof(struct LNXMSG, buf)
 
 struct TIMERPARAM {
     int tflag;
@@ -32,7 +32,7 @@ class CLnxThread
         virtual ~CLnxThread();
         int CreateThread(pthread_attr_t *pthread_attr, bool no_need_send_msg);
         int GetMessageID() const;
-        bool PostThreadMessage(long mtype, void *buf, unsigned long buflen) const;
+        bool PostThreadMessage(long mtype, unsigned long buflen, void *buf) const;
         int StartThread();
         int StopThread();
 

@@ -5,6 +5,7 @@
 #include "fileutil.h"
 #include "util.h"
 #include "sysutil.h"
+#include "stdpkgs.h"
 #include "netutil.h"
 
 int sockets_open()

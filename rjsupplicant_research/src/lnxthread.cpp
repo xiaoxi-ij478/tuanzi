@@ -74,11 +74,11 @@ int CLnxThread::GetMessageID() const
 
 bool CLnxThread::PostThreadMessage(
     long mtype,
-    void *buf,
-    unsigned long buflen
+    unsigned long buflen,
+    void *buf
 ) const
 {
-    struct LNXMSG msg = { mtype, buf, buflen };
+    struct LNXMSG msg = { mtype, buflen, buf };
 
     if (mtype < 0) {
         g_logSystem.AppendText(
@@ -104,7 +104,7 @@ int CLnxThread::StartThread()
     if (no_need_send_msg)
         return -1;
 
-    if (!PostThreadMessage(START_THREAD_MTYPE, nullptr, 0)) {
+    if (!PostThreadMessage(START_THREAD_MTYPE, 0, nullptr)) {
         g_logSystem.AppendText(
             "CLnxThread::StartThread() PostThreadMessage failed\n");
         return -1;
@@ -120,7 +120,7 @@ int CLnxThread::StopThread()
     if (no_need_send_msg)
         return 1;
 
-    if (PostThreadMessage(STOP_THREAD_MTYPE, nullptr, 0))
+    if (PostThreadMessage(STOP_THREAD_MTYPE, 0, nullptr))
         return 1;
 
     g_logSystem.AppendText(
@@ -222,12 +222,9 @@ bool CLnxThread::Run()
 
         switch (cur_msg.mtype) {
             case STOP_THREAD_MTYPE:
-                cur_msg.mtype = 0;
-                cur_msg.buf = nullptr;
-                cur_msg.buflen = 0;
+                cur_msg = { 0, 0, nullptr };
                 g_logSystem.AppendText("CLnxThread::Run %s \tLEAVE", classname);
                 return false;
-
             case START_THREAD_MTYPE:
                 start_process = true;
                 SetEvent(&wait_handle2, true);
@@ -313,7 +310,7 @@ void CLnxThread::OnTimerLeave(int tflag) const
 
 bool CLnxThread::ExitInstance()
 {
-    return no_need_send_msg ? 0 : cur_msg.buf;
+    return no_need_send_msg ? 0 : cur_msg.buflen;
 }
 
 void CLnxThread::KillTimer(timer_t &timerid)

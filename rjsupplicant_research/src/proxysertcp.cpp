@@ -10,7 +10,7 @@ ProxySerTcp::ProxySerTcp(const struct TcpInfo &info) :
     creation_time(GetTickCount())
 {}
 
-bool ProxySerTcp::IsExpired() const
+bool ProxySerTcp::IsExpired([[maybe_unused]] unsigned a2) const
 {
     return false;
 }
