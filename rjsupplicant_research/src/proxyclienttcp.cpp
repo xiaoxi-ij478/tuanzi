@@ -92,7 +92,7 @@ bool ProxyClientTcp::IsExpired([[maybe_unused]] unsigned a2) const
 
 int ProxyClientTcp::FindSerTcp(const ProxySerTcp *server)
 {
-    in_addr_t laddr[13] = {};
+    in_addr_t laddr = 0;
 
     if (reqaddr_int != -1) {
         if (!server)
@@ -130,7 +130,8 @@ int ProxyClientTcp::FindSerTcp(const ProxySerTcp *server)
             memcpy(laddr, *addr, hostent->hostent_entry.h_length);
 
             if (server->tcpinfo.srcaddr == laddr[0])
-                return 1;
+                if (server->tcpinfo.srcaddr == laddr)
+                    return 1;
         }
     }
 

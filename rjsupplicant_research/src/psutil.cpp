@@ -68,7 +68,7 @@ bool checkorexitrjsu(bool kill_task, bool force_kill)
 void killProcess(const char *proc)
 {
     // the original implementation use shell
-    // "pidof $proc 2>&-"
+    // kill -9 $(pidof $proc 2>&-)
     std::ifstream ifs;
     std::string comm;
     DIR *proc_dir = opendir("/proc");

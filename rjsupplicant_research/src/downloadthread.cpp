@@ -314,9 +314,7 @@ int CDownLoadThread::ftp_receive(
     }
 
     while (true) {
-        read_byte = read(socket_fd, reply, 256);
-
-        if (read_byte == -1) {
+        if ((read_byte = read(socket_fd, reply, 256)) == -1) {
             ret = DOWNLOAD_ERROR_5;
             goto inner_quit;
         }
@@ -580,13 +578,15 @@ int CDownLoadThread::get_remote_file(
     FD_ZERO(&listen_fd);
     FD_SET(socket_fd, &listen_fd);
 
-    if (select(
-                socket_fd + 1,
-                &listen_fd,
-                nullptr,
-                nullptr,
-                &listen_timeout
-            ) == -1) {
+    if (
+        select(
+            socket_fd + 1,
+            &listen_fd,
+            nullptr,
+            nullptr,
+            &listen_timeout
+        ) == -1
+    ) {
         g_log_Wireless.AppendText("select failed.");
         ret = DOWNLOAD_ERROR_4;
         goto error_quit;
@@ -646,13 +646,15 @@ int CDownLoadThread::get_remote_file(
         FD_SET(socket_fd, &listen_fd);
         listen_timeout = { 20, 0 };
 
-        if (select(
-                    socket_fd + 1,
-                    &listen_fd,
-                    nullptr,
-                    nullptr,
-                    &listen_timeout
-                ) == -1) {
+        if (
+            select(
+                socket_fd + 1,
+                &listen_fd,
+                nullptr,
+                nullptr,
+                &listen_timeout
+            ) == -1
+        ) {
             g_log_Wireless.AppendText("select failed.");
             ret = DOWNLOAD_ERROR_4;
             goto error_quit;

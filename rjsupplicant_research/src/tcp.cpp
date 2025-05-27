@@ -655,7 +655,7 @@ bool CTcp::IsTelnetType([[maybe_unused]] const struct TCPIP &pkg)
 int CTcp::QueryAndUpdate(const struct TCPIP &pkg)
 {
     if (
-        pkg.ipheader->saddr == tcpinfo.srcaddr&&
+        pkg.ipheader->saddr == tcpinfo.srcaddr &&
         pkg.ipheader->daddr == tcpinfo.dstaddr &&
         ntohs(pkg.tcpheader->source) == tcpinfo.srcport &&
         ntohs(pkg.tcpheader->dest) == tcpinfo.dstport

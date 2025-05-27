@@ -32,7 +32,7 @@ CAdapterDetectThread::~CAdapterDetectThread()
 
 bool CAdapterDetectThread::StartDetect(
     const char *nic_name,
-    const unsigned char macaddr[6],
+    const struct ether_addr *macaddr,
     struct in_addr ipaddr,
     pthread_t thread_key,
     int msgid,
@@ -51,7 +51,7 @@ bool CAdapterDetectThread::StartDetect(
 
     info = new struct DetectNICInfo;
     strcpy(info->nic_name, nic_name);
-    memcpy(info->macaddr, macaddr, sizeof(info->macaddr));
+    info->macaddr = *macaddr;
     info->ipaddr = ipaddr;
     info->thread_key = thread_key;
     info->msgid = msgid;
@@ -162,7 +162,13 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
         if (!strcmp(nic_name, cur_info->ifname)) {
             g_log_Wireless.AppendText("nic name:%s", nic_name);
 
-            if (memcmp(macaddr, cur_info->hwaddr, sizeof(macaddr))) {
+            if (
+                memcmp(
+                    &macaddr,
+                    &cur_info->hwaddr,
+                    sizeof(macaddr)
+                )
+            ) {
                 g_log_Wireless.AppendText("mac chaged\n");
                 POST_TO_CONTROL_THREAD(MAC_CHANGED_MTYPE);
                 break;
@@ -253,7 +259,7 @@ void CAdapterDetectThread::OnStartDetect(
 
     disallow_multi_nic_ip = info->disallow_multi_nic_ip;
     strcpy(nic_name, info->nic_name);
-    memcpy(macaddr, info->macaddr, sizeof(macaddr));
+    macaddr = info->macaddr;
     ipaddr = info->ipaddr;
     control_thread_key = info->thread_key;
     control_thread_msgid = info->msgid;

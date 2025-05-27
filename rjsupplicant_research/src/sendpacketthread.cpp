@@ -30,7 +30,7 @@ void CSendPacketThread::CloseAdapter()
 
 bool CSendPacketThread::SetSenderAdapter(char *name)
 {
-    char ebuf[256] = {};
+    char ebuf[PCAP_ERRBUF_SIZE] = {};
     strcpy(adapter_name, name);
     rj_printf_debug("CSendPacketThread :: SetSenderAdapter()\n");
 
@@ -39,7 +39,7 @@ bool CSendPacketThread::SetSenderAdapter(char *name)
         return 0;
     }
 
-    if ((pcap_handle = pcap_open_live(adapter_name, 2000, 1, 0xFFFFFFFF, ebuf)))
+    if ((pcap_handle = pcap_open_live(adapter_name, 2000, 1, -1, ebuf)))
         return started = true;
 
     else

@@ -63,7 +63,7 @@ int WaitForMultipleObjects(
     // It is not used anyway, and I don't want to figure what the heck
     // it does any more. So just left here for now.
     return 0;
-//    long TickCount = 0;
+//    unsigned long TickCount = 0;
 //    unsigned i = 0, j = 0;
 //    int wait_result = -1;
 //    bool *wait_flags = nullptr;

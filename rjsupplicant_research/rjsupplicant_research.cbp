@@ -38,6 +38,7 @@
 			<Add option="-fPIC" />
 			<Add option="-Winvalid-pch" />
 			<Add option="-include all.h" />
+			<Add option="-funsigned-char" />
 			<Add option="-pthread" />
 			<Add option="-DPROTOTYPES" />
 			<Add option="-DTIXML_USE_STL" />

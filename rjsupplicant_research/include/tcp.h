@@ -35,7 +35,7 @@ struct TcpInfo {
 };
 
 struct TCPIP {
-    unsigned char (*macaddrs)[2][6];
+    struct ether_header *etherheader;
     struct iphdr *ipheader;
     struct tcphdr *tcpheader;
     unsigned char *content;

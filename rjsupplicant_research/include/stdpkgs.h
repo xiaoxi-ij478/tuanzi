@@ -166,11 +166,6 @@ struct [[gnu::packed]] MMSTcpMessage {
     union MMSMessage message;
 };
 
-struct [[gnu::packed]] MacAddrs {
-    struct ether_addr srcaddr;
-    struct ether_addr dstaddr;
-};
-
 struct [[gnu::packed]] tcp_pseudo_hdr {
     uint32_t saddr;
     uint32_t daddr;

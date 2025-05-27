@@ -19,7 +19,7 @@ enum ADAPTER_TYPE {
 
 struct NICINFO {
     char ifname[IFNAMSIZ];
-    unsigned char hwaddr[6];
+    struct ether_addr hwaddr;
     bool use_dhcp;
     bool is_wireless;
     unsigned short speed;
@@ -83,7 +83,8 @@ extern bool check_manualip_indirectory(
 );
 extern bool check_manualip_infile(const char *ipaddr, const char *file);
 extern bool check_dhcp(const char *ifname, const char *ipaddr);
-extern bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6]);
+extern bool get_ip_mac(struct in_addr ipaddr, struct ether_addr *macaddr);
+extern bool check_nic_isok(char *ifname);
 extern int check_nic_status(const char *ifname);
 extern bool get_nic_in_use(
     std::vector<std::string> &nic_list,
@@ -104,15 +105,23 @@ extern unsigned InitUdpHeader(
     int dstport,
     int datalen
 );
-extern bool Is8021xGroupAddr(unsigned char macaddr[6]);
-extern bool IsEqualIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4]);
-extern bool IsEqualMac(unsigned char macaddr1[6], unsigned char macaddr2[6]);
-extern bool IsGetDhcpIpp(unsigned char ip[4]);
-extern bool IsHostDstMac(unsigned char macaddr1[6], unsigned char macaddr2[6]);
-extern bool IsMulDstMac(unsigned char macaddr[6]);
-extern bool IsStarGroupDstMac(unsigned char macaddr[6]);
+void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname);
+long long htonLONGLONG(long long val);
+extern bool Is8021xGroupAddr(struct ether_addr *macaddr);
+extern bool IsEqualIP(in_addr_t *ipaddr1, in_addr_t *ipaddr2);
+extern bool IsEqualMac(
+    struct ether_addr *macaddr1,
+    struct ether_addr *macaddr2
+);
+extern bool IsGetDhcpIpp(in_addr_t *ip);
+extern bool IsHostDstMac(
+    struct ether_addr *macaddr1,
+    struct ether_addr *macaddr2
+);
+extern bool IsMulDstMac(struct ether_addr *macaddr);
+extern bool IsStarGroupDstMac(struct ether_addr *macaddr);
 extern void createUdpBindSocket(unsigned short port);
-extern bool isNoChangeIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4]);
+extern bool isNoChangeIP(in_addr_t *ipaddr1, in_addr_t *ipaddr2);
 extern void stop_dhclient_asyn();
 extern bool dhclient_asyn(const char *ipaddr, sem_t *semaphore);
 extern void *dhclient_thread(void *varg);

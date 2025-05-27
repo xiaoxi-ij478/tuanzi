@@ -72,9 +72,10 @@ extern bool SuCreateDirectory(const std::string &dirname);
 extern bool post_command(char c);
 extern std::string IntToString(int num);
 extern bool Is64BIT();
-extern void KillRunModeCheckTimer();
-extern void *OnRunModeCheckTimer(union sigval arg);
-extern void SetRunModeCheckTimer();
+//extern void KillRunModeCheckTimer();
+//extern void *OnRunModeCheckTimer(union sigval arg);
+//extern void SetRunModeCheckTimer();
+unsigned MD5StrtoUChar(std::string str, unsigned char *buf);
 extern int do_quit();
 extern int MemCmpare(
     const void *buf1,

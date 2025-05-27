@@ -73,7 +73,7 @@ int CLnxThread::GetMessageID() const
 }
 
 bool CLnxThread::PostThreadMessage(
-    long mtype,
+    unsigned long mtype,
     unsigned long buflen,
     void *buf
 ) const

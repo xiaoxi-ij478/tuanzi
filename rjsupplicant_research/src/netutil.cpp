@@ -900,7 +900,7 @@ bool isNoChangeIP(unsigned char ipaddr1[4], unsigned char ipaddr2[4])
     return !memcmp(ipaddr1, ipaddr2, sizeof(char) * 4);
 }
 
-unsigned long long htonLONGLONG(unsigned long long val)
+long long htonLONGLONG(long long val)
 {
     swap128(reinterpret_cast<unsigned char *>(&val));
     return val;

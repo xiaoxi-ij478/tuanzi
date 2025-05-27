@@ -37,7 +37,11 @@ void GetAbsTime(struct timespec *tsp, unsigned long off_msec)
     g_logSystem.AppendText("GetAbsTime failed\n");
 }
 
-bool CreateCurrentUTC(long plus_sec, long off_sec, long long *result)
+bool CreateCurrentUTC(
+    long long plus_sec,
+    long long off_sec,
+    long long *result
+)
 {
     assert(result);
     *result = plus_sec + (GetTickCount() - off_sec);

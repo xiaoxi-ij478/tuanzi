@@ -333,7 +333,7 @@ int CHttpConnection::sendRequest(
 {
     int fd = 0;
     long written = 0;
-    long remain = 0;
+    unsigned long remain = 0;
 
     if (!addr || !request)
         return -1;
@@ -385,12 +385,7 @@ void CHttpConnection::setError(const char *format, ...)
 
 void CHttpConnection::setErrorCode(int error)
 {
-    error_num = error;
-
-    if (!strerror(errno))
-        return;
-
-    error_msg.append(strerror(errno)).append("\n");
+    setErrorCode(error, nullptr);
 }
 
 void CHttpConnection::setErrorCode(int error, const char *prefix)

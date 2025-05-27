@@ -685,13 +685,7 @@ int MemCmpare(const void *buf1, int begin, int end, const void *buf2, int len)
     if (!buf1 || !buf2 || end - begin + 1 < len)
         return -2;
 
-    return
-        !!memcmp(
-            reinterpret_cast<const void *>(
-                reinterpret_cast<const char *>(buf1) + begin
-            ),
-            buf2, len
-        );
+    return memcmp(static_cast<const char *>(buf1) + begin, buf2, len);
 }
 
 void RcvACLParam(void *arg)
