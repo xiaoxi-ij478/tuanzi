@@ -9,9 +9,9 @@ class CStateVisual
         CStateVisual();
         virtual ~CStateVisual();
 
-        virtual void Initlize();
-        virtual void MoveState();
-        virtual void SetStateData(CStateData *data);
+        virtual void Initlize() const;
+        virtual void MoveState() const;
+        virtual void SetStateData(CStateData *data) const;
 
     protected:
 

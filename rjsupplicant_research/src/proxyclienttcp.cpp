@@ -127,10 +127,9 @@ int ProxyClientTcp::FindSerTcp(const ProxySerTcp *server)
             continue;
 
         for (char **addr = hostent->hostent_entry.h_addr_list; *addr; addr++) {
-            memcpy(laddr, *addr, hostent->hostent_entry.h_length);
+            memcpy(&laddr, *addr, hostent->hostent_entry.h_length);
 
-            if (server->tcpinfo.srcaddr == laddr[0])
-                if (server->tcpinfo.srcaddr == laddr)
+            if (server->tcpinfo.srcaddr == laddr)
                     return 1;
         }
     }

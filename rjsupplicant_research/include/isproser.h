@@ -1,6 +1,7 @@
 #ifndef ISPROSER_H_INCLUDED
 #define ISPROSER_H_INCLUDED
 
+#include "stdpkgs.h"
 #include "proxyclienttcp.h"
 #include "proxysertcp.h"
 
@@ -16,32 +17,32 @@ class CIsProSer
         ~CIsProSer();
 
         int Detect(
-            struct EtherPkg *pkg,
+            struct etherpkg *pkg,
             unsigned int pkglen
-        );
+        ) const;
         bool GetFakeMacInfo(
             in_addr_t *ipaddr,
             struct ether_addr *macaddr
-        );
+        ) const;
         bool Start(
             const char *adapter_name,
             const struct ether_addr *host_mac,
             unsigned int kind
-        );
-        bool Stop();
+        ) const;
+        bool Stop() const;
 
     private:
-        void AddToHRList(ProxySerTcp *server);
-        void AddToRHList(ProxyClientTcp *client);
-        void DelFromHRList(ProxySerTcp *server);
-        void DelFromRHList(ProxyClientTcp *client);
-        int HandleDataPacket();
-        void HandleFinAckPacket();
-        int HandleSynAckPacket();
-        bool IsFakeMac(const struct ether_header *ehdr, const struct iphdr *iphdr);
-        bool IsIPInLocalIPTable(in_addr_t ipaddr);
-        void OnTimer(int a2, int a3);
-        void UpdateLocalIPTable();
+        void AddToHRList(ProxySerTcp *server) const;
+        void AddToRHList(ProxyClientTcp *client) const;
+        void DelFromHRList(ProxySerTcp *server) const;
+        void DelFromRHList(ProxyClientTcp *client) const;
+        int HandleDataPacket() const;
+        void HandleFinAckPacket() const;
+        int HandleSynAckPacket() const;
+        bool IsFakeMac(const struct ether_header *ehdr, const struct iphdr *iphdr) const;
+        bool IsIPInLocalIPTable(in_addr_t ipaddr) const;
+        void OnTimer(int a2, int a3) const;
+        void UpdateLocalIPTable() const;
 
         unsigned int kind;
         bool host_addr_set;

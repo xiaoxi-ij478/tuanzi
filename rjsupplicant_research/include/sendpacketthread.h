@@ -21,9 +21,9 @@ class CSendPacketThread : public CLnxThread
 
     private:
         int DoSendPacket(const unsigned char *buf, int buflen);
-        bool ExitSendPacketThread();
+        bool ExitSendPacketThread() const;
         int StartSendPacketThread();
-        bool StopSendPacketThread();
+        bool StopSendPacketThread() const;
         int SendPacket(const unsigned char *buf, int buflen);
 
         char adapter_name[100];

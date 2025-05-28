@@ -116,7 +116,7 @@ int CSendPacketThread::DoSendPacket(const unsigned char *buf, int buflen)
     return -1;
 }
 
-bool CSendPacketThread::ExitSendPacketThread()
+bool CSendPacketThread::ExitSendPacketThread() const
 {
     rj_printf_debug("ExitSendPacketThread\n");
     return !StopSendPacketThread();
@@ -128,7 +128,7 @@ int CSendPacketThread::StartSendPacketThread()
     return StartThread();
 }
 
-bool CSendPacketThread::StopSendPacketThread()
+bool CSendPacketThread::StopSendPacketThread() const
 {
     rj_printf_debug("StopSendPacketThread\n");
     return PostThreadMessage(CLOSE_ADAPTER_MTYPE, 0, nullptr);

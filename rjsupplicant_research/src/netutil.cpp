@@ -532,7 +532,7 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
     std::vector<std::string> val;
     // minimal-ping related
     int fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
-    struct icmp_pkg package = {}, recv_package = {};
+    struct icmppkg package = {}, recv_package = {};
     struct sockaddr_in dest_addr = { AF_INET, 0, ipaddr };
     struct timeval wait_sec = { 3, 0 };
     unsigned dest_addrlen = sizeof(dest_addr);
@@ -562,17 +562,17 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
     // yes, I copied them from inetutils
     FD_ZERO(&listen_fds);
     FD_SET(fd, &listen_fds);
-    package.icmp_type = 8; // ICMP_ECHO
-    package.icmp_code = 0;
-    package.icmp_cksum = 0;
-    package.icmp_seq = htons(1);
-    package.icmp_id = htons(9527);
+    package.hdr.type = 8; // ICMP_ECHO
+    package.hdr.code = 0;
+    package.hdr.checksum = 0;
+    package.hdr.un.echo.sequence = htons(1);
+    package.hdr.un.echo.id = htons(9527);
     memcpy(
-        package.icmp_data,
+        package.data,
         "ij478ij478ij478ij478ij478ij478ij478ij478",
-        sizeof(package.icmp_data)
+        sizeof(package.data)
     );
-    package.icmp_cksum =
+    package.hdr.checksum =
         checksum(
             reinterpret_cast<unsigned short *>(&package),
             sizeof(package)
@@ -606,8 +606,8 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
         reinterpret_cast<struct sockaddr *>(&dest_addr),
         &dest_addrlen
     );
-    unsigned short orig_checksum = recv_package.icmp_cksum;
-    recv_package.icmp_cksum = 0;
+    unsigned short orig_checksum = recv_package.hdr.checksum;
+    recv_package.hdr.checksum = 0;
 
     if (
         checksum(
@@ -618,13 +618,13 @@ bool get_ip_mac(struct in_addr ipaddr, unsigned char macaddr[6])
         return false;
 
     if (
-        recv_package.icmp_type /* != 0 */ ||
-        recv_package.icmp_seq != htons(1) ||
-        recv_package.icmp_id != htons(9527) ||
+        recv_package.hdr.type /* != 0 */ ||
+        recv_package.hdr.un.echo.sequence != htons(1) ||
+        recv_package.hdr.un.echo.id != htons(9527) ||
         memcmp(
-            recv_package.icmp_data,
+            recv_package.data,
             "ij478ij478ij478ij478ij478ij478ij478ij478",
-            sizeof(recv_package.icmp_data)
+            sizeof(recv_package.data)
         )
     )
         return false;

@@ -1,7 +1,7 @@
 #include "global.h"
 #include "timeutil.h"
 
-long GetTickCount()
+unsigned long GetTickCount()
 {
     struct sysinfo sinfo = {};
 

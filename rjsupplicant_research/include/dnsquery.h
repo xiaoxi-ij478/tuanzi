@@ -21,10 +21,12 @@ struct DNSQueryStruct {
 class CDNSQuery
 {
     public:
-        static int PostQueryByName(const unsigned char *hostname,
-                                   struct CHostEnt **dest);
-        static int QueryByName(const unsigned char *hostname, struct CHostEnt **dest);
-        static bool StartQueryThread(unsigned char *errmsg);
+        static int PostQueryByName(
+            const char *hostname,
+            struct CHostEnt **dest
+        );
+        static int QueryByName(const char *hostname, struct CHostEnt **dest);
+        static bool StartQueryThread(char *errmsg);
         static int StopQueryThread();
         static bool thread_is_running();
 

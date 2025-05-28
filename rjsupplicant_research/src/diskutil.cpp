@@ -141,7 +141,7 @@ int getdiskid(char *buf, int buflen)
 
     while (
         serialid.serial_no[++pos] == ' ' &&
-        pos < strlen(serialid.serial_no)
+        pos < strlen(reinterpret_cast<char *>(serialid.serial_no))
     );
 
     pos -= pos & 1;

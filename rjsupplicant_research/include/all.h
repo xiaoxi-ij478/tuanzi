@@ -45,6 +45,7 @@
 //#include <net/if.h>
 #include <net/route.h>
 #include <netinet/ether.h>
+#include <netinet/ip_icmp.h>
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>

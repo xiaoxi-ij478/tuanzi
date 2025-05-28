@@ -194,13 +194,15 @@ struct [[gnu::packed]] udp_checksum_hdr {
     uint8_t data[2040];
 };
 
-struct icmp_pkg {
-    uint8_t icmp_type;
-    uint8_t icmp_code;
-    uint16_t icmp_cksum;
-    uint16_t icmp_id;
-    uint16_t icmp_seq;
-    uint8_t icmp_data[40];
+struct [[gnu::packed]] icmppkg {
+    struct icmphdr hdr;
+    char data[20];
+};
+
+struct [[gnu::packed]] etherpkg {
+    struct ether_header etherheader;
+    struct iphdr ipheader;
+    struct tcphdr tcpheader;
 };
 
 #endif // STDPKGS_H_INCLUDED

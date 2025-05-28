@@ -32,7 +32,11 @@ class CLnxThread
         virtual ~CLnxThread();
         int CreateThread(pthread_attr_t *pthread_attr, bool no_need_send_msg);
         int GetMessageID() const;
-        bool PostThreadMessage(long mtype, unsigned long buflen, void *buf) const;
+        bool PostThreadMessage(
+            unsigned long mtype,
+            unsigned long buflen,
+            void *buf
+        ) const;
         int StartThread();
         int StopThread();
 
