@@ -42,6 +42,7 @@
 			<Add option="-pthread" />
 			<Add option="-DPROTOTYPES" />
 			<Add option="-DTIXML_USE_STL" />
+			<Add option="-D_GNU_SOURCE" />
 			<Add directory="../iniparser/include" />
 			<Add directory="../tinyxml/include" />
 			<Add directory="../d3des/include" />

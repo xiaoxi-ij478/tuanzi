@@ -17,9 +17,9 @@ class CIsProSer
         ~CIsProSer();
 
         int Detect(
-            struct etherpkg *pkg,
+            unsigned char *pkg,
             unsigned int pkglen
-        ) const;
+        );
         bool GetFakeMacInfo(
             in_addr_t *ipaddr,
             struct ether_addr *macaddr
@@ -37,7 +37,7 @@ class CIsProSer
         void DelFromHRList(ProxySerTcp *server) const;
         void DelFromRHList(ProxyClientTcp *client) const;
         int HandleDataPacket() const;
-        void HandleFinAckPacket() const;
+        int HandleFinAckPacket() const;
         int HandleSynAckPacket() const;
         bool IsFakeMac(const struct ether_header *ehdr, const struct iphdr *iphdr) const;
         bool IsIPInLocalIPTable(in_addr_t ipaddr) const;
