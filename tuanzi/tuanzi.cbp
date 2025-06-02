@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="tuanzi" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/tuanzi" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option parameters="--help" />
+				<Compiler>
+					<Add option="-ggdb3" />
+					<Add directory="include" />
+					<Add directory="./" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/tuanzi" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="include" />
+					<Add directory="./" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Weffc++" />
+			<Add option="-Wextra" />
+			<Add option="-Wall" />
+			<Add option="-fPIC" />
+			<Add option="-Winvalid-pch" />
+			<Add option="-include all.h" />
+			<Add option="-funsigned-char" />
+			<Add option="-pthread" />
+			<Add option="-DPROTOTYPES" />
+			<Add option="-DTIXML_USE_STL" />
+			<Add option="-D_GNU_SOURCE" />
+			<Add directory="../iniparser/include" />
+			<Add directory="../tinyxml/include" />
+			<Add directory="../d3des/include" />
+			<Add directory="../crc16/include" />
+			<Add directory="../rhash/include" />
+			<Add directory="../ampheck/include" />
+			<Add directory="../rc4/include" />
+			<Add directory="../md5/include" />
+			<Add directory="../pcap" />
+			<Add directory="include" />
+		</Compiler>
+		<Linker>
+			<Add library="iniparser" />
+			<Add library="tinyxml" />
+			<Add library="d3des" />
+			<Add library="crc16" />
+			<Add library="rhash" />
+			<Add library="ampheck" />
+			<Add library="rc4" />
+			<Add library="md5" />
+			<Add library="pcap" />
+			<Add library="dl" />
+			<Add library="rt" />
+			<Add directory="../iniparser/bin/$(target_name)" />
+			<Add directory="../tinyxml/bin/$(target_name)" />
+			<Add directory="../d3des/bin/$(target_name)" />
+			<Add directory="../crc16/bin/$(target_name)" />
+			<Add directory="../rhash/bin/$(target_name)" />
+			<Add directory="../ampheck/bin/$(target_name)" />
+			<Add directory="../rc4/bin/$(target_name)" />
+			<Add directory="../md5/bin/$(target_name)" />
+			<Add directory="../libpcap/bin/$(target_name)" />
+		</Linker>
+		<Unit filename="include/adapterdetectthread.h" />
+		<Unit filename="include/all.h">
+			<Option compile="1" />
+		</Unit>
+		<Unit filename="include/autorun.h" />
+		<Unit filename="include/backoffreauthenticationmanager.h" />
+		<Unit filename="include/changelanguage.h" />
+		<Unit filename="include/checkrunthread.h" />
+		<Unit filename="include/clientcenterpeermanager.h" />
+		<Unit filename="include/cmdutil.h" />
+		<Unit filename="include/compressor.h" />
+		<Unit filename="include/confupdateutilinstance.h" />
+		<Unit filename="include/contextcontrolthread.h" />
+		<Unit filename="include/criticalsection.h" />
+		<Unit filename="include/customizeinfo.h" />
+		<Unit filename="include/diskutil.h" />
+		<Unit filename="include/dnsquery.h" />
+		<Unit filename="include/downloadthread.h" />
+		<Unit filename="include/encodeutil.h" />
+		<Unit filename="include/encryption.h" />
+		<Unit filename="include/fileutil.h" />
+		<Unit filename="include/global.h" />
+		<Unit filename="include/helloprocessor.h" />
+		<Unit filename="include/hellothread.h" />
+		<Unit filename="include/hostentutil.h" />
+		<Unit filename="include/httpconnection.h" />
+		<Unit filename="include/isproser.h" />
+		<Unit filename="include/libutil.h" />
+		<Unit filename="include/lnxthread.h" />
+		<Unit filename="include/logfile.h" />
+		<Unit filename="include/md5checksum.h" />
+		<Unit filename="include/md5forvz.h" />
+		<Unit filename="include/msgutil.h" />
+		<Unit filename="include/netutil.h" />
+		<Unit filename="include/proxyclienttcp.h" />
+		<Unit filename="include/proxydetectthread.h" />
+		<Unit filename="include/proxysertcp.h" />
+		<Unit filename="include/psutil.h" />
+		<Unit filename="include/saveconfigureinfo.h" />
+		<Unit filename="include/sendpacketthread.h" />
+		<Unit filename="include/signals.h" />
+		<Unit filename="include/statedata.h" />
+		<Unit filename="include/statevisual.h" />
+		<Unit filename="include/stdpkgs.h" />
+		<Unit filename="include/suconfigfile.h" />
+		<Unit filename="include/sudes.h" />
+		<Unit filename="include/supf.h" />
+		<Unit filename="include/suradiusprivate.h" />
+		<Unit filename="include/sysutil.h" />
+		<Unit filename="include/tcp.h" />
+		<Unit filename="include/threadutil.h" />
+		<Unit filename="include/timeutil.h" />
+		<Unit filename="include/util.h" />
+		<Unit filename="include/vz_apiapp.h" />
+		<Unit filename="include/waithandle.h" />
+		<Unit filename="include/xmlparser.h" />
+		<Unit filename="src/adapterdetectthread.cpp" />
+		<Unit filename="src/autorun.cpp" />
+		<Unit filename="src/backoffreauthenticationmanager.cpp" />
+		<Unit filename="src/changelanguage.cpp" />
+		<Unit filename="src/checkrunthread.cpp" />
+		<Unit filename="src/clientcenterpeermanager.cpp" />
+		<Unit filename="src/cmdutil.cpp" />
+		<Unit filename="src/compressor.cpp" />
+		<Unit filename="src/confupdateutilinstance.cpp" />
+		<Unit filename="src/contextcontrolthread.cpp" />
+		<Unit filename="src/criticalsection.cpp" />
+		<Unit filename="src/customizeinfo.cpp" />
+		<Unit filename="src/diskutil.cpp" />
+		<Unit filename="src/dnsquery.cpp" />
+		<Unit filename="src/downloadthread.cpp" />
+		<Unit filename="src/encodeutil.cpp" />
+		<Unit filename="src/encryption.cpp" />
+		<Unit filename="src/fileutil.cpp" />
+		<Unit filename="src/global.cpp" />
+		<Unit filename="src/helloprocessor.cpp" />
+		<Unit filename="src/hellothread.cpp" />
+		<Unit filename="src/hostentutil.cpp" />
+		<Unit filename="src/httpconnection.cpp" />
+		<Unit filename="src/isproser.cpp" />
+		<Unit filename="src/libutil.cpp" />
+		<Unit filename="src/lnxthread.cpp" />
+		<Unit filename="src/logfile.cpp" />
+		<Unit filename="src/main.cpp" />
+		<Unit filename="src/md5checksum.cpp" />
+		<Unit filename="src/md5forvz.cpp" />
+		<Unit filename="src/msgutil.cpp" />
+		<Unit filename="src/netutil.cpp" />
+		<Unit filename="src/proxyclienttcp.cpp" />
+		<Unit filename="src/proxydetectthread.cpp" />
+		<Unit filename="src/proxysertcp.cpp" />
+		<Unit filename="src/psutil.cpp" />
+		<Unit filename="src/saveconfigureinfo.cpp" />
+		<Unit filename="src/sendpacketthread.cpp" />
+		<Unit filename="src/signals.cpp" />
+		<Unit filename="src/statedata.cpp" />
+		<Unit filename="src/statevisual.cpp" />
+		<Unit filename="src/suconfigfile.cpp" />
+		<Unit filename="src/sudes.cpp" />
+		<Unit filename="src/supf.cpp" />
+		<Unit filename="src/suradiusprivate.cpp" />
+		<Unit filename="src/sysutil.cpp" />
+		<Unit filename="src/tcp.cpp" />
+		<Unit filename="src/threadutil.cpp" />
+		<Unit filename="src/timeutil.cpp" />
+		<Unit filename="src/util.cpp" />
+		<Unit filename="src/vz_apiapp.cpp" />
+		<Unit filename="src/waithandle.cpp" />
+		<Unit filename="src/xmlparser.cpp" />
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

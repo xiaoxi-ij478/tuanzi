@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Workspace">
+		<Project filename="iniparser/iniparser.cbp" />
+		<Project filename="tinyxml/tinyxml.cbp" />
+		<Project filename="d3des/d3des.cbp" />
+		<Project filename="crc16/crc16.cbp" />
+		<Project filename="tuanzi/tuanzi.cbp">
+			<Depends filename="iniparser/iniparser.cbp" />
+			<Depends filename="tinyxml/tinyxml.cbp" />
+			<Depends filename="d3des/d3des.cbp" />
+			<Depends filename="crc16/crc16.cbp" />
+			<Depends filename="rhash/rhash.cbp" />
+			<Depends filename="rc4/rc4.cbp" />
+			<Depends filename="md5/md5.cbp" />
+			<Depends filename="ampheck/ampheck.cbp" />
+		</Project>
+		<Project filename="rhash/rhash.cbp" />
+		<Project filename="rc4/rc4.cbp" />
+		<Project filename="md5/md5.cbp" />
+		<Project filename="ampheck/ampheck.cbp" />
+		<Project filename="pcap/pcap.cbp" />
+	</Workspace>
+</CodeBlocks_workspace_file>
