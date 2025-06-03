@@ -61,7 +61,7 @@ class CLnxThread
         virtual void OnTimerLeave(int tflag) const;
         virtual void OnTimer(int tflag) const;
         virtual bool ExitInstance();
-        virtual void KillTimer(timer_t &timerid);
+        virtual bool KillTimer(timer_t &timerid);
 
         bool dont_know_always_false;
         pthread_t thread_id;

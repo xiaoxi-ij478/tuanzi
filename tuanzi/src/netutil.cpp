@@ -329,7 +329,7 @@ bool get_alternate_dns(char *dest, int &counts)
         if (!c++)
             continue;
 
-        strcat(dest, val[1].c_str());
+        val[1].copy(dest + strlen(dest), val[1].length());
         strcat(dest, ";");
         counts++;
     }
@@ -1148,4 +1148,30 @@ void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname)
     close(fd);
     closedir(rootdir);
     return;
+}
+
+bool SetLanFlag(unsigned flag)
+{
+    std::string regini_path;
+    dictionary *ini = nullptr;
+    FILE *fp = nullptr;
+    TakeAppPath(regini_path);
+    regini_path.append("\\").append("fileReg.ini");
+
+    if (!(ini = iniparser_load(regini_path.c_str()))) {
+        g_logSystem.AppendText(
+            "ini create[path=%s]failed",
+            regini_path.c_str()
+        );
+        return false;
+    }
+
+    iniparser_set(ini, "System:lantype", std::to_string(flag).c_str());
+
+    if (!(fp = fopen(regini_path.c_str(), "w")))
+        return false;
+
+    iniparser_dump_ini(ini, fp);
+    fclose(fp);
+    iniparser_freedict(ini);
 }

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "timeutil.h"
 #include "changelanguage.h"
 #include "cmdutil.h"
 
@@ -10,7 +11,7 @@ void message_info(const char *format, ...)
     va_end(arg);
 }
 
-void message_info(std::string str)
+void message_info(const std::string &str)
 {
     std::cout << str;
 }
@@ -38,7 +39,7 @@ void display_usage()
     PRINT_USAGE("\t-S --save\t", 2014);
     PRINT_USAGE("\t-q --quit\t", 2046);
     std::cout << "\t   --comments\t";
-    std::string log_path = g_strAppPath + "log/run.log";
+    std::string log_path(g_strAppPath + "log/run.log");
     snprintf(
         str2, sizeof(str2),
         cinstance.LoadString(2045).c_str(),
@@ -165,20 +166,20 @@ void check_safe_exit(bool create_file)
     std::string lockfile(g_strAppPath);
     std::ofstream ofs;
     lockfile.append(".rgsusfexit");
-    rj_printf_debug("%s strFile=%s\n", __func__, lockfile.c_str());
+    rj_printf_debug("%s strFile=%s\n", "check_safe_exit", lockfile.c_str());
 
     if (!create_file) {
         if (unlink(lockfile.c_str()) == -1)
             rj_printf_debug(
                 "%s strFile=%s exist and unlink failed \n",
-                __func__,
+                "check_safe_exit",
                 lockfile.c_str()
             );
 
         else
             rj_printf_debug(
                 "%s strFile=%s exist and unlink ok \n",
-                __func__,
+                "check_safe_exit",
                 lockfile.c_str()
             );
 
@@ -195,7 +196,7 @@ void check_safe_exit(bool create_file)
     if (!ofs) {
         rj_printf_debug(
             "%s strFile=%s no exist and create failed \n",
-            __func__,
+            "check_safe_exit",
             lockfile.c_str()
         );
         return;
@@ -204,7 +205,7 @@ void check_safe_exit(bool create_file)
     ofs.close();
     rj_printf_debug(
         "%s strFile=%s no exist and create ok 2\n",
-        __func__,
+        "check_safe_exit",
         lockfile.c_str()
     );
 }
@@ -250,4 +251,27 @@ int set_termios(bool set_echo_icanon)
         rj_printf_debug("tcsetattr error:%s", strerror(errno));
 
     return 0;
+}
+
+void shownotify(
+    const std::string &content,
+    const std::string &header,
+    [[maybe_unused]] int a3
+)
+{
+    char cur_date[64] = {};
+
+    if (content != g_strNotify)
+        return;
+
+    g_strNotify = content;
+    GetCurDataAndTime(cur_date);
+    message_info(cur_date + header);
+    format_tc_string(get_tc_width(), 20, "\n" + content + "\n");
+    CLogFile::LogToFile(
+        (header + ' ' + content).c_str(),
+        g_runLogFile.c_str(),
+        true,
+        true
+    );
 }

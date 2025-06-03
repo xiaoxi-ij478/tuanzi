@@ -48,7 +48,7 @@ int CDNSQuery::QueryByName(const char *hostname, struct CHostEnt **dest)
     unsigned long cur_time = GetTickCount();
     struct CHostEnt *cur_ent = nullptr;
 
-    if (strlen(hostname) >=sizeof(buf))
+    if (strlen(hostname) >= sizeof(buf))
         return -2;
 
     strcpy(buf, hostname);

@@ -18,7 +18,7 @@ class CIsProSer
         CIsProSer();
         ~CIsProSer();
 
-        int Detect(const unsigned char *pkg,unsigned int pkglen);
+        int Detect(const unsigned char *pkg, unsigned int pkglen);
         bool GetFakeMacInfo(in_addr_t *ipaddr, struct ether_addr *macaddr) const;
         bool Start(
             const char *adapter_name_l,

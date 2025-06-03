@@ -60,7 +60,7 @@ void CHttpConnection::httpClose()
 
 int CHttpConnection::httpConnect(const char *url)
 {
-    std::string request;
+    std::ostringstream request;
     std::string domain;
     int port;
     std::string path;
@@ -68,13 +68,11 @@ int CHttpConnection::httpConnect(const char *url)
     if (!parseUrl(url, domain, port, path))
         return -1;
 
-    request
-    .append("GET ").append(path).append(" ").append(http_request_version)
-    .append("\r\n")
-    .append(http_request_header).append("\r\n")
-    .append("Host: ").append(domain).append("\r\n")
-    .append("Cache-Control: no-cache\r\n\r\n");
-    return sendRequest(domain.c_str(), port, request.c_str());
+    request << "GET " << path << ' ' << http_request_version << "\r\n"
+            << http_request_header << "\r\n"
+            << "Host: " << domain << "\r\n"
+            << "Cache-Control: no-cache\r\n\r\n";
+    return sendRequest(domain.c_str(), port, request.str().c_str());
 }
 
 int CHttpConnection::httpRead(unsigned char *buf, int buflen)

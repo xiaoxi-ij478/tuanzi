@@ -1,12 +1,15 @@
 #include "global.h"
 #include "threadutil.h"
+#include "xmlparser.h"
+#include "httpconnection.h"
+#include "confupdateutilinstance.h"
 #include "clientcenterpeermanager.h"
 
 CClientCenterPeerManager *CClientCenterPeerManager::instance = nullptr;
 
 CClientCenterPeerManager::CClientCenterPeerManager() :
-    timerid(),
-    timer_interval(1),
+    process_connect_timerid(),
+    process_connect_timer_interval(1),
     control_center_info(),
     thread_key(),
     upgrade_type()
@@ -135,7 +138,7 @@ bool CClientCenterPeerManager::DispathMessage(struct LNXMSG *msg)
 void CClientCenterPeerManager::OnTimer(int tflag) const
 {
     if (OnTimerEnter(tflag)) {
-        if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, -1))
+        if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, reinterpret_cast<void *>(-1)))
             OnTimerLeave(tflag);
 
     } else
@@ -147,7 +150,7 @@ void CClientCenterPeerManager::OnTimer(int tflag) const
 
 bool CClientCenterPeerManager::ExitInstance()
 {
-    OnStop();
+    OnStop(0, nullptr);
     return CLnxThread::ExitInstance();
 }
 
@@ -169,7 +172,7 @@ void CClientCenterPeerManager::OnStart(unsigned long buflen, void *buf)
         return;
 
     if (&control_center_info != info)
-        *control_center_info = *info;
+        control_center_info = *info;
 
     delete info;
     control_center_info.product = 0x3000000;
@@ -184,13 +187,13 @@ void CClientCenterPeerManager::OnStart(unsigned long buflen, void *buf)
 
 void CClientCenterPeerManager::OnStop(unsigned long buflen, void *buf)
 {
-    g_logContextControl.AppendText("Stop to connect client center",);
+    g_logContextControl.AppendText("Stop to connect client center");
 
-    if (!timerid)
+    if (!process_connect_timerid)
         return;
 
-    KillTimer(&timerid);
-    timerid = 0;
+    KillTimer(process_connect_timerid);
+    process_connect_timerid = 0;
 }
 
 void CClientCenterPeerManager::OnTimer(unsigned long buflen, void *buf)
@@ -211,16 +214,192 @@ void CClientCenterPeerManager::OnTimer(unsigned long buflen, void *buf)
 
 int CClientCenterPeerManager::ParseResult(const char *result)
 {
+    int ret = 0;
+    XML_PARSER xml_parser;
+    std::string upgrade_path;
+    std::string upgrade_full_url;
+    std::ostringstream upgrade_full_url_oss;
+    char *upgrade_full_url_buf = nullptr;
+
+    if (ret = CConfUpdateUtilInstance::Instance().UpdateConfigure(result))
+        g_logContextControl.AppendText(
+            "Failed to update configure, error=%d .", ret
+        );
+
+    if (!xml_parser.Load_XML_String(result)) {
+        delete[] result;
+        g_logContextControl.AppendText(
+            "CClientCenterPeerManager::ParseResult，解析时，文档出错了。"
+        );
+        return -1;
+    }
+
+    delete[] result;
+    xml_parser.Go_to_Root();
+
+    if (!xml_parser.Go_to_Child("UpgradeUrl"))
+        return 0;
+
+    g_logContextControl.AppendText(
+        "CClientCenterPeerManager::ParseResult，解析到需要升级。"
+    );
+    xml_parser.GetAttributeValue("url", upgrade_path);
+    upgrade_type = xml_parser.GetAttributeValueInt("upgradeType");
+    g_logContextControl.AppendText(
+        "CClientCenterPeerManager::ParseResult，升级的url 路径是:%s。",
+        upgrade_path.c_str()
+    );
+
+    if (upgrade_path.empty())
+        return 0;
+
+    upgrade_full_url_oss << "http://" << control_center_info.domain
+                         << ':' << control_center_info.port
+                         << '/' << upgrade_path;
+    upgrade_full_url = upgrade_full_url_oss.str();
+    g_logContextControl.AppendText(
+        "CClientCenterPeerManager::ParseResult，升级的全部url是:%s。",
+        upgrade_full_url.c_str()
+    );
+    upgrade_full_url_buf = new char[upgrade_full_url.length() + 1];
+    upgrade_full_url.copy(upgrade_full_url_buf, upgrade_full_url.length());
+    ::PostThreadMessage(thread_key, NOTIFY_UPGRADE_MTYPE, -1, upgrade_full_url_buf);
+    return 0;
 }
 
 void CClientCenterPeerManager::ProcessConnect()
 {
+    std::ostringstream url_oss;
+    std::ostringstream query_param_oss;
+    std::string url;
+    unsigned int timer_interval_l = 0;
+    unsigned int http_length = 0;
+    unsigned int http_read = 0;
+    unsigned char *buf = nullptr;
+    CHttpConnection http_client;
+    url_oss << "http://" << control_center_info.domain
+            << ':' << control_center_info.port
+            << "/rjsdcctrl?";
+    query_param_oss << "mac=" << control_center_info.mac
+                    << "&ipv4=" << control_center_info.ipv4
+                    << "&ipv61=" << control_center_info.ipv6[0]
+                    << "&ipv62=" << control_center_info.ipv6[1]
+                    << "&ipv63=" << control_center_info.ipv6[2]
+                    << "&ipv64=" << control_center_info.ipv6[3]
+                    << "&product=" << control_center_info.product
+                    << "&mainver=" << control_center_info.major_ver
+                    << "&subver=" << control_center_info.minor_ver;
+    url_oss << EnCodeStr(query_param_oss.str());
+    url = url_oss.str();
+    g_logContextControl.AppendText(
+        "CClientCenterPeerManager::ProcessConnect，构造的url是：%s",
+        url.c_str()
+    );
+    http_client.setTimeout(10);
+    http_client.addRequestHeader(
+        "Accept: text/*\r\n"
+        "User-Agent: HttpCall\r\n"
+        "Accept-Language: en-us\r\n"
+    );
+
+    if (http_client.httpConnect(url.c_str()) == -1) {
+        g_logContextControl.AppendText(
+            "connect  error:%s.",
+            http_client.getErrorText().c_str()
+        );
+        goto set_timer;
+    }
+
+    if ((http_length = http_client.getLength()) <= 0) {
+        g_logContextControl.AppendText("getLength failed");
+        goto http_close;
+    }
+
+    if (http_length > 1 * 1024 * 1024) { // 1G
+        g_logContextControl.AppendText(
+            "The content length(%d) is too big, ignore!",
+            http_length);
+        goto http_close;
+    }
+
+    buf = new unsigned char[http_length + 1];
+
+    if ((http_read = http_client.httpRead(buf, http_length)) == http_length) {
+        buf[http_length] = 0;
+        goto http_close;
+    }
+
+    g_logContextControl.AppendText(
+        "read failed, bytes:%d, len=%d",
+        http_read,
+        http_length
+    );
+    delete buf;
+    buf = nullptr;
+http_close:
+    http_client.httpClose();
+
+    if (!buf)
+        goto set_timer;
+
+    if (process_connect_timerid) {
+        KillTimer(process_connect_timerid);
+        process_connect_timerid = 0;
+    }
+
+    g_logContextControl.AppendText(
+        "CClientCenterPeerManager::ProcessConnect，http请求返回成功"
+    );
+    g_logContextControl.AppendText("%s", buf);
+    ParseResult(reinterpret_cast<char *>(buf));
+    return;
+set_timer:
+
+    if (process_connect_timerid)
+        return;
+
+    srand(time(nullptr));
+    timer_interval_l = rand() % 60 + 60;
+    process_connect_timer_interval = timer_interval_l;
+    process_connect_timerid = SetTimer(1, 1000 * timer_interval_l);
 }
 
-std::string CClientCenterPeerManager::EnCodeStr(std::string str)
+std::string CClientCenterPeerManager::EnCodeStr(const std::string &str)
 {
+    std::ostringstream oss;
+    oss << std::hex << std::setfill('0');
+
+    for (const unsigned char i : str)
+        if (isalnum(i))
+            oss << i;
+
+        else if (i == ' ')
+            oss << '+';
+
+        else
+            oss << '%'
+                << std::setw(2) << static_cast<unsigned int>(i)
+                << std::setw(1);
+
+    return oss.str();
 }
 
-std::string CClientCenterPeerManager::DeCodeStr(std::string str)
+std::string CClientCenterPeerManager::DeCodeStr(const std::string &str)
 {
+    std::ostringstream oss;
+
+    for (auto it = str.cbegin(); it != str.cend(); it++) {
+        if (*it == '%') {
+            oss << static_cast<unsigned char>
+                (std::stoul(str.substr(++it - str.cbegin(), 2)));
+            it++;
+
+        } else if (*it == '+')
+            oss << ' ';
+
+        else
+            oss << *it;
+    }
+
+    return oss.str();
 }

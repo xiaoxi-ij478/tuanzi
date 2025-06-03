@@ -123,9 +123,7 @@ void CoUnInitialize(unsigned)
 
 std::string DWordToString(unsigned a)
 {
-    std::ostringstream oss;
-    oss << a;
-    return oss.str();
+    return std::to_string(a);
 }
 
 bool DecryptSuConfig()
@@ -440,7 +438,7 @@ unsigned HexCharToAscii(
     if (str.length() & 1 || buflen < str.length() << 1)
         return 0;
 
-    for (auto it = str.cbegin();it != str.cend();it++, buf++) {
+    for (auto it = str.cbegin(); it != str.cend(); it++, buf++) {
         if (*it >= '0' && *it <= '9')
             *buf = *it - '0';
 
@@ -544,7 +542,7 @@ unsigned MD5StrtoUChar(std::string str, unsigned char *buf)
     if (!str.length())
         return 0;
 
-    for (auto it = str.cbegin();it != str.cend();it++, buf++) {
+    for (auto it = str.cbegin(); it != str.cend(); it++, buf++) {
         if (*it >= '0' && *it <= '9')
             *buf = *it - '0';
 

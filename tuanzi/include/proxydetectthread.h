@@ -25,6 +25,7 @@ class CProxyDetectThread : public CLnxThread
             int kind_l,
             char *errbuf
         );
+        bool StopDetect();
 
         CIsProSer isproser;
         char adapter_name[512];

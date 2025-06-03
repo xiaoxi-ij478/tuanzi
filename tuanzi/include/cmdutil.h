@@ -3,7 +3,7 @@
 
 [[maybe_unused, gnu::format(printf, 1, 2)]]
 extern void message_info(const char *format, ...);
-extern void message_info(std::string str);
+extern void message_info(const std::string &str);
 [[noreturn]] extern void display_usage();
 extern unsigned short get_tc_width();
 [[gnu::format(printf, 1, 2)]]
@@ -23,5 +23,10 @@ extern bool check_quit();
 extern void check_safe_exit(bool create_file);
 extern bool is_run_background();
 extern int set_termios(bool set_echo_icanon);
+extern void shownotify(
+    const std::string &content,
+    const std::string &header,
+    int a3
+);
 
 #endif // CMDUTIL_H_INCLUDED

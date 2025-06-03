@@ -116,7 +116,7 @@ int WaitForMultipleObjects(
 //            do
 //                {
 //                    if (no_obj_waittime <= GetTickCount() - TickCount) {
-//                        operator delete[] wait_flags;
+//                        delete[] wait_flags;
 //                        return 110;
 //                    }
 //                }
@@ -208,13 +208,13 @@ void CloseHandle(WAIT_HANDLE *wait_handle)
         if (pthread_cond_broadcast(&wait_handle->pthread_cond))
             rj_printf_debug("pthread_cond_signal error %d\n");
 
-        wait_handle->finished = 1;
+        wait_handle->finished = true;
 
     } else {
         if (pthread_cond_broadcast(&wait_handle->pthread_cond))
             rj_printf_debug("pthread_cond_signal error %d\n");
 
-        wait_handle->finished = 1;
+        wait_handle->finished = true;
 
         if (pthread_mutex_unlock(&wait_handle->pthread_mutex))
             rj_printf_debug("pthread_mutex_unlock nResult=%d\n");
@@ -238,7 +238,7 @@ void SetEvent(WAIT_HANDLE *wait_handle, bool broadcast)
     if (ret)
         rj_printf_debug("pthread_cond_signal error %d\n");
 
-    wait_handle->finished = 1;
+    wait_handle->finished = true;
     pthread_mutex_unlock(&wait_handle->pthread_mutex);
 }
 

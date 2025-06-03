@@ -130,5 +130,6 @@ extern void *dhclient_thread(void *varg);
 extern void dhclient_exit();
 extern void disable_enable_nic(const char *ifname);
 extern void get_all_nics_statu(std::vector<struct NICsStatus> &dest);
+extern bool SetLanFlag(unsigned flag);
 
 #endif // NETUTIL_H_INCLUDED

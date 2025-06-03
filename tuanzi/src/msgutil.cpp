@@ -10,7 +10,7 @@ static CRITICAL_SECTION msg_write_lock;
 
 void CreateNewMsgFile()
 {
-    std::string filename = g_strAppPath + "systemmsg.ini";
+    std::string filename(g_strAppPath + "systemmsg.ini");
     std::ofstream ofs(filename, std::ios::trunc);
 
     if (!ofs)
@@ -24,8 +24,8 @@ void CreateNewMsgFile()
 
 void AddMsgItem(int type, const std::string &msg)
 {
-    std::string msgcopy = msg;
-    std::string inifile = g_strAppPath + "systemmsg.ini";
+    std::string msgcopy(msg);
+    std::string inifile(g_strAppPath + "systemmsg.ini");
     std::string inikey;
     std::vector<struct tagMsgItem> msgarr;
     dictionary *ini = nullptr;
@@ -78,8 +78,8 @@ void AddMsgItem(int type, const std::string &msg)
 
 void DelMsgItem(int type, const std::string &msg)
 {
-    std::string msgcopy = msg;
-    std::string inifile = g_strAppPath + "systemmsg.ini";
+    std::string msgcopy(msg);
+    std::string inifile(g_strAppPath + "systemmsg.ini");
     std::string inikey;
     std::vector<struct tagMsgItem> msgarr;
     dictionary *ini = nullptr;
@@ -136,7 +136,7 @@ int GetMsgArray(std::vector<struct tagMsgItem> &msgarr)
 
 int GetMsgArray_Ex(std::vector<struct tagMsgItem> &msgarr, bool replace_crlf)
 {
-    std::string inipath = g_strAppPath + "systemmsg.ini";
+    std::string inipath(g_strAppPath + "systemmsg.ini");
     std::string msgid;
     int ntype;
     std::string msgtime, msg;

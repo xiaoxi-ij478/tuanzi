@@ -79,7 +79,7 @@ bool CAdapterDetectThread::StopDetect(unsigned flag) const
         if (PostThreadMessage(STOP_DETECT_MTYPE, flag, nullptr))
             return true;
 
-        g_log_Wireless.AppendText("%s Post message failed", __func__);
+        g_log_Wireless.AppendText("%s Post message failed", "StopDetect");
         return false;
     }
 
@@ -268,7 +268,7 @@ void CAdapterDetectThread::OnStartDetect(
     nic_state_detect_timerid = SetTimer(nullptr, 0x72, 1000, nullptr);
     g_log_Wireless.AppendText(
         "%s timer nics IP=%u; timer nic state=%u",
-        __func__,
+        "OnStartDetect",
         proxy_detect_timerid,
         nic_state_detect_timerid
     );

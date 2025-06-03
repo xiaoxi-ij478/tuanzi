@@ -184,7 +184,7 @@ int main(int argc, char **argv)
     }
 
     if (argc > optind) { // extra options
-        fprintf(stderr, cinstance.LoadString(2030).c_str());
+        std::cerr << cinstance.LoadString(2030);
 
         while (argc > optind)
             std::cerr << argv[optind++];

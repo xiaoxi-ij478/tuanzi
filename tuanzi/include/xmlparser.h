@@ -1,8 +1,6 @@
 #ifndef XMLPARSER_H_INCLUDED
 #define XMLPARSER_H_INCLUDED
 
-#include "tinyxml.h"
-
 class XML_PARSER : public TiXmlDocument
 {
     public:

@@ -302,7 +302,7 @@ void CLnxThread::OnTimerLeave(int tflag) const
 {
     for (TIMERPARAM *timer : timers) {
         if (timer->tflag != tflag)
-            return;
+            continue;
 
         pthread_mutex_unlock(&timer->pthread_mutex);
     }
@@ -313,50 +313,65 @@ bool CLnxThread::ExitInstance()
     return no_need_send_msg ? 0 : cur_msg.buflen;
 }
 
-void CLnxThread::KillTimer(timer_t &timerid)
+bool CLnxThread::KillTimer(timer_t &timerid)
 {
+    bool ret = false;
     g_logFile_start.AppendText(
         "CLnxThread(%s)::KillTimer() %u ,pid =%u\n",
         classname, timerid, pthread_self()
     );
 
     if (!timerid)
-        return;
+        return false;
 
     pthread_mutex_lock(&pthread_mutex);
 
-    if (timers.empty())
-        return;
+    if (timers.empty()) {
+        pthread_mutex_unlock(&pthread_mutex);
+        return true;
+    }
 
     for (TIMERPARAM *timer : timers) {
         if (timer->ti != timerid)
-            return;
+            continue;
 
         g_logFile_start.AppendText(
             "[%s] KillTimer(%d) ti = %d,tflag =%d",
             classname, timer->tflag, timerid, timer->tflag
         );
 
-        if (my_timer_delete(timerid) == -1) {
-            g_logFile_start.AppendText(
-                "Error-CLnxThread::KillTimer %s,errno=%d,EINVAL=%d",
-                strerror(errno), errno, EINVAL
-            );
-            Sleep(100);
-
-            if (my_timer_delete(timerid) == -1 && errno == EINVAL) {
-                timer->ti = 0;
-                timerid = 0;
-            }
-
-        } else {
+        if (my_timer_delete(timerid) != -1) {
+            g_logFile_start.AppendText("CLnxThread(%s)::KillTimer() OK", classname);
             timer->ti = 0;
             timerid = 0;
-            g_logFile_start.AppendText("CLnxThread(%s)::KillTimer() OK", classname);
+            return true;
         }
+
+        g_logFile_start.AppendText(
+            "Error-CLnxThread::KillTimer %s,errno=%d,EINVAL=%d",
+            strerror(errno), errno, EINVAL
+        );
+        Sleep(100);
+
+        if (my_timer_delete(timerid) != -1) {
+            g_logFile_start.AppendText("CLnxThread(%s)::KillTimer() OK", classname);
+            timer->ti = 0;
+            timerid = 0;
+            return true;
+        }
+
+        if (errno != EINVAL) {
+            pthread_mutex_unlock(&pthread_mutex);
+            return false;
+        }
+
+        timer->ti = 0;
+        timerid = 0;
+        return true;
     }
 
     pthread_mutex_unlock(&pthread_mutex);
+    return false;
 }
 
 void CLnxThread::KillAllTimer()
@@ -471,7 +486,7 @@ void *CLnxThread::_LnxThreadEntry(void *arg)
         calling_thread->LnxEndThread();
         g_logSystem.AppendText(
             "CLnxThread::_LnxThreadEntry Create Thread Error!"
-            );
+        );
         return nullptr;
     }
 
@@ -492,7 +507,7 @@ void *CLnxThread::_LnxThreadEntry(void *arg)
         calling_thread->LnxEndThread();
         g_logSystem.AppendText(
             "CLnxThread::_LnxThreadEntry Create Thread Error!"
-            );
+        );
         return nullptr;
     }
 
@@ -518,12 +533,14 @@ void CLnxThread::_OnTimerEntry(union sigval arg)
     TIMERPARAM *timer = static_cast<TIMERPARAM *>(arg.sival_ptr);
     CLnxThread *calling_thread = timer->calling_thread;
 
-    if (!calling_thread)
-        return g_logFile_start.AppendText(
-                   "[%s] _OnTimerEntry_,timerParam1=%p,return",
-                   "_OnTimerEntry",
-                   timer
-                   );
+    if (!calling_thread) {
+        g_logFile_start.AppendText(
+            "[%s] _OnTimerEntry_,timerParam1=%p,return",
+            "_OnTimerEntry",
+            timer
+        );
+        return;
+    }
 
     g_logFile_start.AppendText(
         "[%s] OnTimer(%d)",
