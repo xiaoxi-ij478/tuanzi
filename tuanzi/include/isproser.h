@@ -18,12 +18,12 @@ class CIsProSer
         CIsProSer();
         ~CIsProSer();
 
-        int Detect(const unsigned char *pkg, unsigned int pkglen);
+        int Detect(const unsigned char *pkg, unsigned pkglen);
         bool GetFakeMacInfo(in_addr_t *ipaddr, struct ether_addr *macaddr) const;
         bool Start(
             const char *adapter_name_l,
             const struct ether_addr *hostmac_l,
-            unsigned int kind_l
+            unsigned kind_l
         );
         bool Stop();
 
@@ -43,14 +43,14 @@ class CIsProSer
         void OnTimer(int a2, int a3) ;
         void UpdateLocalIPTable();
 
-        unsigned int kind;
+        unsigned kind;
         bool host_addr_set;
         char adapter_name[256];
         struct ether_addr hostmac;
-        unsigned int check_status;
+        unsigned check_status;
         struct ether_addr detected_fakemac;
         in_addr_t detected_fakeipaddr;
-        unsigned int updated_times;
+        unsigned updated_times;
         unsigned long last_updated_time;
         std::vector<struct tagLocalIP> local_ips;
         struct TCPIP tcpip_info;

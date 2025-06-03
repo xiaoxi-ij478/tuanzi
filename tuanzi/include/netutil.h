@@ -58,13 +58,13 @@ extern int sockets_open();
 extern enum ADAPTER_TYPE get_nic_type(const char *ifname);
 extern unsigned short ComputeTcpPseudoHeaderChecksum(
     const struct iphdr *ipheader,
-    const struct TCPHeader *tcpheader,
+    struct TCPHeader *tcpheader,
     const unsigned char *databuf,
     int length
 );
 extern unsigned short ComputeUdpPseudoHeaderChecksumV4(
     const struct iphdr *ipheader,
-    const struct udphdr *udpheader,
+    struct udphdr *udpheader,
     const unsigned char *databuf,
     int length
 );
@@ -94,19 +94,19 @@ extern int get_nic_list(std::vector<std::string> list);
 extern bool get_nic_speed(char *dst, const char *ifname);
 extern bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only);
 extern unsigned InitIpv4Header(
-    char *header_c,
-    char *srcaddr,
-    char *dstaddr,
+    unsigned char *header_c,
+    const char *srcaddr,
+    const char *dstaddr,
     unsigned datalen
 );
 extern unsigned InitUdpHeader(
-    char *header_c,
+    unsigned char *header_c,
     int srcport,
     int dstport,
     int datalen
 );
 void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname);
-long long htonLONGLONG(long long val);
+unsigned long long htonLONGLONG(unsigned long long val);
 extern bool Is8021xGroupAddr(struct ether_addr *macaddr);
 extern bool IsEqualIP(in_addr_t *ipaddr1, in_addr_t *ipaddr2);
 extern bool IsEqualMac(

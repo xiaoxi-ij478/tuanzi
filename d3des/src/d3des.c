@@ -60,7 +60,8 @@ static unsigned char pc2[48] = {
 	43, 48, 38, 55, 33, 52,	45, 41, 49, 35, 28, 31 };
 
 void deskey(key, edf)	/* Thanks to James Gillogly & Phil Karn! */
-unsigned char *key;
+// changed by xiaoxi-ij478
+const unsigned char *key;
 short edf;
 {
 	int i, j, l, m, n;

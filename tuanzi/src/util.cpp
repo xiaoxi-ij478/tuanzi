@@ -3,6 +3,7 @@
 #include "changelanguage.h"
 #include "timeutil.h"
 #include "global.h"
+#include "directtransfer.h"
 #include "util.h"
 
 void setAppEnvironment()
@@ -777,4 +778,18 @@ std::string makeUpper(const std::string &str)
         ret.push_back(toupper(i));
 
     return ret;
+}
+
+void CopyDirTranPara(
+    struct tagDirTranPara *dst,
+    const struct tagDirTranPara *src
+)
+{
+    memcpy(dst, src, sizeof(struct tagDirTranPara));
+    memset(dst->data, 0, sizeof(dst->data));
+
+    if (dst->mtu > MAX_MTU)
+        dst->mtu = MAX_MTU;
+
+    memcpy(dst->data, src->data, dst->mtu);
 }

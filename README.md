@@ -5,7 +5,7 @@
 
 ## 使用的外部库
 
-以下是原版客户端使用的库:
+以下是原版客户端使用的库 (后面的链接是我找到的尽量贴近原版的):
 
 - 修改过的 iniparser (<https://gitlab.com/iniparser/iniparser>)
 - tinyxml (不是 tinyxml2!) (<https://sourceforge.net/projects/tinyxml>)

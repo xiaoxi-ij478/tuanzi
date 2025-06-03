@@ -40,7 +40,7 @@ enum ADAPTER_TYPE get_nic_type(const char *ifname)
 
 unsigned short ComputeTcpPseudoHeaderChecksum(
     const struct iphdr *ipheader,
-    const struct tcphdr *tcpheader,
+    struct tcphdr *tcpheader,
     const unsigned char *databuf,
     int length
 )
@@ -54,7 +54,7 @@ unsigned short ComputeTcpPseudoHeaderChecksum(
     header.real_header = *tcpheader;
 #undef SET_PSEUDO_HEADER_INFO
     memcpy(header.data, databuf, length);
-    return checksum(
+    return tcpheader->check = checksum(
                reinterpret_cast<unsigned short *>(&header),
                length + sizeof(header.real_header) + sizeof(header.pseudo_header)
            );
@@ -62,7 +62,7 @@ unsigned short ComputeTcpPseudoHeaderChecksum(
 
 unsigned short ComputeUdpPseudoHeaderChecksumV4(
     const struct iphdr *ipheader,
-    const struct udphdr *udpheader,
+    struct udphdr *udpheader,
     const unsigned char *databuf,
     int length
 )
@@ -76,7 +76,7 @@ unsigned short ComputeUdpPseudoHeaderChecksumV4(
     header.real_header = *udpheader;
 #undef SET_PSEUDO_HEADER_INFO
     memcpy(header.data, databuf, length);
-    return checksum(
+    return udpheader->check = checksum(
                reinterpret_cast<unsigned short *>(&header),
                length + sizeof(header.real_header) + sizeof(header.pseudo_header)
            );
@@ -757,9 +757,9 @@ bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only)
 }
 
 unsigned InitIpv4Header(
-    char *header_c,
-    char *srcaddr,
-    char *dstaddr,
+    unsigned char *header_c,
+    const char *srcaddr,
+    const char *dstaddr,
     unsigned datalen
 )
 {
@@ -785,7 +785,7 @@ unsigned InitIpv4Header(
 }
 
 unsigned InitUdpHeader(
-    char *header_c,
+    unsigned char *header_c,
     int srcport,
     int dstport,
     int datalen
@@ -881,7 +881,7 @@ bool isNoChangeIP(in_addr_t *ipaddr1, in_addr_t *ipaddr2)
     return *ipaddr1 == *ipaddr2;
 }
 
-long long htonLONGLONG(long long val)
+unsigned long long htonLONGLONG(unsigned long long val)
 {
     swap128(reinterpret_cast<unsigned char *>(&val));
     return val;

@@ -5,8 +5,6 @@
 #include "dnsquery.h"
 #include "stdpkgs.h"
 
-#define MAX_
-
 enum REQUEST_TYPE {
     REQUEST_UNKNOWN_N1 = -1,
     REQUEST_UNKNOWN_0,

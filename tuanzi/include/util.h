@@ -98,6 +98,10 @@ extern void decode(unsigned char *buf, int buflen);
 extern void encode(unsigned char *buf, int buflen);
 extern std::string makeLower(const std::string &str);
 extern std::string makeUpper(const std::string &str);
+extern void CopyDirTranPara(
+    struct tagDirTranPara *dst,
+    const struct tagDirTranPara *src
+);
 
 static inline void swap128(unsigned char *val)
 {

@@ -10,7 +10,6 @@ CClientCenterPeerManager *CClientCenterPeerManager::instance = nullptr;
 CClientCenterPeerManager::CClientCenterPeerManager() :
     process_connect_timerid(),
     process_connect_timer_interval(1),
-    control_center_info(),
     thread_key(),
     upgrade_type()
 {
@@ -109,7 +108,7 @@ bool CClientCenterPeerManager::StopConnect()
     }
 }
 
-unsigned int CClientCenterPeerManager::getUpgradeType()
+unsigned CClientCenterPeerManager::getUpgradeType() const
 {
     return upgrade_type;
 }
@@ -272,9 +271,9 @@ void CClientCenterPeerManager::ProcessConnect()
     std::ostringstream url_oss;
     std::ostringstream query_param_oss;
     std::string url;
-    unsigned int timer_interval_l = 0;
-    unsigned int http_length = 0;
-    unsigned int http_read = 0;
+    unsigned timer_interval_l = 0;
+    unsigned http_length = 0;
+    unsigned http_read = 0;
     unsigned char *buf = nullptr;
     CHttpConnection http_client;
     url_oss << "http://" << control_center_info.domain
@@ -378,7 +377,7 @@ std::string CClientCenterPeerManager::EnCodeStr(const std::string &str)
 
         else
             oss << '%'
-                << std::setw(2) << static_cast<unsigned int>(i)
+                << std::setw(2) << static_cast<unsigned>(i)
                 << std::setw(1);
 
     return oss.str();

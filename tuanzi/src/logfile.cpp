@@ -34,7 +34,7 @@ void CLogFile::HexPrinter(const unsigned char *arr, unsigned len)
 {
     char *s = new char[len * 2];
 
-    for (unsigned int i = 0; i < len; i++)
+    for (unsigned i = 0; i < len; i++)
         sprintf(s + i * 2, "%02x", arr[i]);
 
     WriteString(s);

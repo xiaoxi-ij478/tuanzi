@@ -444,4 +444,4 @@ CLogFile g_logContextControl;
 CLogFile g_logFile_dns;
 
 CCheckRunThread chkRunThread;
-//CContextControlThread CtrlThread;
+//CContextControlThread *CtrlThread = nullptr;

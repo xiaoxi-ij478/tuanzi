@@ -8,25 +8,13 @@
 #define NOTIFY_UPGRADE_MTYPE 0xDD
 
 struct _START_CENTERCONTROL_START_ {
-    _START_CENTERCONTROL_START_() :
-        ipv4(),
-        ipv6(),
-        product(),
-        major_ver(),
-        minor_ver(),
-        domain(),
-        port(),
-        mac(),
-        field_38()
-    {}
-
     in_addr_t ipv4;
-    uint32_t ipv6[4];
-    unsigned int product;
-    unsigned int major_ver;
-    unsigned int minor_ver;
+    unsigned ipv6[4];
+    unsigned product;
+    unsigned major_ver;
+    unsigned minor_ver;
     std::string domain;
-    unsigned int port;
+    unsigned port;
     char mac[12];
     bool field_38; // field_218 @ CClientCenterPeerManager
 };
@@ -35,7 +23,7 @@ struct _START_CENTERCONTROL_START_ {
 class CClientCenterPeerManager : public CLnxThread
 {
     public:
-        unsigned int getUpgradeType();
+        unsigned getUpgradeType() const;
 
         static bool Start(key_t thread_key_l);
         static bool StartConnect(struct _START_CENTERCONTROL_START_ * info);
@@ -67,10 +55,10 @@ class CClientCenterPeerManager : public CLnxThread
         static CClientCenterPeerManager *instance;  // m_instance
 
         timer_t process_connect_timerid;
-        unsigned int process_connect_timer_interval;
+        unsigned process_connect_timer_interval;
         struct _START_CENTERCONTROL_START_ control_center_info;
         key_t thread_key;
-        unsigned int upgrade_type;
+        unsigned upgrade_type;
 };
 
 #endif // CLIENTCENTERPEERMANAGER_H

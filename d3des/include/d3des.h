@@ -40,7 +40,8 @@ typedef union {
 	unsigned char dbyte[16];
 	} M68K2;
 
-extern void deskey(unsigned char *, short);
+// changed by xiaoxi-ij478
+extern void deskey(const unsigned char *, short);
 /*		      hexkey[8]     MODE
  * Sets the internal key register according to the hexadecimal
  * key contained in the 8 bytes of hexkey, according to the DES,

@@ -32,7 +32,7 @@ CIsProSer::~CIsProSer()
         DelFromRHList(clienttcp_begin);
 }
 
-int CIsProSer::Detect(const unsigned char *pkg, unsigned int pkglen)
+int CIsProSer::Detect(const unsigned char *pkg, unsigned pkglen)
 {
     const struct ether_header *etherheader =
             reinterpret_cast<const struct ether_header *>(pkg);
@@ -133,7 +133,7 @@ bool CIsProSer::GetFakeMacInfo(
 bool CIsProSer::Start(
     const char *adapter_name_l,
     const struct ether_addr *hostmac_l,
-    unsigned int kind_l
+    unsigned kind_l
 )
 {
     if (!adapter_name_l || !hostmac_l)
