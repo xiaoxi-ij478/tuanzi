@@ -120,9 +120,9 @@ struct SupfMsgData {
     int len;
 };
 
-const char *getSupfMsgText(enum SupfMsg msg);
-const char *getSupfStateText(enum SupfState state);
-void supf_event_callback_fun(
+extern const char *getSupfMsgText(enum SupfMsg msg);
+extern const char *getSupfStateText(enum SupfState state);
+extern void supf_event_callback_fun(
     enum SUPF_EVENT_TYPE event_type,
     const struct SupfMsgData *msg_data
 );

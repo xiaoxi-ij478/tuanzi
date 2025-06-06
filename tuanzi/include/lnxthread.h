@@ -47,10 +47,10 @@ class CLnxThread
         void SetClassName(const char *name);
         timer_t SetTimer(int tflag, int off_msec);
         timer_t SetTimer(
-            void *,
+            void *a1,
             int tflag,
             int off_msec,
-            void (*)(union sigval)
+            void (*a4)(union sigval)
         );
         void SafeExitThread(unsigned off_msec);
 

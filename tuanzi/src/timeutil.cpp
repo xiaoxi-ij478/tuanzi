@@ -44,7 +44,7 @@ bool CreateCurrentUTC(
 )
 {
     assert(result);
-    *result = plus_sec + (GetTickCount() - off_sec);
+    *result = plus_sec + (GetTickCount() - off_sec) / 1000;
     return true;
 }
 

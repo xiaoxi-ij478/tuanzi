@@ -105,8 +105,8 @@ extern unsigned InitUdpHeader(
     int dstport,
     int datalen
 );
-void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname);
-unsigned long long htonLONGLONG(unsigned long long val);
+extern void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname);
+extern unsigned long long htonLONGLONG(unsigned long long val);
 extern bool Is8021xGroupAddr(struct ether_addr *macaddr);
 extern bool IsEqualIP(in_addr_t *ipaddr1, in_addr_t *ipaddr2);
 extern bool IsEqualMac(

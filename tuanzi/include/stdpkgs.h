@@ -199,10 +199,16 @@ struct [[gnu::packed]] icmppkg {
     char data[20];
 };
 
-struct [[gnu::packed]] etherpkg {
+struct [[gnu::packed]] ethertcppkg {
     struct ether_header etherheader;
     struct iphdr ipheader;
     struct tcphdr tcpheader;
+};
+
+struct [[gnu::packed]] etherudppkg {
+    struct ether_header etherheader;
+    struct iphdr ipheader;
+    struct udphdr udpheader;
 };
 
 #endif // STDPKGS_H_INCLUDED

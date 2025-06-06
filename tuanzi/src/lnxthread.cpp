@@ -192,10 +192,10 @@ timer_t CLnxThread::SetTimer(int tflag, int off_msec)
 }
 
 timer_t CLnxThread::SetTimer(
-    void *,
+    [[maybe_unused]] void *a1,
     int tflag,
     int off_msec,
-    void (*)(union sigval)
+    [[maybe_unused]] void (*a4)(union sigval)
 )
 {
     return SetTimer(tflag, off_msec);

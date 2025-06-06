@@ -31,8 +31,6 @@ class XML_PARSER : public TiXmlDocument
         bool Set_Attribute(const char *name, const char *value) const;
         bool Set_Text(const char *str) const;
 
-    protected:
-
     private:
         TiXmlNode *currentElement;
 };
