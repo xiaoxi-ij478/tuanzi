@@ -1,3 +1,4 @@
+#include "all.h"
 #include "contextcontrolthread.h"
 
 CContextControlThread::CContextControlThread()

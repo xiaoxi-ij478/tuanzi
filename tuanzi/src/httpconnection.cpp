@@ -1,3 +1,4 @@
+#include "all.h"
 #include "httpconnection.h"
 
 CHttpConnection::CHttpConnection() :

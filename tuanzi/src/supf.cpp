@@ -1,3 +1,4 @@
+#include "all.h"
 #include "supf.h"
 
 const char *getSupfMsgText(enum SupfMsg msg)

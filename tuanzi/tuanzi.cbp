@@ -15,7 +15,6 @@
 				<Compiler>
 					<Add option="-ggdb3" />
 					<Add directory="include" />
-					<Add directory="./" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -26,7 +25,6 @@
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="include" />
-					<Add directory="./" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -39,7 +37,6 @@
 			<Add option="-Wall" />
 			<Add option="-fPIC" />
 			<Add option="-Winvalid-pch" />
-			<Add option="-include all.h" />
 			<Add option="-funsigned-char" />
 			<Add option="-pthread" />
 			<Add option="-DPROTOTYPES" />
@@ -53,7 +50,8 @@
 			<Add directory="../ampheck/include" />
 			<Add directory="../rc4/include" />
 			<Add directory="../md5/include" />
-			<Add directory="../pcap" />
+			<Add directory="../pcap/out/include" />
+			<Add directory="../openssl/out/include" />
 			<Add directory="include" />
 		</Compiler>
 		<Linker>
@@ -76,7 +74,8 @@
 			<Add directory="../ampheck/bin/$(target_name)" />
 			<Add directory="../rc4/bin/$(target_name)" />
 			<Add directory="../md5/bin/$(target_name)" />
-			<Add directory="../libpcap/bin/$(target_name)" />
+			<Add directory="../openssl/out/lib" />
+			<Add directory="../pcap/out/lib" />
 		</Linker>
 		<Unit filename="include/adapterdetectthread.h" />
 		<Unit filename="include/all.h">
@@ -94,6 +93,7 @@
 		<Unit filename="include/criticalsection.h" />
 		<Unit filename="include/customizeinfo.h" />
 		<Unit filename="include/directtransfer.h" />
+		<Unit filename="include/dirtranstags.h" />
 		<Unit filename="include/diskutil.h" />
 		<Unit filename="include/dnsquery.h" />
 		<Unit filename="include/downloadthread.h" />
@@ -131,6 +131,7 @@
 		<Unit filename="include/tcp.h" />
 		<Unit filename="include/threadutil.h" />
 		<Unit filename="include/timeutil.h" />
+		<Unit filename="include/udplistenthread.h" />
 		<Unit filename="include/util.h" />
 		<Unit filename="include/vz_apiapp.h" />
 		<Unit filename="include/waithandle.h" />
@@ -185,6 +186,7 @@
 		<Unit filename="src/tcp.cpp" />
 		<Unit filename="src/threadutil.cpp" />
 		<Unit filename="src/timeutil.cpp" />
+		<Unit filename="src/udplistenthread.cpp" />
 		<Unit filename="src/util.cpp" />
 		<Unit filename="src/vz_apiapp.cpp" />
 		<Unit filename="src/waithandle.cpp" />

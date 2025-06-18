@@ -1,3 +1,4 @@
+#include "all.h"
 #include "cmdutil.h"
 #include "util.h"
 #include "diskutil.h"

@@ -1,3 +1,4 @@
+#include "all.h"
 #include "timeutil.h"
 #include "proxyclienttcp.h"
 #include "proxysertcp.h"
@@ -10,7 +11,7 @@ ProxySerTcp::ProxySerTcp(const struct TcpInfo &info) :
     creation_time(GetTickCount())
 {}
 
-bool ProxySerTcp::IsExpired([[maybe_unused]] unsigned a2) const
+bool ProxySerTcp::IsExpired(unsigned) const
 {
     return false;
 }

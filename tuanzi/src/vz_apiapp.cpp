@@ -1,3 +1,4 @@
+#include "all.h"
 #include "global.h"
 #include "cmdutil.h"
 #include "md5forvz.h"
@@ -75,7 +76,7 @@ void CVz_APIApp::V3HeartbeatAPI(
     struct ampheck_ripemd128 ripemd128_context = {};
     struct tiger_ctx tiger_context = {};
 
-    switch (hash_type) {
+    switch (hash_type % HASH_MAX) {
         case HASH_MD5_MD5:
             temp_upper_data_md5 = CMD5ForVz::GetMD5(upper_data, upper_data_len);
             temp_lower_data_md5 = CMD5ForVz::GetMD5(lower_data, lower_data_len);
@@ -233,7 +234,7 @@ void CVz_APIApp::V3HeartbeatAPI(
 void CVz_APIApp::Vz_API(
     char *result,
     const char *md5_challenge,
-    [[maybe_unused]] const char *a4
+    const char *a4
 ) const
 {
     char random_staff[256] = {};
@@ -304,7 +305,7 @@ void CVz_APIApp::PrepareData(
     char *result,
     enum HASH_TYPE hash_type,
     const char *md5_challenge,
-    [[maybe_unused]] const char *a5
+    const char *
 ) const
 {
     unsigned appdata_len = 0;

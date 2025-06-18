@@ -8,7 +8,7 @@ extern void Sleep(int msec);
 // result's orig name: pCurUTC
 extern bool CreateCurrentUTC(
     long long plus_sec,
-    long long off_sec,
+    long long off_msec,
     long long *result
 );
 extern void GetCurDataAndTime(char *dst);

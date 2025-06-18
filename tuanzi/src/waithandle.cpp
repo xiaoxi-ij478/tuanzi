@@ -1,7 +1,8 @@
+#include "all.h"
 #include "global.h"
 #include "waithandle.h"
 
-WAIT_HANDLE::WAIT_HANDLE() : finished(), pthread_cond(), pthread_mutex()
+WAIT_HANDLE::WAIT_HANDLE() : signal(), pthread_cond(), pthread_mutex()
 {
     pthread_mutexattr_t mutexattr;
     int val;
@@ -17,13 +18,13 @@ WAIT_HANDLE::WAIT_HANDLE() : finished(), pthread_cond(), pthread_mutex()
             g_logSystem.AppendText("pthread_mutex_init error. retrun = %d", val);
 
         else
-            finished = false;
+            signal = false;
     }
 }
 
 WAIT_HANDLE::~WAIT_HANDLE()
 {
-    finished = false;
+    signal = false;
 }
 
 WAIT_HANDLE2::WAIT_HANDLE2() : no_need_send_msg(), calling_thread()

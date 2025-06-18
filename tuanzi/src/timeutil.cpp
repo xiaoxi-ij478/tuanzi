@@ -1,3 +1,4 @@
+#include "all.h"
 #include "global.h"
 #include "timeutil.h"
 
@@ -39,12 +40,12 @@ void GetAbsTime(struct timespec *tsp, unsigned long off_msec)
 
 bool CreateCurrentUTC(
     long long plus_sec,
-    long long off_sec,
+    long long off_msec,
     long long *result
 )
 {
     assert(result);
-    *result = plus_sec + (GetTickCount() - off_sec) / 1000;
+    *result = plus_sec + (GetTickCount() - off_msec) / 1000;
     return true;
 }
 

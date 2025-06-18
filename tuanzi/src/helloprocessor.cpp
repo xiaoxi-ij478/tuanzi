@@ -1,3 +1,4 @@
+#include "all.h"
 #include "helloprocessor.h"
 
 CHelloProcessor::CHelloProcessor()

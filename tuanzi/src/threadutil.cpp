@@ -1,3 +1,4 @@
+#include "all.h"
 #include "cmdutil.h"
 #include "timeutil.h"
 #include "util.h"
@@ -11,8 +12,8 @@ int WaitForSingleObject(
     int ret = 0;
     struct timespec ts = {};
 
-    if (wait_handle->finished) {
-        wait_handle->finished = false;
+    if (wait_handle->signal) {
+        wait_handle->signal = false;
         return 0;
     }
 
@@ -30,7 +31,7 @@ int WaitForSingleObject(
         GetAbsTime(&ts, off_msec);
 
         while (
-            !wait_handle->finished &&
+            !wait_handle->signal &&
             (ret = pthread_cond_timedwait(
                        &wait_handle->pthread_cond,
                        &wait_handle->pthread_mutex,
@@ -39,13 +40,13 @@ int WaitForSingleObject(
         );
 
     } else
-        while (!wait_handle->finished)
+        while (!wait_handle->signal)
             ret = pthread_cond_wait(
                       &wait_handle->pthread_cond,
                       &wait_handle->pthread_mutex
                   );
 
-    wait_handle->finished = false;
+    wait_handle->signal = false;
 
     if (pthread_mutex_unlock(&wait_handle->pthread_mutex))
         rj_printf_debug("pthread_mutex_unlock error,code =%s\n", strerror(errno));
@@ -208,13 +209,13 @@ void CloseHandle(WAIT_HANDLE *wait_handle)
         if (pthread_cond_broadcast(&wait_handle->pthread_cond))
             rj_printf_debug("pthread_cond_signal error %d\n");
 
-        wait_handle->finished = true;
+        wait_handle->signal = true;
 
     } else {
         if (pthread_cond_broadcast(&wait_handle->pthread_cond))
             rj_printf_debug("pthread_cond_signal error %d\n");
 
-        wait_handle->finished = true;
+        wait_handle->signal = true;
 
         if (pthread_mutex_unlock(&wait_handle->pthread_mutex))
             rj_printf_debug("pthread_mutex_unlock nResult=%d\n");
@@ -238,7 +239,7 @@ void SetEvent(WAIT_HANDLE *wait_handle, bool broadcast)
     if (ret)
         rj_printf_debug("pthread_cond_signal error %d\n");
 
-    wait_handle->finished = true;
+    wait_handle->signal = true;
     pthread_mutex_unlock(&wait_handle->pthread_mutex);
 }
 

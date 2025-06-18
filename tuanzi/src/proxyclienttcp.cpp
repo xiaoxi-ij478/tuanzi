@@ -1,3 +1,4 @@
+#include "all.h"
 #include "timeutil.h"
 #include "global.h"
 #include "dnsquery.h"
@@ -86,7 +87,7 @@ int ProxyClientTcp::TryDetectTCPIP(
     return ret == 1 ? request_type : ret;
 }
 
-bool ProxyClientTcp::IsExpired([[maybe_unused]] unsigned a2) const
+bool ProxyClientTcp::IsExpired(unsigned) const
 {
     return false;
 }

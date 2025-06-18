@@ -1,5 +1,5 @@
-#ifndef CLIENTCENTERPEERMANAGER_H
-#define CLIENTCENTERPEERMANAGER_H
+#ifndef CLIENTCENTERPEERMANAGER_H_INCLUDED
+#define CLIENTCENTERPEERMANAGER_H_INCLUDED
 
 #include "lnxthread.h"
 
@@ -61,4 +61,4 @@ class CClientCenterPeerManager : public CLnxThread
         unsigned upgrade_type;
 };
 
-#endif // CLIENTCENTERPEERMANAGER_H
+#endif // CLIENTCENTERPEERMANAGER_H_INCLUDED

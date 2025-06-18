@@ -1,3 +1,4 @@
+#include "all.h"
 #include "md5forvz.h"
 
 CMD5ForVz::CMD5ForVz() : ctx()

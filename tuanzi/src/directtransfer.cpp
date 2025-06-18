@@ -1,3 +1,4 @@
+#include "all.h"
 #include "util.h"
 #include "netutil.h"
 #include "directtransfer.h"
@@ -57,7 +58,7 @@ bool CDirectTransfer::sendudp(
 )
 {
     unsigned char tmpbuf[2048] = {};
-    unsigned int ipv4_len = 0, udp_len = 0;
+    unsigned ipv4_len = 0, udp_len = 0;
     memcpy(tmpbuf, &dir_tran_para.srcmacaddr, sizeof(struct ether_addr));
     memcpy(
         tmpbuf + sizeof(struct ether_addr),

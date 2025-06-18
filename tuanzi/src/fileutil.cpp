@@ -1,3 +1,4 @@
+#include "all.h"
 #include "fileutil.h"
 
 unsigned long get_file_size(const char *filename)

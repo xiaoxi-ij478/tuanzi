@@ -1,3 +1,4 @@
+#include "all.h"
 #include "global.h"
 #include "criticalsection.h"
 
@@ -75,4 +76,24 @@ unsigned CRITICAL_SECTION::leave()
         g_logSystem.AppendText("pthread_mutex_unlock return %d", ret);
 
     return !ret;
+}
+
+unsigned DeleteCriticalSection(CRITICAL_SECTION *lock)
+{
+    return lock->Delete();
+}
+
+unsigned EnterCriticalSection(CRITICAL_SECTION *lock)
+{
+    return lock->enter();
+}
+
+unsigned InitializeCriticalSection(CRITICAL_SECTION *lock)
+{
+    return lock->init();
+}
+
+unsigned LeaveCriticalSection(CRITICAL_SECTION *lock)
+{
+    return lock->leave();
 }

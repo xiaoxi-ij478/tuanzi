@@ -1,3 +1,4 @@
+#include "all.h"
 #include "changelanguage.h"
 #include "criticalsection.h"
 #include "global.h"

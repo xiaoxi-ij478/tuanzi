@@ -16,6 +16,7 @@ void re_S(unsigned char *S)
     for (i = 0; i < 256; i++)
         S[i] = i;
 }
+
 void re_T(unsigned char *T, const unsigned char *key)
 {
     int i;
@@ -25,6 +26,7 @@ void re_T(unsigned char *T, const unsigned char *key)
     for (i = 0; i < 256; i++)
         T[i] = key[i % keylen];
 }
+
 void re_Sbox(unsigned char *S, unsigned char *T)
 {
     int i;

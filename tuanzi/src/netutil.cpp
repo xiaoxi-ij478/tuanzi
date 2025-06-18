@@ -1,3 +1,4 @@
+#include "all.h"
 #include "global.h"
 #include "psutil.h"
 #include "cmdutil.h"
@@ -50,14 +51,15 @@ unsigned short ComputeTcpPseudoHeaderChecksum(
     SET_PSEUDO_HEADER_INFO(saddr);
     SET_PSEUDO_HEADER_INFO(daddr);
     SET_PSEUDO_HEADER_INFO(protocol);
-    header.pseudo_header.tcp_length = length + sizeof(header.real_header);
+    header.pseudo_header.tcp_length = htons(length + sizeof(header.real_header));
     header.real_header = *tcpheader;
 #undef SET_PSEUDO_HEADER_INFO
     memcpy(header.data, databuf, length);
-    return tcpheader->check = checksum(
-               reinterpret_cast<unsigned short *>(&header),
-               length + sizeof(header.real_header) + sizeof(header.pseudo_header)
-           );
+    return tcpheader->check =
+               checksum(
+                   reinterpret_cast<unsigned short *>(&header),
+                   length + sizeof(header.real_header) + sizeof(header.pseudo_header)
+               );
 }
 
 unsigned short ComputeUdpPseudoHeaderChecksumV4(
@@ -68,21 +70,22 @@ unsigned short ComputeUdpPseudoHeaderChecksumV4(
 )
 {
     struct udp_checksum_hdr header = {};
-#define SET_PSEUDO_HEADER_INFO(name) header.pseudo_header.name = ipheader->name
+#define SET_PSEUDO_HEADER_INFO(name) header.pseudo_header.name = ipheader->nam
     SET_PSEUDO_HEADER_INFO(saddr);
     SET_PSEUDO_HEADER_INFO(daddr);
     SET_PSEUDO_HEADER_INFO(protocol);
-    header.pseudo_header.udp_length = length + sizeof(header.real_header);
+    header.pseudo_header.udp_length = htons(length + sizeof(header.real_header));
     header.real_header = *udpheader;
 #undef SET_PSEUDO_HEADER_INFO
     memcpy(header.data, databuf, length);
-    return udpheader->check = checksum(
-               reinterpret_cast<unsigned short *>(&header),
-               length + sizeof(header.real_header) + sizeof(header.pseudo_header)
-           );
+    return udpheader->check =
+               checksum(
+                   reinterpret_cast<unsigned short *>(&header),
+                   length + sizeof(header.real_header) + sizeof(header.pseudo_header)
+               );
 }
 
-unsigned short checksum(unsigned short *data, unsigned len)
+unsigned short checksum(const unsigned short *data, unsigned len)
 {
     unsigned checksum = 0;
 
@@ -91,16 +94,15 @@ unsigned short checksum(unsigned short *data, unsigned len)
         checksum += *data++;
 
     // add the additional one padding to word if exists
-    // but the original implementation uses partial byte
     if (len & 1)
-        checksum += *reinterpret_cast<unsigned char *>(data) /*<< 8*/;
+        checksum += *reinterpret_cast<const unsigned char *>(data);
 
     // repeatedly take the high 16 bit and add to the low 16 bit
     // until the high 16 bit is 0
     while (checksum >> 16)
         checksum = (checksum & 0xffff) + (checksum >> 16);
 
-    return ~checksum;
+    return htons(~checksum);
 }
 
 struct NICINFO *get_nics_info(const char *ifname)
@@ -511,11 +513,12 @@ bool get_ip_mac(struct in_addr ipaddr, struct ether_addr *macaddr)
     std::string testip(inet_ntoa(ipaddr));
     std::vector<std::string> val;
     // minimal-ping related
-    int fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
+    int fd = 0;
     struct icmppkg package = {}, recv_package = {};
     struct sockaddr_in dest_addr = { AF_INET, 0, ipaddr };
     struct timeval wait_sec = { 3, 0 };
     unsigned dest_addrlen = sizeof(dest_addr);
+    unsigned short orig_checksum = 0;
     fd_set listen_fds;
 
     if (!ifs)
@@ -541,6 +544,7 @@ bool get_ip_mac(struct in_addr ipaddr, struct ether_addr *macaddr)
     ifs.close();
     // minimal ping implementation
     // yes, I copied them from inetutils
+    fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     FD_ZERO(&listen_fds);
     FD_SET(fd, &listen_fds);
     package.hdr.type = ICMP_ECHO;
@@ -550,7 +554,7 @@ bool get_ip_mac(struct in_addr ipaddr, struct ether_addr *macaddr)
     package.hdr.un.echo.id = htons(9527);
     memcpy(
         package.data,
-        "ij478ij478ij478ij478ij478ij478ij478ij478",
+        "tuanzituanzituanzituanzituanzituanzituanzituanzi",
         sizeof(package.data)
     );
     package.hdr.checksum =
@@ -587,7 +591,8 @@ bool get_ip_mac(struct in_addr ipaddr, struct ether_addr *macaddr)
         reinterpret_cast<struct sockaddr *>(&dest_addr),
         &dest_addrlen
     );
-    unsigned short orig_checksum = recv_package.hdr.checksum;
+    close(fd);
+    orig_checksum = recv_package.hdr.checksum;
     recv_package.hdr.checksum = 0;
 
     if (
@@ -604,7 +609,7 @@ bool get_ip_mac(struct in_addr ipaddr, struct ether_addr *macaddr)
         recv_package.hdr.un.echo.id != htons(9527) ||
         memcmp(
             recv_package.data,
-            "ij478ij478ij478ij478ij478ij478ij478ij478",
+            "tuanzituanzituanzituanzituanzituanzituanzituanzi",
             sizeof(recv_package.data)
         )
     )
@@ -768,7 +773,7 @@ unsigned InitIpv4Header(
     header->ihl = 5;
     header->tos = 0;
     header->tot_len =
-        htons(datalen) + sizeof(struct iphdr) + sizeof(struct udphdr);
+        htons(datalen + sizeof(struct iphdr) + sizeof(struct udphdr));
     header->id = 0;
     header->frag_off = 0;
     header->ttl = 0x80;
@@ -786,21 +791,22 @@ unsigned InitIpv4Header(
 
 unsigned InitUdpHeader(
     unsigned char *header_c,
-    int srcport,
-    int dstport,
-    int datalen
+    unsigned srcport,
+    unsigned dstport,
+    unsigned datalen
 )
 {
     struct udphdr *header = reinterpret_cast<udphdr *>(header_c);
-    header->source = srcport;
-    header->dest = dstport;
-    header->len = datalen + sizeof(struct udphdr);
+    header->source = htons(srcport);
+    header->dest = htons(dstport);
+    header->len = htons(datalen + sizeof(struct udphdr));
     header->check = 0;
     return sizeof(struct udphdr);
 }
 
 bool Is8021xGroupAddr(struct ether_addr *macaddr)
 {
+    // see https://en.wikipedia.org/wiki/IEEE_802.1X#Typical_authentication_progression
     // 01:80:C2:00:00:03
     struct ether_addr group_addr = { 0x01, 0x80, 0xC2, 0x00, 0x00, 0x03 };
     return !memcmp(macaddr, &group_addr, sizeof(group_addr));

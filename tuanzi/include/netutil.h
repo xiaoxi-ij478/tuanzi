@@ -68,7 +68,7 @@ extern unsigned short ComputeUdpPseudoHeaderChecksumV4(
     const unsigned char *databuf,
     int length
 );
-extern unsigned short checksum(unsigned short *data, unsigned len);
+extern unsigned short checksum(const unsigned short *data, unsigned len);
 extern struct NICINFO *get_nics_info(const char *ifname);
 extern void free_nics_info(struct NICINFO *info);
 extern bool get_dns(struct in_addr *dst);
@@ -101,9 +101,9 @@ extern unsigned InitIpv4Header(
 );
 extern unsigned InitUdpHeader(
     unsigned char *header_c,
-    int srcport,
-    int dstport,
-    int datalen
+    unsigned srcport,
+    unsigned dstport,
+    unsigned datalen
 );
 extern void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname);
 extern unsigned long long htonLONGLONG(unsigned long long val);

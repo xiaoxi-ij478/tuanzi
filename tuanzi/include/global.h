@@ -22,8 +22,10 @@ extern timer_t g_runModetimer;
 extern bool g_bDoRunIbus;
 extern pthread_rwlock_t g_fileLock;
 extern unsigned char e_pMd5Chanllenge[16];
+extern unsigned e_pHelloID[16];
 extern const unsigned char g_pAppData[1820];
 extern const unsigned char g_pDllData[2035];
+extern const unsigned char cHeartBeatArray[6784];
 
 #ifdef USE_EXTERNAL_LIBRT
 extern int (*my_timer_create)(
@@ -71,6 +73,6 @@ extern CLogFile g_logContextControl;
 extern CLogFile g_logFile_dns;
 
 extern CCheckRunThread chkRunThread;
-extern CContextControlThread *CtrlThread;
+//extern CContextControlThread *CtrlThread;
 
 #endif // GLOBAL_H_INCLUDED

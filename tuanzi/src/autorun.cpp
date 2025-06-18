@@ -1,3 +1,4 @@
+#include "all.h"
 #include "util.h"
 #include "cmdutil.h"
 #include "autorun.h"

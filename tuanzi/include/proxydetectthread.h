@@ -1,5 +1,5 @@
-#ifndef PROXYDETECTTHREAD_H
-#define PROXYDETECTTHREAD_H
+#ifndef PROXYDETECTTHREAD_H_INCLUDED
+#define PROXYDETECTTHREAD_H_INCLUDED
 
 #include "lnxthread.h"
 #include "isproser.h"
@@ -38,4 +38,4 @@ class CProxyDetectThread : public CLnxThread
         timer_t timerid;
 };
 
-#endif // PROXYDETECTTHREAD_H
+#endif // PROXYDETECTTHREAD_H_INCLUDED

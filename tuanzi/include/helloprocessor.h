@@ -7,9 +7,8 @@ class CHelloProcessor
         CHelloProcessor();
         virtual ~CHelloProcessor();
 
-    protected:
-
     private:
+
 };
 
 #endif // HELLOPROCESSOR_H_INCLUDED

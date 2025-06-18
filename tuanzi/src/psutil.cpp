@@ -1,3 +1,4 @@
+#include "all.h"
 #include "changelanguage.h"
 #include "psutil.h"
 

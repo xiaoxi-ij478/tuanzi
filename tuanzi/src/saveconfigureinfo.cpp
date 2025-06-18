@@ -1,3 +1,4 @@
+#include "all.h"
 #include "saveconfigureinfo.h"
 
 SaveConfigureInfo::SaveConfigureInfo()

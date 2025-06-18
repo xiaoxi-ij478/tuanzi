@@ -1,14 +1,15 @@
 bin/
 obj/
 build/
+out/
 *.layout
 *.depend
 *.cscope_file_list
 *.gch
 *.output
-*.o*
+*.o
 *.so*
-*.a*
+*.a
 *.save
 *~
 compile_commands.json

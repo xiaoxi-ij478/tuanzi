@@ -1,3 +1,4 @@
+#include "all.h"
 #include "cmdutil.h"
 #include "global.h"
 #include "timeutil.h"
@@ -79,8 +80,8 @@ bool CSendPacketThread::DispathMessage(struct LNXMSG *msg)
     }
 
     // the original implementation didn't provide a return value
-    // so we always return false
-    return false;
+    // so we always return true
+    return true;
 }
 
 int CSendPacketThread::DoSendPacket(const unsigned char *buf, int buflen)

@@ -128,28 +128,12 @@ struct [[gnu::packed]] Socks5ConnResp {
      GET_SOCKS5_REQUEST_ADDR_DOMAIN(content).addr_len + \
      sizeof(uint16_t))
 
-enum PlayIncarnation : uint32_t {
-    MMS_DISABLE_PACKET_PAIR = 0xf0f0f0ef,
-    MMS_USE_PACKET_PAIR = 0xf0f0f0f0
-};
-
 // see https://web.archive.org/web/20090219134914/http://download.microsoft.com/download/9/5/E/95EF66AF-9026-4BB0-A41D-A4F81802D92C/%5BMS-MMSP%5D.pdf
 // from https://en.wikipedia.org/wiki/Microsoft_Media_Server
 // LinkViewerToMacConnect
 // and
 // https://web.archive.org/web/20081204082646/http://download.microsoft.com/download/9/5/E/95EF66AF-9026-4BB0-A41D-A4F81802D92C/%5BMS-GLOS%5D.pdf
 // for why the Unicode is UTF-16LE
-
-union MMSMessage {
-    struct [[gnu::packed]] {
-        uint32_t chunkLen;
-        uint32_t MID;
-        enum PlayIncarnation playIncarnation;
-        uint32_t MacToViewerProtocolRevision;
-        uint32_t ViewerToMacProtocolRevision;
-        wchar_t subscriberName[];
-    } LinkViewerToMacConnect;
-};
 
 struct [[gnu::packed]] MMSTcpMessage {
     uint8_t rep;
@@ -163,7 +147,19 @@ struct [[gnu::packed]] MMSTcpMessage {
     uint16_t seq;
     uint16_t MBZ;
     uint64_t timeSent;
-    union MMSMessage message;
+    union {
+        struct [[gnu::packed]] {
+            uint32_t chunkLen;
+            uint32_t MID;
+            enum PlayIncarnation : uint32_t {
+                MMS_DISABLE_PACKET_PAIR = 0xf0f0f0ef,
+                MMS_USE_PACKET_PAIR = 0xf0f0f0f0
+            };
+            uint32_t MacToViewerProtocolRevision;
+            uint32_t ViewerToMacProtocolRevision;
+            wchar_t subscriberName[];
+        } LinkViewerToMacConnect;
+    } message;
 };
 
 struct [[gnu::packed]] tcp_pseudo_hdr {

@@ -1,3 +1,4 @@
+#include "all.h"
 #include "xmlparser.h"
 
 XML_PARSER::XML_PARSER() : TiXmlDocument(), currentElement()

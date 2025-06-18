@@ -1,3 +1,4 @@
+#include "all.h"
 #include "md5checksum.h"
 
 CMD5Checksum::CMD5Checksum() : ctx()

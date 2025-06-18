@@ -34,8 +34,8 @@ class CSuConfigFile
         bool Open(const char *filename);
         bool UpdateConfig();
 
-        static void EnablePrivilege(const char *a1, bool a2);
-        static void GetSysUPTime(unsigned &a1, unsigned &a2);
+        static void EnablePrivilege(const char *, bool);
+        static void GetSysUPTime(unsigned &, unsigned &);
         static void LogToFile(const char *str);
         static void DeleteFile(const std::string &filename);
         static void DeleteTempConfig();

@@ -1,3 +1,4 @@
+#include "all.h"
 #include "encryption.h"
 
 [[maybe_unused]] const char *CEncryption::key = "abcdf12348";

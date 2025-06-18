@@ -1,3 +1,4 @@
+#include "all.h"
 #include "compressor.h"
 
 //static const unsigned char *in_pos  = nullptr;       /* orig name: pInPos     */

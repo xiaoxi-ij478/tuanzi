@@ -1,3 +1,4 @@
+#include "all.h"
 #include "sudes.h"
 
 CSuDES::CSuDES() : ivbuf(), keybuf()
@@ -26,17 +27,17 @@ int CSuDES::Decrypts(unsigned char *buf, unsigned buflen) const
         return 1;
 
     deskey(keybuf, DE1);
-    memcpy(tmp1, ivbuf, sizeof(char) * 8);
+    memcpy(tmp1, ivbuf, sizeof(tmp1));
 
     while (buflen--) {
-        memcpy(tmp3, buf, sizeof(char) * 8);
+        memcpy(tmp3, buf, sizeof(tmp3));
         des(tmp3, tmp2);
 
         for (int i = 0; i < 8; i++)
             tmp2[i] ^= tmp1[i];
 
-        memcpy(tmp1, buf, sizeof(char) * 8);
-        memcpy(buf, tmp2, sizeof(char) * 8);
+        memcpy(tmp1, buf, sizeof(tmp1));
+        memcpy(buf, tmp2, sizeof(tmp2));
         buf += 8;
     }
 
@@ -60,16 +61,16 @@ int CSuDES::Encrypts(unsigned char *buf, unsigned buflen) const
         return 1;
 
     deskey(keybuf, EN0);
-    memcpy(tmp1, ivbuf, sizeof(char) * 8);
+    memcpy(tmp1, ivbuf, sizeof(tmp1));
 
     while (buflen--) {
-        memcpy(tmp2, buf, sizeof(char) * 8);
+        memcpy(tmp2, buf, sizeof(tmp2));
 
         for (int i = 0; i < 8; i++)
             tmp2[i] ^= tmp1[i];
 
         des(tmp2, tmp1);
-        memcpy(buf, tmp1, sizeof(char) * 8);
+        memcpy(buf, tmp1, sizeof(tmp1));
         buf += 8;
     }
 

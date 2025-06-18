@@ -1,3 +1,4 @@
+#include "all.h"
 #include "proxydetectthread.h"
 
 CProxyDetectThread::CProxyDetectThread() :

@@ -11,7 +11,7 @@ class WAIT_HANDLE
         WAIT_HANDLE();
         ~WAIT_HANDLE();
 
-        bool finished;
+        bool signal;
         pthread_cond_t pthread_cond;
         pthread_mutex_t pthread_mutex;
 };

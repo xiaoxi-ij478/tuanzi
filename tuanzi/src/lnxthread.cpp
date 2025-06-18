@@ -1,3 +1,4 @@
+#include "all.h"
 #include "global.h"
 #include "timeutil.h"
 #include "threadutil.h"
@@ -192,10 +193,10 @@ timer_t CLnxThread::SetTimer(int tflag, int off_msec)
 }
 
 timer_t CLnxThread::SetTimer(
-    [[maybe_unused]] void *a1,
+    void *,
     int tflag,
     int off_msec,
-    [[maybe_unused]] void (*a4)(union sigval)
+    void (*)(union sigval)
 )
 {
     return SetTimer(tflag, off_msec);

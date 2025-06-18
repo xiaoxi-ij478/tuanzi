@@ -1,3 +1,4 @@
+#include "all.h"
 #include "global.h"
 #include "stdpkgs.h"
 #include "proxyclienttcp.h"
@@ -444,7 +445,7 @@ bool CIsProSer::IsIPInLocalIPTable(in_addr_t ipaddr)
     return false;
 }
 
-void CIsProSer::OnTimer([[maybe_unused]] int a2, [[maybe_unused]] int a3)
+void CIsProSer::OnTimer(int, int)
 {
     unsigned long cur_tick = GetTickCount();
 
@@ -486,14 +487,12 @@ void CIsProSer::UpdateLocalIPTable()
     struct ifaddrs *ifap = nullptr;
     bool updated = false;
 
-    for (unsigned i = 0; i < local_ips.size();) {
+    for (auto it = local_ips.begin(); it != local_ips.end(); it++)
+    {
         if (cur_tick - local_ips[i].creation_time >= 120000)
-            local_ips.erase(local_ips.begin() + i);
+            it = local_ips.erase(it) - 1;
 
-        else
-            i++;
     }
-
     if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) <= 0)
         return;
 

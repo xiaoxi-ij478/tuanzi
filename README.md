@@ -1,7 +1,7 @@
-# rjsupplicant 研究计划
+# 团子 (TuanZi) 锐捷验证客户端
 
-这是一个复刻原版锐捷验证客户端的代码, 除了修复一些小 bug.
-基本都是靠反编译得来的
+这是一个试图复刻原版锐捷验证客户端的代码。
+基本都是靠反编译得来的，外加上我自己的一些调整
 
 ## 使用的外部库
 
@@ -18,3 +18,9 @@
 - openssl (<https://github.com/openssl/openssl/releases/download/OpenSSL_0_9_8b/openssl-0.9.8b.tar.gz>)
 - wpa_supplicant (<https://w1.fi/releases/wpa_supplicant-0.7.3.tar.gz>)
 - libpcap (<https://web.archive.org/web/20080403212941/http://www.tcpdump.org/release/libpcap-0.9.5.tar.gz>)
+
+## 什么是团子？
+
+团子是《熊出没》里一个角色的名字。
+
+![vlcsnap-2025-06-04-00h22m36s526.png](vlcsnap-2025-06-04-00h22m36s526.png)

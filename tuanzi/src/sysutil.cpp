@@ -1,3 +1,4 @@
+#include "all.h"
 #include "util.h"
 #include "sysutil.h"
 

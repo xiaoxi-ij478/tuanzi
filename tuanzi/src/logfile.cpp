@@ -1,3 +1,4 @@
+#include "all.h"
 #include "global.h"
 #include "logfile.h"
 

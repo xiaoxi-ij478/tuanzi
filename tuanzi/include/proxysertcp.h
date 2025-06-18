@@ -19,7 +19,7 @@ class ProxySerTcp : public CTcp
             ProxyClientTcp *client,
             unsigned flag
         );
-        bool IsExpired(unsigned a2) const;
+        bool IsExpired(unsigned) const;
 
     private:
         ProxyClientTcp *bound_proxy_client_tcp;

@@ -63,7 +63,7 @@ extern unsigned HexCharToAscii(
     unsigned buflen
 );
 extern std::string HexToString(const unsigned char *buf, int buflen);
-extern int ASCIIStrtoChar(std::string str, unsigned char *buf);
+extern int ASCIIStrtoChar(const std::string &str, unsigned char *buf);
 extern std::string AsciiToStr(
     const unsigned char *buf,
     const unsigned &len
@@ -75,7 +75,7 @@ extern bool Is64BIT();
 //extern void KillRunModeCheckTimer();
 //extern void *OnRunModeCheckTimer(union sigval arg);
 //extern void SetRunModeCheckTimer();
-extern unsigned MD5StrtoUChar(std::string str, unsigned char *buf);
+extern unsigned MD5StrtoUChar(const std::string &str, unsigned char *buf);
 extern int do_quit();
 extern int MemCmpare(
     const void *buf1,
@@ -101,6 +101,11 @@ extern std::string makeUpper(const std::string &str);
 extern void CopyDirTranPara(
     struct tagDirTranPara *dst,
     const struct tagDirTranPara *src
+);
+extern int StringToHex(
+    const std::string &str,
+    unsigned char *retbuf,
+    int retbuflen
 );
 
 static inline void swap128(unsigned char *val)

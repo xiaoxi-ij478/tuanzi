@@ -1,3 +1,4 @@
+#include "all.h"
 #include "compressor.h"
 #include "cmdutil.h"
 #include "changelanguage.h"
@@ -411,18 +412,22 @@ void ParseString(
 
 void TrimLeft(std::string &str, std::string chars)
 {
-    if (str.find_first_not_of(chars) == std::string::npos)
+    std::string::size_type p = 0;
+
+    if ((p = str.find_first_not_of(chars)) == std::string::npos)
         str.clear();
 
-    str.erase(0, str.find_first_not_of(chars) - 1);
+    str.erase(0, p - 1);
 }
 
 void TrimRight(std::string &str, std::string chars)
 {
-    if (str.find_last_not_of(chars) == std::string::npos)
+    std::string::size_type p = 0;
+
+    if ((p = str.find_last_not_of(chars)) == std::string::npos)
         str.clear();
 
-    str.erase(str.find_last_not_of(chars) + 1);
+    str.erase(p + 1);
 }
 
 void HIPacketUpdate(unsigned char *, int)
@@ -492,7 +497,7 @@ std::string HexToString(const unsigned char *buf, int buflen)
 }
 
 // should be used to decode mac address
-int ASCIIStrtoChar(std::string str, unsigned char *buf)
+int ASCIIStrtoChar(const std::string &str, unsigned char *buf)
 {
     if (!str.length())
         return 0;
@@ -538,7 +543,7 @@ std::string AsciiToStr(const unsigned char *buf, const unsigned &len)
     return std::string(reinterpret_cast<const char *>(buf), len);
 }
 
-unsigned MD5StrtoUChar(std::string str, unsigned char *buf)
+unsigned MD5StrtoUChar(const std::string &str, unsigned char *buf)
 {
     if (!str.length())
         return 0;
@@ -792,4 +797,52 @@ void CopyDirTranPara(
         dst->mtu = MAX_MTU;
 
     memcpy(dst->data, src->data, dst->mtu);
+}
+
+int StringToHex(
+    const std::string &str,
+    unsigned char *retbuf,
+    int retbuflen
+)
+{
+    if (str.length() & 1)
+        return -3;
+
+    if (retbuflen < str.length() / 2)
+        return -1;
+
+    if (!str.length())
+        return 0;
+
+    for (auto it = str.cbegin(); it != str.cend(); it++, retbuf++) {
+        if (*it >= '0' && *it <= '9')
+            *retbuf = *it - '0';
+
+        else if (*it >= 'A' && *it <= 'F')
+            *retbuf = *it - 'A' + 10;
+
+        else if (*it >= 'a' && *it <= 'f')
+            *retbuf = *it - 'a' + 10;
+
+        else
+            return -2;
+
+        it++;
+        *retbuf <<= 4;
+
+        if (*it >= '0' && *it <= '9')
+            *retbuf |= *it - '0';
+
+        else if (*it >= 'A' && *it <= 'F')
+            *retbuf |= *it - 'A' + 10;
+
+        else if (*it >= 'a' && *it <= 'f')
+            *retbuf |= *it - 'a' + 10;
+
+        else
+            return -2;
+    }
+
+    *retbuf = 0;
+    return str.length() / 2;
 }

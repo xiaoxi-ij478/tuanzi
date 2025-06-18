@@ -1,5 +1,5 @@
-#ifndef DIRECTTRANSFER_H
-#define DIRECTTRANSFER_H
+#ifndef DIRECTTRANSFER_H_INCLUDED
+#define DIRECTTRANSFER_H_INCLUDED
 
 #define MAX_MTU 1400
 
@@ -44,4 +44,4 @@ class CDirectTransfer
         unsigned last_sent_packet_len;
 };
 
-#endif // DIRECTTRANSFER_H
+#endif // DIRECTTRANSFER_H_INCLUDED

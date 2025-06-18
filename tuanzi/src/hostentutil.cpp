@@ -1,3 +1,4 @@
+#include "all.h"
 #include "hostentutil.h"
 
 void copy_hostent(struct hostent *src, struct hostent *dst)

@@ -1,3 +1,4 @@
+#include "all.h"
 #include "cmdutil.h"
 #include "threadutil.h"
 #include "lnxthread.h"

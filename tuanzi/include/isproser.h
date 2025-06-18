@@ -40,7 +40,7 @@ class CIsProSer
             const struct iphdr *iphdr
         );
         bool IsIPInLocalIPTable(in_addr_t ipaddr);
-        void OnTimer(int a2, int a3) ;
+        void OnTimer(int, int);
         void UpdateLocalIPTable();
 
         unsigned kind;

@@ -8,7 +8,8 @@ enum HASH_TYPE {
     HASH_SHA1_SHA1,
     HASH_RIPEMD128_SHA1,
     HASH_TIGER_RIPEMD128,
-    HASH_TIGER_SHA1
+    HASH_TIGER_SHA1,
+    HASH_MAX
 };
 
 class CVz_APIApp
@@ -33,7 +34,7 @@ class CVz_APIApp
             char *result,
             enum HASH_TYPE hash_type,
             const char *md5_challenge,
-            const char *a5
+            const char *
         ) const;
 };
 

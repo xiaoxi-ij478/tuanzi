@@ -1,3 +1,4 @@
+#include "all.h"
 #include "netutil.h"
 #include "dnsquery.h"
 #include "global.h"

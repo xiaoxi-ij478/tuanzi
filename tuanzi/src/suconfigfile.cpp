@@ -1,3 +1,4 @@
+#include "all.h"
 #include "global.h"
 #include "util.h"
 #include "compressor.h"
@@ -79,10 +80,7 @@ void CSuConfigFile::DeleteTempConfig()
     DeleteFile(path);
 }
 
-void CSuConfigFile::EnablePrivilege(
-    [[maybe_unused]] const char *a1,
-    [[maybe_unused]] bool a2
-)
+void CSuConfigFile::EnablePrivilege(const char *, bool)
 {}
 
 unsigned CSuConfigFile::GetPrivateProfileInt(
@@ -134,10 +132,7 @@ void CSuConfigFile::GetPrivateProfileString(
     ProfileStringToString(dst);
 }
 
-void CSuConfigFile::GetSysUPTime(
-    [[maybe_unused]] unsigned &a1,
-    [[maybe_unused]] unsigned &a2
-)
+void CSuConfigFile::GetSysUPTime(unsigned &,unsigned &)
 {}
 
 void CSuConfigFile::LogToFile([[maybe_unused]] const char *str)

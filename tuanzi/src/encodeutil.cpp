@@ -1,3 +1,4 @@
+#include "all.h"
 #include "encodeutil.h"
 
 int code_convert(

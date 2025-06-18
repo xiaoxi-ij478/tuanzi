@@ -1,3 +1,4 @@
+#include "all.h"
 #include "global.h"
 #include "timeutil.h"
 #include "changelanguage.h"
@@ -187,7 +188,7 @@ void check_safe_exit(bool create_file)
     }
 
     if (!access(lockfile.c_str(), F_OK)) {
-        rj_printf_debug("%s strFile=%s exist\n", lockfile.c_str());
+        rj_printf_debug("%s strFile=%s exist\n", "check_safe_exit", lockfile.c_str());
         return;
     }
 
@@ -253,11 +254,7 @@ int set_termios(bool set_echo_icanon)
     return 0;
 }
 
-void shownotify(
-    const std::string &content,
-    const std::string &header,
-    [[maybe_unused]] int a3
-)
+void shownotify(const std::string &content, const std::string &header, int)
 {
     char cur_date[64] = {};
 
