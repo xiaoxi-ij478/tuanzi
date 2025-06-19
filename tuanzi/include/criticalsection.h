@@ -10,24 +10,24 @@ class CRITICAL_SECTION
         CRITICAL_SECTION();
         ~CRITICAL_SECTION();
 
-        friend unsigned DeleteCriticalSection(CRITICAL_SECTION *lock);
-        friend unsigned EnterCriticalSection(CRITICAL_SECTION *lock);
-        friend unsigned InitializeCriticalSection(CRITICAL_SECTION *lock);
-        friend unsigned LeaveCriticalSection(CRITICAL_SECTION *lock);
+        friend bool DeleteCriticalSection(CRITICAL_SECTION *lock);
+        friend bool EnterCriticalSection(CRITICAL_SECTION *lock);
+        friend bool InitializeCriticalSection(CRITICAL_SECTION *lock);
+        friend bool LeaveCriticalSection(CRITICAL_SECTION *lock);
 
     private:
         pthread_mutex_t pthread_mutex;
         bool inited;
         pthread_mutexattr_t pthread_mutexattr;
-        unsigned enter();
-        unsigned Delete();
-        unsigned init();
-        unsigned leave();
+        bool enter();
+        bool Delete();
+        bool init();
+        bool leave();
 };
 
-unsigned DeleteCriticalSection(CRITICAL_SECTION *lock);
-unsigned EnterCriticalSection(CRITICAL_SECTION *lock);
-unsigned InitializeCriticalSection(CRITICAL_SECTION *lock);
-unsigned LeaveCriticalSection(CRITICAL_SECTION *lock);
+bool DeleteCriticalSection(CRITICAL_SECTION *lock);
+bool EnterCriticalSection(CRITICAL_SECTION *lock);
+bool InitializeCriticalSection(CRITICAL_SECTION *lock);
+bool LeaveCriticalSection(CRITICAL_SECTION *lock);
 
 #endif // CRITICALSECTION_H_INCLUDED

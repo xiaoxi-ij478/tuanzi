@@ -66,7 +66,7 @@ class CUDPListenThread : public CLnxThread
         bool HandlePrivateData(
             const unsigned char * /* struct DirTransFullPkg * */ buf,
             unsigned buflen
-        ) const;
+        );
         void InitTimeStampV2(
             in_addr_t addr,
             unsigned short port,
@@ -80,19 +80,19 @@ class CUDPListenThread : public CLnxThread
         bool IsSuExpected(const unsigned char *buf, unsigned buflen) const;
         bool IsUDPChecksumRight(const unsigned char *buf, unsigned buflen) const;
         bool IsUDPPacket(const unsigned char *buf, unsigned buflen) const;
-        void OnRecvPacketReturn(unsigned long buflen, const void *buf) const;
-        void OnTimer(unsigned long buflen, void *buf) const;
-        bool ResponseSender(const unsigned char *buf, unsigned buflen) const;
-        bool RevcDirectPack(const unsigned char *buf, unsigned buflen) const;
-        bool SendResponse(
+        void OnRecvPacketReturn(unsigned long buflen, const void *buf);
+        void OnTimer(unsigned long buflen, void *buf);
+        bool ResponseSender(const unsigned char *buf, unsigned buflen);
+        bool RevcDirectPack(const unsigned char *buf, unsigned buflen);
+        void SendResponse(
             const struct tagDirectCom_ProtocalParam &proto_param,
-            struct tagDirPackethead &packet_head,
+            struct tagDirPacketHead &packet_head,
             in_addr_t dstaddr,
             unsigned dstport,
             in_addr_t srcaddr,
             unsigned srcport,
-            const char *packet
-        ) const;
+            const unsigned char *packet
+        );
         void SetDirParaXieYi(const tagDirectCom_ProtocalParam &proto_param) const;
         void SetIfListenRes(bool val) const;
         void SetLastTimeStampForReceive(
@@ -108,7 +108,7 @@ class CUDPListenThread : public CLnxThread
             unsigned short port,
             unsigned outoforder_num
         ) const;
-        void SetProtocalParam_TimeStamp(
+        bool SetProtocalParam_TimeStamp(
             in_addr_t addr,
             unsigned short port,
             unsigned long long utc_time,
@@ -117,7 +117,7 @@ class CUDPListenThread : public CLnxThread
         void SetResSender(const struct tagDirResPara &res_sender) const;
         void SetSamIPAddress(in_addr_t sam_ipaddr_l) const;
         void SetSuIPAddress(in_addr_t su_ipaddr_l) const;
-        void SetWorkingFalg(bool working_falg_l) const;
+        void SetWorkingFalg(bool working) const;
         void freeMemory() const;
 
         static unsigned short CheckSumForRecv(
@@ -133,7 +133,7 @@ class CUDPListenThread : public CLnxThread
         WAIT_HANDLE *event_udp_ready;
         std::vector<struct tagTimeStampV2> timestamps;
         CRITICAL_SECTION timestamp_mutex;
-        struct tagDirResPara dir_head;
+        struct tagDirResPara dir_para;
         bool working_falg;
         bool listen_res;
         std::vector<struct tagDirectCom_ProtocalParam> proto_params;

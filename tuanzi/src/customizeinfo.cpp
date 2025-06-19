@@ -1,5 +1,4 @@
 #include "all.h"
-#include "xmlparser.h"
 #include "encodeutil.h"
 #include "customizeinfo.h"
 

@@ -21,20 +21,47 @@ struct tagDirectCom_ProtocalParam {
 };
 
 struct tagRecvSessionBind {
-    unsigned field_0;
-    unsigned field_4;
-    unsigned field_8;
-    unsigned field_C;
-    unsigned field_10;
-    unsigned field_14;
+    tagRecvSessionBind() = default;
+    tagRecvSessionBind(
+        unsigned session_id,
+        in_addr_t srcaddr,
+        unsigned srcport,
+        in_addr_t dstaddr,
+        unsigned dstport,
+        unsigned on_receive_packet_post_mtype,
+        unsigned char *data,
+        unsigned received,
+        unsigned cur_sliceid,
+        unsigned long creation_time,
+        bool data_decrypted
+    ) :
+        session_id(session_id),
+        srcaddr(srcaddr),
+        srcport(srcport),
+        dstaddr(dstaddr),
+        dstport(dstport),
+        on_receive_packet_post_mtype(on_receive_packet_post_mtype),
+        data(data),
+        received(received),
+        cur_sliceid(cur_sliceid),
+        creation_time(creation_time),
+        data_decrypted(data_decrypted)
+    {}
+    unsigned session_id;
+    in_addr_t srcaddr;
+    unsigned srcport;
+    in_addr_t dstaddr;
+    unsigned dstport;
+    unsigned on_receive_packet_post_mtype;
     unsigned char *data;
     unsigned received;
     unsigned cur_sliceid;
     unsigned long creation_time;
-    bool field_30;
+    bool data_decrypted;
 };
 
 struct tagRecvBind {
+    tagRecvBind() = default;
     tagRecvBind(
         unsigned id,
         in_addr_t srcaddr,

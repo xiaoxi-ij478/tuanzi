@@ -251,7 +251,7 @@ bool XML_PARSER::Is_Having_Attribute(const char *name) const
     if (!(el = currentElement->ToElement()))
         return false;
 
-    return !!el->Attribute(name);
+    return el->Attribute(name);
 }
 
 bool XML_PARSER::Load_XML_Document(const char *filename)

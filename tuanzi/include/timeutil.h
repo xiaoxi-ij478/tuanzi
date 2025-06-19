@@ -5,11 +5,10 @@ extern void GetAbsTime(struct timespec *ts, unsigned long off_msec);
 extern unsigned long GetTickCount();
 // why would they even want to create such a function...
 extern void Sleep(int msec);
-// result's orig name: pCurUTC
 extern bool CreateCurrentUTC(
-    long long plus_sec,
-    long long off_msec,
-    long long *result
+    unsigned long plus_sec,
+    unsigned long off_msec,
+    unsigned long *result // pCurUTC
 );
 extern void GetCurDataAndTime(char *dst);
 extern void GetCurTime(char *dst);

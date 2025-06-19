@@ -1,5 +1,4 @@
 #include "all.h"
-#include "global.h"
 #include "psutil.h"
 #include "cmdutil.h"
 #include "timeutil.h"
@@ -752,7 +751,7 @@ bool get_nic_speed(char *dst, const char *ifname)
     if (speed)
         sprintf(dst, "%d.0", speed);
 
-    return !!speed;
+    return speed;
 }
 
 bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only)

@@ -1,7 +1,6 @@
 #include "all.h"
 #include "cmdutil.h"
 #include "threadutil.h"
-#include "lnxthread.h"
 #include "fileutil.h"
 #include "global.h"
 #include "downloadthread.h"

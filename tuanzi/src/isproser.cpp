@@ -1,8 +1,5 @@
 #include "all.h"
 #include "global.h"
-#include "stdpkgs.h"
-#include "proxyclienttcp.h"
-#include "proxysertcp.h"
 #include "timeutil.h"
 #include "util.h"
 #include "isproser.h"

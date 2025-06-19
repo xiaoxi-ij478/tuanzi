@@ -2,7 +2,6 @@
 #include "cmdutil.h"
 #include "netutil.h"
 #include "threadutil.h"
-#include "global.h"
 #include "adapterdetectthread.h"
 
 #define POST_TO_CONTROL_THREAD(mtype) \

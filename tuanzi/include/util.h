@@ -4,6 +4,7 @@
 #include "waithandle.h"
 #include "changelanguage.h"
 #include "global.h"
+#include "dirtranstags.h"
 
 extern void setAppEnvironment();
 extern int TakeAppPath(std::string &dst);
@@ -106,6 +107,12 @@ extern int StringToHex(
     const std::string &str,
     unsigned char *retbuf,
     int retbuflen
+);
+extern void CreateSessionIfNecessary(
+    struct tagRecvBind &gsn_pkgs,
+    in_addr_t srcaddr,
+    unsigned session_id,
+    struct tagRecvSessionBind &recv_session
 );
 
 static inline void swap128(unsigned char *val)

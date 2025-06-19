@@ -1,9 +1,7 @@
 #include "all.h"
 #include "compressor.h"
 #include "cmdutil.h"
-#include "changelanguage.h"
 #include "timeutil.h"
-#include "global.h"
 #include "directtransfer.h"
 #include "util.h"
 
@@ -382,7 +380,7 @@ void GetMD5File(const char *filename, char *result)
     ifs.close();
     MD5Final(digest, &ctx);
 
-    for (unsigned i = 0; i < 16; i++) {
+    for (unsigned i = 0; i < sizeof(digest); i++) {
         *result++ = (digest[i] >> 4) + '0';
         *result++ = (digest[i] & 0xf) + '0';
     }
@@ -845,4 +843,35 @@ int StringToHex(
 
     *retbuf = 0;
     return str.length() / 2;
+}
+
+void CreateSessionIfNecessary(
+    struct tagRecvBind &gsn_pkg,
+    in_addr_t srcaddr,
+    unsigned session_id,
+    struct tagRecvSessionBind &recv_session
+)
+{
+    for (struct tagRecvSessionBind &session : gsn_pkg.recv_session_bounds) {
+        if (session.srcaddr != srcaddr || session.session_id != session_id)
+            continue;
+
+        recv_session = session;
+        return;
+    }
+
+    gsn_pkg.recv_session_bounds.emplace_back(
+        session_id,
+        srcaddr,
+        0,
+        0,
+        0,
+        gsn_pkg.on_receive_packet_post_mtype,
+        nullptr,
+        0,
+        0,
+        GetTickCount(),
+        false
+    );
+    recv_session = gsn_pkg.recv_session_bounds.back();
 }
