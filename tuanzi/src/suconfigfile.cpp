@@ -132,7 +132,7 @@ void CSuConfigFile::GetPrivateProfileString(
     ProfileStringToString(dst);
 }
 
-void CSuConfigFile::GetSysUPTime(unsigned &,unsigned &)
+void CSuConfigFile::GetSysUPTime(unsigned &, unsigned &)
 {}
 
 void CSuConfigFile::LogToFile([[maybe_unused]] const char *str)

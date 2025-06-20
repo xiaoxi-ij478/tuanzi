@@ -9,9 +9,7 @@
 #include "util.h"
 #include "udplistenthread.h"
 
-CUDPListenThread::CUDPListenThread(
-    struct UdpListenParam *listen_param
-) :
+CUDPListenThread::CUDPListenThread(struct UdpListenParam *listen_param) :
     mainthread(listen_param->mainthread),
     listen_port(),
     sam_ipaddr(),
@@ -34,7 +32,7 @@ CUDPListenThread::CUDPListenThread(
     assert(listen_param);
     strcpy(ndisname, listen_param->ndisname);
     dir_para.sender_bind.id = -1;
-    dir_para.sender_bind.on_receive_packet_post_mtype = 1;
+    dir_para.sender_bind.on_receive_packet_post_mtype = -1;
     InitializeCriticalSection(&timestamp_mutex);
     InitializeCriticalSection(&recv_mutex);
     InitializeCriticalSection(&get_proto_param_mutex);
@@ -1037,10 +1035,7 @@ void CUDPListenThread::SendResponse(
         md5_checksum,
         sizeof(md5_checksum)
     );
-    dir_trans.Send(
-        reinterpret_cast<unsigned char *>(&final_packet_head),
-        sizeof(final_packet_head)
-    );
+    dir_trans.Send(&final_packet_head, sizeof(final_packet_head));
 }
 
 void CUDPListenThread::SetDirParaXieYi(

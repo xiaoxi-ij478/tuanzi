@@ -484,12 +484,11 @@ void CIsProSer::UpdateLocalIPTable()
     struct ifaddrs *ifap = nullptr;
     bool updated = false;
 
-    for (auto it = local_ips.begin(); it != local_ips.end(); it++)
-    {
+    for (auto it = local_ips.begin(); it != local_ips.end(); it++) {
         if (cur_tick - local_ips[i].creation_time >= 120000)
             it = local_ips.erase(it) - 1;
-
     }
+
     if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) <= 0)
         return;
 

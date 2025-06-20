@@ -1,7 +1,7 @@
 #ifndef WAITHANDLE_H_INCLUDED
 #define WAITHANDLE_H_INCLUDED
 
-// we must not #include lnxthread.h since CLnxThread include WAIT_HANDLE
+// we must not include lnxthread.h since CLnxThread include WAIT_HANDLE
 // as its member, so we must be included AFTER lnxthread.h
 class CLnxThread;
 

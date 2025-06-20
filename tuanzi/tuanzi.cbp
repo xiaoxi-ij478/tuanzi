@@ -117,6 +117,7 @@
 		<Unit filename="include/proxydetectthread.h" />
 		<Unit filename="include/proxysertcp.h" />
 		<Unit filename="include/psutil.h" />
+		<Unit filename="include/rxpacketthread.h" />
 		<Unit filename="include/saveconfigureinfo.h" />
 		<Unit filename="include/sendpacketthread.h" />
 		<Unit filename="include/signals.h" />
@@ -173,6 +174,7 @@
 		<Unit filename="src/proxydetectthread.cpp" />
 		<Unit filename="src/proxysertcp.cpp" />
 		<Unit filename="src/psutil.cpp" />
+		<Unit filename="src/rxpacketthread.cpp" />
 		<Unit filename="src/saveconfigureinfo.cpp" />
 		<Unit filename="src/sendpacketthread.cpp" />
 		<Unit filename="src/signals.cpp" />

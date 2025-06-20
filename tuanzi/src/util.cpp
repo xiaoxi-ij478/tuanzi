@@ -3,6 +3,7 @@
 #include "cmdutil.h"
 #include "timeutil.h"
 #include "directtransfer.h"
+#include "dirtranstags.h"
 #include "util.h"
 
 void setAppEnvironment()
@@ -74,7 +75,6 @@ void InitLogFiles()
     INIT_LOG_OBJ(g_logContextControl, "log/Debug_ContextControl.log");
 #undef INIT_LOG_OBJ
 }
-
 
 void replace_all_distinct(
     std::string &str,
@@ -875,3 +875,37 @@ void CreateSessionIfNecessary(
     );
     recv_session = gsn_pkg.recv_session_bounds.back();
 }
+
+void WriteRegUserInfo(
+    unsigned unl2t1,
+    unsigned dcd2x,
+    const std::string &ed2e1,
+    const std::string &gr2a1
+)
+{
+    std::string apppath;
+    dictionary *ini = nullptr;
+    FILE *fp = nullptr;
+    TakeAppPath(apppath);
+    apppath.append("fileReg.ini");
+
+    if (!(ini = iniparser_load(apppath.c_str()))) {
+        g_logSystem.AppendText(
+            "ini create[path=%s]failed",
+            apppath.c_str()
+        );
+        return;
+    }
+
+    iniparser_set(ini, "pu32list:unl2t1", std::to_string(unl2t1).c_str());
+    iniparser_set(ini, "pu32list:dcd2x", std::to_string(dcd2x).c_str());
+    iniparser_set(ini, "pu32list:ed2e1", ed2e1.c_str());
+    iniparser_set(ini, "pu32list:gr2a1", gr2a1.c_str());
+
+    if (!(fp = fopen(apppath.c_str(), "w")))
+        return;
+
+    iniparser_dump_ini(ini, fp);
+    fclose(fp);
+}
+

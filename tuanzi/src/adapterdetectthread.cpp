@@ -61,11 +61,13 @@ bool CAdapterDetectThread::StartDetect(
         thread_key_l, msgid, nic_name_l, ipaddr.s_addr
     );
 
-    if (!PostThreadMessage(
-                START_DETECT_MTYPE,
-                reinterpret_cast<unsigned long>(info),
-                nullptr
-            )) {
+    if (
+        !PostThreadMessage(
+            START_DETECT_MTYPE,
+            reinterpret_cast<unsigned long>(info),
+            nullptr
+        )
+    ) {
         delete info;
         return false;
     }

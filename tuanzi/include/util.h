@@ -114,6 +114,15 @@ extern void CreateSessionIfNecessary(
     unsigned session_id,
     struct tagRecvSessionBind &recv_session
 );
+extern void WriteRegUserInfo(
+    unsigned unl2t1,
+    unsigned dcd2x,
+    const std::string &ed2e1,
+    const std::string &gr2a1
+);
+extern void InitSmpInitPacket(
+    struct tagsmpi
+)
 
 static inline void swap128(unsigned char *val)
 {
@@ -130,20 +139,19 @@ static inline void swap128(unsigned char *val)
 #undef SWAP
 }
 
-#define free_list(head) \
-    for (auto *h = head, *n = h->next; h; h = n, n = h ? nullptr : h->next) \
-        delete h
-
-#define free_list_with_func(head, func) \
-    for (auto *h = head, *n = h->next; h; h = n, n = h ? nullptr : h->next) \
-        func(h)
-
-#define free_list_with_custom_next(head, next) \
-    for (auto *h = head, *n = h->next; h; h = n, n = h ? nullptr : h->next) \
-        delete h
+#define __free_list_delete_obj(o) delete o
 
 #define free_list_with_func_custom_next(head, func, next) \
     for (auto *h = head, *n = h->next; h; h = n, n = h ? nullptr : h->next) \
         func(h)
+
+#define free_list_with_custom_next(head, next) \
+    free_list_with_func_custom_next(head, __free_list_delete_obj, next)
+
+#define free_list_with_func(head, func) \
+    free_list_with_func_custom_next(head, func, next)
+
+#define free_list(head) \
+    free_list_with_func_custom_next(head, __free_list_delete_obj, next)
 
 #endif // UTIL_H_INCLUDED

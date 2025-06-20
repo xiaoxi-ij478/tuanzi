@@ -21,7 +21,7 @@ bool CDirectTransfer::InitPara(const struct tagDirTranPara *para)
     return true;
 }
 
-bool CDirectTransfer::Send(const unsigned char *buf, unsigned buflen)
+bool CDirectTransfer::Send(const void *buf, unsigned buflen)
 {
     return sendudp(
                dir_tran_para.srcaddr,
@@ -53,7 +53,7 @@ bool CDirectTransfer::sendudp(
     const char *dstaddr,
     unsigned short srcport,
     unsigned short dstport,
-    const unsigned char *buf,
+    const void *buf,
     unsigned buflen
 )
 {
@@ -81,7 +81,7 @@ bool CDirectTransfer::sendudp(
         reinterpret_cast<struct iphdr *>(tmpbuf + sizeof(struct ether_addr) * 2),
         reinterpret_cast<struct udphdr *>
         (tmpbuf + sizeof(struct ether_addr) * 2 + ipv4_len),
-        buf,
+        static_cast<const unsigned char *>(buf),
         buflen
     );
     memcpy(

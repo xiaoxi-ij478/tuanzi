@@ -22,7 +22,7 @@ class CDirectTransfer
         virtual ~CDirectTransfer();
 
         bool InitPara(const struct tagDirTranPara *para);
-        bool Send(const unsigned char *buf, unsigned buflen);
+        bool Send(const void *buf, unsigned buflen);
         bool SendLast() const;
 
     private:
@@ -31,7 +31,7 @@ class CDirectTransfer
             const char *dstaddr,
             unsigned short srcport,
             unsigned short dstport,
-            const unsigned char *buf,
+            const void *buf,
             unsigned buflen
         );
 

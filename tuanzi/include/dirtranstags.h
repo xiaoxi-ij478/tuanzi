@@ -138,6 +138,7 @@ struct tagDirResPara {
 };
 
 struct tagTimeStampV2 {
+    tagTimeStampV2() = default;
     tagTimeStampV2(
         in_addr_t addr,
         unsigned short port,
@@ -162,6 +163,58 @@ struct tagTimeStampV2 {
     unsigned long last_received_timestamp;
     unsigned out_of_order_num;
     unsigned field_1C;
+};
+
+struct tagSmpInitPacket_BasicConfig {
+    unsigned hi_detect_interval;
+    unsigned hello_interval;
+    std::string hello_response;
+    unsigned hostinfo_report_interval;
+    unsigned timeout;
+    unsigned retry_times;
+    std::string login_url;
+    std::string disable_arpbam;
+    std::string disable_dhcpbam;
+};
+
+struct tagSmpInitPacket_ARP {
+    unsigned enabled;
+    std::string gateway_ip;
+    std::string gateway_mac;
+};
+
+struct tagSmpInitPacket_ARPAttackDetection {
+    bool is_detection;
+    unsigned short dontknowwhat;
+    struct ether_addr gateway_mac;
+    in_addr_t gateway_ip;
+    unsigned report_interval;
+};
+
+struct tagSmpInitPacket_IllegalNetworkDetect {
+    unsigned enabled;
+    std::string syslog_ip;
+    unsigned syslog_port;
+    unsigned detect_interval;
+    unsigned is_block;
+    std::string block_tip;
+};
+
+struct tagSmpInitPacket_SendPacketCheck {
+    unsigned cycle;
+    unsigned threshold;
+    std::string warning_message;
+    std::string offline;
+    std::string offline_message;
+};
+
+struct tagSmpInitPacket {
+    std::string field_0;
+    struct tagSmpInitPacket_BasicConfig basic_config;
+    struct tagSmpInitPacket_ARP arp;
+    struct tagSmpInitPacket_IllegalNetworkDetect illegal_network_detect;
+    std::string hi_xml;
+    std::string security_domain_xml;
 };
 
 #endif // DIRTRANSTAGS_H_INCLUDED

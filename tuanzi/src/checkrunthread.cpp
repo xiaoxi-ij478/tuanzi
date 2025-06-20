@@ -82,7 +82,8 @@ bool CCheckRunThread::StartThread(int *result, void (*callback)(int))
 
     if (callback) {
         // don't know why the original implementation does not assign this
-//        CCheckRunThread::callback = callback;
+        // well we assign this
+        CCheckRunThread::callback = callback;
         sem_and_lock = create_sem_and_lock();
 
         if (!sem_and_lock) {

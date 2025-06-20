@@ -242,10 +242,12 @@ int main(int argc, char **argv)
     signal(SIGCHLD, SIG_IGN);
     g_logChkRun.CreateLogFile_S(g_strAppPath + "log/chkrun.log", 1);
 
-    if (!chkRunThread.StartThread(
-                &start_thread_result,
-                chk_call_back
-            )) {
+    if (
+        !chkRunThread.StartThread(
+            &start_thread_result,
+            chk_call_back
+        )
+    ) {
         if (start_thread_result == 1) {
             g_logChkRun.AppendText("aready run!!!!!!!!!!!!!!!!!!!!!!");
             std::cerr << cinstance.LoadString(199) << std::endl;
