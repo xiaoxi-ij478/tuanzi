@@ -94,6 +94,7 @@
 		<Unit filename="include/customizeinfo.h" />
 		<Unit filename="include/directtransfer.h" />
 		<Unit filename="include/dirtranstags.h" />
+		<Unit filename="include/dirtranthread.h" />
 		<Unit filename="include/diskutil.h" />
 		<Unit filename="include/dnsquery.h" />
 		<Unit filename="include/downloadthread.h" />
@@ -150,6 +151,7 @@
 		<Unit filename="src/criticalsection.cpp" />
 		<Unit filename="src/customizeinfo.cpp" />
 		<Unit filename="src/directtransfer.cpp" />
+		<Unit filename="src/dirtranthread.cpp" />
 		<Unit filename="src/diskutil.cpp" />
 		<Unit filename="src/dnsquery.cpp" />
 		<Unit filename="src/downloadthread.cpp" />

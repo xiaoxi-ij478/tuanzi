@@ -15,9 +15,6 @@
 			<Depends filename="rc4/rc4.cbp" />
 			<Depends filename="md5/md5.cbp" />
 			<Depends filename="ampheck/ampheck.cbp" />
-			<Depends filename="pcap/pcap.cbp" />
-			<Depends filename="wpa_supplicant/wpa_supplicant.cbp" />
-			<Depends filename="openssl/openssl.cbp" />
 		</Project>
 		<Project filename="rc4/rc4.cbp" />
 		<Project filename="md5/md5.cbp" />

@@ -876,12 +876,7 @@ void CreateSessionIfNecessary(
     recv_session = gsn_pkg.recv_session_bounds.back();
 }
 
-void WriteRegUserInfo(
-    unsigned unl2t1,
-    unsigned dcd2x,
-    const std::string &ed2e1,
-    const std::string &gr2a1
-)
+void WriteRegUserInfo(const struct UserInfo &info)
 {
     std::string apppath;
     dictionary *ini = nullptr;
@@ -890,22 +885,40 @@ void WriteRegUserInfo(
     apppath.append("fileReg.ini");
 
     if (!(ini = iniparser_load(apppath.c_str()))) {
-        g_logSystem.AppendText(
-            "ini create[path=%s]failed",
-            apppath.c_str()
-        );
+        g_logSystem.AppendText("ini create[path=%s]failed", apppath.c_str());
         return;
     }
 
-    iniparser_set(ini, "pu32list:unl2t1", std::to_string(unl2t1).c_str());
-    iniparser_set(ini, "pu32list:dcd2x", std::to_string(dcd2x).c_str());
-    iniparser_set(ini, "pu32list:ed2e1", ed2e1.c_str());
-    iniparser_set(ini, "pu32list:gr2a1", gr2a1.c_str());
+    iniparser_set(ini, "pu32list:unl2t1", std::to_string(info.unl2t1).c_str());
+    iniparser_set(ini, "pu32list:dcd2x", std::to_string(info.dcd2x).c_str());
+    iniparser_set(ini, "pu32list:ed2e1", info.ed2e1.c_str());
+    iniparser_set(ini, "pu32list:gr2a1", info.gr2a1.c_str());
 
     if (!(fp = fopen(apppath.c_str(), "w")))
         return;
 
     iniparser_dump_ini(ini, fp);
+    iniparser_freedict(ini);
     fclose(fp);
 }
 
+void ReadRegUserInfo(struct UserInfo &info)
+{
+    std::string apppath;
+    dictionary *ini = nullptr;
+    TakeAppPath(apppath);
+    apppath.append("fileReg.ini");
+
+    // the original implementation include a "ini create[path=%s]failed"
+    // but we have nowhere to put it (we use a different load strategy)
+    if (!(ini = iniparser_load(apppath.c_str()))) {
+        g_logSystem.AppendText("ini load[path=%s]failed", apppath.c_str());
+        return;
+    }
+
+    info.unl2t1 = iniparser_getint(ini, "pu32list:unl2t1", 5);
+    info.dcd2x = iniparser_getint(ini, "pu32list:dcd2x", 5);
+    info.ed2e1.assign(iniparser_getstring(ini, "pu32list:ed2e1", ""));
+    info.gr2a1.assign(iniparser_getstring(ini, "pu32list:gr2a1", ""));
+    iniparser_freedict(ini);
+}

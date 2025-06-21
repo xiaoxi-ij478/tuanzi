@@ -7,7 +7,7 @@ int CCheckRunThread::sem_id = 0;
 pthread_t CCheckRunThread::thread_id;
 void (*CCheckRunThread::callback)(int) = nullptr;
 
-static int is_sem_init_ok(int semid)
+static bool is_sem_init_ok(int semid)
 {
     semid_ds s;
 
@@ -312,8 +312,10 @@ void *CCheckRunThread::thread_function([[maybe_unused]] void *arg)
         g_logChkRun.AppendText("semaphore_p success\n");
         g_logChkRun.AppendText("Tell others I are running still\n");
 
-        if (!semaphore_v(sem_id, 1))
-            continue;
+        if (semaphore_v(sem_id, 1)) {
+            spret = 5;
+            break;
+        }
     }
 
     g_logChkRun.AppendText(

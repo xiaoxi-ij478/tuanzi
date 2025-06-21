@@ -8,9 +8,6 @@ class CIsProSer;
 
 class ProxyClientTcp : public CTcp
 {
-        friend class ProxySerTcp;
-        friend class CIsProSer;
-
     public:
         ProxyClientTcp(const struct TcpInfo &tcpinfo);
 
@@ -20,6 +17,11 @@ class ProxyClientTcp : public CTcp
             unsigned flag
         );
         bool IsExpired(unsigned) const;
+
+        ProxySerTcp *bound_proxy_ser_tcp;
+        ProxyClientTcp *prev;
+        ProxyClientTcp *next;
+        unsigned long creation_time;
 
     private:
         int FindSerTcp(const ProxySerTcp *server);
@@ -34,13 +36,9 @@ class ProxyClientTcp : public CTcp
         int HandleSocks5(const struct TCPIP &pkg, const ProxySerTcp *server);
         int HandleTelnet(const struct TCPIP &pkg, const ProxySerTcp *server);
 
-        ProxySerTcp *bound_proxy_ser_tcp;
         unsigned field_190;
         bool found_ser;
         unsigned find_ser_times; // m_findSerTimes
-        unsigned long creation_time;
-        ProxyClientTcp *prev;
-        ProxyClientTcp *next;
 };
 
 #endif // PROXYCLIENTTCP_H_INCLUDED

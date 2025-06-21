@@ -52,7 +52,7 @@ unsigned CUDPListenThread::GSNReceiver(
     in_addr_t dstaddr,
     unsigned dstport,
     key_t pthread,
-    unsigned on_receive_packet_post_mtype
+    int on_receive_packet_post_mtype
 )
 {
     EnterCriticalSection(&recv_mutex);
@@ -80,6 +80,8 @@ bool CUDPListenThread::DispathMessage(struct LNXMSG *msg)
             OnTimer(msg->buflen, msg->buf);
             break;
     }
+
+    return true;
 }
 
 bool CUDPListenThread::ExitInstance()
@@ -425,7 +427,7 @@ void CUDPListenThread::OnRecvPacketReturn(
     if (working_falg)
         HandlePrivateData(static_cast<const unsigned char *>(buf), buflen);
 
-    delete[] buf;
+    delete[] static_cast<const unsigned char *>(buf);
 }
 
 void CUDPListenThread::OnTimer(unsigned long buflen, void *buf)
@@ -938,27 +940,25 @@ void CUDPListenThread::SendResponse(
      sizeof(struct mtagFinalDirPacket) + sizeof(md5_checksum)
     ] = {};
     assert(packet);
-    (
-        std::ostringstream()
-        << (dstaddr >> 24)
-        << '.'
-        << (dstaddr >> 16 & 0xff)
-        << '.'
-        << (dstaddr >> 8 & 0xff)
-        << '.'
-        << (dstaddr & 0xff)
-    ).str().copy(trans_para.dstaddr, sizeof(trans_para.dstaddr));
+    snprintf(
+        trans_para.dstaddr,
+        sizeof(trans_para.dstaddr),
+        "%d.%d.%d.%d",
+        (dstaddr >> 24),
+        (dstaddr >> 16 & 0xff),
+        (dstaddr >> 8 & 0xff),
+        (dstaddr & 0xff)
+    );
     trans_para.dstport = dstport;
-    (
-        std::ostringstream()
-        << (srcaddr >> 24)
-        << '.'
-        << (srcaddr >> 16 & 0xff)
-        << '.'
-        << (srcaddr >> 8 & 0xff)
-        << '.'
-        << (srcaddr & 0xff)
-    ).str().copy(trans_para.srcaddr, sizeof(trans_para.srcaddr));
+    snprintf(
+        trans_para.srcaddr,
+        sizeof(trans_para.srcaddr),
+        "%d.%d.%d.%d",
+        (srcaddr >> 24),
+        (srcaddr >> 16 & 0xff),
+        (srcaddr >> 8 & 0xff),
+        (srcaddr & 0xff)
+    );
     trans_para.srcport = srcport;
     CtrlThread->GetAdapterMac(&trans_para.srcmacaddr);
     trans_para.dstmacaddr =
@@ -1049,8 +1049,8 @@ void CUDPListenThread::SetDirParaXieYi(
         if (
             // the original implementation checks if proto_param
             // is the same as proto_param_l, but we do not check for that
-            proto_param_l->addr != proto_param->addr ||
-            proto_param_l->port != proto_param->port
+            proto_param_l.addr != proto_param.addr ||
+            proto_param_l.port != proto_param.port
         )
             continue;
 
@@ -1065,8 +1065,8 @@ void CUDPListenThread::SetDirParaXieYi(
     su_ipaddr = proto_param.su_ipaddr;
     LeaveCriticalSection(&get_proto_param_mutex);
 
-    if (proto_param->version != 1)
-        InitTimeStampV2(proto_param->addr, proto_param->port, proto_param->utc_time);
+    if (proto_param.version != 1)
+        InitTimeStampV2(proto_param.addr, proto_param.port, proto_param.utc_time);
 }
 
 void CUDPListenThread::SetIfListenRes(bool val)
@@ -1086,7 +1086,7 @@ void CUDPListenThread::SetLastTimeStampForReceive(
         if (timestamp_l.addr != addr || timestamp_l.port != port)
             continue;
 
-        timestamp_l->last_received_timestamp = timestamp;
+        timestamp_l.last_received_timestamp = timestamp;
         LeaveCriticalSection(&timestamp_mutex);
         return;
     }
@@ -1104,7 +1104,7 @@ void CUDPListenThread::SetMainThread(key_t mainthread_l)
     mainthread = mainthread_l;
 }
 
-void CUDPListenThread::SetNDISName(unsigned char *ndisname_l)
+void CUDPListenThread::SetNDISName(const char *ndisname_l)
 {
     assert(ndisname_l);
     strcpy(ndisname, ndisname_l);
@@ -1122,7 +1122,7 @@ void CUDPListenThread::SetOutOfOrderNum(
         if (timestamp_l.addr != addr || timestamp_l.port != port)
             continue;
 
-        timestamp_l->out_of_order_num = out_of_order_num;
+        timestamp_l.out_of_order_num = out_of_order_num;
         LeaveCriticalSection(&timestamp_mutex);
         return;
     }
@@ -1141,10 +1141,7 @@ bool CUDPListenThread::SetProtocalParam_TimeStamp(
     EnterCriticalSection(&get_proto_param_mutex);
 
     for (struct tagDirectCom_ProtocalParam &proto_param_l : proto_params) {
-        if (
-            proto_param_l->addr != proto_param->addr ||
-            proto_param_l->port != proto_param->port
-        )
+        if (proto_param_l.addr != addr || proto_param_l.port != port)
             continue;
 
         proto_param_l.utc_time = utc_time;

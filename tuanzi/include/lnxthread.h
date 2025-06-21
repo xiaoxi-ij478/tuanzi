@@ -28,8 +28,8 @@ struct TIMERPARAM {
 class CLnxThread
 {
     public:
-        CLnxThread(void *(*thread_func)(void *), void *thread_func_arg);
         CLnxThread();
+        CLnxThread(void *(*thread_func)(void *), void *thread_func_arg);
         virtual ~CLnxThread();
 
         int CreateThread(pthread_attr_t *pthread_attr, bool no_need_send_msg_l);

@@ -6,6 +6,7 @@
 #include "util.h"
 #include "sysutil.h"
 #include "stdpkgs.h"
+#include "global.h"
 #include "netutil.h"
 
 int sockets_open()
@@ -69,7 +70,7 @@ unsigned short ComputeUdpPseudoHeaderChecksumV4(
 )
 {
     struct udp_checksum_hdr header = {};
-#define SET_PSEUDO_HEADER_INFO(name) header.pseudo_header.name = ipheader->nam
+#define SET_PSEUDO_HEADER_INFO(name) header.pseudo_header.name = ipheader->name
     SET_PSEUDO_HEADER_INFO(saddr);
     SET_PSEUDO_HEADER_INFO(daddr);
     SET_PSEUDO_HEADER_INFO(protocol);
@@ -115,7 +116,7 @@ struct NICINFO *get_nics_info(const char *ifname)
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     bool interface_added = false;
     struct ifreq ifr = {};
-    struct in_addr dns_addr = {};
+    in_addr_t dns_addr = 0;
 
     if (fd == -1)
         return nullptr;
@@ -187,8 +188,8 @@ struct NICINFO *get_nics_info(const char *ifname)
             }
 
             if (get_gateway(&cur_info->gateway, cur_if->ifa_name)) {
-                memset(cur_info->unknown, 0, sizeof(cur_info->unknown));
-//                swap32(static_cast<unsigned char *>(&cur_info->gateway.s_addr));
+                memset(cur_info->gateway_mac, 0, sizeof(cur_info->gateway_mac));
+                cur_info->gateway = ntohl(cur_info->gateway);
 
             } else
                 memset(&cur_info->gateway, 0, sizeof(cur_info->gateway));
@@ -206,11 +207,11 @@ struct NICINFO *get_nics_info(const char *ifname)
                 cur_info->ipaddr_count++;
                 tmp_ipnode->ipaddr =
                     reinterpret_cast<struct sockaddr_in *>
-                    (cur_if->ifa_addr)->sin_addr;
+                    (cur_if->ifa_addr)->sin_addr.s_addr;
 //                swap32(reinterpret_cast<unsigned char *>(&tmp_ipnode->ipaddr.s_addr));
                 tmp_ipnode->netmask =
                     reinterpret_cast<struct sockaddr_in *>
-                    (cur_if->ifa_netmask)->sin_addr;
+                    (cur_if->ifa_netmask)->sin_addr.s_addr;
 
 //                swap32(reinterpret_cast<unsigned char *>(&tmp_ipnode->netmask.s_addr));
                 if (!cur_info->ipaddrs) {
@@ -218,7 +219,7 @@ struct NICINFO *get_nics_info(const char *ifname)
                     cur_info->use_dhcp =
                         check_dhcp(
                             cur_if->ifa_name,
-                            inet_ntoa(tmp_ipnode->ipaddr)
+                            inet_ntoa({tmp_ipnode->ipaddr})
                         );
 
                 } else {
@@ -280,7 +281,7 @@ void free_nics_info(struct NICINFO *info)
     });
 }
 
-bool get_dns(struct in_addr *dst)
+bool get_dns(in_addr_t *dst)
 {
     // the original implementation uses shell
     // cat /etc/resolv.conf 2>&- |awk '{if ($1=="nameserver") {print $2;exit}}'
@@ -304,7 +305,7 @@ bool get_dns(struct in_addr *dst)
     if (!found)
         return false;
 
-    inet_pton(AF_INET, val[1].c_str(), &dst->s_addr);
+    inet_pton(AF_INET, val[1].c_str(), &dst);
     return true;
 }
 
@@ -339,7 +340,7 @@ bool get_alternate_dns(char *dest, int &counts)
     return true;
 }
 
-bool get_gateway(struct in_addr *result, const char *ifname)
+bool get_gateway(in_addr_t *result, const char *ifname)
 {
     // cat /proc/net/route 2>&- |awk '{if ($1~/$ifname/ && $2~/00000000/) print $3}'
     std::ifstream ifs("/proc/net/route");
@@ -353,7 +354,7 @@ bool get_gateway(struct in_addr *result, const char *ifname)
         ParseString(line, '\t', arr);
 
         if (arr[0] == ifname && arr[1] == "00000000") {
-            result->s_addr = std::stoi(arr[2], nullptr, 16);
+            *result = std::stoi(arr[2], nullptr, 16);
             ifs.close();
             return true;
         }
@@ -502,19 +503,19 @@ bool check_dhcp([[maybe_unused]] const char *ifname, const char *ipaddr)
         );
 }
 
-bool get_ip_mac(struct in_addr ipaddr, struct ether_addr *macaddr)
+bool get_ip_mac(in_addr_t ipaddr, struct ether_addr *macaddr)
 {
     std::string empty_mac("00:00:00:00:00:00"), full_mac("ff:ff:ff:ff:ff:ff");
     std::string ip, mac;
     std::string line;
     std::ifstream ifs("/proc/net/arp");
     std::string::iterator b, e;
-    std::string testip(inet_ntoa(ipaddr));
+    std::string testip(inet_ntoa({ipaddr}));
     std::vector<std::string> val;
     // minimal-ping related
     int fd = 0;
     struct icmppkg package = {}, recv_package = {};
-    struct sockaddr_in dest_addr = { AF_INET, 0, ipaddr };
+    struct sockaddr_in dest_addr = { AF_INET, 0, { ipaddr } };
     struct timeval wait_sec = { 3, 0 };
     unsigned dest_addrlen = sizeof(dest_addr);
     unsigned short orig_checksum = 0;
@@ -629,8 +630,12 @@ bool get_ip_mac(struct in_addr ipaddr, struct ether_addr *macaddr)
         sscanf(
             val[3].c_str(),
             "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
-            &macaddr[0], &macaddr[1], &macaddr[2],
-            &macaddr[3], &macaddr[4], &macaddr[5]
+            &macaddr->ether_addr_octet[0],
+            &macaddr->ether_addr_octet[1],
+            &macaddr->ether_addr_octet[2],
+            &macaddr->ether_addr_octet[3],
+            &macaddr->ether_addr_octet[4],
+            &macaddr->ether_addr_octet[5]
         );
         ifs.close();
         return true;
@@ -827,11 +832,18 @@ bool IsGetDhcpIpp(in_addr_t *ip)
     // 0.xxx.xxx.xxx
     return (*ip >> 24) ?
            (*ip >> 24) != 169 || (*ip >> 24) != 254 :
-           (*ip >> 16 & 0xff) && (*ip >> 8 & 0xff) && (*ip & 0xff);
+           (*ip >> 16 & 0xff) || (*ip >> 8 & 0xff) || (*ip & 0xff);
 }
 
 bool IsHostDstMac(struct ether_addr *macaddr1, struct ether_addr *macaddr2)
 {
+    return !memcmp(macaddr1, macaddr2, sizeof(struct ether_addr));
+}
+
+bool IsHostDstMac(struct ether_addr *macaddr)
+{
+    struct ether_addr host_macaddr = {};
+    CtrlThread->GetAdapterMac(&host_macaddr);
     return !memcmp(macaddr1, macaddr2, sizeof(struct ether_addr));
 }
 
@@ -1179,4 +1191,88 @@ bool SetLanFlag(unsigned flag)
     iniparser_dump_ini(ini, fp);
     fclose(fp);
     iniparser_freedict(ini);
+    return true;
+}
+
+void InitSmpInitPacket(struct tagSmpInitPacket &packet)
+{
+    packet.field_0.clear();
+    packet.basic_config.login_url.clear();
+    packet.basic_config.disable_arpbam.clear();
+    packet.basic_config.disable_dhcpbam.clear();
+    packet.basic_config.hi_detect_interval = 0;
+    packet.basic_config.hello_interval = 0;
+    packet.basic_config.hostinfo_report_interval = 0;
+    packet.basic_config.timeout = 3;
+    packet.basic_config.retry_times = 3;
+    packet.arp.enabled = 0;
+    packet.arp.gateway_ip.clear();
+    packet.arp.gateway_ip.clear();
+    packet.illegal_network_detect.enabled = 0;
+    packet.illegal_network_detect.syslog_ip.clear();
+    packet.illegal_network_detect.syslog_port = 0;
+    packet.illegal_network_detect.detect_interval = 0;
+    packet.illegal_network_detect.is_block = 0;
+    packet.illegal_network_detect.block_tip.clear();
+    packet.hi_xml.clear();
+    packet.security_domain_xml.clear();
+}
+
+bool IsEqualDhcpInfo(
+    const struct DHCPIPInfo &info1,
+    const struct DHCPIPInfo &info2
+)
+{
+    return
+        info1.field_0 == info2.field_0 &&
+        info1.ip4_ipaddr == info2.ip4_ipaddr &&
+        info1.ip4_netmask == info2.ip4_netmask;
+}
+
+void InitDHCPIPInfo(struct DHCPIPInfo &info)
+{
+    info.dns = 0;
+    info.gateway = 0;
+    info.ip4_ipaddr = 0;
+    info.ip4_netmask = 0;
+    info.field_0 = 1;
+}
+
+void InitDhcpIpInfo(struct DHCPIPInfo &info)
+{
+    info.dns = 0;
+    info.gateway = 0;
+    info.ip4_ipaddr = 0;
+    info.ip4_netmask = 0;
+    info.field_24 = {};
+    info.ip6_link_local_ipaddr = {};
+    info.ip6_ipaddr = {};
+    info.field_0 = 1;
+    info.ipaddr6_count = 0;
+    info.adapter_mac = {};
+}
+
+bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool)
+{
+    struct NICINFO *nic_info = nullptr;
+    InitDhcpIpInfo(info);
+    g_dhcpDug.AppendText(
+        "Adapter name:%s",
+        CtrlThread->field_240.field_38
+    );
+    nic_info = get_nics_info(CtrlThread->field_240.field_38);
+
+    if (!nic_info)
+        return false;
+
+    info.field_0 = CtrlThread->field_240.field_54;
+    info.adapter_mac = nic_info->hwaddr;
+    info.dns = htonl(nic_info->dns);
+}
+
+void repair_ip_gateway(
+    const struct DHCPIPInfo &info,
+    const std::string &adapter_name
+)
+{
 }

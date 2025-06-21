@@ -34,15 +34,15 @@ class CRxPacketThread : public CLnxThread
         void CloseAdapter();
         void ExitRxPacketThread();
         bool InitAdapter();
-        void SetAdapterMode(unsigned adapter_mode_l) const;
-        void SetDirectMsgID(int direct_msgid) const;
-        void SetMainMsgID(int main_msgid) const;
-        void SetPacketFilter(const char *filter_expr) const;
-        void SetProxyMsgID(int proxy_msgid) const;
-        void SetRxPacketAdapter(const char *adapter_name_l) const;
-        void StartRecvPacket() const;
-        int StartRecvPacketThread() const;
-        int StopRxPacketThread() const;
+        void SetAdapterMode(unsigned adapter_mode_l);
+        void SetDirectMsgID(int direct_msgid);
+        void SetMainMsgID(int main_msgid);
+        void SetPacketFilter(const char *filter_expr);
+        void SetProxyMsgID(int proxy_msgid);
+        void SetRxPacketAdapter(const char *adapter_name_l);
+        void StartRecvPacket();
+        int StartRecvPacketThread();
+        int StopRxPacketThread();
 
         static void RecvPacketCallBack(
             unsigned char *user,

@@ -459,6 +459,7 @@ void CIsProSer::OnTimer(int, int)
         }
 
         free_list(server);
+        break;
     }
 
     for (ProxyClientTcp *client = clienttcp_begin; client; client = client->next) {
@@ -474,6 +475,7 @@ void CIsProSer::OnTimer(int, int)
         }
 
         free_list(client);
+        break;
     }
 }
 
@@ -485,7 +487,7 @@ void CIsProSer::UpdateLocalIPTable()
     bool updated = false;
 
     for (auto it = local_ips.begin(); it != local_ips.end(); it++) {
-        if (cur_tick - local_ips[i].creation_time >= 120000)
+        if (cur_tick - it->creation_time >= 120000)
             it = local_ips.erase(it) - 1;
     }
 

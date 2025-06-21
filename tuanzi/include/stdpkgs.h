@@ -38,7 +38,7 @@ struct [[gnu::packed]] Socks4ConnReq {
     uint8_t version;
     enum SOCKS_REQUEST_COMMAND command;
     uint16_t port;
-    struct in_addr ip;
+    in_addr_t ip;
     char id[];
 };
 

@@ -33,7 +33,7 @@ CAdapterDetectThread::~CAdapterDetectThread()
 bool CAdapterDetectThread::StartDetect(
     const char *nic_name_l,
     const struct ether_addr *macaddr_l,
-    struct in_addr ipaddr_l,
+    in_addr_t ipaddr_l,
     key_t thread_key_l,
     int msgid,
     bool disallow_multi_nic_ip_l,
@@ -58,7 +58,7 @@ bool CAdapterDetectThread::StartDetect(
     info->disallow_multi_nic_ip = disallow_multi_nic_ip_l;
     g_log_Wireless.AppendText(
         "CAdapterDetectThread thread id:%u; msg id:%d; adapter name:%s ip:%u",
-        thread_key_l, msgid, nic_name_l, ipaddr.s_addr
+        thread_key_l, msgid, nic_name_l, ipaddr
     );
 
     if (
@@ -185,10 +185,10 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
             )
                 g_log_Wireless.AppendText(
                     "ip:%d.%d.%d.%d",
-                    cip->ipaddr.s_addr >> 24,
-                    cip->ipaddr.s_addr >> 16 & 0xff,
-                    cip->ipaddr.s_addr >> 8 & 0xff,
-                    cip->ipaddr.s_addr & 0xff
+                    cip->ipaddr >> 24,
+                    cip->ipaddr >> 16 & 0xff,
+                    cip->ipaddr >> 8 & 0xff,
+                    cip->ipaddr & 0xff
                 );
 
             if (cur_info->ipaddr_count > 1 && disallow_multi_nic_ip) {
@@ -203,7 +203,7 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
                 break;
             }
 
-            if (ipaddr.s_addr != cur_info->ipaddrs->ipaddr.s_addr) {
+            if (ipaddr != cur_info->ipaddrs->ipaddr) {
                 g_log_Wireless.AppendText("ip chaged\n");
                 POST_TO_CONTROL_THREAD(IP_CHANGED_MTYPE);
                 break;

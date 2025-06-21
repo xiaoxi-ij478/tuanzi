@@ -301,12 +301,9 @@ bool CLnxThread::OnTimerEnter(int tflag) const
 
 void CLnxThread::OnTimerLeave(int tflag) const
 {
-    for (TIMERPARAM *timer : timers) {
-        if (timer->tflag != tflag)
-            continue;
-
-        pthread_mutex_unlock(&timer->pthread_mutex);
-    }
+    for (TIMERPARAM *timer : timers)
+        if (timer->tflag == tflag)
+            pthread_mutex_unlock(&timer->pthread_mutex);
 }
 
 bool CLnxThread::ExitInstance()

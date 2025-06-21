@@ -8,9 +8,6 @@ class CIsProSer;
 
 class ProxySerTcp : public CTcp
 {
-        friend class ProxyClientTcp;
-        friend class CIsProSer;
-
     public:
         ProxySerTcp(const struct TcpInfo &tcpinfo);
 
@@ -21,7 +18,6 @@ class ProxySerTcp : public CTcp
         );
         bool IsExpired(unsigned) const;
 
-    private:
         ProxyClientTcp *bound_proxy_client_tcp;
         // a doubly linked list
         ProxySerTcp *prev;

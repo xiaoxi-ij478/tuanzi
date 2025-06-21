@@ -23,13 +23,13 @@ struct NICINFO {
     bool use_dhcp;
     bool is_wireless;
     unsigned short speed;
-    struct in_addr dns;
-    struct in_addr gateway;
-    char unknown[6];
+    in_addr_t dns;
+    in_addr_t gateway;
+    char gateway_mac[6];
     unsigned ipaddr_count;
     struct IPAddrNode {
-        struct in_addr ipaddr;
-        struct in_addr netmask;
+        in_addr_t ipaddr;
+        in_addr_t netmask;
         struct IPAddrNode *next;
     } *ipaddrs;
     unsigned ipaddr6_count;
@@ -44,6 +44,21 @@ struct NICINFO {
 struct DHClientThreadStruct {
     char ipaddr[512];
     sem_t *semaphore;
+};
+
+struct DHCPIPInfo {
+    unsigned field_0;
+    in_addr_t ip4_ipaddr;
+    in_addr_t ip4_netmask;
+    in_addr_t gateway;
+    in_addr_t dns;
+    struct ether_addr adapter_mac;
+    struct ether_addr gateway_mac;
+    unsigned ipaddr6_count;
+    struct in6_addr field_24;
+    struct in6_addr ip6_link_local_ipaddr;
+    struct in6_addr ip6_ipaddr;
+    struct in6_addr ip6_netmask;
 };
 
 struct NICsStatus {
@@ -71,9 +86,9 @@ extern unsigned short ComputeUdpPseudoHeaderChecksumV4(
 extern unsigned short checksum(const unsigned short *data, unsigned len);
 extern struct NICINFO *get_nics_info(const char *ifname);
 extern void free_nics_info(struct NICINFO *info);
-extern bool get_dns(struct in_addr *dst);
+extern bool get_dns(in_addr_t *dst);
 extern bool get_alternate_dns(char *dst, int &counts);
-extern bool get_gateway(struct in_addr *result, const char *ifname);
+extern bool get_gateway(in_addr_t *result, const char *ifname);
 extern unsigned short get_speed_wl(int fd, char *ifname);
 extern unsigned short get_speed(int fd, char *ifname);
 extern bool check_manualip_indirectory(
@@ -83,7 +98,7 @@ extern bool check_manualip_indirectory(
 );
 extern bool check_manualip_infile(const char *ipaddr, const char *file);
 extern bool check_dhcp(const char *ifname, const char *ipaddr);
-extern bool get_ip_mac(struct in_addr ipaddr, struct ether_addr *macaddr);
+extern bool get_ip_mac(in_addr_t ipaddr, struct ether_addr *macaddr);
 extern bool check_nic_isok(char *ifname);
 extern int check_nic_status(const char *ifname);
 extern bool get_nic_in_use(
@@ -131,5 +146,17 @@ extern void dhclient_exit();
 extern void disable_enable_nic(const char *ifname);
 extern void get_all_nics_statu(std::vector<struct NICsStatus> &dest);
 extern bool SetLanFlag(unsigned flag);
+extern void InitSmpInitPacket(struct tagSmpInitPacket &packet);
+extern bool IsEqualDhcpInfo(
+    const struct DHCPIPInfo &info1,
+    const struct DHCPIPInfo &info2
+);
+extern void InitDHCPIPInfo(struct DHCPIPInfo &info);
+extern void InitDhcpIpInfo(struct DHCPIPInfo &info);
+extern bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool);
+extern void repair_ip_gateway(
+    const struct DHCPIPInfo &info,
+    const std::string &adapter_name
+);
 
 #endif // NETUTIL_H_INCLUDED

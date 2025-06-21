@@ -22,13 +22,13 @@ class CUDPListenThread : public CLnxThread
         CUDPListenThread(struct UdpListenParam *listen_param = nullptr);
         ~CUDPListenThread() override;
 
-        unsigned GSNReceiver(
+        int GSNReceiver(
             in_addr_t srcaddr,
             unsigned srcport,
             in_addr_t dstaddr,
             unsigned dstport,
             key_t pthread,
-            unsigned on_receive_packet_post_mtype
+            int on_receive_packet_post_mtype
         );
 
     protected:
@@ -38,7 +38,7 @@ class CUDPListenThread : public CLnxThread
         void OnTimer(int tflag) const override;
 
     private:
-        bool CloseGSNReceiver(unsigned id);
+        bool CloseGSNReceiver(int id);
         bool DecryptPrivateData(
             const struct tagDirectCom_ProtocalParam &proto_param,
             unsigned char *buf,
@@ -93,32 +93,32 @@ class CUDPListenThread : public CLnxThread
             unsigned srcport,
             const unsigned char *packet
         );
-        void SetDirParaXieYi(const tagDirectCom_ProtocalParam &proto_param) const;
-        void SetIfListenRes(bool val) const;
+        void SetDirParaXieYi(const tagDirectCom_ProtocalParam &proto_param);
+        void SetIfListenRes(bool val);
         void SetLastTimeStampForReceive(
             in_addr_t addr,
             unsigned short port,
             unsigned long timestamp
-        ) const;
-        void SetListenPort(unsigned short port) const;
-        void SetMainThread(key_t mainthread_l) const;
-        void SetNDISName(unsigned char *ndisname_l) const;
+        );
+        void SetListenPort(unsigned short port);
+        void SetMainThread(key_t mainthread_l);
+        void SetNDISName(const char *ndisname_l);
         void SetOutOfOrderNum(
             in_addr_t addr,
             unsigned short port,
             unsigned outoforder_num
-        ) const;
+        );
         bool SetProtocalParam_TimeStamp(
             in_addr_t addr,
             unsigned short port,
             unsigned long long utc_time,
             unsigned long timestamp
-        ) const;
-        void SetResSender(const struct tagDirResPara &res_sender) const;
-        void SetSamIPAddress(in_addr_t sam_ipaddr_l) const;
-        void SetSuIPAddress(in_addr_t su_ipaddr_l) const;
-        void SetWorkingFalg(bool working) const;
-        void freeMemory() const;
+        );
+        void SetResSender(const struct tagDirResPara &res_sender);
+        void SetSamIPAddress(in_addr_t sam_ipaddr_l);
+        void SetSuIPAddress(in_addr_t su_ipaddr_l);
+        void SetWorkingFalg(bool working);
+        void freeMemory();
 
         static unsigned short CheckSumForRecv(
             const unsigned char *buf,

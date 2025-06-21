@@ -28,7 +28,7 @@
 
 struct DetectNICInfo {
     char nic_name[MAX_NIC_NAME_LEN];
-    struct in_addr ipaddr;
+    in_addr_t ipaddr;
     struct ether_addr macaddr;
     key_t thread_key;
     int msgid;
@@ -44,7 +44,7 @@ class CAdapterDetectThread : public CLnxThread
         bool StartDetect(
             const char *nic_name_l,
             const struct ether_addr *macaddr_l,
-            struct in_addr ipaddr_l,
+            in_addr_t ipaddr_l,
             key_t thread_key_l,
             int msgid_l,
             bool disallow_multi_nic_ip_l,
@@ -68,7 +68,7 @@ class CAdapterDetectThread : public CLnxThread
         char nic_name[MAX_NIC_NAME_LEN];
         key_t control_thread_key;
         int control_thread_msgid;
-        struct in_addr ipaddr;
+        in_addr_t ipaddr;
         struct ether_addr macaddr;
         bool disallow_multi_nic_ip;
         timer_t proxy_detect_timerid;

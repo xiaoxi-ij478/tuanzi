@@ -14,7 +14,7 @@ struct tagDirectCom_ProtocalParam {
     unsigned char keybuf[8];
     unsigned char ivbuf[8];
     bool check_timestamp;
-    unsigned long utc_time;
+    unsigned long long utc_time;
     unsigned long timestamp;
     bool field_40;
     unsigned char version;
@@ -28,7 +28,7 @@ struct tagRecvSessionBind {
         unsigned srcport,
         in_addr_t dstaddr,
         unsigned dstport,
-        unsigned on_receive_packet_post_mtype,
+        int on_receive_packet_post_mtype,
         unsigned char *data,
         unsigned received,
         unsigned cur_sliceid,
@@ -52,7 +52,7 @@ struct tagRecvSessionBind {
     unsigned srcport;
     in_addr_t dstaddr;
     unsigned dstport;
-    unsigned on_receive_packet_post_mtype;
+    int on_receive_packet_post_mtype;
     unsigned char *data;
     unsigned received;
     unsigned cur_sliceid;
@@ -69,7 +69,7 @@ struct tagRecvBind {
         in_addr_t dstaddr,
         unsigned dstport,
         key_t pthread,
-        unsigned on_receive_packet_post_mtype
+        int on_receive_packet_post_mtype
     ) :
         id(id),
         srcaddr(srcaddr),
@@ -85,7 +85,7 @@ struct tagRecvBind {
     in_addr_t dstaddr;
     unsigned dstport;
     key_t pthread;
-    unsigned on_receive_packet_post_mtype;
+    int on_receive_packet_post_mtype;
     std::vector<struct tagRecvSessionBind> recv_session_bounds;
 };
 
@@ -123,12 +123,12 @@ struct tagDirPacketHead {
 };
 
 struct tagSenderBind {
-    unsigned id;
+    int id;
     in_addr_t srcaddr;
     unsigned srcport;
     in_addr_t dstaddr;
     unsigned dstport;
-    unsigned on_receive_packet_post_mtype;
+    int on_receive_packet_post_mtype;
 };
 
 struct tagDirResPara {
@@ -215,6 +215,24 @@ struct tagSmpInitPacket {
     struct tagSmpInitPacket_IllegalNetworkDetect illegal_network_detect;
     std::string hi_xml;
     std::string security_domain_xml;
+};
+
+struct tagDataSendUnit {
+    unsigned id;
+    unsigned field_4;
+    unsigned char *msg;
+    unsigned totallen;
+    unsigned field_14;
+    WAIT_HANDLE *eventret;
+    unsigned *ret;
+    bool need_reply;
+    unsigned session_id;
+};
+
+struct tagRetPara {
+    unsigned char *field_0;
+    WAIT_HANDLE *field_8;
+    unsigned long field_10;
 };
 
 #endif // DIRTRANSTAGS_H_INCLUDED

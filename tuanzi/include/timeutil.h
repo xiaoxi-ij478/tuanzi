@@ -6,9 +6,9 @@ extern unsigned long GetTickCount();
 // why would they even want to create such a function...
 extern void Sleep(int msec);
 extern bool CreateCurrentUTC(
-    unsigned long plus_sec,
-    unsigned long off_msec,
-    unsigned long *result // pCurUTC
+    unsigned long long plus_sec,
+    unsigned long long off_msec,
+    unsigned long long *result // pCurUTC
 );
 extern void GetCurDataAndTime(char *dst);
 extern void GetCurTime(char *dst);

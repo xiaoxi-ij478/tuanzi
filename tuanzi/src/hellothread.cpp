@@ -132,7 +132,10 @@ void CHelloThread::OnChangeHelloPara(unsigned long buflen, void *buf)
     CreateHelloTimer(buflen);
 }
 
-void CHelloThread::OnHelloTimer(unsigned long buflen, void *buf)
+void CHelloThread::OnHelloTimer(
+    unsigned long buflen,
+    [[maybe_unused]] void *buf
+)
 {
     unsigned rbuflen = 0;
     struct HelloPacket *hello_packet = CreateHelloPacket(rbuflen);

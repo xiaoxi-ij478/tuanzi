@@ -39,9 +39,9 @@ void GetAbsTime(struct timespec *tsp, unsigned long off_msec)
 }
 
 bool CreateCurrentUTC(
-    unsigned long plus_sec,
-    unsigned long off_msec,
-    unsigned long *result
+    unsigned long long plus_sec,
+    unsigned long long off_msec,
+    unsigned long long *result
 )
 {
     assert(result);

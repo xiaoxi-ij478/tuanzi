@@ -213,13 +213,17 @@ void check_safe_exit(bool create_file)
 
 bool is_run_background()
 {
-    int forep = tcgetpgrp(0);
+    int forep = tcgetpgrp(STDIN_FILENO);
     int myp = getpgrp();
 
     if (forep == -1) {
-        rj_printf_debug("tcgetpgrp STDIN_FILENO(%d) error:%s", 0, strerror(errno));
+        rj_printf_debug(
+            "tcgetpgrp STDIN_FILENO(%d) error:%s",
+            STDIN_FILENO,
+            strerror(errno)
+        );
 
-        if ((forep = tcgetpgrp(1)) == -1) {
+        if ((forep = tcgetpgrp(STDOUT_FILENO)) == -1) {
             rj_printf_debug("tcgetpgrp STDOUT_FILENO error:%s", strerror(errno));
             return false;
         }
@@ -237,7 +241,7 @@ int set_termios(bool set_echo_icanon)
 {
     struct termios term = {};
 
-    if (tcgetattr(0, &term) == -1) {
+    if (tcgetattr(STDIN_FILENO, &term) == -1) {
         rj_printf_debug("set_termios: tcgetattr error:%s", strerror(errno));
         return -1;
     }
@@ -248,7 +252,7 @@ int set_termios(bool set_echo_icanon)
     else
         term.c_lflag &= ~(ICANON | ECHO);
 
-    if (tcsetattr(0, TCSANOW, &term) == -1)
+    if (tcsetattr(STDIN_FILENO, TCSANOW, &term) == -1)
         rj_printf_debug("tcsetattr error:%s", strerror(errno));
 
     return 0;

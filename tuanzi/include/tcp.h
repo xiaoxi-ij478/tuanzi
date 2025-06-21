@@ -60,9 +60,10 @@ class CTcp
         ) const;
         bool IsMine(const struct TCPIP &pkg);
 
+        char reqaddr_char[64]; // m_reqConnAddr
+
     protected:
         enum REQUEST_TYPE request_type;
-        char reqaddr_char[64]; // m_reqConnAddr
         in_addr_t reqaddr_int; // m_ulReqAddr
         unsigned short reqport; // m_reqPort
         struct CHostEnt *hostent;

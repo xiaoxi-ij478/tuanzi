@@ -46,13 +46,11 @@ void AddMsgItem(int type, const std::string &msg)
         return;
     }
 
-    for (auto it = msgarr.begin(); it != msgarr.end(); it++) {
-        if (type != it->ntype || msg != it->msg)
-            continue;
-
-        msgarr.erase(it);
-        break;
-    }
+    for (auto it = msgarr.begin(); it != msgarr.end(); it++)
+        if (type == it->ntype && msg == it->msg) {
+            msgarr.erase(it);
+            break;
+        }
 
     GetCurDataAndTime(time);
     msgarr.emplace_back(type, time, msg);
@@ -99,13 +97,12 @@ void DelMsgItem(int type, const std::string &msg)
         return;
     }
 
-    for (auto it = msgarr.begin(); it != msgarr.end(); it++) {
-        if (type != it->ntype || msg != it->msg)
-            continue;
-
-        msgarr.erase(it);
-        break;
-    }
+    for (auto it = msgarr.begin(); it != msgarr.end(); it++)
+        if (type == it->ntype && msg == it->msg)
+            {
+            msgarr.erase(it);
+            break;
+        }
 
     for (int i = 0; i < msgarr.size(); i++) {
         inikey = "msg_" + std::to_string(i);

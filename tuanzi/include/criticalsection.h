@@ -10,19 +10,15 @@ class CRITICAL_SECTION
         CRITICAL_SECTION();
         ~CRITICAL_SECTION();
 
-        friend bool DeleteCriticalSection(CRITICAL_SECTION *lock);
-        friend bool EnterCriticalSection(CRITICAL_SECTION *lock);
-        friend bool InitializeCriticalSection(CRITICAL_SECTION *lock);
-        friend bool LeaveCriticalSection(CRITICAL_SECTION *lock);
+        bool enter();
+        bool Delete();
+        bool init();
+        bool leave();
 
     private:
         pthread_mutex_t pthread_mutex;
         bool inited;
         pthread_mutexattr_t pthread_mutexattr;
-        bool enter();
-        bool Delete();
-        bool init();
-        bool leave();
 };
 
 bool DeleteCriticalSection(CRITICAL_SECTION *lock);

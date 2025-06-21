@@ -64,17 +64,17 @@ bool CRxPacketThread::InitAdapter()
     return false;
 }
 
-void CRxPacketThread::SetAdapterMode(unsigned adapter_mode_l) const
+void CRxPacketThread::SetAdapterMode(unsigned adapter_mode_l)
 {
     adapter_mode = adapter_mode_l;
 }
 
-void CRxPacketThread::SetDirectMsgID(int direct_msgid) const
+void CRxPacketThread::SetDirectMsgID(int direct_msgid)
 {
     msgids.direct_msgid = direct_msgid;
 }
 
-void CRxPacketThread::SetPacketFilter(const char *filter_expr) const
+void CRxPacketThread::SetPacketFilter(const char *filter_expr)
 {
     struct bpf_program filter = {};
     rj_printf_debug("SetPacketFilter =%s\n", filter_expr);
@@ -88,21 +88,21 @@ void CRxPacketThread::SetPacketFilter(const char *filter_expr) const
     if (pcap_setfilter(pcap_handle, &filter)) {
         rj_printf_debug("pcap_setfilter error %s\n", pcap_geterr(pcap_handle));
         pcap_close(pcap_handle);
-        pcap_freecode();
+        pcap_freecode(&filter);
         pthread_exit(0);
     }
 
-    pcap_freecode();
+    pcap_freecode(&filter);
 }
 
 void CRxPacketThread::SetProxyMsgID(int proxy_msgid)
 {
-    this->msgids.proxy_msgid = a2;
+    msgids.proxy_msgid = proxy_msgid;
 }
 
-void CRxPacketThread::SetMainMsgID(int main_msgid) const
+void CRxPacketThread::SetMainMsgID(int main_msgid)
 {
-    this->msgids.main_msgid = a2;
+    msgids.main_msgid = main_msgid;
 }
 
 void CRxPacketThread::SetRxPacketAdapter(const char *adapter_name_l)
@@ -111,7 +111,7 @@ void CRxPacketThread::SetRxPacketAdapter(const char *adapter_name_l)
     strcpy(adapter_name, adapter_name_l);
 }
 
-void CRxPacketThread::StartRecvPacket() const
+void CRxPacketThread::StartRecvPacket()
 {
     if (!InitAdapter())
         return;
@@ -132,7 +132,7 @@ void CRxPacketThread::StartRecvPacket() const
                 pcap_handle,
                 1,
                 CRxPacketThread::RecvPacketCallBack,
-                &msgids
+                reinterpret_cast<unsigned char *>(&msgids)
             ) == -1
         ) {
             g_logSystem.AppendText(
@@ -148,15 +148,15 @@ void CRxPacketThread::StartRecvPacket() const
 finish:
     stopped = true;
     CloseAdapter();
-    SetEvent(recv_packet_waithandle, true);
+    SetEvent(&recv_packet_waithandle, true);
 }
 
-int CRxPacketThread::StartRecvPacketThread() const
+int CRxPacketThread::StartRecvPacketThread()
 {
     return StartThread();
 }
 
-int CRxPacketThread::StopRxPacketThread() const
+int CRxPacketThread::StopRxPacketThread()
 {
     int ret = 0;
     rj_printf_debug("StopRxPacketThread\n");
@@ -166,7 +166,7 @@ int CRxPacketThread::StopRxPacketThread() const
 
     stopped = true;
 
-    if ((ret = WaitForSingleObject(recv_packet_waithandle, 2000)) == ETIMEDOUT) {
+    if ((ret = WaitForSingleObject(&recv_packet_waithandle, 2000)) == ETIMEDOUT) {
         rj_printf_debug("StopRxPacketThread WAIT_TIMEOUT\n");
         g_logSystem.AppendText(
             "StopRxPacketThread WaitForSingleObject timeout =%d",
