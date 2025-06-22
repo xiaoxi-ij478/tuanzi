@@ -6,16 +6,6 @@
 #define RECV_PAE_PACKET_MTYPE 0x6B
 
 struct CRxPacketThread_msgids {
-    CRxPacketThread_msgids() = default;
-    CRxPacketThread_msgids(
-        int direct_msgid,
-        int main_msgid,
-        int proxy_msgid
-    ) :
-        direct_msgid(direct_msgid),
-        main_msgid(main_msgid),
-        proxy_msgid(proxy_msgid)
-    {}
     int direct_msgid;
     int main_msgid;
     int proxy_msgid;

@@ -39,7 +39,7 @@ bool CDownLoadThread::DispathMessage(struct LNXMSG *msg)
     if (msg->mtype == START_THREAD_MTYPE)
         OnStartThread(msg->buflen, msg->buf);
 
-    return true;
+    return false;
 }
 
 bool CDownLoadThread::OnStartThread(

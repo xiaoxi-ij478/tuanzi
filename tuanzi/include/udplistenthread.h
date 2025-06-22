@@ -111,7 +111,7 @@ class CUDPListenThread : public CLnxThread
         bool SetProtocalParam_TimeStamp(
             in_addr_t addr,
             unsigned short port,
-            unsigned long long utc_time,
+            unsigned long utc_time,
             unsigned long timestamp
         );
         void SetResSender(const struct tagDirResPara &res_sender);

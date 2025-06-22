@@ -105,7 +105,7 @@ extern bool get_nic_in_use(
     std::vector<std::string> &nic_list,
     bool wireless_only
 );
-extern int get_nic_list(std::vector<std::string> list);
+extern int get_nic_list(std::vector<std::string>);
 extern bool get_nic_speed(char *dst, const char *ifname);
 extern bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only);
 extern unsigned InitIpv4Header(
@@ -121,7 +121,7 @@ extern unsigned InitUdpHeader(
     unsigned datalen
 );
 extern void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname);
-extern unsigned long long htonLONGLONG(unsigned long long val);
+extern unsigned long htonLONGLONG(unsigned long val);
 extern bool Is8021xGroupAddr(struct ether_addr *macaddr);
 extern bool IsEqualIP(in_addr_t *ipaddr1, in_addr_t *ipaddr2);
 extern bool IsEqualMac(

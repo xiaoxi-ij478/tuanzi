@@ -32,7 +32,7 @@ bool CHelloThread::DispathMessage(struct LNXMSG *msg)
             break;
     }
 
-    return true;
+    return false;
 }
 
 bool CHelloThread::InitInstance()

@@ -14,7 +14,7 @@ struct tagDirectCom_ProtocalParam {
     unsigned char keybuf[8];
     unsigned char ivbuf[8];
     bool check_timestamp;
-    unsigned long long utc_time;
+    unsigned long utc_time;
     unsigned long timestamp;
     bool field_40;
     unsigned char version;
@@ -233,6 +233,21 @@ struct tagRetPara {
     unsigned char *field_0;
     WAIT_HANDLE *field_8;
     unsigned long field_10;
+};
+
+struct tagDirTranPara {
+    char dstaddr[20];
+    unsigned short dstport;
+    char srcaddr[20];
+    unsigned short srcport;
+    struct ether_addr srcmacaddr;
+    char field_32[20];
+    struct ether_addr dstmacaddr;
+    bool field_4C;
+    unsigned long field_50;
+    unsigned char data[MAX_MTU];
+    unsigned mtu;
+    unsigned field_5D4;
 };
 
 #endif // DIRTRANSTAGS_H_INCLUDED

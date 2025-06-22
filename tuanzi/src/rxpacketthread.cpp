@@ -7,12 +7,12 @@
 #include "rxpacketthread.h"
 
 CRxPacketThread::CRxPacketThread() :
-    msgids(-1, -1, -1),
-    adapter_name(),
-    stopped(true),
-    pcap_handle(),
-    adapter_mode(1),
-    recv_packet_waithandle()
+    msgids({ -1, -1, -1 }),
+       adapter_name(),
+       stopped(true),
+       pcap_handle(),
+       adapter_mode(1),
+       recv_packet_waithandle()
 {
     SetClassName("CRxPacketThread");
 }
@@ -29,6 +29,8 @@ bool CRxPacketThread::DispathMessage(struct LNXMSG *msg)
 {
     if (msg->mtype == START_THREAD_MTYPE)
         StartRecvPacket();
+
+    return false;
 }
 
 void CRxPacketThread::CloseAdapter()
@@ -52,10 +54,10 @@ bool CRxPacketThread::InitAdapter()
 {
     char errbuf[256] = {};
 
-    if (
-        pcap_handle =
-            pcap_open_live(adapter_name, 2000, adapter_mode, 1000, errbuf)
-    ) {
+    if ((
+                pcap_handle =
+                    pcap_open_live(adapter_name, 2000, adapter_mode, 1000, errbuf)
+            )) {
         SetPacketFilter("ip or arp or ether proto 0x888e");
         return true;
     }

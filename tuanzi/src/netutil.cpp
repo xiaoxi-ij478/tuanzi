@@ -533,9 +533,12 @@ bool get_ip_mac(in_addr_t ipaddr, struct ether_addr *macaddr)
         sscanf(
             val[3].c_str(),
             "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
-            &macaddr->ether_addr_octet[0], &macaddr->ether_addr_octet[1],
-            &macaddr->ether_addr_octet[2], &macaddr->ether_addr_octet[3],
-            &macaddr->ether_addr_octet[4], &macaddr->ether_addr_octet[5]
+            &macaddr->ether_addr_octet[0],
+            &macaddr->ether_addr_octet[1],
+            &macaddr->ether_addr_octet[2],
+            &macaddr->ether_addr_octet[3],
+            &macaddr->ether_addr_octet[4],
+            &macaddr->ether_addr_octet[5]
         );
         ifs.close();
         return true;
@@ -712,7 +715,7 @@ bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only)
 
 // ????????
 // lshal 2>&- |grep net.interface | awk -F\"'\" '{print$2}'
-int get_nic_list([[maybe_unused]] std::vector<std::string> list)
+int get_nic_list(std::vector<std::string>)
 {
     return 0;
 }
@@ -898,7 +901,7 @@ bool isNoChangeIP(in_addr_t *ipaddr1, in_addr_t *ipaddr2)
     return *ipaddr1 == *ipaddr2;
 }
 
-unsigned long long htonLONGLONG(unsigned long long val)
+unsigned long htonLONGLONG(unsigned long val)
 {
     swap128(reinterpret_cast<unsigned char *>(&val));
     return val;
@@ -909,13 +912,14 @@ void stop_dhclient_asyn()
     killProcess("dhclient");
 }
 
-bool dhclient_asyn(const char *ipaddr, [[maybe_unused]] sem_t *semaphore)
+bool dhclient_asyn(const char *ipaddr, sem_t *semaphore)
 {
-    DHClientThreadStruct *arg = new DHClientThreadStruct;
+    struct DHClientThreadStruct *arg = new struct DHClientThreadStruct;
     pthread_t thread_id;
     stop_dhclient_asyn();
     Sleep(1000);
     strcpy(arg->ipaddr, ipaddr);
+    arg->semaphore = semaphore;
 
     if (pthread_create(&thread_id, 0, dhclient_thread, arg)) {
         delete arg;
@@ -927,7 +931,8 @@ bool dhclient_asyn(const char *ipaddr, [[maybe_unused]] sem_t *semaphore)
 
 void *dhclient_thread(void *varg)
 {
-    DHClientThreadStruct *arg = static_cast<DHClientThreadStruct *>(varg);
+    struct DHClientThreadStruct *arg =
+            static_cast<struct DHClientThreadStruct *>(varg);
 
     if (get_os_type() != OS_FEDORA || isFileExist("/sbin/dhclient-script")) {
         if (get_os_type() != OS_FEDORA)
@@ -991,8 +996,28 @@ void dhclient_exit()
 
 void disable_enable_nic(const char *ifname)
 {
-    system(std::string("ifconfig ").append(ifname).append(" down").c_str());
-    system(std::string("ifconfig ").append(ifname).append(" up").c_str());
+    // ifconfig $ifname down
+    // ifconfig $ifname up
+    struct ifreq ifr = { ifname };
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    if (fd == -1)
+        return;
+
+    if (ioctl(fd, SIOCGIFFLAGS, &ifr))
+        return;
+
+    ifr.ifr_flags &= ~IFF_UP;
+
+    if (ioctl(fd, SIOCSIFFLAGS, &ifr))
+        return;
+
+    ifr.ifr_flags |= IFF_UP;
+
+    if (ioctl(fd, SIOCSIFFLAGS, &ifr))
+        return;
+
+    close(fd);
 }
 
 void get_all_nics_statu(std::vector<struct NICsStatus> &dest)

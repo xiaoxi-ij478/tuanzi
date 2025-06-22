@@ -7,6 +7,8 @@
 #include "udplistenthread.h"
 #include "criticalsection.h"
 
+#define ON_TRANSPACKET_MTYPE 0xD9
+
 class CDirTranThread : public CLnxThread
 {
     public:
@@ -19,6 +21,7 @@ class CDirTranThread : public CLnxThread
     private:
         void ClearRetPara() const;
         void CloseAllGSNSender() const;
+        void CloseGSNReceiver(int id) const;
         void CloseGSNSender(int id) const;
         bool DecryptPrivateData(
             const struct tagDirectCom_ProtocalParam &proto_param,
@@ -58,7 +61,7 @@ class CDirTranThread : public CLnxThread
             struct tagDirectCom_ProtocalParam &proto_param,
             int id
         ) const;
-        void OnTransPacket(unsigned long, unsigned long) const;
+        void OnTransPacket(unsigned long buflen, void *buf) const;
         bool PostPacketNoResponse(
             int id,
             unsigned char *buf,
@@ -82,7 +85,7 @@ class CDirTranThread : public CLnxThread
         bool SetProtocalParam_TimeStamp(
             in_addr_t addr,
             unsigned short port,
-            unsigned long long utc_time,
+            unsigned long utc_time,
             unsigned long timestamp
         ) const;
         bool SetReTranPara(

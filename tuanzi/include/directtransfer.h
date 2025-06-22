@@ -3,17 +3,7 @@
 
 #define MAX_MTU 1400
 
-struct tagDirTranPara {
-    char dstaddr[16];
-    unsigned short dstport;
-    char srcaddr[16];
-    unsigned short srcport;
-    struct ether_addr dstmacaddr;
-    struct ether_addr srcmacaddr;
-    unsigned char data[MAX_MTU];
-    unsigned mtu;
-    unsigned field_5D4;
-};
+#include "dirtranstags.h"
 
 class CDirectTransfer
 {

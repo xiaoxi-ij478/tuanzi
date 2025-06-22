@@ -46,7 +46,7 @@ CUDPListenThread::~CUDPListenThread()
     DeleteCriticalSection(&get_proto_param_mutex);
 }
 
-unsigned CUDPListenThread::GSNReceiver(
+int CUDPListenThread::GSNReceiver(
     in_addr_t srcaddr,
     unsigned srcport,
     in_addr_t dstaddr,
@@ -81,7 +81,7 @@ bool CUDPListenThread::DispathMessage(struct LNXMSG *msg)
             break;
     }
 
-    return true;
+    return false;
 }
 
 bool CUDPListenThread::ExitInstance()
@@ -123,7 +123,7 @@ void CUDPListenThread::OnTimer(int tflag) const
         g_logSystem.AppendText("CUDPListenThread::OnTimer(timerFlag=%d),return", tflag);
 }
 
-bool CUDPListenThread::CloseGSNReceiver(unsigned id)
+bool CUDPListenThread::CloseGSNReceiver(int id)
 {
     EnterCriticalSection(&recv_mutex);
 
@@ -940,24 +940,22 @@ void CUDPListenThread::SendResponse(
      sizeof(struct mtagFinalDirPacket) + sizeof(md5_checksum)
     ] = {};
     assert(packet);
-    snprintf(
+    sprintf(
         trans_para.dstaddr,
-        sizeof(trans_para.dstaddr),
         "%d.%d.%d.%d",
-        (dstaddr >> 24),
-        (dstaddr >> 16 & 0xff),
-        (dstaddr >> 8 & 0xff),
-        (dstaddr & 0xff)
+        dstaddr & 0xff,
+        dstaddr >> 8 & 0xff,
+        dstaddr >> 16 & 0xff,
+        dstaddr >> 24
     );
     trans_para.dstport = dstport;
-    snprintf(
+    sprintf(
         trans_para.srcaddr,
-        sizeof(trans_para.srcaddr),
         "%d.%d.%d.%d",
-        (srcaddr >> 24),
-        (srcaddr >> 16 & 0xff),
-        (srcaddr >> 8 & 0xff),
-        (srcaddr & 0xff)
+        srcaddr & 0xff,
+        srcaddr >> 8 & 0xff,
+        srcaddr >> 16 & 0xff,
+        srcaddr >> 24
     );
     trans_para.srcport = srcport;
     CtrlThread->GetAdapterMac(&trans_para.srcmacaddr);
@@ -1133,7 +1131,7 @@ void CUDPListenThread::SetOutOfOrderNum(
 bool CUDPListenThread::SetProtocalParam_TimeStamp(
     in_addr_t addr,
     unsigned short port,
-    unsigned long long utc_time,
+    unsigned long utc_time,
     unsigned long timestamp
 )
 {
@@ -1204,13 +1202,15 @@ void CUDPListenThread::freeMemory()
 {
     EnterCriticalSection(&recv_mutex);
 
-    for (auto it = gsn_pkgs.begin(); it != gsn_pkgs.end(); it++) {
+    for (
+        auto it = gsn_pkgs.begin();
+        it != gsn_pkgs.end();
+        it = gsn_pkgs.erase(it)
+    ) {
         for (struct tagRecvSessionBind &session_bind : it->recv_session_bounds) {
             delete[] session_bind.data;
             session_bind.data = nullptr;
         }
-
-        it = gsn_pkgs.erase(it) - 1;
     }
 
     LeaveCriticalSection(&recv_mutex);
