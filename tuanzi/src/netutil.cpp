@@ -219,7 +219,7 @@ struct NICINFO *get_nics_info(const char *ifname)
                     cur_info->use_dhcp =
                         check_dhcp(
                             cur_if->ifa_name,
-                            inet_ntoa({tmp_ipnode->ipaddr})
+                            inet_ntoa({ tmp_ipnode->ipaddr })
                         );
 
                 } else {
@@ -903,8 +903,7 @@ bool isNoChangeIP(in_addr_t *ipaddr1, in_addr_t *ipaddr2)
 
 unsigned long htonLONGLONG(unsigned long val)
 {
-    swap128(reinterpret_cast<unsigned char *>(&val));
-    return val;
+    return bswap_64(val);
 }
 
 void stop_dhclient_asyn()
@@ -1004,19 +1003,13 @@ void disable_enable_nic(const char *ifname)
     if (fd == -1)
         return;
 
-    if (ioctl(fd, SIOCGIFFLAGS, &ifr))
-        return;
-
+#define EXIT_ON_FAIL (expr) if (expr) { close(fd); return; }
+    EXIT_ON_FAIL(ioctl(fd, SIOCGIFFLAGS, &ifr));
     ifr.ifr_flags &= ~IFF_UP;
-
-    if (ioctl(fd, SIOCSIFFLAGS, &ifr))
-        return;
-
+    EXIT_ON_FAIL(ioctl(fd, SIOCSIFFLAGS, &ifr));
     ifr.ifr_flags |= IFF_UP;
-
-    if (ioctl(fd, SIOCSIFFLAGS, &ifr))
-        return;
-
+    EXIT_ON_FAIL(ioctl(fd, SIOCSIFFLAGS, &ifr));
+#undef EXIT_ON_FAIL
     close(fd);
 }
 
@@ -1281,10 +1274,7 @@ bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool)
 {
     struct NICINFO *nic_info = nullptr;
     InitDhcpIpInfo(info);
-    g_dhcpDug.AppendText(
-        "Adapter name:%s",
-        CtrlThread->field_240.field_38
-    );
+    g_dhcpDug.AppendText("Adapter name:%s", CtrlThread->field_240.field_38);
     nic_info = get_nics_info(CtrlThread->field_240.field_38);
 
     if (!nic_info)
@@ -1293,6 +1283,50 @@ bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool)
     info.field_0 = CtrlThread->field_240.field_54;
     info.adapter_mac = nic_info->hwaddr;
     info.dns = htonl(nic_info->dns);
+    info.gateway = htonl(nic_info->gateway);
+    info.gateway_mac = nic_info->gateway;
+
+    if (nic_info->ipaddrs->ipaddr) {
+        info.ip4_ipaddr = nic_info->ipaddrs->ipaddr;
+        info.ip4_netmask = nic_info->ipaddrs->netmask;
+    }
+
+    info.ipaddr6_count = nic_info->ipaddr6_count;
+
+    for (
+        struct NICINFO::IP6AddrNode *cip = nic_info->ip6addrs;
+        cip;
+        cip = cip->next
+    ) {
+        swapipv6(cip->ipaddr);
+        swapipv6(cip->netmask);
+        info.ip6_netmask = cip->netmask;
+
+        if (cip->ipaddr.s6_addr[0] == 0xFE) {
+            if (
+                cip->ipaddr.s6_addr[1] & 0xC0 == 0x80 &&
+                !info.ip6_link_local_ipaddr.s6_addr[0] &&
+                !info.ip6_link_local_ipaddr.s6_addr[1]
+            )
+                info.ip6_link_local_ipaddr = cip->ipaddr;
+
+            else if (
+                cip->ipaddr.s6_addr[1] & 0xC0 == 0xC0 &&
+                !info.ip6_ipaddr.s6_addr[0] &&
+                !info.ip6_ipaddr.s6_addr[1]
+            )
+                info.ip6_ipaddr = cip->ipaddr;
+
+        } else if (
+            cip->ipaddr.s6_addr[0] & 0xE0 == 0x20 &&
+            !info.ip6_ipaddr.s6_addr[0] &&
+            !info.ip6_ipaddr.s6_addr[1]
+        )
+            info.ip6_ipaddr = cip->ipaddr;
+    }
+
+    free_nics_info(nic_info);
+    return true;
 }
 
 void repair_ip_gateway(
@@ -1300,4 +1334,95 @@ void repair_ip_gateway(
     const std::string &adapter_name
 )
 {
+    struct ifreq ifr = { adapter_name.c_str() };
+    struct rtentry route = {};
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+
+    if (fd == -1)
+        return;
+
+#define EXIT_ON_FAIL(expr) if (expr) { close(fd); return; }
+    ifr.ifr_addr = htonl(info.ip4_ipaddr);
+    EXIT_ON_FAIL(ioctl(fd, SIOCSIFADDR, &ifr));
+    ifr.ifr_addr = htonl(info.ip4_netmask);
+    EXIT_ON_FAIL(ioctl(fd, SIOCSIFNETMASK, &ifr));
+    reinterpret_cast<struct sockaddr_in *>
+    (&route.rt_gateway)->sin_addr.s_addr = htonl(info.gateway);
+    EXIT_ON_FAIL(ioctl(fd, SIOCADDRT, &route));
+#undef EXIT_ON_FAIL
+    close(fd);
+}
+
+void swapipv6(struct in6_addr *addr)
+{
+    swap128(&addr->s6_addr);
+}
+
+void CopyDirTranPara(
+    struct tagDirTranPara *dst,
+    const struct tagDirTranPara *src
+)
+{
+    memcpy(dst, src, sizeof(struct tagDirTranPara));
+    memset(dst->data, 0, sizeof(dst->data));
+
+    if (dst->mtu > MAX_MTU)
+        dst->mtu = MAX_MTU;
+
+    memcpy(dst->data, src->data, dst->mtu);
+}
+
+void CreateDirPktHead(
+    struct mtagFinalDirPacket &final_packet_head,
+    struct tagDirPacketHead &packet_head,
+    [[maybe_unused]] struct tagSenderBind &sender_bind,
+    unsigned char *buf,
+    unsigned buflen,
+    unsigned char *keybuf,
+    unsigned char *ivbuf
+)
+{
+    unsigned char *checksum_buf = nullptr;
+    unsigned char md5_checksum[16] = {};
+    char *md5_checksum_ascii = nullptr;
+#define COPY_FIELD(name) final_packet_head.name = packet_head.name
+    COPY_FIELD(version);
+    COPY_FIELD(response_code);
+    COPY_FIELD(id);
+    COPY_FIELD(packet_len);
+    memcpy(
+        final_packet_head.md5sum,
+        packet_head.md5sum,
+        sizeof(packet_head.md5sum)
+    );
+    COPY_FIELD(session_id);
+    COPY_FIELD(timestamp);
+    final_packet_head.field_24 = packet_head.field_28;
+    COPY_FIELD(slicetype);
+    COPY_FIELD(data_len);
+#undef COPY_FIELD
+    checksum_buf = new unsigned char[ntohs(packet_head.packet_len) + 16];
+    *reinterpret_cast<struct mtagFinalDirPacket *>(checksum_buf) =
+        final_packet_head;
+    memset(
+        reinterpret_cast<struct mtagFinalDirPacket *>(checksum_buf)->md5sum,
+        0,
+        sizeof(md5_checksum)
+    );
+    // we must hard-code keybuf and ivbuf's size
+    memcpy(checksum_buf + sizeof(struct mtagFinalDirPacket), keybuf, 8);
+    memcpy(checksum_buf + sizeof(struct mtagFinalDirPacket) + 8, ivbuf, 8);
+    md5_checksum_ascii =
+        CMD5Checksum::GetMD5(
+            checksum_buf,
+            sizeof(struct mtagFinalDirPacket) + sizeof(md5_checksum)
+        );
+    MD5StrtoUChar(md5_checksum_ascii, md5_checksum);
+    memcpy(
+        reinterpret_cast<struct mtagFinalDirPacket *>(checksum_buf)->md5sum,
+        md5_checksum,
+        sizeof(md5_checksum)
+    );
+    delete[] md5_checksum_ascii;
+    delete[] checksum_buf;
 }

@@ -1,8 +1,6 @@
 #ifndef DIRECTTRANSFER_H_INCLUDED
 #define DIRECTTRANSFER_H_INCLUDED
 
-#define MAX_MTU 1400
-
 #include "dirtranstags.h"
 
 class CDirectTransfer

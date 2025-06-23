@@ -1,7 +1,7 @@
 #ifndef CMDUTIL_H_INCLUDED
 #define CMDUTIL_H_INCLUDED
 
-[[maybe_unused, gnu::format(printf, 1, 2)]]
+[[gnu::format(printf, 1, 2)]]
 extern void message_info(const char *format, ...);
 extern void message_info(const std::string &str);
 [[noreturn]] extern void display_usage();

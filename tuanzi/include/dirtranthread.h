@@ -122,7 +122,7 @@ class CDirTranThread : public CLnxThread
         std::vector<struct tagDataSendUnit> data_send;
         CRITICAL_SECTION data_send_mutex;
         std::vector<struct tagDirectCom_ProtocalParam> proto_params;
-        CRITICAL_SECTION set_proto_param_mutex;
+        CRITICAL_SECTION get_set_proto_param_mutex;
         unsigned next_alloc_sender_id;
         std::vector<struct tagRetPara> ret_para;
         CDirectTransfer direct_transfer;

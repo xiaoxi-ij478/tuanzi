@@ -73,6 +73,7 @@ extern CLogFile g_logContextControl;
 extern CLogFile g_logFile_dns;
 
 extern CCheckRunThread chkRunThread;
+// TODO
 //extern CContextControlThread *CtrlThread;
 
 #endif // GLOBAL_H_INCLUDED

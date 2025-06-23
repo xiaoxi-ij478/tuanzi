@@ -158,5 +158,19 @@ extern void repair_ip_gateway(
     const struct DHCPIPInfo &info,
     const std::string &adapter_name
 );
+extern void swapipv6(struct in6_addr *addr);
+extern void CopyDirTranPara(
+    struct tagDirTranPara *dst,
+    const struct tagDirTranPara *src
+);
+extern void CreateDirPktHead(
+    struct mtagFinalDirPacket &final_packet_head,
+    struct tagDirPacketHead &packet_head,
+    struct tagSenderBind &sender_bind,
+    unsigned char *buf,
+    unsigned buflen,
+    unsigned char *keybuf,
+    unsigned char *ivbuf
+);
 
 #endif // NETUTIL_H_INCLUDED

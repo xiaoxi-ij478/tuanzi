@@ -137,7 +137,7 @@ class CUDPListenThread : public CLnxThread
         bool working_falg;
         bool listen_res;
         std::vector<struct tagDirectCom_ProtocalParam> proto_params;
-        CRITICAL_SECTION get_proto_param_mutex;
+        CRITICAL_SECTION get_set_proto_param_mutex;
         std::vector<struct tagRecvBind> gsn_pkgs;
         CRITICAL_SECTION recv_mutex;
         unsigned gsn_pkgid;

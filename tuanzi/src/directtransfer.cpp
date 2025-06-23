@@ -14,11 +14,10 @@ CDirectTransfer::~CDirectTransfer()
 
 bool CDirectTransfer::InitPara(const struct tagDirTranPara *para)
 {
-    if (!para)
-        return false;
+    if (para)
+        CopyDirTranPara(&dir_tran_para, para);
 
-    CopyDirTranPara(&dir_tran_para, para);
-    return true;
+    return para;
 }
 
 bool CDirectTransfer::Send(const void *buf, unsigned buflen)

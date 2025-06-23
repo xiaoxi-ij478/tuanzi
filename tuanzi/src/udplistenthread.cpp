@@ -22,7 +22,7 @@ CUDPListenThread::CUDPListenThread(struct UdpListenParam *listen_param) :
     working_falg(),
     listen_res(),
     proto_params(),
-    get_proto_param_mutex(),
+    get_set_proto_param_mutex(),
     gsn_pkgs(),
     recv_mutex(),
     gsn_pkgid(1),
@@ -35,7 +35,7 @@ CUDPListenThread::CUDPListenThread(struct UdpListenParam *listen_param) :
     dir_para.sender_bind.on_receive_packet_post_mtype = -1;
     InitializeCriticalSection(&timestamp_mutex);
     InitializeCriticalSection(&recv_mutex);
-    InitializeCriticalSection(&get_proto_param_mutex);
+    InitializeCriticalSection(&get_set_proto_param_mutex);
     SetClassName("CUDPListenThread");
 }
 
@@ -43,7 +43,7 @@ CUDPListenThread::~CUDPListenThread()
 {
     DeleteCriticalSection(&timestamp_mutex);
     DeleteCriticalSection(&recv_mutex);
-    DeleteCriticalSection(&get_proto_param_mutex);
+    DeleteCriticalSection(&get_set_proto_param_mutex);
 }
 
 int CUDPListenThread::GSNReceiver(
@@ -231,7 +231,7 @@ bool CUDPListenThread::GetProtocalParam(
     unsigned short port
 )
 {
-    EnterCriticalSection(&get_proto_param_mutex);
+    EnterCriticalSection(&get_set_proto_param_mutex);
 
     for (const struct tagDirectCom_ProtocalParam &proto_param_l : proto_params) {
         if (proto_param_l.addr != addr || proto_param_l.port != port)
@@ -239,11 +239,11 @@ bool CUDPListenThread::GetProtocalParam(
 
         proto_param = proto_param_l;
         proto_param.addr = addr;
-        LeaveCriticalSection(&get_proto_param_mutex);
+        LeaveCriticalSection(&get_set_proto_param_mutex);
         return true;
     }
 
-    LeaveCriticalSection(&get_proto_param_mutex);
+    LeaveCriticalSection(&get_set_proto_param_mutex);
     return false;
 }
 
@@ -545,7 +545,7 @@ bool CUDPListenThread::ResponseSender(
     COPY_FIELD(session_id, htonl);
     COPY_FIELD(timestamp, htonLONGLONG);
     dir_head.field_28 = pkg->field_24;
-    COPY_FIELD(sliceid,);
+    COPY_FIELD(slicetype,);
     COPY_FIELD(data_len, htonl);
 #undef COPY_FIELD
 
@@ -587,7 +587,11 @@ bool CUDPListenThread::ResponseSender(
         return false;
     }
 
-    if (dir_head.field_28 != 1 || dir_head.sliceid != 1 || dir_head.data_len)
+    if (
+        dir_head.field_28 != 1 ||
+        dir_head.slicetype != DIRPACKET_SINGLE ||
+        dir_head.data_len
+    )
         return false;
 
     if (!IsGoodAsyUTC(proto_param, dir_head.timestamp)) {
@@ -689,7 +693,7 @@ bool CUDPListenThread::RevcDirectPack(
     COPY_FIELD(session_id, htonl);
     COPY_FIELD(timestamp, htonLONGLONG);
     dir_head.field_28 = pkg->field_24;
-    COPY_FIELD(sliceid,);
+    COPY_FIELD(slicetype,);
     COPY_FIELD(data_len, htonl);
 #undef COPY_FIELD
 
@@ -723,7 +727,13 @@ bool CUDPListenThread::RevcDirectPack(
         dir_head.timestamp
     );
 
-    if (dir_head.id == 1 && dir_head.sliceid <= 4) {
+    if (
+        dir_head.id == 1 &&
+        (
+            dir_head.slicetype == DIRPACKET_MULTI_MIDDLE ||
+            dir_head.slicetype == DIRPACKET_MULTI_END
+        )
+    ) {
         logFile_debug.AppendText("报文ID为1的,不能为中间分片报文或者最后一个分片报文");
         return false;
     }
@@ -798,7 +808,11 @@ bool CUDPListenThread::RevcDirectPack(
         session
     );
 
-    if (dir_head.id == 1 || dir_head.sliceid == 2 || dir_head.sliceid == 1) {
+    if (
+        dir_head.id == 1 ||
+        dir_head.slicetype == DIRPACKET_MULTI_BEGIN ||
+        dir_head.slicetype == DIRPACKET_SINGLE
+    ) {
         if (session.data && session.received) {
             logFile_debug.AppendText("重新接收一下数据，前面数据丢失掉");
             delete[] session.data;
@@ -826,7 +840,7 @@ bool CUDPListenThread::RevcDirectPack(
         if (
             dir_head.id < session.cur_sliceid ||
             session.cur_sliceid < dir_head.id - 1 ||
-            dir_head.sliceid == 4 &&
+            dir_head.slicetype == DIRPACKET_MULTI_END &&
             dir_head.packet_len +
             session.received -
             sizeof(struct mtagFinalDirPacket) != dir_head.data_len
@@ -875,7 +889,7 @@ bool CUDPListenThread::RevcDirectPack(
                 logFile_debug.AppendText(
                     "收到合法ID[%d]分片报文，但是报文分片[%d]或者长度[%d]不正确",
                     dir_head.id,
-                    dir_head.sliceid,
+                    dir_head.slicetype,
                     dir_head.data_len
                 );
         }
@@ -966,7 +980,7 @@ void CUDPListenThread::SendResponse(
     new_packet_head = packet_head;
     new_packet_head.response_code = DIRPACKET_RESPONSE;
     new_packet_head.packet_len = htons(sizeof(struct mtagFinalDirPacket));
-    new_packet_head.sliceid = 1;
+    new_packet_head.slicetype = DIRPACKET_SINGLE;
     new_packet_head.field_28 = packet_head.field_28;
     new_packet_head.session_id = htonl(packet_head.session_id);
     new_packet_head.id = htonl(new_packet_head.id);
@@ -1000,7 +1014,7 @@ void CUDPListenThread::SendResponse(
     COPY_FIELD(session_id);
     COPY_FIELD(timestamp);
     final_packet_head.field_24 = new_packet_head.field_28;
-    COPY_FIELD(sliceid);
+    COPY_FIELD(slicetype);
     COPY_FIELD(data_len);
 #undef COPY_FIELD
     *reinterpret_cast<struct mtagFinalDirPacket *>(checksum_buf) =
@@ -1033,15 +1047,16 @@ void CUDPListenThread::SendResponse(
         md5_checksum,
         sizeof(md5_checksum)
     );
+    delete[] md5_checksum_ascii;
     dir_trans.Send(&final_packet_head, sizeof(final_packet_head));
 }
 
 void CUDPListenThread::SetDirParaXieYi(
-    const tagDirectCom_ProtocalParam &proto_param
+    const struct tagDirectCom_ProtocalParam &proto_param
 )
 {
     bool found = false;
-    EnterCriticalSection(&get_proto_param_mutex);
+    EnterCriticalSection(&get_set_proto_param_mutex);
 
     for (struct tagDirectCom_ProtocalParam &proto_param_l : proto_params) {
         if (
@@ -1061,7 +1076,7 @@ void CUDPListenThread::SetDirParaXieYi(
         proto_params.push_back(proto_param);
 
     su_ipaddr = proto_param.su_ipaddr;
-    LeaveCriticalSection(&get_proto_param_mutex);
+    LeaveCriticalSection(&get_set_proto_param_mutex);
 
     if (proto_param.version != 1)
         InitTimeStampV2(proto_param.addr, proto_param.port, proto_param.utc_time);
@@ -1136,7 +1151,7 @@ bool CUDPListenThread::SetProtocalParam_TimeStamp(
 )
 {
     bool found = false;
-    EnterCriticalSection(&get_proto_param_mutex);
+    EnterCriticalSection(&get_set_proto_param_mutex);
 
     for (struct tagDirectCom_ProtocalParam &proto_param_l : proto_params) {
         if (proto_param_l.addr != addr || proto_param_l.port != port)
@@ -1145,7 +1160,7 @@ bool CUDPListenThread::SetProtocalParam_TimeStamp(
         proto_param_l.utc_time = utc_time;
         proto_param_l.timestamp = timestamp;
         proto_param_l.check_timestamp = utc_time;
-        LeaveCriticalSection(&get_proto_param_mutex);
+        LeaveCriticalSection(&get_set_proto_param_mutex);
 
         if (proto_param_l.version != 1)
             InitTimeStampV2(addr, port, utc_time);
@@ -1153,7 +1168,7 @@ bool CUDPListenThread::SetProtocalParam_TimeStamp(
         return true;
     }
 
-    LeaveCriticalSection(&get_proto_param_mutex);
+    LeaveCriticalSection(&get_set_proto_param_mutex);
     return false;
 }
 

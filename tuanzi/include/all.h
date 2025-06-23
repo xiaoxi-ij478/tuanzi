@@ -55,7 +55,6 @@
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
-#include <sys/param.h>
 #include <sys/select.h>
 #include <sys/sem.h>
 #include <sys/socket.h>

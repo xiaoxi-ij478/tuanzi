@@ -4,6 +4,15 @@
 #include "stdpkgs.h"
 #include "waithandle.h"
 
+#define MAX_MTU 1400
+
+enum DIRPACKET_SLICETYPE : uint8_t {
+    DIRPACKET_SINGLE = 1,
+    DIRPACKET_MULTI_BEGIN,
+    DIRPACKET_MULTI_MIDDLE,
+    DIRPACKET_MULTI_END
+};
+
 struct tagDirectCom_ProtocalParam {
     in_addr_t addr;
     unsigned short port;
@@ -89,21 +98,21 @@ struct tagRecvBind {
     std::vector<struct tagRecvSessionBind> recv_session_bounds;
 };
 
-enum DIRPACKETRESPCODE : uint8_t {
+enum DIRPACKET_RESPCODE : uint8_t {
     DIRPACKET_REQUEST = 1,
     DIRPACKET_RESPONSE
 };
 
 struct [[gnu::packed]] mtagFinalDirPacket {
     uint8_t version;
-    enum DIRPACKETRESPCODE response_code;
+    enum DIRPACKET_RESPCODE response_code;
     uint32_t id;
     uint16_t packet_len;
     uint8_t md5sum[16];
     uint32_t session_id;
     uint64_t timestamp;
     uint8_t field_24;
-    uint8_t sliceid;
+    enum DIRPACKET_SLICETYPE slicetype;
     uint32_t data_len;
 };
 
@@ -111,18 +120,35 @@ struct [[gnu::packed]] DirTransFullPkg : etherudppkg, mtagFinalDirPacket {};
 
 struct tagDirPacketHead {
     unsigned char version;
-    enum DIRPACKETRESPCODE response_code;
+    enum DIRPACKET_RESPCODE response_code;
     unsigned id;
     unsigned short packet_len;
     unsigned char md5sum[16];
     unsigned session_id;
     unsigned long timestamp;
     bool field_28;
-    unsigned char sliceid;
+    enum DIRPACKET_SLICETYPE slicetype;
     unsigned data_len;
 };
 
 struct tagSenderBind {
+    tagSenderBind() = default;
+    tagSenderBind(
+        int id,
+        in_addr_t srcaddr,
+        unsigned srcport,
+        in_addr_t dstaddr,
+        unsigned dstport,
+        int on_receive_packet_post_mtype
+    ) :
+        id(id),
+        srcaddr(srcaddr),
+        srcport(srcport),
+        dstaddr(dstaddr),
+        dstport(dstport),
+        on_receive_packet_post_mtype(on_receive_packet_post_mtype)
+    {}
+
     int id;
     in_addr_t srcaddr;
     unsigned srcport;
@@ -165,39 +191,12 @@ struct tagTimeStampV2 {
     unsigned field_1C;
 };
 
-struct tagSmpInitPacket_BasicConfig {
-    unsigned hi_detect_interval;
-    unsigned hello_interval;
-    std::string hello_response;
-    unsigned hostinfo_report_interval;
-    unsigned timeout;
-    unsigned retry_times;
-    std::string login_url;
-    std::string disable_arpbam;
-    std::string disable_dhcpbam;
-};
-
-struct tagSmpInitPacket_ARP {
-    unsigned enabled;
-    std::string gateway_ip;
-    std::string gateway_mac;
-};
-
 struct tagSmpInitPacket_ARPAttackDetection {
     bool is_detection;
     unsigned short dontknowwhat;
     struct ether_addr gateway_mac;
     in_addr_t gateway_ip;
     unsigned report_interval;
-};
-
-struct tagSmpInitPacket_IllegalNetworkDetect {
-    unsigned enabled;
-    std::string syslog_ip;
-    unsigned syslog_port;
-    unsigned detect_interval;
-    unsigned is_block;
-    std::string block_tip;
 };
 
 struct tagSmpInitPacket_SendPacketCheck {
@@ -210,9 +209,31 @@ struct tagSmpInitPacket_SendPacketCheck {
 
 struct tagSmpInitPacket {
     std::string field_0;
-    struct tagSmpInitPacket_BasicConfig basic_config;
-    struct tagSmpInitPacket_ARP arp;
-    struct tagSmpInitPacket_IllegalNetworkDetect illegal_network_detect;
+
+    struct {
+        unsigned hi_detect_interval;
+        unsigned hello_interval;
+        std::string hello_response;
+        unsigned hostinfo_report_interval;
+        unsigned timeout;
+        unsigned retry_times;
+        std::string login_url;
+        std::string disable_arpbam;
+        std::string disable_dhcpbam;
+    } basic_config;
+    struct {
+        unsigned enabled;
+        std::string gateway_ip;
+        std::string gateway_mac;
+    } arp;
+    struct {
+        unsigned enabled;
+        std::string syslog_ip;
+        unsigned syslog_port;
+        unsigned detect_interval;
+        unsigned is_block;
+        std::string block_tip;
+    } illegal_network_detect;
     std::string hi_xml;
     std::string security_domain_xml;
 };

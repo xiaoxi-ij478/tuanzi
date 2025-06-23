@@ -1127,4 +1127,5 @@ CLogFile g_logContextControl;
 CLogFile g_logFile_dns;
 
 CCheckRunThread chkRunThread;
+// TODO
 //CContextControlThread *CtrlThread = nullptr;

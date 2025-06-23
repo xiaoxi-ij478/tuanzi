@@ -171,7 +171,7 @@ bool CSuConfigFile::Open(const char *rfilename)
     ibuf = new unsigned char[orig_size];
 
     for (unsigned i = 0; !ifs.eof(); i++)
-        ibuf[i] = ~/*static_cast<unsigned char>*/(ifs.get());
+        ibuf[i] = ~ifs.get();
 
     ifs.close();
     decompress_size = Decompress(ibuf, obuf, orig_size, 0);

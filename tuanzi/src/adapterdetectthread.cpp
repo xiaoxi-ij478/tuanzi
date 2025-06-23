@@ -179,7 +179,7 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
             g_log_Wireless.AppendText("ipv4 count:%d", cur_info->ipaddr_count);
 
             for (
-                struct NICINFO::IPAddrNode *cip = cur_info->ipaddrs;
+                const struct NICINFO::IPAddrNode *cip = cur_info->ipaddrs;
                 cip;
                 cip = cip->next
             )

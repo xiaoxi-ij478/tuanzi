@@ -8,6 +8,7 @@ class CSuConfigFile
     public:
         CSuConfigFile();
         virtual ~CSuConfigFile();
+
         void Close();
         bool Open();
         bool WritePrivateProfileString(

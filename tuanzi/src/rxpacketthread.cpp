@@ -84,14 +84,14 @@ void CRxPacketThread::SetPacketFilter(const char *filter_expr)
     if (pcap_compile(pcap_handle, &filter, filter_expr, true, 0)) {
         rj_printf_debug("pcap_compile error %s\n", pcap_geterr(pcap_handle));
         pcap_close(pcap_handle);
-        pthread_exit(0);
+        pthread_exit(nullptr);
     }
 
     if (pcap_setfilter(pcap_handle, &filter)) {
         rj_printf_debug("pcap_setfilter error %s\n", pcap_geterr(pcap_handle));
         pcap_close(pcap_handle);
         pcap_freecode(&filter);
-        pthread_exit(0);
+        pthread_exit(nullptr);
     }
 
     pcap_freecode(&filter);
@@ -195,7 +195,7 @@ void CRxPacketThread::RecvPacketCallBack(
     if (h->caplen < sizeof(struct ether_header))
         return;
 
-    alloc_size = MAX(h->caplen, 1999);
+    alloc_size = std::max(h->caplen, 1999);
     pkg = reinterpret_cast<struct etherudppkg *>
           (pkg_char = new unsigned char[alloc_size]);
     memcpy(pkg, bytes, alloc_size);

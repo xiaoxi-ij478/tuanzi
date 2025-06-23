@@ -6,8 +6,7 @@
 #include "global.h"
 #include "dirtranstags.h"
 
-struct UserInfo
-{
+struct UserInfo {
     unsigned unl2t1;
     unsigned dcd2x;
     std::string ed2e1;
@@ -107,10 +106,6 @@ extern void decode(unsigned char *buf, int buflen);
 extern void encode(unsigned char *buf, int buflen);
 extern std::string makeLower(const std::string &str);
 extern std::string makeUpper(const std::string &str);
-extern void CopyDirTranPara(
-    struct tagDirTranPara *dst,
-    const struct tagDirTranPara *src
-);
 extern int StringToHex(
     const std::string &str,
     unsigned char *retbuf,

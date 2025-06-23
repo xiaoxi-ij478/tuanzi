@@ -201,7 +201,7 @@ int main(int argc, char **argv)
     }
 
     // make the log directory
-    // original "mkdir -p ${g_strAppPath}log"
+    // "mkdir -p ${g_strAppPath}log"
     if (
         mkdir((g_strAppPath + "log").c_str(), 0755) == -1 &&
         errno != EEXIST

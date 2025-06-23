@@ -28,12 +28,13 @@ int get_sata_serial(int fd, char *dst)
         return -1;
     }
 
-    if (hdr.host_status != 0x00 /* DID_OK */ ||
-            hdr.driver_status != 0x08 /* DRIVER_SENSE */ || (
-                hdr.status != 0x00 /* GOOD */ &&
-                hdr.status != 0x02 /* CONDITION_GOOD */
-            )
-       ) {
+    if (
+        hdr.host_status != 0x00 /* DID_OK */ ||
+        hdr.driver_status != 0x08 /* DRIVER_SENSE */ || (
+            hdr.status != 0x00 /* GOOD */ &&
+            hdr.status != 0x02 /* CONDITION_GOOD */
+        )
+    ) {
         errno = EIO;
         return -2;
     }
