@@ -29,8 +29,6 @@ bool CRxPacketThread::DispathMessage(struct LNXMSG *msg)
 {
     if (msg->mtype == START_THREAD_MTYPE)
         StartRecvPacket();
-
-    return false;
 }
 
 void CRxPacketThread::CloseAdapter()

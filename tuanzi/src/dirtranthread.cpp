@@ -4,6 +4,7 @@
 #include "threadutil.h"
 #include "netutil.h"
 #include "sudes.h"
+#include "vz_apiapp.h"
 #include "dirtranthread.h"
 
 CDirTranThread::CDirTranThread() :
@@ -63,8 +64,6 @@ bool CDirTranThread::DispathMessage(struct LNXMSG *msg)
 {
     if (msg->mtype == ON_TRANSPACKET_MTYPE)
         OnTransPacket(msg->buflen, msg->buf);
-
-    return false;
 }
 
 void CDirTranThread::ClearRetPara() const
@@ -647,28 +646,29 @@ bool CDirTranThread::PostPacketNoResponse(
     };
     struct tagDataSendUnit send_unit = {};
     unsigned char *msg = nullptr;
+    unsigned buflen_new = buflen;
 
     if (!GetProtocalParamFromSenderHand(proto_param, id)) {
         logFile_debug.AppendText("sendMessage>找不到相应的协议参数");
         return false;
     }
 
-    if (buflen & 7)
-        buflen = buflen + 8 - buflen % 8;
+    if (buflen_new & 7)
+        buflen_new = buflen_new + 8 - buflen_new % 8;
 
     send_unit.id = id;
-    send_unit.msg = new unsigned char[buflen];
+    send_unit.msg = new unsigned char[buflen_new];
     send_unit.eventret = nullptr;
     send_unit.ret = nullptr;
     send_unit.need_reply = false;
     send_unit.session_id = next_session_id++;
-    send_unit.totallen = buflen;
+    send_unit.totallen = buflen_new;
 
     if (!send_unit.msg)
         return false;
 
     memcpy(send_unit.msg, buf, buflen);
-    EncryptPrivateData(proto_param, send_unit.msg, buflen);
+    EncryptPrivateData(proto_param, send_unit.msg, buflen_new);
     EnterCriticalSection(&data_send_mutex);
     data_send.push_back(send_unit);
     LeaveCriticalSection(&data_send_mutex);
@@ -690,33 +690,160 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
         0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
     };
     struct tagDataSendUnit send_unit = {};
-if(!GetProtocalParamFromSenderHand(proto_param,id))
-{
+    unsigned heartbeat_checksum_sum = 0;
+    unsigned buflen_new = buflen;
+
+    if (!GetProtocalParamFromSenderHand(proto_param, id)) {
         logFile_debug.AppendText("sendMessage>找不到相应的协议参数");
-    return false;
-}
-send_unit.id=-1;
-send_unit.totallen=0;
-send_unit.msg=nullptr;
-send_unit.eventret=nullptr;
-send_unit.ret=nullptr;
-send_unit.session_id=next_session_id++;
-send_unit.need_reply=false;
-// TODO
+        return false;
+    }
+
+    send_unit.id = id;
+    send_unit.totallen = 0;
+    send_unit.msg = nullptr;
+    send_unit.eventret = nullptr;
+    send_unit.ret = nullptr;
+    send_unit.session_id = next_session_id++;
+    send_unit.need_reply = false;
+
+    if (CtrlThread->direct_comm_heartbeat_flags == 1) {
+        logFile_debug.AppendText(
+            "PostPacketSAMHeartbeatNoResponse, "
+            "direct-communication-heartbeat-flags is %u.",
+            1
+        );
+
+        for (unsigned i = 0, a = send_unit.session_id; i < 4; i++) {
+            heartbeat_checksum_sum += a & 0xFF;
+            a >>= 8;
+        }
+
+        heartbeat_checksum_sum +=
+            std::accumulate(
+                e_pMd5Chanllenge,
+                e_pMd5Chanllenge + sizeof(e_pMd5Chanllenge),
+                0
+            );
+        buf[buflen_new] = 0x14;
+        buf[buflen_new + 1] = 0x80; // buffer len
+        CVz_APIApp::V3HeartbeatAPI(
+            &cHeartBeatArray[(0x2D7 * heartbeat_checksum_sum % 0x35) << 7],
+            buf[buflen_new + 1],
+            &buf[buflen_new + 2],
+            0x2D7 * heartbeat_checksum_sum % 0x35
+        );
+        buflen_new += buf[buflen_new + 1] + 2;
+    }
+
+    if (buflen_new & 7)
+        buflen_new = buflen_new + 8 - buflen_new % 8;
+
+    send_unit.totallen = buflen_new;
+
+    if (!(send_unit.msg = new unsigned char[buflen_new]))
+        return false;
+
+    memcpy(send_unit.msg, buf, buflen);
+    EncryptPrivateData(proto_param, send_unit.msg, buflen_new);
+    EnterCriticalSection(&data_send_mutex);
+    data_send.push_back(send_unit);
+    LeaveCriticalSection(&data_send_mutex);
+    logFile_debug.AppendText(
+        "%s PostThreadMessage =%d",
+        "PostPacketSAMHeartbeatNoResponse",
+        PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, nullptr)
+    );
+    return true;
 }
 
 bool CDirTranThread::SendPacketNoResponse(
     int id,
     unsigned char *buf,
     unsigned buflen,
-    unsigned timeout) const
+    unsigned timeout
+) const
 {
+    struct tagDirectCom_ProtocalParam proto_param = {
+        0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
+    };
+    struct tagDataSendUnit send_unit = {};
+    unsigned buflen_new = buflen;
+
+    if (!GetProtocalParamFromSenderHand(proto_param, id)) {
+        logFile_debug.AppendText("sendMessage>找不到相应的协议参数");
+        return false;
+    }
+
+    if (buflen_new & 7)
+        buflen_new = buflen_new + 8 - buflen_new % 8;
+
+    send_unit.id = id;
+    send_unit.totallen = buflen_new;
+    send_unit.msg = new unsigned char[buflen_new];
+    send_unit.eventret = new WAIT_HANDLE;
+    send_unit.ret = new unsigned;
+    send_unit.need_reply = false;
+    send_unit.session_id = next_session_id++;
+
+    if (!send_unit.msg || !send_unit.eventret || !send_unit.ret) {
+        CloseHandle(send_unit.eventret);
+        delete send_unit.eventret;
+        delete send_unit.ret;
+        delete[] send_unit.msg;
+        return false;
+    }
+
+    memcpy(send_unit.msg, buf, buflen);
+    EncryptPrivateData(proto_param, send_unit.msg, buflen_new);
+    EnterCriticalSection(&data_send_mutex);
+    data_send.push_back(send_unit);
+    LeaveCriticalSection(&data_send_mutex);
+    PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, nullptr);
+
+    if (WaitForSingleObject(send_unit.eventret, 1000 * timeout) == ETIMEDOUT) {
+        ret_para.emplace_back(send_unit.ret, send_unit.eventret);
+        return false;
+
+    } else {
+        CloseHandle(send_unit.eventret);
+        delete send_unit.eventret;
+        delete send_unit.ret;
+        return true; // send_unit.ret != 0
+    }
 }
 
-void CDirTranThread::SetDirParaXieYi(
+bool CDirTranThread::SetDirParaXieYi(
     const struct tagDirectCom_ProtocalParam &proto_param
 ) const
 {
+    bool found = false;
+    EnterCriticalSection(&get_set_proto_param_mutex);
+
+    for (struct tagDirectCom_ProtocalParam &proto_param_l : proto_params) {
+        if (
+            // the original implementation checks if proto_param
+            // is the same as proto_param_l, but we do not check for that
+            proto_param_l.addr != proto_param.addr ||
+            proto_param_l.port != proto_param.port
+        )
+            continue;
+
+        proto_param_l = proto_param;
+        found = true;
+        break;
+    }
+
+    if (!found)
+        proto_params.push_back(proto_param);
+
+    LeaveCriticalSection(&get_set_proto_param_mutex);
+
+    if (udp_listenthread) {
+        udp_listenthread->SetDirParaXieYi(proto_param);
+        udp_listenthread->SetWorkingFalg(true);
+    }
+
+    return true;
 }
 
 bool CDirTranThread::SetProtocalParam_TimeStamp(
@@ -726,6 +853,31 @@ bool CDirTranThread::SetProtocalParam_TimeStamp(
     unsigned long timestamp
 ) const
 {
+    bool found = false;
+    EnterCriticalSection(&get_set_proto_param_mutex);
+
+    for (struct tagDirectCom_ProtocalParam &proto_param : proto_params) {
+        if (proto_param.addr != addr || proto_param.port != port)
+            continue;
+
+        proto_param.utc_time = utc_time;
+        proto_param.timestamp = timestamp;
+        proto_param.check_timestamp = proto_param.utc_time;
+        found = true;
+        break;
+    }
+
+    LeaveCriticalSection(&get_set_proto_param_mutex);
+
+    if (udp_listenthread)
+        udp_listenthread->SetProtocalParam_TimeStamp(
+            addr,
+            port,
+            utc_time,
+            timestamp
+        );
+
+    return found;
 }
 
 bool CDirTranThread::SetReTranPara(
@@ -735,18 +887,68 @@ bool CDirTranThread::SetReTranPara(
     unsigned timeout
 ) const
 {
+    bool found = false;
+    EnterCriticalSection(&get_set_proto_param_mutex);
+
+    for (struct tagDirectCom_ProtocalParam &proto_param : proto_params) {
+        if (proto_param.addr != addr || proto_param.port != port)
+            continue;
+
+        if (retry_count)
+            proto_param.retry_count = retry_count;
+
+        if (timeout)
+            proto_param.timeout = timeout;
+
+        found = true;
+        break;
+    }
+
+    LeaveCriticalSection(&get_set_proto_param_mutex);
+    return found;
 }
 
 void CDirTranThread::StartRun() const
 {
+    running_dir = true;
+    udp_listenthread->SetWorkingFalg(true);
 }
 
 void CDirTranThread::StopRun() const
 {
+    if (!running_dir)
+        return;
+
+    running_dir = false;
+    udp_listenthread->SetWorkingFalg(false);
+    logFile_debug.AppendText(
+        "CDirectTranSrv::StopRun called m_pThreadHandle->SetWorkingFalg after "
+    );
+    CloseAllGSNSender();
 }
 
 bool CDirTranThread::WaitUDP_DirectThread_OK(WAIT_HANDLE &event_udp_ready) const
 {
+    int wait_return = 0;
+    assert(udp_listenthread);
+    rj_printf_debug(
+        "WaitUDP_DirectThread_OK bSignal =%d,hEventUDPReady=%p\n",
+        event_udp_ready.signal,
+        &event_udp_ready
+    );
+    wait_return = WaitForSingleObject(event_udp_ready, 0);
+    rj_printf_debug("WaitForSingleObject bSignal =%d\n", event_udp_ready.signal);
+
+    if (wait_return) {
+        logFile_debug.AppendText(
+            "CDirTranThread::等待UDP线程失败:%d",
+            wait_return
+        );
+        return false;
+    }
+
+    logFile_debug.AppendText("CDirTranThread::检测到UDP线程已初始化完毕");
+    return true;
 }
 
 bool CDirTranThread::postMessage(
@@ -755,6 +957,38 @@ bool CDirTranThread::postMessage(
     unsigned buflen
 ) const
 {
+    struct tagDirectCom_ProtocalParam proto_param = {
+        0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
+    };
+    struct tagDataSendUnit send_unit = {};
+    unsigned buflen_new = buflen;
+
+    if (!GetProtocalParamFromSenderHand(proto_param, id)) {
+        logFile_debug.AppendText("postMessage>找不到相应的协议参数");
+        return false;
+    }
+
+    if (buflen_new & 7)
+        buflen_new = buflen_new + 8 - buflen_new % 8;
+
+    send_unit.id = id;
+    send_unit.msg = new unsigned char[buflen_new];
+    send_unit.eventret = nullptr;
+    send_unit.ret = nullptr;
+    send_unit.need_reply = true;
+    send_unit.session_id = next_session_id++;
+    send_unit.totallen = buflen_new;
+
+    if (!send_unit.msg)
+        return false;
+
+    memcpy(send_unit.msg, buf, buflen);
+    EncryptPrivateData(proto_param, send_unit.msg, buflen_new);
+    EnterCriticalSection(&data_send_mutex);
+    data_send.push_back(send_unit);
+    LeaveCriticalSection(&data_send_mutex);
+    PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, nullptr);
+    return true;
 }
 
 bool CDirTranThread::sendMessage(
@@ -763,6 +997,53 @@ bool CDirTranThread::sendMessage(
     unsigned buflen
 ) const
 {
+    struct tagDirectCom_ProtocalParam proto_param = {
+        0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
+    };
+    struct tagDataSendUnit send_unit = {};
+    unsigned buflen_new = buflen;
+
+    if (!GetProtocalParamFromSenderHand(proto_param, id)) {
+        logFile_debug.AppendText("sendMessage>找不到相应的协议参数");
+        return false;
+    }
+
+    if (buflen_new & 7)
+        buflen_new = buflen_new + 8 - buflen_new % 8;
+
+    send_unit.id = id;
+    send_unit.totallen = buflen_new;
+    send_unit.msg = new unsigned char[buflen_new];
+    send_unit.eventret = new WAIT_HANDLE;
+    send_unit.ret = new unsigned;
+    send_unit.need_reply = false;
+    send_unit.session_id = next_session_id++;
+
+    if (!send_unit.msg || !send_unit.eventret || !send_unit.ret) {
+        CloseHandle(send_unit.eventret);
+        delete send_unit.eventret;
+        delete send_unit.ret;
+        delete[] send_unit.msg;
+        return false;
+    }
+
+    memcpy(send_unit.msg, buf, buflen);
+    EncryptPrivateData(proto_param, send_unit.msg, buflen_new);
+    EnterCriticalSection(&data_send_mutex);
+    data_send.push_back(send_unit);
+    LeaveCriticalSection(&data_send_mutex);
+    PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, nullptr);
+
+    if (WaitForSingleObject(send_unit.eventret, 0)) {
+        ret_para.emplace_back(send_unit.ret, send_unit.eventret);
+        return false;
+
+    } else {
+        CloseHandle(send_unit.eventret);
+        delete send_unit.eventret;
+        delete send_unit.ret;
+        return true; // send_unit.ret != 0
+    }
 }
 
 bool CDirTranThread::sendMessageWithTimeout(
@@ -772,4 +1053,62 @@ bool CDirTranThread::sendMessageWithTimeout(
     unsigned timeout
 ) const
 {
+    struct tagDirectCom_ProtocalParam proto_param = {
+        0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
+    };
+    struct tagDataSendUnit send_unit = {};
+    unsigned buflen_new = buflen;
+
+    if (!GetProtocalParamFromSenderHand(proto_param, id)) {
+        logFile_debug.AppendText("sendMessageWithTimeout>找不到相应的协议参数");
+        return false;
+    }
+
+    if (buflen_new & 7)
+        buflen_new = buflen_new + 8 - buflen_new % 8;
+
+    send_unit.id = id;
+    send_unit.totallen = buflen_new;
+    send_unit.msg = new unsigned char[buflen_new];
+    send_unit.eventret = new WAIT_HANDLE;
+    send_unit.ret = new unsigned;
+    send_unit.need_reply = false;
+    send_unit.session_id = next_session_id++;
+
+    if (!send_unit.msg || !send_unit.eventret || !send_unit.ret) {
+        logFile_debug.AppendText(
+            "%s (temUnit.pData == %p || pRet == %p || hWaitRet == %p)",
+            "sendMessageWithTimeout",
+            send_unit.msg,
+            send_unit.ret,
+            send_unit.eventret
+        );
+        CloseHandle(send_unit.eventret);
+        delete send_unit.eventret;
+        delete send_unit.ret;
+        delete[] send_unit.msg;
+        return false;
+    }
+
+    memcpy(send_unit.msg, buf, buflen);
+    EncryptPrivateData(proto_param, send_unit.msg, buflen_new);
+    EnterCriticalSection(&data_send_mutex);
+    data_send.push_back(send_unit);
+    LeaveCriticalSection(&data_send_mutex);
+    logFile_debug.AppendText(
+        "%s PostThreadMessage =%d",
+        "sendMessageWithTimeout",
+        PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, nullptr)
+    );
+
+    if (WaitForSingleObject(send_unit.eventret, 1000 * timeout) == ETIMEDOUT) {
+        ret_para.emplace_back(send_unit.ret, send_unit.eventret);
+        logFile_debug.AppendText("%s Ret == WAIT_TIMEOUT", "sendMessageWithTimeout");
+        return false;
+
+    } else {
+        CloseHandle(send_unit.eventret);
+        delete send_unit.ret;
+        return true; // send_unit.ret != 0
+    }
 }

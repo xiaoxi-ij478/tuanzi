@@ -3,10 +3,6 @@
 
 #include "waithandle.h"
 
-#define STOP_THREAD_MTYPE 0x456
-#define START_THREAD_MTYPE 0x457
-#define ON_TIMER_MTYPE 0x1E61
-
 class CLnxThread;
 
 struct LNXMSG {
@@ -56,7 +52,7 @@ class CLnxThread
 
         virtual bool InitInstance();
         virtual bool Run();
-        virtual bool DispathMessage(struct LNXMSG *msg);
+        virtual void DispathMessage(struct LNXMSG *msg);
         virtual bool OnTimerEnter(int tflag) const;
         virtual void OnTimerLeave(int tflag) const;
         virtual void OnTimer(int tflag) const;

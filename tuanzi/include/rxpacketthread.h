@@ -3,8 +3,6 @@
 
 #include "lnxthread.h"
 
-#define RECV_PAE_PACKET_MTYPE 0x6B
-
 struct CRxPacketThread_msgids {
     int direct_msgid;
     int main_msgid;
@@ -18,7 +16,7 @@ class CRxPacketThread : public CLnxThread
         ~CRxPacketThread() override;
 
     protected:
-        bool DispathMessage(struct LNXMSG *msg) override;
+        void DispathMessage(struct LNXMSG *msg) override;
 
     private:
         void CloseAdapter();

@@ -107,8 +107,6 @@ bool CAdapterDetectThread::DispathMessage(struct LNXMSG *msg)
             OnTimer(msg->buflen, msg->buf);
             break;
     }
-
-    return false;
 }
 
 bool CAdapterDetectThread::ExitInstance()

@@ -5,7 +5,7 @@
 #include "hellothread.h"
 
 CHelloThread::CHelloThread() :
-    field_1D0(-1),
+    msgid(-1),
     hello_timer_interval(),
     hello_para(),
     hello_timerid(),
@@ -31,8 +31,6 @@ bool CHelloThread::DispathMessage(struct LNXMSG *msg)
             OnChangeHelloPara(msg->buflen, msg->buf);
             break;
     }
-
-    return false;
 }
 
 bool CHelloThread::InitInstance()

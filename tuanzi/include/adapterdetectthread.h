@@ -4,27 +4,7 @@
 #include "global.h"
 #include "lnxthread.h"
 
-#define START_DETECT_MTYPE 0x1
-#define STOP_DETECT_MTYPE 0x2
-
-#define PROXY_DETECT_TIMER_MTYPE 0x71
-#define NIC_STATE_DETECT_TIMER_MTYPE 0x72
-
-#define MAC_CHANGED_MTYPE 0x1E
-#define IP_CHANGED_MTYPE 0x1F
-#define MULTIPLE_ADAPTER_MTYPE 0x14
-#define MULTIPLE_IP_MTYPE 0x15
-
-#define STOP_PROXY_DETECT_TIMER_FLAG 0x1
-#define STOP_NIC_STATE_DETECT_TIMER_FLAG 0x2
-
 #define MAX_NIC_NAME_LEN 0x200
-
-#define ADAPTER_UP_REPORT_MTYPE ADAPTER_UP
-#define ADAPTER_DOWN_REPORT_MTYPE ADAPTER_DOWN
-#define ADAPTER_DISABLE_REPORT_MTYPE ADAPTER_DISABLE
-#define ADAPTER_ENABLE_REPORT_MTYPE ADAPTER_ENABLE
-#define ADAPTER_ERROR_REPORT_MTYPE ADAPTER_ERROR
 
 struct DetectNICInfo {
     char nic_name[MAX_NIC_NAME_LEN];
@@ -54,7 +34,7 @@ class CAdapterDetectThread : public CLnxThread
 
     protected:
         bool InitInstance() override;
-        bool DispathMessage(struct LNXMSG *msg) override;
+        void DispathMessage(struct LNXMSG *msg) override;
         void OnTimer(int tflag) const override;
         bool ExitInstance() override;
 

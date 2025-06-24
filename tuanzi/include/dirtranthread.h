@@ -7,8 +7,6 @@
 #include "udplistenthread.h"
 #include "criticalsection.h"
 
-#define ON_TRANSPACKET_MTYPE 0xD9
-
 class CDirTranThread : public CLnxThread
 {
     public:
@@ -16,7 +14,7 @@ class CDirTranThread : public CLnxThread
         ~CDirTranThread() override;
 
     protected:
-        bool DispathMessage(struct LNXMSG *msg) override;
+        void DispathMessage(struct LNXMSG *msg) override;
 
     private:
         void ClearRetPara() const;
@@ -72,14 +70,13 @@ class CDirTranThread : public CLnxThread
             unsigned char *buf,
             unsigned buflen
         ) const;
-
         bool SendPacketNoResponse(
             int id,
             unsigned char *buf,
             unsigned buflen,
             unsigned timeout
         ) const;
-        void SetDirParaXieYi(
+        bool SetDirParaXieYi(
             const struct tagDirectCom_ProtocalParam &proto_param
         ) const;
         bool SetProtocalParam_TimeStamp(

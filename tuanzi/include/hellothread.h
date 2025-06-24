@@ -3,9 +3,6 @@
 
 #include "lnxthread.h"
 
-#define SET_HELLOTIMER_PLEASE_MTYPE 0x82
-#define CHANGE_HELLOPARA_MTYPE 0x7B
-
 struct [[gnu::packed]] HelloPacket_somewhat {
     uint32_t field_0;
     uint32_t field_4;
@@ -31,7 +28,7 @@ class CHelloThread : public CLnxThread
         CHelloThread();
 
     protected:
-        bool DispathMessage(struct LNXMSG *msg) override;
+        void DispathMessage(struct LNXMSG *msg) override;
         bool InitInstance() override;
         void OnTimer(int tflag) const override;
 
@@ -43,7 +40,7 @@ class CHelloThread : public CLnxThread
         void OnHelloTimer(unsigned long buflen, void *buf);
         void OnSetHelloTimerPlease(unsigned long, void *);
 
-        unsigned field_1D0;
+        int msgid;
         unsigned hello_timer_interval;
         unsigned hello_para;
         timer_t hello_timerid;

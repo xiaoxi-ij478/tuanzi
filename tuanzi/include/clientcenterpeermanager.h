@@ -3,10 +3,6 @@
 
 #include "lnxthread.h"
 
-#define START_CONNECT_MTYPE 0x2711
-#define STOP_CONNECT_MTYPE 0x2712
-#define NOTIFY_UPGRADE_MTYPE 0xDD
-
 struct _START_CENTERCONTROL_START_ {
     in_addr_t ipv4;
     unsigned ipv6[4];
@@ -31,7 +27,7 @@ class CClientCenterPeerManager : public CLnxThread
         static bool StopConnect();
 
     protected:
-        bool DispathMessage(struct LNXMSG *msg) override;
+        void DispathMessage(struct LNXMSG *msg) override;
         void OnTimer(int tflag) const override;
         bool ExitInstance() override;
         bool InitInstance() override;

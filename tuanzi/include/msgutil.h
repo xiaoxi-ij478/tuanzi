@@ -2,10 +2,11 @@
 #define MSGUTIL_H_INCLUDED
 
 struct tagMsgItem {
+    tagMsgItem() = default;
     tagMsgItem(
-        int ntype = 0,
-        const std::string &msgtime = "",
-        const std::string &msg = ""
+        int ntype,
+        const std::string &msgtime,
+        const std::string &msg
     ) : ntype(ntype), msgtime(msgtime), msg(msg)
     {}
     int ntype;

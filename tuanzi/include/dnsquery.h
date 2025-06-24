@@ -1,9 +1,6 @@
 #ifndef DNSQUERY_H_INCLUDED
 #define DNSQUERY_H_INCLUDED
 
-#define POST_DNS_QUERY_MTYPE 0x7DA
-#define STOP_DNS_QUERY_MTYPE 0x7DB
-
 struct CHostEnt {
     struct hostent hostent_entry;
     struct CHostEnt *hostent_next;

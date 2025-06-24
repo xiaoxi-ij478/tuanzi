@@ -93,6 +93,7 @@
 		<Unit filename="include/criticalsection.h" />
 		<Unit filename="include/customizeinfo.h" />
 		<Unit filename="include/directtransfer.h" />
+		<Unit filename="include/directtransrv.h" />
 		<Unit filename="include/dirtranstags.h" />
 		<Unit filename="include/dirtranthread.h" />
 		<Unit filename="include/diskutil.h" />
@@ -113,6 +114,7 @@
 		<Unit filename="include/md5checksum.h" />
 		<Unit filename="include/md5forvz.h" />
 		<Unit filename="include/msgutil.h" />
+		<Unit filename="include/mtypes.h" />
 		<Unit filename="include/netutil.h" />
 		<Unit filename="include/proxyclienttcp.h" />
 		<Unit filename="include/proxydetectthread.h" />
@@ -151,6 +153,7 @@
 		<Unit filename="src/criticalsection.cpp" />
 		<Unit filename="src/customizeinfo.cpp" />
 		<Unit filename="src/directtransfer.cpp" />
+		<Unit filename="src/directtransrv.cpp" />
 		<Unit filename="src/dirtranthread.cpp" />
 		<Unit filename="src/diskutil.cpp" />
 		<Unit filename="src/dnsquery.cpp" />

@@ -254,7 +254,6 @@ bool CLnxThread::Run()
 
 bool CLnxThread::DispathMessage([[maybe_unused]] struct LNXMSG *msg)
 {
-    return true;
 }
 
 void CLnxThread::OnTimer(int tflag) const

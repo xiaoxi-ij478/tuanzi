@@ -12,7 +12,7 @@ class CProxyDetectThread : public CLnxThread
 
     protected:
         bool InitInstance() override;
-        bool DispathMessage(struct LNXMSG *msg) override;
+        void DispathMessage(struct LNXMSG *msg) override;
         void OnTimer(int tflag) const override;
         bool ExitInstance() override;
 

@@ -209,7 +209,6 @@ struct tagSmpInitPacket_SendPacketCheck {
 
 struct tagSmpInitPacket {
     std::string field_0;
-
     struct {
         unsigned hi_detect_interval;
         unsigned hello_interval;
@@ -251,9 +250,12 @@ struct tagDataSendUnit {
 };
 
 struct tagRetPara {
-    unsigned char *field_0;
-    WAIT_HANDLE *field_8;
-    unsigned long field_10;
+    tagRetPara() = default;
+    tagRetPara(unsigned *ret, WAIT_HANDLE *eventret) :
+        ret(ret), eventret(eventret)
+    {}
+    unsigned *ret;
+    WAIT_HANDLE *eventret;
 };
 
 struct tagDirTranPara {
@@ -269,6 +271,47 @@ struct tagDirTranPara {
     unsigned char data[MAX_MTU];
     unsigned mtu;
     unsigned field_5D4;
+};
+
+struct tagSmpParaDir {
+    char field_0[128];
+    in_addr_t su_ipaddr;
+    struct ether_addr field_84;
+    char field_8A[128];
+    unsigned field_8A_len;
+    in_addr_t smp_ipaddr;
+    in_addr_t gateway_ipaddr;
+    unsigned smp_port;
+    unsigned su_port;
+    unsigned char keybuf[8];
+    unsigned char ivbuf[8];
+    unsigned long utc_time;
+    unsigned timeout;
+    unsigned retry_count;
+    unsigned char version;
+    unsigned hello_interval;
+    unsigned char hello_response;
+    unsigned hello_fail_time;
+};
+
+struct tagDirectTranSrvPara {
+    bool field_0;
+    bool use_handshake_to_sam;
+    unsigned timer_to_sam;
+    char field_8[128];
+    in_addr_t su_ipaddr;
+    struct ether_addr field_8C;
+    in_addr_t sam_ipaddr;
+    in_addr_t gateway_ipaddr;
+    unsigned sam_port;
+    unsigned su_port;
+    unsigned char keybuf[8];
+    unsigned char ivbuf[8];
+    unsigned long utc_time;
+    unsigned timeout;
+    unsigned retry_count;
+    unsigned char version;
+    bool field_C5;
 };
 
 #endif // DIRTRANSTAGS_H_INCLUDED

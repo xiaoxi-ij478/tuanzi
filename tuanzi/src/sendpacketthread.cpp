@@ -78,10 +78,6 @@ bool CSendPacketThread::DispathMessage(struct LNXMSG *msg)
             CloseAdapter();
             break;
     }
-
-    // the original implementation didn't provide a return value
-    // so we always return false
-    return false;
 }
 
 int CSendPacketThread::DoSendPacket(const unsigned char *buf, int buflen)

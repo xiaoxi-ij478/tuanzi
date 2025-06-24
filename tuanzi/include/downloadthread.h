@@ -51,7 +51,7 @@ class CDownLoadThread : public CLnxThread
         void SetDlPara(struct tagDownLoadPara &para);
 
     protected:
-        bool DispathMessage(struct LNXMSG *msg) override;
+        void DispathMessage(struct LNXMSG *msg) override;
 
     private:
         bool OnStartThread(unsigned long buflen, void *buf);

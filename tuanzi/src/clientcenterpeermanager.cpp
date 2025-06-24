@@ -131,8 +131,6 @@ bool CClientCenterPeerManager::DispathMessage(struct LNXMSG *msg)
             OnTimer(msg->buflen, msg->buf);
             break;
     }
-
-    return false;
 }
 
 void CClientCenterPeerManager::OnTimer(int tflag) const

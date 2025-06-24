@@ -6,9 +6,6 @@
 #include "directtransfer.h"
 #include "dirtranstags.h"
 
-#define RECV_PACKET_RETURN_MTYPE 0x7D1
-#define TIMER_CLEAR_DIR_SENDER 0x6F
-
 struct UdpListenParam {
     key_t mainthread;
     in_addr_t su_ipaddr;
@@ -32,7 +29,7 @@ class CUDPListenThread : public CLnxThread
         );
 
     protected:
-        bool DispathMessage(struct LNXMSG *msg) override;
+        void DispathMessage(struct LNXMSG *msg) override;
         bool ExitInstance() override;
         bool InitInstance() override;
         void OnTimer(int tflag) const override;
@@ -93,7 +90,7 @@ class CUDPListenThread : public CLnxThread
             unsigned srcport,
             const unsigned char *packet
         );
-        void SetDirParaXieYi(const tagDirectCom_ProtocalParam &proto_param);
+        void SetDirParaXieYi(const struct tagDirectCom_ProtocalParam &proto_param);
         void SetIfListenRes(bool val);
         void SetLastTimeStampForReceive(
             in_addr_t addr,
