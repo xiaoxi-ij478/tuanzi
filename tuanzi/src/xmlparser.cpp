@@ -36,8 +36,12 @@ bool XML_PARSER::Add_ElementBefore(const char *name)
     if (!currentElement->Parent())
         return true;
 
-    if (!(newNode =
-                currentElement->Parent()->InsertBeforeChild(currentElement, el)))
+    if (
+        !(
+            newNode =
+                currentElement->Parent()->InsertBeforeChild(currentElement, el)
+        )
+    )
         return true;
 
     currentElement = newNode;
@@ -53,10 +57,15 @@ bool XML_PARSER::Add_FirstChildElement(const char *name)
         return true;
 
     if (currentElement->FirstChildElement()) {
-        if (!(newNode = currentElement->InsertBeforeChild(
-                            currentElement->FirstChildElement(),
-                            el
-                        )))
+        if (
+            !(
+                newNode =
+                    currentElement->InsertBeforeChild(
+                        currentElement->FirstChildElement(),
+                        el
+                    )
+            )
+        )
             return true;
 
     } else if (!(newNode = currentElement->InsertEndChild(el)))
@@ -341,9 +350,9 @@ bool XML_PARSER::Set_Text(const char *str) const
         return true;
 
     for (
-        TiXmlNode *i = el->FirstChild(), *next = i->NextSibling();
+        TiXmlNode *i = el->FirstChild(), *next_l = i->NextSibling();
         i;
-        i = next, next = i ? nullptr : i->NextSibling()
+        i = next_l, next_l = i ? nullptr : i->NextSibling()
     ) {
         if (i->Type() != TINYXML_TEXT)
             continue;
@@ -351,7 +360,7 @@ bool XML_PARSER::Set_Text(const char *str) const
         if (!el->RemoveChild(i))
             return true;
 
-        if (!next) {
+        if (!next_l) {
             el->InsertEndChild(textnode);
             return true;
         }

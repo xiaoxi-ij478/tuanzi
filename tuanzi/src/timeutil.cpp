@@ -18,21 +18,22 @@ void Sleep(int msec)
     usleep(1000 * msec);
 }
 
-void GetAbsTime(struct timespec *tsp, unsigned long off_msec)
+void GetAbsTime(struct timespec *ts, unsigned long off_msec)
 {
     // the original implementation uses gettimeofday & timeval
     // we use clock_gettime & timespec
     // struct timeval tv;
     for (int i = 0; i < 3; i++) {
-        //      if (!gettimeofday(&tv, NULL)) {
-        //          ts->tv_sec = tv.tv_sec + off_msec / 1000;
-        //          ts->tv_nsec = tv.tv_usec * 1000 + off_msec % 1000;
-        //      }
-        if (!clock_gettime(CLOCK_REALTIME, tsp)) {
-            tsp->tv_sec += off_msec / 1000;
-            tsp->tv_nsec += 1000000 * (off_msec % 1000);
-            return;
-        }
+//      if (!gettimeofday(&tv, NULL)) {
+//          ts->tv_sec = tv.tv_sec + off_msec / 1000;
+//          ts->tv_nsec = tv.tv_usec * 1000 + off_msec % 1000;
+//      }
+        if (clock_gettime(CLOCK_REALTIME, ts))
+            continue;
+
+        ts->tv_sec += off_msec / 1000;
+        ts->tv_nsec += 1000000 * (off_msec % 1000);
+        return;
     }
 
     g_logSystem.AppendText("GetAbsTime failed\n");

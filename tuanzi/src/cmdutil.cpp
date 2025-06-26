@@ -21,7 +21,7 @@ void display_usage()
 {
 #define PRINT_USAGE(head, help_str_id) \
     do { \
-        std::cout << head; \
+        std::cout << (head); \
         format_tc_string(tc_width, 24, cinstance.LoadString(help_str_id)); \
         std::cout << std::endl; \
     } while(0)

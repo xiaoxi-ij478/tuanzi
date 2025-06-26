@@ -8,7 +8,7 @@
     ::PostThreadMessage( \
                          control_thread_key, \
                          control_thread_msgid, \
-                         mtype, \
+                         (mtype), \
                          nullptr \
                        )
 

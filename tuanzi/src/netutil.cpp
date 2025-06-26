@@ -13,7 +13,7 @@ int sockets_open()
 {
 #define TRY_CREATE_AND_RETURN(domain, type) \
     do { \
-        int result = socket(domain, type, 0); \
+        int result = socket((domain), (type), 0); \
         if (result != -1) \
             return result; \
     } while (0)
@@ -769,13 +769,12 @@ bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only)
 }
 
 unsigned InitIpv4Header(
-    unsigned char *header_c,
+    struct iphdr *header,
     const char *srcaddr,
     const char *dstaddr,
     unsigned datalen
 )
 {
-    struct iphdr *header = reinterpret_cast<struct iphdr *>(header_c);
     header->version = 4;
     header->ihl = 5;
     header->tos = 0;
@@ -797,13 +796,12 @@ unsigned InitIpv4Header(
 }
 
 unsigned InitUdpHeader(
-    unsigned char *header_c,
+    struct udphdr *header,
     unsigned srcport,
     unsigned dstport,
     unsigned datalen
 )
 {
-    struct udphdr *header = reinterpret_cast<udphdr *>(header_c);
     header->source = htons(srcport);
     header->dest = htons(dstport);
     header->len = htons(datalen + sizeof(struct udphdr));

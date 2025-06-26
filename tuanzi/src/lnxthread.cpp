@@ -49,12 +49,14 @@ int CLnxThread::CreateThread(
     wait_handle.calling_thread = this;
     wait_handle.no_need_send_msg = no_need_send_msg_l;
 
-    if ((retval = pthread_create(
+    if (
+        (retval = pthread_create(
                       &thread_id,
                       pthread_attr,
                       CLnxThread::_LnxThreadEntry,
                       &wait_handle
-                  ))) {
+                  ))
+    ) {
         g_logSystem.AppendText("pthread_create error. retrun = %d", retval);
         return -1;
     }

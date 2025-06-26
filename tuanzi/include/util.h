@@ -132,7 +132,7 @@ static inline void swap128(unsigned char *val)
 
 #define free_list_with_func_custom_next(head, func, next) \
     for (auto *h = head, *n = h->next; h; h = n, n = h ? nullptr : h->next) \
-        func(h)
+        (func)(h)
 
 #define free_list_with_custom_next(head, next) \
     free_list_with_func_custom_next(head, delete, next)

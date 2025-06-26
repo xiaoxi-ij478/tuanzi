@@ -52,10 +52,12 @@ bool CRxPacketThread::InitAdapter()
 {
     char errbuf[256] = {};
 
-    if ((
-                pcap_handle =
-                    pcap_open_live(adapter_name, 2000, adapter_mode, 1000, errbuf)
-            )) {
+    if (
+        (
+            pcap_handle =
+                pcap_open_live(adapter_name, 2000, adapter_mode, 1000, errbuf)
+        )
+    ) {
         SetPacketFilter("ip or arp or ether proto 0x888e");
         return true;
     }

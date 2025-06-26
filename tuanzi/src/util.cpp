@@ -57,7 +57,7 @@ enum LANG GetSysLanguage()
 
 void InitLogFiles()
 {
-#define INIT_LOG_OBJ(obj, rel_path) obj.CreateLogFile_S(g_strAppPath + rel_path, 3)
+#define INIT_LOG_OBJ(obj, rel_path) (obj).CreateLogFile_S(g_strAppPath + (rel_path), 3)
     INIT_LOG_OBJ(logFile_debug,       "log/Debug_001.log");
     INIT_LOG_OBJ(g_logFile_Ser,       "log/Debug_Server.log");
     INIT_LOG_OBJ(g_logFile_start,     "log/Debug_start_yf.log");

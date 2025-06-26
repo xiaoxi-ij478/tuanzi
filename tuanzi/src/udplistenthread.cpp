@@ -7,6 +7,7 @@
 #include "netutil.h"
 #include "global.h"
 #include "util.h"
+#include "mtypes.h"
 #include "udplistenthread.h"
 
 CUDPListenThread::CUDPListenThread(struct UdpListenParam *listen_param) :
@@ -534,18 +535,20 @@ bool CUDPListenThread::ResponseSender(
         return false;
     }
 
-#define COPY_FIELD(name, trans_func) dir_head.name = trans_func(pkg->name)
-    COPY_FIELD(version,);
-    COPY_FIELD(response_code,);
-    COPY_FIELD(id, htonl);
-    COPY_FIELD(packet_len, htons);
+#define COPY_FIELD(name) dir_head.name = pkg->name
+#define COPY_FIELD_WITH_TRANS(name, trans_func) dir_head.name = (trans_func)(pkg->name)
+    COPY_FIELD(version);
+    COPY_FIELD(response_code);
+    COPY_FIELD_WITH_TRANS(id, htonl);
+    COPY_FIELD_WITH_TRANS(packet_len, htons);
     memcpy(dir_head.md5sum, pkg->md5sum, sizeof(pkg->md5sum));
-    COPY_FIELD(session_id, htonl);
-    COPY_FIELD(timestamp, htonLONGLONG);
+    COPY_FIELD_WITH_TRANS(session_id, htonl);
+    COPY_FIELD_WITH_TRANS(timestamp, htonLONGLONG);
     dir_head.field_28 = pkg->field_24;
-    COPY_FIELD(slicetype,);
-    COPY_FIELD(data_len, htonl);
+    COPY_FIELD(slicetype);
+    COPY_FIELD_WITH_TRANS(data_len, htonl);
 #undef COPY_FIELD
+#undef COPY_FIELD_WITH_TRANS
 
     if (dir_head.version != proto_param.version) {
         logFile_debug.AppendText(
@@ -682,18 +685,20 @@ bool CUDPListenThread::RevcDirectPack(
     )
         return false;
 
-#define COPY_FIELD(name, trans_func) dir_head.name = trans_func(pkg->name)
-    COPY_FIELD(version,);
-    COPY_FIELD(response_code,);
-    COPY_FIELD(id, htonl);
-    COPY_FIELD(packet_len, htons);
+#define COPY_FIELD(name) dir_head.name = pkg->name
+#define COPY_FIELD_WITH_TRANS(name, trans_func) dir_head.name = (trans_func)(pkg->name)
+    COPY_FIELD(version);
+    COPY_FIELD(response_code);
+    COPY_FIELD_WITH_TRANS(id, htonl);
+    COPY_FIELD_WITH_TRANS(packet_len, htons);
     memcpy(dir_head.md5sum, pkg->md5sum, sizeof(pkg->md5sum));
-    COPY_FIELD(session_id, htonl);
-    COPY_FIELD(timestamp, htonLONGLONG);
+    COPY_FIELD_WITH_TRANS(session_id, htonl);
+    COPY_FIELD_WITH_TRANS(timestamp, htonLONGLONG);
     dir_head.field_28 = pkg->field_24;
-    COPY_FIELD(slicetype,);
-    COPY_FIELD(data_len, htonl);
+    COPY_FIELD(slicetype);
+    COPY_FIELD_WITH_TRANS(data_len, htonl);
 #undef COPY_FIELD
+#undef COPY_FIELD_WITH_TRANS
 
     if (dir_head.version != proto_param.version) {
         logFile_debug.AppendText(

@@ -250,9 +250,11 @@ int CDownLoadThread::ftp_receive(
     unsigned long total_read_byte = 0;
     unsigned long file_size = 0;
 
-    if (!server_path ||
-            !ftpcmd("PASV", nullptr, socket_file, reply) ||
-            ((socket_fd = xconnect_ftpdata(ftp_info, reply) == -1))) {
+    if (
+        !server_path ||
+        !ftpcmd("PASV", nullptr, socket_file, reply) ||
+        (socket_fd = xconnect_ftpdata(ftp_info, reply) == -1)
+    ) {
         ret = DOWNLOAD_ERROR_4;
         goto quit;
     }
@@ -275,15 +277,19 @@ int CDownLoadThread::ftp_receive(
             goto quit;
     }
 
-    if ((default_path && strlen(default_path) >= sizeof(dir)) ||
-            (suffix && strlen(suffix) >= sizeof(filename))) {
+    if (
+        (default_path && strlen(default_path) >= sizeof(dir)) ||
+        (suffix && strlen(suffix) >= sizeof(filename))
+    ) {
         rj_printf_debug("local path or name file is too long\n");
         ret = DOWNLOAD_ERROR_9;
         goto quit;
     }
 
-    if (get_local_path(default_path, dir) == -1 ||
-            get_local_filename(server_path, suffix, filename)) {
+    if (
+        get_local_path(default_path, dir) == -1 ||
+        get_local_filename(server_path, suffix, filename)
+    ) {
         ret = DOWNLOAD_ERROR_8;
         goto quit;
     }
@@ -600,8 +606,7 @@ int CDownLoadThread::get_remote_file(
         goto error_quit;
     }
 
-    if (
-        !(content_begin = strstr(buf, "\r\n\r\n"))) {
+    if (!(content_begin = strstr(buf, "\r\n\r\n"))) {
         ret = DOWNLOAD_ERROR_2;
         goto error_quit;
     }

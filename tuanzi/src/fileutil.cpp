@@ -68,11 +68,13 @@ bool decompressFile(const char *cfilename, const char *cdestdir)
     filename = cfilename;
     destdir = cdestdir;
 #define COMPARE_EQUAL(suffix) \
-    (!filename.compare( \
+    ( \
+     !filename.compare( \
                         filename.length() - strlen(suffix) - 1, \
                         strlen(suffix), \
-                        suffix \
-                      ))
+                        (suffix) \
+                      ) \
+    )
 
     if (COMPARE_EQUAL(".tar.gz"))
         system(

@@ -56,43 +56,30 @@ bool CDirectTransfer::sendudp(
     unsigned buflen
 )
 {
-    unsigned char tmpbuf[2048] = {};
+    struct [[gnu::packed]] {
+        struct etherudppkg header;
+        unsigned char data[2048];
+    } tmpbuf;
     unsigned ipv4_len = 0, udp_len = 0;
-    memcpy(tmpbuf, &dir_tran_para.srcmacaddr, sizeof(struct ether_addr));
-    memcpy(
-        tmpbuf + sizeof(struct ether_addr),
-        &dir_tran_para.dstmacaddr,
-        sizeof(struct ether_addr)
-    );
-    ipv4_len = InitIpv4Header(
-                   tmpbuf + sizeof(struct ether_addr) * 2,
-                   srcaddr,
-                   dstaddr,
-                   buflen
-               );
-    udp_len = InitUdpHeader(
-                  tmpbuf + sizeof(struct ether_addr) * 2 + ipv4_len,
-                  srcport,
-                  dstport,
-                  buflen
-              );
+    *reinterpret_cast<struct ether_addr *>
+    (&tmpbuf.header.etherheader.ether_shost) = dir_tran_para.srcmacaddr;
+    *reinterpret_cast<struct ether_addr *>
+    (&tmpbuf.header.etherheader.ether_dhost) = dir_tran_para.dstmacaddr;
+    tmpbuf.header.etherheader.ether_type = htons(ETHERTYPE_IP);
+    ipv4_len = InitIpv4Header(&tmpbuf.header.ipheader, srcaddr, dstaddr, buflen);
+    udp_len = InitUdpHeader(&tmpbuf.header.udpheader, srcport, dstport, buflen);
     ComputeUdpPseudoHeaderChecksumV4(
-        reinterpret_cast<struct iphdr *>(tmpbuf + sizeof(struct ether_addr) * 2),
-        reinterpret_cast<struct udphdr *>
-        (tmpbuf + sizeof(struct ether_addr) * 2 + ipv4_len),
+        &tmpbuf.header.ipheader,
+        &tmpbuf.header.udpheader,
         static_cast<const unsigned char *>(buf),
         buflen
     );
-    memcpy(
-        tmpbuf + sizeof(struct ether_addr) * 2 + ipv4_len + udp_len,
-        buf,
-        buflen
-    );
+    memcpy(&tmpbuf.data, buf, buflen);
 
     if (CtrlThread->send_packet_thread)
         CtrlThread->send_packet_thread->SendPacket(
-            tmpbuf,
-            sizeof(struct ether_addr) * 2 + ipv4_len + udp_len + buflen
+            &tmpbuf,
+            sizeof(struct etherudppkg) + buflen
         );
 
     else
@@ -101,9 +88,8 @@ bool CDirectTransfer::sendudp(
     packet_sent = true;
     memcpy(
         last_sent_packet,
-        tmpbuf,
-        last_sent_packet_len =
-            sizeof(struct ether_addr) * 2 + ipv4_len + udp_len + buflen
+        &tmpbuf,
+        last_sent_packet_len = sizeof(struct etherudppkg) + buflen
     );
     return true;
 }

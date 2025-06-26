@@ -29,12 +29,12 @@ class CDirectTranSrv : public CLnxThread
         void DoWithAuthResult(bool should_do) const;
         unsigned long GetSMPTimestamp() const;
         int GetXmlChild_Node_INT(
-            TiXmlNode *node,
+            const TiXmlNode *node,
             const std::string &value,
             const std::string &
         ) const;
         std::string GetXmlChild_Node_STR(
-            TiXmlNode *node,
+            const TiXmlNode *node,
             const std::string &value,
             const std::string &
         ) const;

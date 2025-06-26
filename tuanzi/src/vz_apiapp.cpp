@@ -12,13 +12,13 @@
 // <data2[first_len:first_len + second_len]>
 #define COPY_4_PARTED_DATA(to, data1, data2, data3, data2_first_len, data2_second_len) \
     do { \
-        memcpy(to, data1, sizeof(data1)); \
-        memcpy(to + sizeof(data1), data2, data2_first_len); \
-        memcpy(to + sizeof(data1) + data2_first_len, data3, sizeof(data3)); \
+        memcpy((to), (data1), sizeof(data1)); \
+        memcpy((to) + sizeof(data1), (data2), (data2_first_len)); \
+        memcpy((to) + sizeof(data1) + (data2_first_len), (data3), sizeof(data3)); \
         memcpy( \
-                to + sizeof(data1) + data2_first_len + sizeof(data3), \
-                data2 + data2_first_len, \
-                data2_second_len \
+                (to) + sizeof(data1) + (data2_first_len) + sizeof(data3), \
+                (data2) + (data2_first_len), \
+                (data2_second_len) \
               ); \
     } while (0)
 

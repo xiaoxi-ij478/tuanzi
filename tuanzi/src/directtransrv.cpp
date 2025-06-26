@@ -1,11 +1,13 @@
 #include "all.h"
-#include "mtypes.h"
-#include "changelanguage.h"
 #include "encodeutil.h"
 #include "msgutil.h"
-#include "util.h"
-#include "global.h"
+#include "threadutil.h"
 #include "cmdutil.h"
+#include "timeutil.h"
+#include "util.h"
+#include "mtypes.h"
+#include "changelanguage.h"
+#include "global.h"
 #include "directtransrv.h"
 
 CDirectTranSrv::CDirectTranSrv() :
@@ -231,13 +233,13 @@ bool CDirectTranSrv::AnalyzePrivate_SMP(
             smp_datalen = ntohs(*reinterpret_cast<unsigned short *>(&buf[5]));
             smp_data = new unsigned char[smp_datalen + 1];
             memcpy(smp_data, &buf[7], smp_datalen);
-            ParseSMPData(smp_data);
+            ParseSMPData(smp_data, smp_datalen);
             break;
 #define PROCESS_DATA(id, func_name) \
-case id: \
+case (id): \
     other_data = new unsigned char[buflen - 4]; \
     memcpy(other_data, &buf[4], buflen - 4); \
-    func_name(other_data, buflen - 4); \
+    (func_name)(other_data, buflen - 4); \
     break
             PROCESS_DATA(2, ParseMsgAndPro);
             PROCESS_DATA(3, ParseLogoff);
@@ -276,7 +278,7 @@ bool CDirectTranSrv::AskForSmpInitData() const
             dir_smp_para.smp_ipaddr,
             dir_smp_para.smp_port
         );
-#define PUT_TYPE(type) ask_buf[cur_pos++] = type
+#define PUT_TYPE(type) ask_buf[cur_pos++] = (type)
 #define PUT_LENGTH(length) \
     do { \
         *reinterpret_cast<unsigned short *>(&ask_buf[cur_pos]) = htons(length); \
@@ -284,16 +286,16 @@ bool CDirectTranSrv::AskForSmpInitData() const
     } while (0)
 #define PUT_DATA(buf, buflen) \
     do { \
-        memcpy(&ask_buf[cur_pos], buf, buflen); \
-        cur_pos += buflen; \
+        memcpy(&ask_buf[cur_pos], (buf), (buflen)); \
+        cur_pos += (buflen); \
     } while (0)
-#define PUT_DATA_IMMEDIATE_BYTE(byte) ask_buf[cur_pos++] = byte;
+#define PUT_DATA_IMMEDIATE_BYTE(byte) ask_buf[cur_pos++] = (byte)
     PUT_TYPE(1);
     PUT_LENGTH(1);
     PUT_DATA_IMMEDIATE_BYTE(41);
     PUT_TYPE(2);
     PUT_LENGTH(strlen(dir_smp_para.field_0));
-    PUT_DATA(dir_smp_para, field_0, strlen(dir_smp_para.field_0));
+    PUT_DATA(dir_smp_para.field_0, strlen(dir_smp_para.field_0));
     PUT_TYPE(3);
     PUT_LENGTH(dir_smp_para.field_8A_len);
     PUT_DATA(dir_smp_para.field_8A, dir_smp_para.field_8A_len);
@@ -301,50 +303,237 @@ bool CDirectTranSrv::AskForSmpInitData() const
 #undef PUT_LENGTH
 #undef PUT_DATA
 #undef PUT_DATA_IMMEDIATE_BYTE
+    dir_thread->sendMessageWithTimeout(
+        smp_init_data_gsn_sender_id,
+        ask_buf,
+        cur_pos,
+        10
+    );
+    logFile_debug.AppendText("AskForSmpInitData end");
+    return true;
 }
 
 bool CDirectTranSrv::DeInitDirectEnvironment() const
 {
+    logFile_debug.AppendText("DeInitDirectEnvironment call");
+    Destroy();
+    logFile_debug.AppendText("DeInitDirectEnvironment end");
+    return true;
 }
 
 bool CDirectTranSrv::DeInit_Sam() const
 {
+    WAIT_HANDLE wait_handle;
+    logFile_debug.AppendText("DeInit_Sam called");
+
+    if (!dir_thread)
+        return true;
+
+    dir_thread->StopRun();
+    ::PostThreadMessage(
+        thread_id,
+        ON_DEINIT_SAM_MTYPE,
+        reinterpret_cast<WAIT_HANDLE *>(&wait_handle),
+        nullptr
+    );
+    sam_or_smp_inited = false;
+
+    if (WaitForSingleObject(&wait_handle, 10000) == ETIMEDOUT) {
+        OnDeInit_SAM(0, nullptr);
+        logFile_debug.AppendText("强杀直通报文发送线程[正常流程]");
+    }
+
+    return true;
 }
 
 bool CDirectTranSrv::DeInit_Smp() const
 {
+    WAIT_HANDLE wait_handle;
+    logFile_debug.AppendText("DeInit_Smp called");
+
+    if (!dir_thread)
+        return true;
+
+    dir_thread->StopRun();
+    ::PostThreadMessage(
+        thread_id,
+        ON_DEINIT_SMP_MTYPE,
+        reinterpret_cast<WAIT_HANDLE *>(&wait_handle),
+        nullptr
+    );
+    sam_or_smp_inited = false;
+
+    if (WaitForSingleObject(&wait_handle, 10000) == ETIMEDOUT) {
+        OnDeInit_SMP(0, nullptr);
+        logFile_debug.AppendText("强杀直通报文发送线程[正常流程]");
+    }
+
+    return true;
 }
 
 void CDirectTranSrv::Destroy() const
 {
+    logFile_debug.AppendText("CDirectTranSrv::Destroy called");
+    EnterCriticalSection(&destroy_mutex);
+
+    if (dir_thread) {
+        logFile_debug.AppendText("\t m_pDirThread StopRun");
+        dir_thread->StopRun();
+
+        if (handshake_gsn_sender_id != -1) {
+            dir_thread->CloseGSNSender(handshake_gsn_sender_id);
+            handshake_gsn_sender_id = -1;
+        }
+
+        if (sam_gsn_receiver_id != -1)
+            dir_thread->CloseGSNReceiver(sam_gsn_receiver_id);
+
+        if (smp_gsn_receiver_id != -1)
+            dir_thread->CloseGSNReceiver(smp_gsn_receiver_id);
+
+        if (sam_init_timerid) {
+            KillTimer(sam_init_timerid);
+            sam_init_timerid = 0;
+        }
+
+        if (hello_timer) {
+            KillTimer(hello_timer)
+            hello_timer = 0;
+        }
+
+        dir_thread->SafeExitThread(10000);
+        dir_thread = nullptr;
+    }
+
+    sam_or_smp_inited = false;
+    logFile_debug.AppendText("CDirectTranSrv::Destroy end");
+    LeaveCriticalSection(&destroy_mutex);
 }
 
 void CDirectTranSrv::DoWithAuthResult(bool should_do) const
 {
+    if (!should_do)
+        return;
+
+    logFile_debug.AppendText("DoWithAuthResult - AskForSmpInitData");
+
+    if (smp_init_timerid) {
+        KillTimer(smp_init_timerid);
+        smp_init_timerid = 0;
+    }
+
+    timer_ask = 0;
+    AskForSmpInitData();
+    timer_ask++;
+    logFile_debug.AppendText(
+        "m_nTimerSMP_Init=%d",
+        smp_init_timerid = SetTimer(0x6A, 30000)
+    );
 }
 
 unsigned long CDirectTranSrv::GetSMPTimestamp() const
 {
+    return GetTickCount() + smp_utc_time - smp_timestamp;
 }
 
 int CDirectTranSrv::GetXmlChild_Node_INT(
-    TiXmlNode *node,
+    const TiXmlNode *node,
     const std::string &value,
     const std::string &
 ) const
 {
+    TiXmlElement *el = nullptr;
+    const char *text = nullptr;
+
+    if (!node)
+        return 0;
+
+    if (!(el = node->FirstChildElement(value)))
+        return 0;
+
+    if (!(el = el->ToElement()))
+        return 0;
+
+    if (!(text = el->GetText()))
+        return 0;
+
+    return strtol(text, nullptr, 10);
 }
 
 std::string CDirectTranSrv::GetXmlChild_Node_STR(
-    TiXmlNode *node,
+    const TiXmlNode *node,
     const std::string &value,
     const std::string &
 ) const
 {
+    std::string ret;
+    TiXmlElement *el = nullptr;
+    const char *text = nullptr;
+
+    if (value.empty())
+        return ret;
+
+    if (!node)
+        return ret;
+
+    if (!(el = node->FirstChildElement(value)))
+        return ret;
+
+    if (!(el = el->ToElement()))
+        return ret;
+
+    if (!(text = el->GetText()))
+        return ret;
+
+    return ret = text;
 }
 
 bool CDirectTranSrv::HandshakeToSAM() const
 {
+    unsigned char handshake_buf[1024] = {};
+    unsigned cur_pos = 0;
+
+    if (handshake_gsn_sender_id != -1)
+        dir_thread->CloseGSNSender(handshake_gsn_sender_id);
+
+    handshake_gsn_sender_id =
+        dir_thread->GSNSender(
+            dir_trans_srvpara.su_ipaddr,
+            dir_trans_srvpara.su_port,
+            dir_trans_srvpara.sam_ipaddr,
+            dir_trans_srvpara.sam_port
+        );
+#define PUT_TYPE(type) handshake_buf[cur_pos++] = (type)
+#define PUT_LENGTH(length) handshake_buf[cur_pos++] = (length)
+#define PUT_DATA(buf, buflen) \
+    do { \
+        memcpy(&handshake_buf[cur_pos], (buf), (buflen)); \
+        cur_pos += (buflen); \
+    } while (0)
+#define PUT_DATA_IMMEDIATE_BYTE(byte) handshake_buf[cur_pos++] = (byte)
+    PUT_TYPE(1);
+    PUT_LENGTH(1);
+    PUT_DATA_IMMEDIATE_BYTE(2);
+    PUT_TYPE(3);
+    PUT_LENGTH(strlen(dir_trans_srvpara.field_8));
+    PUT_DATA(dir_trans_srvpara.field_8, strlen(dir_trans_srvpara.field_8));
+    PUT_TYPE(4);
+    PUT_LENGTH(4);
+    PUT_DATA(&dir_trans_srvpara.su_ipaddr, 4);
+    PUT_TYPE(5);
+    PUT_LENGTH(6);
+    PUT_DATA(&dir_trans_srvpara.field_8C, 6);
+#undef PUT_TYPE
+#undef PUT_LENGTH
+#undef PUT_DATA
+#undef PUT_DATA_IMMEDIATE_BYTE
+    logFile_debug.AppendText("发SAM心跳报文");
+    dir_thread.PostPacketSAMHeartbeatNoResponse(
+        handshake_gsn_sender_id,
+        handshake_buf
+        cur_pos
+    );
+    return true;
 }
 
 bool CDirectTranSrv::HandshakeToSMP() const

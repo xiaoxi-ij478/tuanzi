@@ -109,13 +109,13 @@ extern int get_nic_list(std::vector<std::string>);
 extern bool get_nic_speed(char *dst, const char *ifname);
 extern bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only);
 extern unsigned InitIpv4Header(
-    unsigned char *header_c,
+    struct iphdr *header,
     const char *srcaddr,
     const char *dstaddr,
     unsigned datalen
 );
 extern unsigned InitUdpHeader(
-    unsigned char *header_c,
+    struct udphdr *header,
     unsigned srcport,
     unsigned dstport,
     unsigned datalen
