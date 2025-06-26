@@ -4,9 +4,14 @@
 
 CCustomizeInfo::CCustomizeInfo() :
     create_time(),
-    chs(), eng(), ip(),
+    chs(),
+    eng(),
+    ip(),
     port(80),
-    main_icon(), success_icon(), failed_ico(), disable_ico()
+    main_icon(),
+    success_icon(),
+    failed_ico(),
+    disable_ico()
 {}
 
 CCustomizeInfo::~CCustomizeInfo()

@@ -831,37 +831,6 @@ int StringToHex(
     return str.length() / 2;
 }
 
-void CreateSessionIfNecessary(
-    struct tagRecvBind &gsn_pkg,
-    in_addr_t srcaddr,
-    unsigned session_id,
-    struct tagRecvSessionBind &recv_session
-)
-{
-    for (struct tagRecvSessionBind &session : gsn_pkg.recv_session_bounds) {
-        if (session.srcaddr != srcaddr || session.session_id != session_id)
-            continue;
-
-        recv_session = session;
-        return;
-    }
-
-    gsn_pkg.recv_session_bounds.emplace_back(
-        session_id,
-        srcaddr,
-        0,
-        0,
-        0,
-        gsn_pkg.on_receive_packet_post_mtype,
-        nullptr,
-        0,
-        0,
-        GetTickCount(),
-        false
-    );
-    recv_session = gsn_pkg.recv_session_bounds.back();
-}
-
 void WriteRegUserInfo(const struct UserInfo &info)
 {
     std::string apppath;
@@ -907,4 +876,10 @@ void ReadRegUserInfo(struct UserInfo &info)
     info.ed2e1.assign(iniparser_getstring(ini, "pu32list:ed2e1", ""));
     info.gr2a1.assign(iniparser_getstring(ini, "pu32list:gr2a1", ""));
     iniparser_freedict(ini);
+}
+
+void SimulateSuLogoff(unsigned char *buf, unsigned buflen)
+{
+    logFile.AppendText("receive simulate su logoff command!");
+    CtrlThread->PostThreadMessage(SIMULATE_SU_LOGOFF_MTYPE, buflen, buf);
 }

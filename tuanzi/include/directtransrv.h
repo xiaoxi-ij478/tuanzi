@@ -59,7 +59,7 @@ class CDirectTranSrv : public CLnxThread
         void ParseDHCPAuthResult_ForSAM(
             unsigned char *buf,
             unsigned buflen,
-            int &next_buflen
+            unsigned &next_buflen
         ) const;
         void ParseDHCPAuthResult_ForSMP(unsigned char *buf, unsigned buflen) const;
         void ParseGetHIStatusNow(unsigned char *buf, unsigned buflen) const;
@@ -90,7 +90,7 @@ class CDirectTranSrv : public CLnxThread
         ) const;
 
         bool sam_or_smp_inited;
-        CRITICAL_SECTION destory_mutex;
+        CRITICAL_SECTION destroy_mutex;
         CDirTranThread *dir_thread;
         struct tagSmpParaDir dir_smp_para;
         bool field_360;

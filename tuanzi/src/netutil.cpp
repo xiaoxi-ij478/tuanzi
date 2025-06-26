@@ -1003,7 +1003,7 @@ void disable_enable_nic(const char *ifname)
     if (fd == -1)
         return;
 
-#define EXIT_ON_FAIL (expr) if (expr) { close(fd); return; }
+#define EXIT_ON_FAIL(expr) do { if (expr) { close(fd); return; } } while(0)
     EXIT_ON_FAIL(ioctl(fd, SIOCGIFFLAGS, &ifr));
     ifr.ifr_flags &= ~IFF_UP;
     EXIT_ON_FAIL(ioctl(fd, SIOCSIFFLAGS, &ifr));
@@ -1341,7 +1341,7 @@ void repair_ip_gateway(
     if (fd == -1)
         return;
 
-#define EXIT_ON_FAIL(expr) if (expr) { close(fd); return; }
+#define EXIT_ON_FAIL(expr) do { if (expr) { close(fd); return; } } while(0)
     ifr.ifr_addr = htonl(info.ip4_ipaddr);
     EXIT_ON_FAIL(ioctl(fd, SIOCSIFADDR, &ifr));
     ifr.ifr_addr = htonl(info.ip4_netmask);
@@ -1425,4 +1425,35 @@ void CreateDirPktHead(
     );
     delete[] md5_checksum_ascii;
     delete[] checksum_buf;
+}
+
+void CreateSessionIfNecessary(
+    struct tagRecvBind &gsn_pkg,
+    in_addr_t srcaddr,
+    unsigned session_id,
+    struct tagRecvSessionBind &recv_session
+)
+{
+    for (struct tagRecvSessionBind &session : gsn_pkg.recv_session_bounds) {
+        if (session.srcaddr != srcaddr || session.session_id != session_id)
+            continue;
+
+        recv_session = session;
+        return;
+    }
+
+    gsn_pkg.recv_session_bounds.emplace_back(
+        session_id,
+        srcaddr,
+        0,
+        0,
+        0,
+        gsn_pkg.on_receive_packet_post_mtype,
+        nullptr,
+        0,
+        0,
+        GetTickCount(),
+        false
+    );
+    recv_session = gsn_pkg.recv_session_bounds.back();
 }

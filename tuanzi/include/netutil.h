@@ -172,5 +172,11 @@ extern void CreateDirPktHead(
     unsigned char *keybuf,
     unsigned char *ivbuf
 );
+extern void CreateSessionIfNecessary(
+    struct tagRecvBind &gsn_pkgs,
+    in_addr_t srcaddr,
+    unsigned session_id,
+    struct tagRecvSessionBind &recv_session
+);
 
 #endif // NETUTIL_H_INCLUDED

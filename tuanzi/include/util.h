@@ -111,14 +111,9 @@ extern int StringToHex(
     unsigned char *retbuf,
     int retbuflen
 );
-extern void CreateSessionIfNecessary(
-    struct tagRecvBind &gsn_pkgs,
-    in_addr_t srcaddr,
-    unsigned session_id,
-    struct tagRecvSessionBind &recv_session
-);
 extern void WriteRegUserInfo(const struct UserInfo &info);
 extern void ReadRegUserInfo(struct UserInfo &info);
+extern void SimulateSuLogoff(unsigned char *buf, unsigned buflen);
 
 static inline void swap128(unsigned char *val)
 {
