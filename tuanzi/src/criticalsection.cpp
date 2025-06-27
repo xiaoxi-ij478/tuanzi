@@ -3,7 +3,9 @@
 #include "criticalsection.h"
 
 CRITICAL_SECTION::CRITICAL_SECTION() :
-    pthread_mutex(), inited(), pthread_mutexattr()
+    pthread_mutex(),
+    inited(),
+    pthread_mutexattr()
 {}
 
 CRITICAL_SECTION::~CRITICAL_SECTION()

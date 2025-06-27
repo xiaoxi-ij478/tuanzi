@@ -3,6 +3,7 @@
 #include "threadutil.h"
 #include "fileutil.h"
 #include "global.h"
+#include "mtypes.h"
 #include "downloadthread.h"
 
 CDownLoadThread::CDownLoadThread() :
@@ -32,28 +33,26 @@ void CDownLoadThread::SetDlPara(struct tagDownLoadPara &para)
     down_para_set = true;
 }
 
-bool CDownLoadThread::DispathMessage(struct LNXMSG *msg)
+void CDownLoadThread::DispathMessage(struct LNXMSG *msg)
 {
     rj_printf_debug("CDownLoadThread getmsg id=%d\n", msg->mtype);
 
-    if (msg->mtype == START_THREAD_MTYPE)
-        OnStartThread(msg->buflen, msg->buf);
+    switch (msg->mtype) {
+            HANDLE_MTYPE(START_THREAD_MTYPE, OnStartThread);
+    }
 }
 
-bool CDownLoadThread::OnStartThread(
-    [[maybe_unused]] unsigned long buflen,
-    [[maybe_unused]] void *buf
-)
+DEFINE_DISPATH_MESSAGE_HANDLER(OnStartThread, CDownLoadThread)
 {
     if (!down_para_set)
         rj_printf_debug("error ,no para has been set!");
 
-    return download(
-               dl_para.url.c_str(),
-               dl_para.default_path.c_str(),
-               dl_para.suffix.c_str(),
-               create_progress_dialog
-           );
+    download(
+        dl_para.url.c_str(),
+        dl_para.default_path.c_str(),
+        dl_para.suffix.c_str(),
+        create_progress_dialog
+    );
 }
 
 bool CDownLoadThread::download(
@@ -77,7 +76,14 @@ bool CDownLoadThread::download(
 
         case URL_FTP:
             return ftp_download(
-                       url, default_path, suffix, domain, path, &port, username, password
+                       url,
+                       default_path,
+                       suffix,
+                       domain,
+                       path,
+                       &port,
+                       username,
+                       password
                    ) != -1;
 
         default:
@@ -374,24 +380,21 @@ quit:
     }
 
     if (ret) {
-        ::PostThreadMessage(
-            dl_para.thread_id,
-            dl_para.mtype,
-            0,
-            reinterpret_cast<void *>(ret)
-        );
+        ::PostThreadMessage(dl_para.thread_id, dl_para.mtype, 0, ret);
         return -1;
     }
 
     new_save_path = new char[strlen(save_path) + 1];
     strcpy(new_save_path, save_path);
 
-    if (!::PostThreadMessage(
-                dl_para.thread_id,
-                dl_para.mtype,
-                reinterpret_cast<unsigned long>(new_save_path),
-                nullptr
-            ))
+    if (
+        !::PostThreadMessage(
+            dl_para.thread_id,
+            dl_para.mtype,
+            reinterpret_cast<unsigned long>(new_save_path),
+            0
+        )
+    )
         delete[] new_save_path;
 
     ftpcmd("QUIT", nullptr, socket_file, reply);
@@ -422,7 +425,7 @@ int CDownLoadThread::ftpcmd(
 
     while (fgets(recv_buf, 256, socket_file)) {
         if ((crlf = strstr(recv_buf, "\r\n")))
-            * crlf = 0;
+            *crlf = 0; // *NOPAD*
 
         if (*recv_buf >= '0' && *recv_buf <= '9' && recv_buf[3] == ' ') {
             recv_buf[3] = 0;
@@ -537,17 +540,20 @@ int CDownLoadThread::get_remote_file(
         goto error_quit;
     }
 
-    if ((default_path && strlen(default_path) >= sizeof(dir)) ||
-            (suffix && strlen(suffix) >= sizeof(filename))
-       ) {
+    if (
+        (default_path && strlen(default_path) >= sizeof(dir)) ||
+        (suffix && strlen(suffix) >= sizeof(filename))
+    ) {
         rj_printf_debug("local path or name file is too long\n");
         ret = DOWNLOAD_ERROR_9;
         file_fd = -1;
         goto error_quit;
     }
 
-    if (get_local_path(default_path, dir) == -1
-            || get_local_filename(server_path, suffix, filename) == -1) {
+    if (
+        get_local_path(default_path, dir) == -1 ||
+        get_local_filename(server_path, suffix, filename) == -1
+    ) {
         ret = DOWNLOAD_ERROR_8;
         file_fd = -1;
         goto error_quit;
@@ -692,12 +698,14 @@ normal_quit:
         new_save_path = new char[strlen(save_path) + 1];
         strcpy(new_save_path, save_path);
 
-        if (!::PostThreadMessage(
-                    dl_para.thread_id,
-                    dl_para.mtype,
-                    reinterpret_cast<unsigned long>(new_save_path),
-                    nullptr
-                ))
+        if (
+            !::PostThreadMessage(
+                dl_para.thread_id,
+                dl_para.mtype,
+                reinterpret_cast<unsigned long>(new_save_path),
+                0
+            )
+        )
             delete[] new_save_path;
     }
 
@@ -717,12 +725,7 @@ error_quit:
         close(file_fd);
 
     if (dl_para.thread_id)
-        ::PostThreadMessage(
-            dl_para.thread_id,
-            dl_para.mtype,
-            0,
-            reinterpret_cast<void *>(ret)
-        );
+        ::PostThreadMessage(dl_para.thread_id, dl_para.mtype, 0, ret);
 
     rj_printf_debug("nDownLoadResult=%d\n", ret);
     return -1;
@@ -780,7 +783,10 @@ int CDownLoadThread::http_download(
     } else {
         g_log_Wireless.AppendText(
             "http_parse_url %s %s %s %d",
-            url, domain, path, *port
+            url,
+            domain,
+            path,
+            *port
         );
 
         if (get_remote_file(domain, *port, path, default_path, suffix) == -1)

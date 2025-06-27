@@ -6,13 +6,15 @@
 std::string CChangeLanguage::translate_filename;
 
 CChangeLanguage::CChangeLanguage() :
-    lang_inited(), language_id(LANG_INVALID), trans_strings()
+    lang_inited(),
+    language_id(LANG_INVALID),
+    trans_strings()
 {}
 
 CChangeLanguage &CChangeLanguage::Instance()
 {
-    static CChangeLanguage s_lang; // sLang
-    return s_lang;
+    static CChangeLanguage lang; // sLang
+    return lang;
 }
 
 void CChangeLanguage::CleanLanguage()

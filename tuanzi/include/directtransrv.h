@@ -1,9 +1,6 @@
 #ifndef DIRECTTRANSRV_H_INCLUDED
 #define DIRECTTRANSRV_H_INCLUDED
 
-#include "lnxthread.h"
-#include "criticalsection.h"
-#include "dirtranstags.h"
 #include "dirtranthread.h"
 
 class CDirectTranSrv : public CLnxThread
@@ -21,12 +18,12 @@ class CDirectTranSrv : public CLnxThread
     private:
         bool AnalyzePrivate_SAM(unsigned char *buf, unsigned buflen) const;
         bool AnalyzePrivate_SMP(unsigned char *buf, unsigned buflen) const;
-        bool AskForSmpInitData() const;
-        bool DeInitDirectEnvironment() const;
-        bool DeInit_Sam() const;
-        bool DeInit_Smp() const;
-        void Destroy() const;
-        void DoWithAuthResult(bool should_do) const;
+        bool AskForSmpInitData();
+        bool DeInitDirectEnvironment();
+        bool DeInit_Sam();
+        bool DeInit_Smp();
+        void Destroy();
+        void DoWithAuthResult(bool should_do);
         unsigned long GetSMPTimestamp() const;
         int GetXmlChild_Node_INT(
             const TiXmlNode *node,
@@ -38,28 +35,28 @@ class CDirectTranSrv : public CLnxThread
             const std::string &value,
             const std::string &
         ) const;
-        bool HandshakeToSAM() const;
-        bool HandshakeToSMP() const;
-        bool InitDirThread() const;
-        bool InitDirectEnvironment() const;
-        bool Init_Sam(struct tagDirectTranSrvPara *srv_para, bool wait) const;
-        bool Init_Smp(struct tagSmpParaDir *srv_para, bool wait) const;
-        void OnDeInit_SAM(unsigned long buflen, void *buf) const;
-        void OnDeInit_SMP(unsigned long buflen, void *buf) const;
-        void OnInit_SAM(unsigned long buflen, void *buf) const;
-        void OnInit_SMP(unsigned long buflen, void *buf) const;
-        void OnPostNoResponse_SAM(unsigned long buflen, void *buf) const;
-        void OnPostNoResponse_SMP(unsigned long buflen, void *buf) const;
-        void OnPost_SAM(unsigned long buflen, void *buf) const;
-        void OnPost_SMP(unsigned long buflen, void *buf) const;
-        void OnRecvPacket_SAM(unsigned long buflen, void *buf) const;
-        void OnRecvPacket_SMP(unsigned long buflen, void *buf) const;
-        void OnTimer(unsigned long buflen, void *buf) const;
+        bool HandshakeToSAM();
+        bool HandshakeToSMP();
+        bool InitDirThread();
+        bool InitDirectEnvironment();
+        bool Init_Sam(struct tagDirectTranSrvPara *dir_srv_para, bool wait);
+        bool Init_Smp(struct tagSmpParaDir *smp_para, bool wait);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SAM) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnInit_SAM);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnDeInit_SAM);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SMP) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnInit_SMP);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnDeInit_SMP);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnPost_SMP) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnPost_SAM) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnPostNoResponse_SMP) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnPostNoResponse_SAM) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer) const;
         void ParseACLParam(unsigned char *buf, unsigned buflen) const;
         void ParseDHCPAuthResult_ForSAM(
             unsigned char *buf,
             unsigned buflen,
-            unsigned &next_buflen
+            unsigned &pos
         ) const;
         void ParseDHCPAuthResult_ForSMP(unsigned char *buf, unsigned buflen) const;
         void ParseGetHIStatusNow(unsigned char *buf, unsigned buflen) const;

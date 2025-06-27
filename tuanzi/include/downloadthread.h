@@ -54,7 +54,7 @@ class CDownLoadThread : public CLnxThread
         void DispathMessage(struct LNXMSG *msg) override;
 
     private:
-        bool OnStartThread(unsigned long buflen, void *buf);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnStartThread);
         bool download(
             const char *url,
             const char *default_path,
@@ -159,8 +159,13 @@ class CDownLoadThread : public CLnxThread
                 return -1;
             }
 
-            if (xconnect(fd, reinterpret_cast<struct sockaddr *>(&addr->addr),
-                         addr->len) == -1)
+            if (
+                xconnect(
+                    fd,
+                    reinterpret_cast<struct sockaddr *>(&addr->addr),
+                    addr->len
+                ) == -1
+            )
                 return -1;
 
             return fd;

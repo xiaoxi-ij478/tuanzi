@@ -15,7 +15,6 @@ struct _START_CENTERCONTROL_START_ {
     bool field_38; // field_218 @ CClientCenterPeerManager
 };
 
-
 class CClientCenterPeerManager : public CLnxThread
 {
     public:
@@ -36,12 +35,9 @@ class CClientCenterPeerManager : public CLnxThread
         CClientCenterPeerManager();
         ~CClientCenterPeerManager() override;
 
-        void OnStart(
-            unsigned long buflen, // struct _START_CENTERCONTROL_START_ *
-            void *buf
-        );
-        void OnStop(unsigned long buflen, void *buf);
-        void OnTimer(unsigned long buflen, void *buf);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnStart);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnStop);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer);
         int ParseResult(const char *result);
         void ProcessConnect();
 

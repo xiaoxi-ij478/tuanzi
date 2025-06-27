@@ -271,8 +271,8 @@ bool TerminateThread(pthread_t thread_id)
 bool PostThreadMessage(
     key_t thread_key,
     unsigned mtype,
-    unsigned long buflen,
-    void *buf
+    unsigned long arg1,
+    unsigned long arg2
 )
 {
     int msqid = msgget(thread_key, 0666);
@@ -281,17 +281,17 @@ bool PostThreadMessage(
         thread_key,
         mtype
     );
-    return msqid >= 0 ? GPostThreadMessage(msqid, mtype, buflen, buf) : false;
+    return msqid >= 0 ? GPostThreadMessage(msqid, mtype, arg1, arg2) : false;
 }
 
 bool GPostThreadMessage(
     int msqid,
     unsigned mtype,
-    unsigned long buflen,
-    void *buf
+    unsigned long arg1,
+    unsigned long arg2
 )
 {
-    struct LNXMSG msg = { mtype, buflen, buf };
+    struct LNXMSG msg = { mtype, arg1, arg2 };
     int ret = 0;
 
     if (msqid < 0) {

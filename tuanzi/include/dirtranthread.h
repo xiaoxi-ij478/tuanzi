@@ -1,11 +1,7 @@
 #ifndef DIRTRANTHREAD_H_INCLUDED
 #define DIRTRANTHREAD_H_INCLUDED
 
-#include "lnxthread.h"
-#include "dirtranstags.h"
-#include "directtransfer.h"
 #include "udplistenthread.h"
-#include "criticalsection.h"
 
 class CDirTranThread : public CLnxThread
 {
@@ -13,29 +9,9 @@ class CDirTranThread : public CLnxThread
         CDirTranThread();
         ~CDirTranThread() override;
 
-    protected:
-        void DispathMessage(struct LNXMSG *msg) override;
-
-    private:
-        void ClearRetPara() const;
-        void CloseAllGSNSender() const;
         void CloseGSNReceiver(int id) const;
-        void CloseGSNSender(int id) const;
-        bool DecryptPrivateData(
-            const struct tagDirectCom_ProtocalParam &proto_param,
-            unsigned char *buf,
-            unsigned buflen
-        ) const;
-        bool DirTranThreadInit() const;
-        bool DoSendPacket(
-            struct tagSenderBind &sender_bind,
-            const struct tagDataSendUnit &send_unit
-        ) const;
-        bool EncryptPrivateData(
-            const struct tagDirectCom_ProtocalParam &proto_param,
-            unsigned char *buf,
-            unsigned buflen
-        ) const;
+        void CloseGSNSender(int id);
+        bool DirTranThreadInit();
         int GSNReceiver(
             in_addr_t srcaddr,
             unsigned srcport,
@@ -49,67 +25,88 @@ class CDirTranThread : public CLnxThread
             unsigned srcport,
             in_addr_t dstaddr,
             unsigned dstport
-        ) const;
-        bool GetProtocalParam(
-            struct tagDirectCom_ProtocalParam &proto_param,
-            in_addr_t addr,
-            unsigned short port
-        ) const;
-        bool GetProtocalParamFromSenderHand(
-            struct tagDirectCom_ProtocalParam &proto_param,
-            int id
-        ) const;
-        void OnTransPacket(unsigned long buflen, void *buf) const;
+        );
         bool PostPacketNoResponse(
             int id,
             unsigned char *buf,
             unsigned buflen
-        ) const;
+        );
         bool PostPacketSAMHeartbeatNoResponse(
             int id,
             unsigned char *buf,
             unsigned buflen
-        ) const;
+        );
         bool SendPacketNoResponse(
             int id,
             unsigned char *buf,
             unsigned buflen,
             unsigned timeout
-        ) const;
+        );
         bool SetDirParaXieYi(
             const struct tagDirectCom_ProtocalParam &proto_param
-        ) const;
+        );
         bool SetProtocalParam_TimeStamp(
             in_addr_t addr,
             unsigned short port,
             unsigned long utc_time,
             unsigned long timestamp
-        ) const;
+        );
         bool SetReTranPara(
             in_addr_t addr,
             unsigned short port,
             unsigned retry_count,
             unsigned timeout
-        ) const;
-        void StartRun() const;
-        void StopRun() const;
-        bool WaitUDP_DirectThread_OK(WAIT_HANDLE &event_udp_ready) const;
+        );
+        void StartRun();
+        void StopRun();
         bool postMessage(
             int id,
             unsigned char *buf,
             unsigned buflen
-        ) const;
+        );
         bool sendMessage(
             int id,
             unsigned char *buf,
             unsigned buflen
-        ) const;
+        );
         bool sendMessageWithTimeout(
             int id,
             unsigned char *buf,
             unsigned buflen,
             unsigned timeout
+        );
+
+    protected:
+        void DispathMessage(struct LNXMSG *msg) override;
+
+    private:
+        void ClearRetPara();
+        void CloseAllGSNSender();
+        bool DecryptPrivateData(
+            const struct tagDirectCom_ProtocalParam &proto_param,
+            unsigned char *buf,
+            unsigned buflen
         ) const;
+        bool DoSendPacket(
+            struct tagSenderBind &sender_bind,
+            const struct tagDataSendUnit &send_unit
+        );
+        bool EncryptPrivateData(
+            const struct tagDirectCom_ProtocalParam &proto_param,
+            unsigned char *buf,
+            unsigned buflen
+        ) const;
+        bool GetProtocalParam(
+            struct tagDirectCom_ProtocalParam &proto_param,
+            in_addr_t addr,
+            unsigned short port
+        );
+        bool GetProtocalParamFromSenderHand(
+            struct tagDirectCom_ProtocalParam &proto_param,
+            int id
+        );
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnTransPacket);
+        bool WaitUDP_DirectThread_OK(WAIT_HANDLE &event_udp_ready) const;
 
         struct tagDirTranPara dir_transpara;
         struct tagDirResPara dir_respara;

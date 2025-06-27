@@ -4,6 +4,7 @@
 #include "timeutil.h"
 #include "directtransfer.h"
 #include "dirtranstags.h"
+#include "mtypes.h"
 #include "util.h"
 
 void setAppEnvironment()
@@ -58,20 +59,20 @@ enum LANG GetSysLanguage()
 void InitLogFiles()
 {
 #define INIT_LOG_OBJ(obj, rel_path) (obj).CreateLogFile_S(g_strAppPath + (rel_path), 3)
-    INIT_LOG_OBJ(logFile_debug,       "log/Debug_001.log");
-    INIT_LOG_OBJ(g_logFile_Ser,       "log/Debug_Server.log");
-    INIT_LOG_OBJ(g_logFile_start,     "log/Debug_start_yf.log");
-    INIT_LOG_OBJ(g_log_Wireless,      "log/Debug_Wireless_8021x.log");
-    INIT_LOG_OBJ(g_logFile_proxy,     "log/Debug_Proxy.log");
-    INIT_LOG_OBJ(g_Logoff,            "log/Debug_Logoff.log");
-    INIT_LOG_OBJ(g_dhcpDug,           "log/Debug_dhcp.log");
-    INIT_LOG_OBJ(logFile,             "log/Debug_logfile.log");
-    INIT_LOG_OBJ(g_logSystem,         "log/Debug_system.log");
-    INIT_LOG_OBJ(g_Update,            "log/Debug_update.log");
-    INIT_LOG_OBJ(g_eapPeapLog,        "log/Debug_eapPeap.log");
+    INIT_LOG_OBJ(logFile_debug, "log/Debug_001.log");
+    INIT_LOG_OBJ(g_logFile_Ser, "log/Debug_Server.log");
+    INIT_LOG_OBJ(g_logFile_start, "log/Debug_start_yf.log");
+    INIT_LOG_OBJ(g_log_Wireless, "log/Debug_Wireless_8021x.log");
+    INIT_LOG_OBJ(g_logFile_proxy, "log/Debug_Proxy.log");
+    INIT_LOG_OBJ(g_Logoff, "log/Debug_Logoff.log");
+    INIT_LOG_OBJ(g_dhcpDug, "log/Debug_dhcp.log");
+    INIT_LOG_OBJ(logFile, "log/Debug_logfile.log");
+    INIT_LOG_OBJ(g_logSystem, "log/Debug_system.log");
+    INIT_LOG_OBJ(g_Update, "log/Debug_update.log");
+    INIT_LOG_OBJ(g_eapPeapLog, "log/Debug_eapPeap.log");
     INIT_LOG_OBJ(g_rjPrivateParselog, "log/jPrivateParse.log");
-    INIT_LOG_OBJ(g_uilog,             "log/ui.log");
-    INIT_LOG_OBJ(g_WlanStateLog,      "log/wlanState.log");
+    INIT_LOG_OBJ(g_uilog, "log/ui.log");
+    INIT_LOG_OBJ(g_WlanStateLog, "log/wlanState.log");
     INIT_LOG_OBJ(g_logContextControl, "log/Debug_ContextControl.log");
 #undef INIT_LOG_OBJ
 }
@@ -882,4 +883,31 @@ void SimulateSuLogoff(unsigned char *buf, unsigned buflen)
 {
     logFile.AppendText("receive simulate su logoff command!");
     CtrlThread->PostThreadMessage(SIMULATE_SU_LOGOFF_MTYPE, buflen, buf);
+}
+
+bool SetLanFlag(unsigned flag)
+{
+    std::string regini_path;
+    dictionary *ini = nullptr;
+    FILE *fp = nullptr;
+    TakeAppPath(regini_path);
+    regini_path.append("\\").append("fileReg.ini");
+
+    if (!(ini = iniparser_load(regini_path.c_str()))) {
+        g_logSystem.AppendText(
+            "ini create[path=%s]failed",
+            regini_path.c_str()
+        );
+        return false;
+    }
+
+    iniparser_set(ini, "System:lantype", std::to_string(flag).c_str());
+
+    if (!(fp = fopen(regini_path.c_str(), "w")))
+        return false;
+
+    iniparser_dump_ini(ini, fp);
+    fclose(fp);
+    iniparser_freedict(ini);
+    return true;
 }

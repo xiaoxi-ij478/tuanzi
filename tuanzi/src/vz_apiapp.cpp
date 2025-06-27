@@ -130,7 +130,8 @@ void CVz_APIApp::V3HeartbeatAPI(
                 lower_data_sha1,
                 md5_challenge,
                 upper_data_sha1,
-                6, 10
+                6,
+                10
             );
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
@@ -157,7 +158,8 @@ void CVz_APIApp::V3HeartbeatAPI(
                 lower_data_sha1,
                 md5_challenge,
                 upper_data_ripemd128,
-                6, 10
+                6,
+                10
             );
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
@@ -184,7 +186,8 @@ void CVz_APIApp::V3HeartbeatAPI(
                 upper_data_tiger,
                 md5_challenge,
                 lower_data_ripemd128,
-                10, 6
+                10,
+                6
             );
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
@@ -211,7 +214,8 @@ void CVz_APIApp::V3HeartbeatAPI(
                 upper_data_tiger,
                 md5_challenge,
                 lower_data_sha1,
-                8, 8
+                8,
+                8
             );
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
@@ -395,7 +399,8 @@ void CVz_APIApp::PrepareData(
                 dlldata_sha1,
                 md5_challenge,
                 appdata_sha1,
-                6, 10
+                6,
+                 10
             );
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
@@ -422,7 +427,8 @@ void CVz_APIApp::PrepareData(
                 dlldata_sha1,
                 md5_challenge,
                 appdata_ripemd128,
-                6, 10
+                6,
+                10
             );
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
@@ -449,7 +455,8 @@ void CVz_APIApp::PrepareData(
                 appdata_tiger,
                 md5_challenge,
                 dlldata_ripemd128,
-                10, 6
+                10,
+                6
             );
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
@@ -476,7 +483,8 @@ void CVz_APIApp::PrepareData(
                 appdata_tiger,
                 md5_challenge,
                 dlldata_sha1,
-                8, 8
+                8,
+                8
             );
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(

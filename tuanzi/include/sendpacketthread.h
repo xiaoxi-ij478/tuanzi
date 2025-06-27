@@ -16,11 +16,11 @@ class CSendPacketThread : public CLnxThread
         void DispathMessage(struct LNXMSG *msg) override;
 
     private:
-        int DoSendPacket(const unsigned char *buf, int buflen);
+        int DoSendPacket(unsigned long arg1, unsigned long arg2);
         bool ExitSendPacketThread() const;
         int StartSendPacketThread();
         bool StopSendPacketThread() const;
-        int SendPacket(const unsigned char *buf, int buflen);
+        int SendPacket(unsigned long arg1, unsigned long arg2);
 
         char adapter_name[100];
         pcap_t *pcap_handle;

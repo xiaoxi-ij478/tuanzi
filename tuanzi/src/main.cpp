@@ -100,9 +100,10 @@ int main(int argc, char **argv)
                     continue;
                 }
 
-                snprintf(
-                    option_parse_error_str, sizeof(option_parse_error_str),
-                    cinstance.LoadString(2028).c_str(), 'S',
+                sprintf(
+                    option_parse_error_str,
+                    cinstance.LoadString(2028).c_str(),
+                    'S',
                     optarg
                 );
                 option_parse_error = true;
@@ -114,9 +115,8 @@ int main(int argc, char **argv)
                 if (auth_method == AUTH_WIRED || auth_method == AUTH_WIRELESS)
                     continue;
 
-                snprintf(
+                sprintf(
                     option_parse_error_str,
-                    sizeof(option_parse_error_str),
                     cinstance.LoadString(2028).c_str(),
                     'a',
                     optarg
@@ -267,4 +267,5 @@ int main(int argc, char **argv)
     set_msg_config("msgmni", 0x80);
     set_msg_config("msgmax", 0x6000);
     set_msg_config("msgmnb", 0xC000);
+    // TODO
 }

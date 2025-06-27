@@ -28,7 +28,7 @@ class CRxPacketThread : public CLnxThread
         void SetPacketFilter(const char *filter_expr);
         void SetProxyMsgID(int proxy_msgid);
         void SetRxPacketAdapter(const char *adapter_name_l);
-        void StartRecvPacket();
+        DECLARE_DISPATH_MESSAGE_HANDLER(StartRecvPacket);
         int StartRecvPacketThread();
         int StopRxPacketThread();
 

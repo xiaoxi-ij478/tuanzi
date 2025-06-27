@@ -39,7 +39,8 @@ void sig_quit(int)
     CLogFile::LogToFile(
         CChangeLanguage::Instance().LoadString(2051).c_str(),
         g_runLogFile.c_str(),
-        true, true
+        true,
+        true
     );
     exit(0);
 }

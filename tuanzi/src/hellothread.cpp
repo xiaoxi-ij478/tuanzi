@@ -1,7 +1,7 @@
 #include "all.h"
 #include "global.h"
 #include "util.h"
-#include "sendpacketthread.h" // SEND_MESSAGE_MTYPE
+#include "mtypes.h"
 #include "hellothread.h"
 
 CHelloThread::CHelloThread() :
@@ -16,20 +16,12 @@ CHelloThread::CHelloThread() :
     SetClassName("CHelloThread");
 }
 
-bool CHelloThread::DispathMessage(struct LNXMSG *msg)
+void CHelloThread::DispathMessage(struct LNXMSG *msg)
 {
     switch (msg->mtype) {
-        case ON_TIMER_MTYPE:
-            OnHelloTimer(msg->buflen, msg->buf);
-            break;
-
-        case SET_HELLOTIMER_PLEASE_MTYPE:
-            OnSetHelloTimerPlease(msg->buflen, msg->buf);
-            break;
-
-        case CHANGE_HELLOPARA_MTYPE:
-            OnChangeHelloPara(msg->buflen, msg->buf);
-            break;
+            HANDLE_MTYPE(ON_TIMER_MTYPE, OnHelloTimer);
+            HANDLE_MTYPE(SET_HELLOTIMER_PLEASE_MTYPE, OnSetHelloTimerPlease);
+            HANDLE_MTYPE(CHANGE_HELLOPARA_MTYPE, OnChangeHelloPara);
     }
 }
 
@@ -44,10 +36,10 @@ void CHelloThread::OnTimer(int tflag) const
 {
     if (OnTimerEnter(tflag)) {
         if (
-            tflag == 0x70 &&
-            !PostThreadMessage(ON_TIMER_MTYPE, 0x70, reinterpret_cast<void *>(-1))
+            tflag == HELLO_TIMER_MTYPE &&
+            !PostThreadMessage(ON_TIMER_MTYPE, HELLO_TIMER_MTYPE, -1)
         )
-            OnTimerLeave(0x70);
+            OnTimerLeave(HELLO_TIMER_MTYPE);
 
     } else
         g_logSystem.AppendText(
@@ -104,49 +96,49 @@ void CHelloThread::CreateHelloTimer(unsigned interval)
     } else
         hello_timer_interval = interval;
 
-    hello_timerid = SetTimer(nullptr, 0x70, hello_timer_interval, nullptr);
-    OnHelloTimer(0x70, reinterpret_cast<void *>(-1));
+    hello_timerid =
+        SetTimer(nullptr, HELLO_TIMER_MTYPE, hello_timer_interval, nullptr);
+    OnHelloTimer(HELLO_TIMER_MTYPE, -1);
 }
 
 unsigned CHelloThread::GetCurCRCID()
 {
-    unsigned v1 = e_pHelloID[hello_id_offset];
+    unsigned id = e_pHelloID[hello_id_offset];
 
-    if (v1 == 0x74)
+    if (id == 0x74)
         return ++field_1F0;
 
     for (unsigned i = 0; i < 16; i++)
         if (e_pHelloID[i] == 0x74)
-            e_pHelloID[i] = v1;
+            e_pHelloID[i] = id;
 
     return ++field_1F0;
 }
 
-void CHelloThread::OnChangeHelloPara(unsigned long buflen, void *buf)
+DEFINE_DISPATH_MESSAGE_HANDLER(OnChangeHelloPara, CHelloThread)
 {
-    if (buf)
-        hello_para = reinterpret_cast<unsigned long>(buf);
+    if (arg1)
+        hello_para = reinterpret_cast<unsigned long>(arg1);
 
-    CreateHelloTimer(buflen);
+    CreateHelloTimer(arg1);
 }
 
-void CHelloThread::OnHelloTimer(
-    unsigned long buflen,
-    [[maybe_unused]] void *buf
-)
+DEFINE_DISPATH_MESSAGE_HANDLER(OnHelloTimer, CHelloThread)
 {
     unsigned rbuflen = 0;
     struct HelloPacket *hello_packet = CreateHelloPacket(rbuflen);
 
     if (!hello_packet) {
-        OnTimerLeave(buflen);
+        OnTimerLeave(arg1);
         return;
     }
 
     if (CtrlThread->field_210 && CtrlThread->send_packet_thread) {
         if (
             !CtrlThread->send_packet_thread->PostThreadMessage(
-                SEND_MESSAGE_MTYPE, rbuflen, hello_packet
+                SEND_MESSAGE_MTYPE,
+                rbuflen,
+                hello_packet
             )
         )
             g_log_Wireless.AppendText(
@@ -162,10 +154,10 @@ void CHelloThread::OnHelloTimer(
         delete hello_packet;
     }
 
-    OnTimerLeave(buflen);
+    OnTimerLeave(arg1);
 }
 
-void CHelloThread::OnSetHelloTimerPlease(unsigned long, void *)
+DEFINE_DISPATH_MESSAGE_HANDLER(OnSetHelloTimerPlease, CHelloThread)
 {
     CreateHelloTimer(hello_timer_interval);
 }

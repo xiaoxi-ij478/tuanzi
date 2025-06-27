@@ -117,8 +117,9 @@ bool CTcp::GetFtpReqAddr_Port(const struct TCPIP &pkg)
         return false;
 
     if (
-        (at_pos = FindChar('@', content, space_pos + 1, pkg.content_length - 1))
-        < space_pos + 1
+        (at_pos =
+             FindChar('@', content, space_pos + 1, pkg.content_length - 1)
+        ) < space_pos + 1
     )
         return false;
 
@@ -154,21 +155,29 @@ bool CTcp::GetHttpReqAddr_Port(const struct TCPIP &pkg)
     )
         return false;
 
-    if ((space_pos2 =
-                FindChar(
-                    ' ', content,
-                    space_pos + 1,
-                    pkg.content_length - 1
-                )) < 0)
+    if (
+        (space_pos2 =
+             FindChar(
+                 ' ',
+                 content,
+                 space_pos + 1,
+                 pkg.content_length - 1
+             )
+        ) < 0
+    )
         return false;
 
     if (
         MemCmpare(
-            pkg.content, space_pos2 + 1, pkg.content_length - 1,
+            pkg.content,
+            space_pos2 + 1,
+            pkg.content_length - 1,
             "HTTP/1.0\r\n", strlen("HTTP/1.0\r\n")
         ) &&
         MemCmpare(
-            pkg.content, space_pos2 + 1, pkg.content_length - 1,
+            pkg.content,
+            space_pos2 + 1,
+            pkg.content_length - 1,
             "HTTP/1.1\r\n", strlen("HTTP/1.1\r\n")
         )
     )
@@ -185,8 +194,10 @@ bool CTcp::GetHttpReqAddr_Port(const struct TCPIP &pkg)
 
     else if (!MemCmpare(
                  pkg.content,
-                 url_begin, end,
-                 "https://", strlen("https://")
+                 url_begin,
+                 end,
+                 "https://",
+                 strlen("https://")
              ))
         url_begin += strlen("https://");
 
@@ -427,21 +438,32 @@ bool CTcp::IsHttpType(const struct TCPIP &pkg)
     )
         return false;
 
-    if ((space_pos2 =
-                FindChar(
-                    ' ', content,
-                    space_pos + 1, pkg.content_length - 1
-                )) < 0)
+    if (
+        (space_pos2 =
+             FindChar(
+                 ' ',
+                 content,
+                 space_pos + 1,
+                 pkg.content_length - 1
+             )
+        ) < 0
+    )
         return false;
 
     if (
         MemCmpare(
-            pkg.content, space_pos2 + 1, pkg.content_length - 1,
-            "HTTP/1.0\r\n", strlen("HTTP/1.0\r\n")
+            pkg.content,
+            space_pos2 + 1,
+            pkg.content_length - 1,
+            "HTTP/1.0\r\n",
+            strlen("HTTP/1.0\r\n")
         ) &&
         MemCmpare(
-            pkg.content, space_pos2 + 1, pkg.content_length - 1,
-            "HTTP/1.1\r\n", strlen("HTTP/1.1\r\n")
+            pkg.content,
+            space_pos2 + 1,
+            pkg.content_length - 1,
+            "HTTP/1.1\r\n",
+            strlen("HTTP/1.1\r\n")
         )
     )
         return false;
@@ -503,12 +525,15 @@ bool CTcp::IsMmsType(const struct TCPIP &pkg)
     if (
         (host_pos =
              FindSub(
-                 "Host: ", strlen("Host: "),
-                 char_buf, 0, strlen(char_buf)
-             )) >= 0 &&
-        strlen(char_buf) + 1 -
-        (host_pos + strlen("Host: ")) <=
-        sizeof(reqaddr_char) - 1
+                 "Host: ",
+                 strlen("Host: "),
+                 char_buf,
+                 0,
+                 strlen(char_buf)
+             )
+        ) >= 0 &&
+        strlen(char_buf) + 1 - (host_pos + strlen("Host: "))
+        <= sizeof(reqaddr_char) - 1
     )
         strcpy(reqaddr_char, char_buf + host_pos + strlen("Host: "));
 
@@ -613,15 +638,15 @@ bool CTcp::IsSocks4Type(const struct TCPIP &pkg)
         return false;
 
     if (
-        !(ipaddr = inet_ntoa(request->ip)) ||
-        pkg.content_length != strlen(request->id) +
-        sizeof(struct Socks4ConnReq) + 1
+        !(ipaddr = inet_ntoa({ request->ip })) ||
+        pkg.content_length !=
+        strlen(request->id) + sizeof(struct Socks4ConnReq) + 1
     )
         return false;
 
     strcpy(reqaddr_char, ipaddr);
     reqport = ntohs(request->port);
-    reqaddr_int = request->ip.s_addr;
+    reqaddr_int = request->ip;
     return true;
 }
 

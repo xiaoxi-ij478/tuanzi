@@ -6,8 +6,10 @@
 #include "proxysertcp.h"
 
 struct tagLocalIP {
-    tagLocalIP(in_addr_t local_ip, unsigned long creation_time):
-        local_ip(local_ip), creation_time(creation_time) {}
+    tagLocalIP(in_addr_t local_ip, unsigned long creation_time) :
+        local_ip(local_ip),
+        creation_time(creation_time)
+    {}
     in_addr_t local_ip;
     unsigned long creation_time;
 };

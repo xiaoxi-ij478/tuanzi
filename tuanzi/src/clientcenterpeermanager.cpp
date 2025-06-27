@@ -3,6 +3,7 @@
 #include "threadutil.h"
 #include "xmlparser.h"
 #include "httpconnection.h"
+#include "mtypes.h"
 #include "confupdateutilinstance.h"
 #include "clientcenterpeermanager.h"
 
@@ -72,7 +73,7 @@ bool CClientCenterPeerManager::StartConnect(
             instance->thread_id,
             START_CONNECT_MTYPE,
             reinterpret_cast<unsigned long>(tmpinfo),
-            nullptr
+            0
         )
     ) {
         g_logContextControl.AppendText("StartConnect: post message success.");
@@ -100,7 +101,7 @@ bool CClientCenterPeerManager::StopConnect()
         return true;
     }
 
-    if (instance->PostThreadMessage(STOP_CONNECT_MTYPE, 0, nullptr))
+    if (instance->PostThreadMessage(STOP_CONNECT_MTYPE, 0, 0))
         return true;
 
     else {
@@ -114,29 +115,21 @@ unsigned CClientCenterPeerManager::getUpgradeType() const
     return upgrade_type;
 }
 
-bool CClientCenterPeerManager::DispathMessage(struct LNXMSG *msg)
+void CClientCenterPeerManager::DispathMessage(struct LNXMSG *msg)
 {
     g_logContextControl.AppendText("DispathMessage %d", msg->mtype);
 
     switch (msg->mtype) {
-        case START_CONNECT_MTYPE:
-            OnStart(msg->buflen, msg->buf);
-            break;
-
-        case STOP_CONNECT_MTYPE:
-            OnStop(msg->buflen, msg->buf);
-            break;
-
-        case ON_TIMER_MTYPE:
-            OnTimer(msg->buflen, msg->buf);
-            break;
+            HANDLE_MTYPE(START_CONNECT_MTYPE, OnStart);
+            HANDLE_MTYPE(STOP_CONNECT_MTYPE, OnStop);
+            HANDLE_MTYPE(ON_TIMER_MTYPE, OnTimer);
     }
 }
 
 void CClientCenterPeerManager::OnTimer(int tflag) const
 {
     if (OnTimerEnter(tflag)) {
-        if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, reinterpret_cast<void *>(-1)))
+        if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, -1))
             OnTimerLeave(tflag);
 
     } else
@@ -148,7 +141,7 @@ void CClientCenterPeerManager::OnTimer(int tflag) const
 
 bool CClientCenterPeerManager::ExitInstance()
 {
-    OnStop(0, nullptr);
+    OnStop(0, 0);
     return CLnxThread::ExitInstance();
 }
 
@@ -159,19 +152,17 @@ bool CClientCenterPeerManager::InitInstance()
     return true;
 }
 
-void CClientCenterPeerManager::OnStart(unsigned long buflen, void *buf)
+DEFINE_DISPATH_MESSAGE_HANDLER(OnStart, CClientCenterPeerManager)
 {
     struct _START_CENTERCONTROL_START_ *info =
-            reinterpret_cast<struct _START_CENTERCONTROL_START_ *>(buflen);
+            reinterpret_cast<struct _START_CENTERCONTROL_START_ *>(arg1);
     g_logContextControl.AppendText("Start to connect client center");
-    OnStop(0, nullptr);
+    OnStop(0, 0);
 
-    if (!buflen)
+    if (!arg1)
         return;
 
-    if (&control_center_info != info)
-        control_center_info = *info;
-
+    control_center_info = *info;
     delete info;
     control_center_info.product = 0x3000000;
 
@@ -183,7 +174,7 @@ void CClientCenterPeerManager::OnStart(unsigned long buflen, void *buf)
         ProcessConnect();
 }
 
-void CClientCenterPeerManager::OnStop(unsigned long buflen, void *buf)
+DEFINE_DISPATH_MESSAGE_HANDLER(OnStop, CClientCenterPeerManager)
 {
     g_logContextControl.AppendText("Stop to connect client center");
 
@@ -194,19 +185,19 @@ void CClientCenterPeerManager::OnStop(unsigned long buflen, void *buf)
     process_connect_timerid = 0;
 }
 
-void CClientCenterPeerManager::OnTimer(unsigned long buflen, void *buf)
+DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CClientCenterPeerManager)
 {
     g_logContextControl.AppendText(
         "CContextControlThread::OnTimer nIDEvent = %d",
-        buflen
+        arg1
     );
 
-    if (buflen == 1) {
+    if (arg1 == 1) {
         g_logContextControl.AppendText("CClientCenterPeerManager::OnTimer，进来了");
         ProcessConnect();
     }
 
-    OnTimerLeave(buflen);
+    OnTimerLeave(arg1);
     return;
 }
 
@@ -219,7 +210,7 @@ int CClientCenterPeerManager::ParseResult(const char *result)
     std::ostringstream upgrade_full_url_oss;
     char *upgrade_full_url_buf = nullptr;
 
-    if (ret = CConfUpdateUtilInstance::Instance().UpdateConfigure(result))
+    if ((ret = CConfUpdateUtilInstance::Instance().UpdateConfigure(result)))
         g_logContextControl.AppendText(
             "Failed to update configure, error=%d .", ret
         );
@@ -261,7 +252,12 @@ int CClientCenterPeerManager::ParseResult(const char *result)
     );
     upgrade_full_url_buf = new char[upgrade_full_url.length() + 1];
     upgrade_full_url.copy(upgrade_full_url_buf, upgrade_full_url.length());
-    ::PostThreadMessage(thread_key, NOTIFY_UPGRADE_MTYPE, -1, upgrade_full_url_buf);
+    ::PostThreadMessage(
+        thread_key,
+        NOTIFY_UPGRADE_MTYPE,
+        -1,
+        reinterpret_cast<unsigned long>(upgrade_full_url_buf)
+    );
     return 0;
 }
 
@@ -359,7 +355,8 @@ set_timer:
     srand(time(nullptr));
     timer_interval_l = rand() % 60 + 60;
     process_connect_timer_interval = timer_interval_l;
-    process_connect_timerid = SetTimer(1, 1000 * timer_interval_l);
+    process_connect_timerid =
+        SetTimer(PROCESS_CONNECT_MTYPE, 1000 * timer_interval_l);
 }
 
 std::string CClientCenterPeerManager::EnCodeStr(const std::string &str)

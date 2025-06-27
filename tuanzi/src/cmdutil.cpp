@@ -19,16 +19,17 @@ void message_info(const std::string &str)
 
 void display_usage()
 {
+    unsigned short tc_width = get_tc_width();
+    char str2[2048] = {};
+    std::string log_path(g_strAppPath + "log/run.log");
+    CChangeLanguage &cinstance = CChangeLanguage::Instance();
+    std::cout << cinstance.LoadString(2007) << std::endl;
 #define PRINT_USAGE(head, help_str_id) \
     do { \
         std::cout << (head); \
         format_tc_string(tc_width, 24, cinstance.LoadString(help_str_id)); \
         std::cout << std::endl; \
     } while(0)
-    unsigned short tc_width = get_tc_width();
-    char str2[2048] = {};
-    CChangeLanguage &cinstance = CChangeLanguage::Instance();
-    std::cout << cinstance.LoadString(2007) << std::endl;
     PRINT_USAGE("\t-a --auth\t", 2008);
     PRINT_USAGE("\t-d --dhcp\t", 2043);
     PRINT_USAGE("\t-n --nic\t", 2009);
@@ -39,15 +40,10 @@ void display_usage()
     PRINT_USAGE("\t-p --password\t", 2013);
     PRINT_USAGE("\t-S --save\t", 2014);
     PRINT_USAGE("\t-q --quit\t", 2046);
-    std::cout << "\t   --comments\t";
-    std::string log_path(g_strAppPath + "log/run.log");
-    snprintf(
-        str2, sizeof(str2),
-        cinstance.LoadString(2045).c_str(),
-        log_path.c_str()
-    );
-    format_tc_string(tc_width, 24, str2);
 #undef PRINT_USAGE
+    std::cout << "\t   --comments\t";
+    sprintf(str2, cinstance.LoadString(2045).c_str(), log_path.c_str());
+    format_tc_string(tc_width, 24, str2);
     exit(1);
 }
 
@@ -275,4 +271,29 @@ void shownotify(const std::string &content, const std::string &header, int)
         true,
         true
     );
+}
+
+void show_url(const std::string &header, const std::string &content)
+{
+    std::string final_str;
+
+    if (content.empty())
+        return;
+
+    message_info(header + ':');
+    format_tc_string(get_tc_width(), 20, content + '\n');
+}
+
+void show_version()
+{
+    format_tc_string(12, 0, CChangeLanguage::Instance().LoadString(2003));
+    message_info(CChangeLanguage::Instance().LoadString(2004) + '\n');
+}
+
+void show_message_info()
+{
+    std::vector<struct tagMsgItem> msgs;
+    GetMsgArray(msgs);
+    print_msg_item_header();
+    std::for_each(msgs.cbegin(), msgs.cend(), print_msg_item);
 }

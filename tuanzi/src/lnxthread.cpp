@@ -2,6 +2,7 @@
 #include "global.h"
 #include "timeutil.h"
 #include "threadutil.h"
+#include "mtypes.h"
 #include "lnxthread.h"
 
 CLnxThread::CLnxThread(void *(*thread_func)(void *), void *thread_func_arg) :
@@ -21,7 +22,6 @@ CLnxThread::CLnxThread(void *(*thread_func)(void *), void *thread_func_arg) :
     pthread_mutex()
 {
     pthread_mutex_init(&pthread_mutex, nullptr);
-    memset(classname, 0, sizeof(classname));
 }
 
 CLnxThread::CLnxThread() : CLnxThread(nullptr, nullptr)
@@ -77,11 +77,11 @@ int CLnxThread::GetMessageID() const
 
 bool CLnxThread::PostThreadMessage(
     unsigned long mtype,
-    unsigned long buflen,
-    void *buf
+    unsigned long arg1,
+    unsigned long arg2
 ) const
 {
-    struct LNXMSG msg = { mtype, buflen, buf };
+    struct LNXMSG msg = { mtype, arg1, arg2 };
 
     if (mtype < 0) {
         g_logSystem.AppendText(
@@ -94,7 +94,9 @@ bool CLnxThread::PostThreadMessage(
     if (msgsnd(msgid, &msg, LNXMSG_MSGSZ, IPC_NOWAIT) == -1) {
         g_logSystem.AppendText(
             "%s msgsnd %d Error:%s",
-            classname, mtype, strerror(errno)
+            classname,
+            mtype,
+            strerror(errno)
         );
         return false;
     }
@@ -107,7 +109,7 @@ int CLnxThread::StartThread()
     if (no_need_send_msg)
         return -1;
 
-    if (!PostThreadMessage(START_THREAD_MTYPE, 0, nullptr)) {
+    if (!PostThreadMessage(START_THREAD_MTYPE, 0, 0)) {
         g_logSystem.AppendText(
             "CLnxThread::StartThread() PostThreadMessage failed\n");
         return -1;
@@ -123,7 +125,7 @@ int CLnxThread::StopThread()
     if (no_need_send_msg)
         return 1;
 
-    if (PostThreadMessage(STOP_THREAD_MTYPE, 0, nullptr))
+    if (PostThreadMessage(STOP_THREAD_MTYPE, 0, 0))
         return 1;
 
     g_logSystem.AppendText(
@@ -189,7 +191,10 @@ timer_t CLnxThread::SetTimer(int tflag, int off_msec)
 
     g_logFile_start.AppendText(
         "[%s] SetTimer(%d) ti = %d,msgid =%d",
-        classname, tflag, timerid, msgid
+        classname,
+        tflag,
+        timerid,
+        msgid
     );
     return timerid;
 }
@@ -225,7 +230,7 @@ bool CLnxThread::Run()
 
         switch (cur_msg.mtype) {
             case STOP_THREAD_MTYPE:
-                cur_msg = { 0, 0, nullptr };
+                cur_msg = { 0, 0, 0 };
                 g_logSystem.AppendText("CLnxThread::Run %s \tLEAVE", classname);
                 return false;
             case START_THREAD_MTYPE:
@@ -233,7 +238,9 @@ bool CLnxThread::Run()
                 SetEvent(&wait_handle2, true);
                 g_logFile_start.AppendText(
                     "(%s)msgrcv m_msgid =%d m_msgCur.message=%d ",
-                    classname, msgid, cur_msg.mtype
+                    classname,
+                    msgid,
+                    cur_msg.mtype
                 );
                 DispathMessage(&cur_msg);
                 break;
@@ -241,7 +248,9 @@ bool CLnxThread::Run()
             default:
                 g_logFile_start.AppendText(
                     "(%s)msgrcv m_msgid =%d m_msgCur.message=%d ",
-                    classname, msgid, cur_msg.mtype
+                    classname,
+                    msgid,
+                    cur_msg.mtype
                 );
 
                 if (start_process)
@@ -254,15 +263,15 @@ bool CLnxThread::Run()
     return true;
 }
 
-bool CLnxThread::DispathMessage([[maybe_unused]] struct LNXMSG *msg)
-{
-}
+void CLnxThread::DispathMessage([[maybe_unused]] struct LNXMSG *msg)
+{}
 
 void CLnxThread::OnTimer(int tflag) const
 {
     g_logSystem.AppendText(
         "CLnxThread::OnTimer pid =%d,timerFlag=%d\n",
-        pthread_self(), tflag
+        pthread_self(),
+        tflag
     );
 }
 
@@ -309,7 +318,7 @@ void CLnxThread::OnTimerLeave(int tflag) const
 
 bool CLnxThread::ExitInstance()
 {
-    return no_need_send_msg ? 0 : cur_msg.buflen;
+    return no_need_send_msg ? 0 : cur_msg.arg1;
 }
 
 bool CLnxThread::KillTimer(timer_t &timerid)
@@ -317,7 +326,9 @@ bool CLnxThread::KillTimer(timer_t &timerid)
     bool ret = false;
     g_logFile_start.AppendText(
         "CLnxThread(%s)::KillTimer() %u ,pid =%u\n",
-        classname, timerid, pthread_self()
+        classname,
+        timerid,
+        pthread_self()
     );
 
     if (!timerid)
@@ -336,7 +347,10 @@ bool CLnxThread::KillTimer(timer_t &timerid)
 
         g_logFile_start.AppendText(
             "[%s] KillTimer(%d) ti = %d,tflag =%d",
-            classname, timer->tflag, timerid, timer->tflag
+            classname,
+            timer->tflag,
+            timerid,
+            timer->tflag
         );
 
         if (my_timer_delete(timerid) != -1) {
@@ -348,7 +362,9 @@ bool CLnxThread::KillTimer(timer_t &timerid)
 
         g_logFile_start.AppendText(
             "Error-CLnxThread::KillTimer %s,errno=%d,EINVAL=%d",
-            strerror(errno), errno, EINVAL
+            strerror(errno),
+            errno,
+            EINVAL
         );
         Sleep(100);
 
@@ -377,14 +393,18 @@ void CLnxThread::KillAllTimer()
 {
     g_logFile_start.AppendText(
         "CLnxThread(%s)::KillAllTimer() size=%d",
-        classname, timers.size()
+        classname,
+        timers.size()
     );
     pthread_mutex_lock(&pthread_mutex);
 
     for (TIMERPARAM *timer : timers) {
         g_logFile_start.AppendText(
             "[%s] KillAllTimer(%d) ti = %d,tflag =%d",
-            classname, timer->tflag, timer->ti, timer->tflag
+            classname,
+            timer->tflag,
+            timer->ti,
+            timer->tflag
         );
         pthread_mutex_destroy(&timer->pthread_mutex);
 
@@ -436,7 +456,8 @@ void CLnxThread::SafeExitThread(unsigned off_msec)
 
         g_logSystem.AppendText(
             "CLnxThread::StopThread %s WaitForSingleObject error = %d",
-            classname, retval
+            classname,
+            retval
         );
 
         if (!TerminateThread(thread_id))
@@ -466,18 +487,25 @@ void *CLnxThread::_LnxThreadEntry(void *arg)
     if (errno != EEXIST) {
         g_logSystem.AppendText(
             "ENOSPC=%d,ENOMEM=%d,EACCES=%d,EEXIST=%d,ENOENT=%dn errno=%d\n",
-            ENOSPC, ENOMEM, EACCES, EEXIST, ENOENT, errno
+            ENOSPC,
+            ENOMEM,
+            EACCES,
+            EEXIST,
+            ENOENT,
+            errno
         );
 
         // well they took it from msgget(2)
         if (errno == ENOSPC)
             g_logSystem.AppendText(
-                "limit for the maximum number of message queues (MSGMNI) would be exceeded\n"
+                "limit for the maximum number of message queues "
+                "(MSGMNI) would be exceeded\n"
             );
 
         else if (errno == ENOMEM)
             g_logSystem.AppendText(
-                " the system does not have enough memory for the new data structure.\n"
+                " the system does not have enough memory for "
+                "the new data structure.\n"
             );
 
         g_logSystem.AppendText("msgget error:%s", strerror(errno));
@@ -489,7 +517,9 @@ void *CLnxThread::_LnxThreadEntry(void *arg)
         return nullptr;
     }
 
-    g_logSystem.AppendText("--------------------------creat msg id error,del it first\n");
+    g_logSystem.AppendText(
+        "--------------------------creat msg id error,del it first\n"
+    );
     msgid = msgget(calling_thread->thread_id, 0666);
     calling_thread->msgid = msgid;
 

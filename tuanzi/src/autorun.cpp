@@ -54,7 +54,6 @@ int before_login_enable(
     [[maybe_unused]] const char *arg
 )
 {
-    // original implementation is in shell
     // rm -rf "/etc/rc.d/init.d/${exe%.*}"
     // cp su.sh "/etc/rc.d/init.d/${exe%.*}"
     // chmod +x "/etc/rc.d/init.d/${exe%.*}"
@@ -67,7 +66,6 @@ int before_login_enable(
 
 int before_login_disable([[maybe_unused]] const char *exe)
 {
-    // original implementation is in shell
     // rm -rf "/etc/rc.d/init.d/${exe%.*}"
     return 0;
 }
@@ -77,7 +75,6 @@ int profile_add(
     [[maybe_unused]] const char *arg
 )
 {
-    // original implementation is in shell
     // if ! cat /etc/profile | grep "$exe"
     // then echo "$exe $arg & #$exe SU" >>/etc/profile
     // fi
@@ -86,7 +83,6 @@ int profile_add(
 
 int profile_del([[maybe_unused]] const char *exe)
 {
-    // original implementation is in shell
     // sed -i "/$exe/d" /etc/profile
     return 0;
 }

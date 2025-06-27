@@ -8,6 +8,7 @@
 #include "global.h"
 #include "util.h"
 #include "mtypes.h"
+#include "dirtransutil.h"
 #include "udplistenthread.h"
 
 CUDPListenThread::CUDPListenThread(struct UdpListenParam *listen_param) :
@@ -70,16 +71,11 @@ int CUDPListenThread::GSNReceiver(
     return gsn_pkgid++;
 }
 
-bool CUDPListenThread::DispathMessage(struct LNXMSG *msg)
+void CUDPListenThread::DispathMessage(struct LNXMSG *msg)
 {
     switch (msg->mtype) {
-        case RECV_PACKET_RETURN_MTYPE:
-            OnRecvPacketReturn(msg->buflen, msg->buf);
-            break;
-
-        case ON_TIMER_MTYPE:
-            OnTimer(msg->buflen, msg->buf);
-            break;
+            HANDLE_MTYPE(RECV_PACKET_RETURN_MTYPE, OnRecvPacketReturn);
+            HANDLE_MTYPE(ON_TIMER_MTYPE, OnTimer);
     }
 }
 
@@ -115,7 +111,7 @@ bool CUDPListenThread::InitInstance()
 void CUDPListenThread::OnTimer(int tflag) const
 {
     if (OnTimerEnter(tflag)) {
-        if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, reinterpret_cast<void *>(-1)))
+        if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, -1))
             OnTimerLeave(tflag);
 
     } else
@@ -310,11 +306,12 @@ bool CUDPListenThread::IsGoodAsyUTC(
         return true;
 
     if (proto_param.version == 1)
-        return labs(
-                   timestamp -
-                   proto_param.utc_time -
-                   (GetTickCount() - proto_param.timestamp) / 1000
-               ) <= 60;
+        return
+            labs(
+                timestamp -
+                proto_param.utc_time -
+                (GetTickCount() - proto_param.timestamp) / 1000
+            ) <= 60;
 
     if (
         (last_timestamp = GetLastTimeStampForReceive(
@@ -416,31 +413,28 @@ bool CUDPListenThread::IsUDPPacket(
            pkg->ipheader.protocol == IPPROTO_UDP;
 }
 
-void CUDPListenThread::OnRecvPacketReturn(
-    unsigned long buflen,
-    const void *buf
-)
+DEFINE_DISPATH_MESSAGE_HANDLER(OnRecvPacketReturn, CUDPListenThread)
 {
-    assert(buf);
+    assert(arg2);
 
     if (working_falg)
-        HandlePrivateData(static_cast<const unsigned char *>(buf), buflen);
+        HandlePrivateData(reinterpret_cast<const unsigned char *>(arg2), arg1);
 
-    delete[] static_cast<const unsigned char *>(buf);
+    delete[] reinterpret_cast<const unsigned char *>(arg2);
 }
 
-void CUDPListenThread::OnTimer(unsigned long buflen, void *buf)
+DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CUDPListenThread)
 {
     struct tagDirectCom_ProtocalParam proto_param = {};
     unsigned finish_time = 0;
     logFile_debug.AppendText(
         " CUDPListenThread::OnTimer nIDEvent=%d,TIMER_CLEAR_DIR_SENDER=%d ",
-        buflen,
+        arg1,
         TIMER_CLEAR_DIR_SENDER
     );
 
-    if (buflen != TIMER_CLEAR_DIR_SENDER) {
-        OnTimerLeave(buflen);
+    if (arg1 != TIMER_CLEAR_DIR_SENDER) {
+        OnTimerLeave(arg1);
         return;
     }
 
@@ -481,7 +475,7 @@ void CUDPListenThread::OnTimer(unsigned long buflen, void *buf)
     }
 
     LeaveCriticalSection(&recv_mutex);
-    OnTimerLeave(buflen);
+    OnTimerLeave(arg1);
 }
 
 bool CUDPListenThread::ResponseSender(
@@ -907,7 +901,7 @@ bool CUDPListenThread::RevcDirectPack(
                 tmp_recvbind.pthread,
                 tmp_recvbind.on_receive_packet_post_mtype,
                 reinterpret_cast<unsigned long>(tmp_received_data),
-                reinterpret_cast<void *>(dir_head.data_len)
+                dir_head.data_len
             );
 
         else {
@@ -1207,7 +1201,7 @@ void CUDPListenThread::SetWorkingFalg(bool working)
         );
 
         if (clear_timer_id) {
-            OnTimer(TIMER_CLEAR_DIR_SENDER, reinterpret_cast<void *>(-1));
+            OnTimer(TIMER_CLEAR_DIR_SENDER, -1);
             KillTimer(clear_timer_id);
             clear_timer_id = 0;
         }

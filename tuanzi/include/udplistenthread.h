@@ -4,7 +4,6 @@
 #include "lnxthread.h"
 #include "criticalsection.h"
 #include "directtransfer.h"
-#include "dirtranstags.h"
 
 struct UdpListenParam {
     key_t mainthread;
@@ -19,6 +18,7 @@ class CUDPListenThread : public CLnxThread
         CUDPListenThread(struct UdpListenParam *listen_param = nullptr);
         ~CUDPListenThread() override;
 
+        bool CloseGSNReceiver(int id);
         int GSNReceiver(
             in_addr_t srcaddr,
             unsigned srcport,
@@ -27,25 +27,6 @@ class CUDPListenThread : public CLnxThread
             key_t pthread,
             int on_receive_packet_post_mtype
         );
-
-    protected:
-        void DispathMessage(struct LNXMSG *msg) override;
-        bool ExitInstance() override;
-        bool InitInstance() override;
-        void OnTimer(int tflag) const override;
-
-    private:
-        bool CloseGSNReceiver(int id);
-        bool DecryptPrivateData(
-            const struct tagDirectCom_ProtocalParam &proto_param,
-            unsigned char *buf,
-            unsigned buflen
-        ) const;
-        bool EncryptPrivateData(
-            const struct tagDirectCom_ProtocalParam &proto_param,
-            unsigned char *buf,
-            unsigned buflen
-        ) const;
         unsigned long GetLastTimeStampForReceive(
             in_addr_t addr,
             unsigned short port
@@ -59,36 +40,6 @@ class CUDPListenThread : public CLnxThread
             struct tagDirectCom_ProtocalParam &proto_param,
             in_addr_t addr,
             unsigned short port
-        );
-        bool HandlePrivateData(
-            const unsigned char * /* struct DirTransFullPkg * */ buf,
-            unsigned buflen
-        );
-        void InitTimeStampV2(
-            in_addr_t addr,
-            unsigned short port,
-            unsigned long next_timestamp_for_send /* nextTimeStampForSend */
-        );
-        bool IsGoodAsyUTC(
-            const struct tagDirectCom_ProtocalParam &proto_param,
-            unsigned long timestamp
-        );
-        bool IsIPHeadChecksumRight(const unsigned char *buf, unsigned buflen) const;
-        bool IsSuExpected(const unsigned char *buf, unsigned buflen) const;
-        bool IsUDPChecksumRight(const unsigned char *buf, unsigned buflen) const;
-        bool IsUDPPacket(const unsigned char *buf, unsigned buflen) const;
-        void OnRecvPacketReturn(unsigned long buflen, const void *buf);
-        void OnTimer(unsigned long buflen, void *buf);
-        bool ResponseSender(const unsigned char *buf, unsigned buflen);
-        bool RevcDirectPack(const unsigned char *buf, unsigned buflen);
-        void SendResponse(
-            const struct tagDirectCom_ProtocalParam &proto_param,
-            struct tagDirPacketHead &packet_head,
-            in_addr_t dstaddr,
-            unsigned dstport,
-            in_addr_t srcaddr,
-            unsigned srcport,
-            const unsigned char *packet
         );
         void SetDirParaXieYi(const struct tagDirectCom_ProtocalParam &proto_param);
         void SetIfListenRes(bool val);
@@ -115,6 +66,54 @@ class CUDPListenThread : public CLnxThread
         void SetSamIPAddress(in_addr_t sam_ipaddr_l);
         void SetSuIPAddress(in_addr_t su_ipaddr_l);
         void SetWorkingFalg(bool working);
+
+    protected:
+        void DispathMessage(struct LNXMSG *msg) override;
+        bool ExitInstance() override;
+        bool InitInstance() override;
+        void OnTimer(int tflag) const override;
+
+    private:
+        bool DecryptPrivateData(
+            const struct tagDirectCom_ProtocalParam &proto_param,
+            unsigned char *buf,
+            unsigned buflen
+        ) const;
+        bool EncryptPrivateData(
+            const struct tagDirectCom_ProtocalParam &proto_param,
+            unsigned char *buf,
+            unsigned buflen
+        ) const;
+        bool HandlePrivateData(
+            const unsigned char * /* struct DirTransFullPkg * */ buf,
+            unsigned buflen
+        );
+        void InitTimeStampV2(
+            in_addr_t addr,
+            unsigned short port,
+            unsigned long next_timestamp_for_send /* nextTimeStampForSend */
+        );
+        bool IsGoodAsyUTC(
+            const struct tagDirectCom_ProtocalParam &proto_param,
+            unsigned long timestamp
+        );
+        bool IsIPHeadChecksumRight(const unsigned char *buf, unsigned buflen) const;
+        bool IsSuExpected(const unsigned char *buf, unsigned buflen) const;
+        bool IsUDPChecksumRight(const unsigned char *buf, unsigned buflen) const;
+        bool IsUDPPacket(const unsigned char *buf, unsigned buflen) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnRecvPacketReturn);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer);
+        bool ResponseSender(const unsigned char *buf, unsigned buflen);
+        bool RevcDirectPack(const unsigned char *buf, unsigned buflen);
+        void SendResponse(
+            const struct tagDirectCom_ProtocalParam &proto_param,
+            struct tagDirPacketHead &packet_head,
+            in_addr_t dstaddr,
+            unsigned dstport,
+            in_addr_t srcaddr,
+            unsigned srcport,
+            const unsigned char *packet
+        );
         void freeMemory();
 
         static unsigned short CheckSumForRecv(

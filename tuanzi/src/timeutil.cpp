@@ -24,7 +24,7 @@ void GetAbsTime(struct timespec *ts, unsigned long off_msec)
     // we use clock_gettime & timespec
     // struct timeval tv;
     for (int i = 0; i < 3; i++) {
-//      if (!gettimeofday(&tv, NULL)) {
+//      if (!gettimeofday(&tv, nullptr)) {
 //          ts->tv_sec = tv.tv_sec + off_msec / 1000;
 //          ts->tv_nsec = tv.tv_usec * 1000 + off_msec % 1000;
 //      }

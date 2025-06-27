@@ -9,13 +9,13 @@ class CHelloProcessor
         CHelloProcessor();
         virtual ~CHelloProcessor();
 
-        void Exit() const;
+        void Exit();
         void ProcessorRun(
             int msgid,
             unsigned hello_timer_interval,
             unsigned hello_para
-        ) const;
-        void ProcessorStop() const;
+        );
+        void ProcessorStop();
 
     private:
         CHelloThread *hello_thread;

@@ -26,7 +26,13 @@ extern int set_termios(bool set_echo_icanon);
 extern void shownotify(
     const std::string &content,
     const std::string &header,
-    int a3
+    int
 );
+extern void show_url(
+    const std::string &content,
+    const std::string &header
+);
+extern void show_version();
+extern void show_message_info();
 
 #endif // CMDUTIL_H_INCLUDED

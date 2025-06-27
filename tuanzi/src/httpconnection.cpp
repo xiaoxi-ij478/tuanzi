@@ -373,7 +373,7 @@ int CHttpConnection::sendRequest(
 
 void CHttpConnection::setError(const char *format, ...)
 {
-    char buf[1024] = {};
+    char buf[2048] = {};
     va_list va;
     va_start(va, format);
     vsnprintf(buf, sizeof(buf), format, va);

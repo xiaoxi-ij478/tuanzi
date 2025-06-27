@@ -3,6 +3,7 @@
 #include "global.h"
 #include "hostentutil.h"
 #include "util.h"
+#include "mtypes.h"
 #include "dnsquery.h"
 
 bool CDNSQuery::running = false;
@@ -223,9 +224,15 @@ int CDNSQuery::StopQueryThread()
     }
 
     pthread_mutex_lock(&mutex_list);
-    free_list_with_func_custom_next(hostent_list_hdr, [](CHostEnt * chostent) {
-        delete_hostent(&chostent->hostent_entry);
-    }, hostent_next);
+    // *INDENT-OFF*
+    free_list_with_func_custom_next(
+        hostent_list_hdr,
+        [](CHostEnt *chostent) {
+            delete_hostent(&chostent->hostent_entry);
+        },
+        hostent_next
+    );
+    // *INDENT-ON*
     hostent_list_hdr = nullptr;
     pthread_mutex_unlock(&mutex_list);
 
@@ -263,9 +270,15 @@ void CDNSQuery::UpdateHostEntList(struct CHostEnt *entry)
     if (to_be_deleted == hostent_list_hdr)
         hostent_list_hdr = nullptr;
 
-    free_list_with_func_custom_next(to_be_deleted, [](CHostEnt * chostent) {
-        delete_hostent(&chostent->hostent_entry);
-    }, hostent_next);
+    // *INDENT-OFF*
+    free_list_with_func_custom_next(
+        to_be_deleted,
+        [](CHostEnt *chostent) {
+            delete_hostent(&chostent->hostent_entry);
+        },
+        hostent_next
+    );
+    // *INDENT-ON*
     pthread_mutex_unlock(&mutex_list);
 }
 

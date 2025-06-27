@@ -4,10 +4,11 @@
 class CBackoffReAuthenticationManager
 {
     public:
-        static CBackoffReAuthenticationManager &Instance();
         unsigned GetReAuthenticationTimerElapse() const;
         bool IsNeedReAuthentication() const;
         void Reset();
+
+        static CBackoffReAuthenticationManager &Instance();
 
     private:
         CBackoffReAuthenticationManager();

@@ -4,7 +4,7 @@
 #include "stdpkgs.h"
 #include "waithandle.h"
 
-#define MAX_MTU 1400
+#define MAX_MTU 1400u
 
 enum DIRPACKET_SLICETYPE : uint8_t {
     DIRPACKET_SINGLE = 1,
@@ -290,7 +290,7 @@ struct tagSmpParaDir {
     unsigned retry_count;
     unsigned char version;
     unsigned hello_interval;
-    unsigned char hello_response;
+    bool hello_response;
     unsigned hello_fail_time;
 };
 
@@ -313,5 +313,16 @@ struct tagDirectTranSrvPara {
     unsigned char version;
     bool field_C5;
 };
+
+struct tagPasSecurityInfo {
+    bool enable_modify_pw;
+    unsigned timeout;
+    unsigned result;
+    std::string password_modify_message;
+    unsigned failcode;
+    unsigned force_offline;
+    unsigned offline_wait_time;
+};
+
 
 #endif // DIRTRANSTAGS_H_INCLUDED

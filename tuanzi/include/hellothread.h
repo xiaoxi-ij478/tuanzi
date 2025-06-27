@@ -27,6 +27,10 @@ class CHelloThread : public CLnxThread
     public:
         CHelloThread();
 
+        int msgid;
+        unsigned hello_timer_interval;
+        unsigned hello_para;
+
     protected:
         void DispathMessage(struct LNXMSG *msg) override;
         bool InitInstance() override;
@@ -36,13 +40,10 @@ class CHelloThread : public CLnxThread
         struct HelloPacket *CreateHelloPacket(unsigned &packet_len);
         void CreateHelloTimer(unsigned interval);
         unsigned GetCurCRCID();
-        void OnChangeHelloPara(unsigned long buflen, void *buf);
-        void OnHelloTimer(unsigned long buflen, void *buf);
-        void OnSetHelloTimerPlease(unsigned long, void *);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnChangeHelloPara);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnHelloTimer);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnSetHelloTimerPlease);
 
-        int msgid;
-        unsigned hello_timer_interval;
-        unsigned hello_para;
         timer_t hello_timerid;
         unsigned field_1E8;
         unsigned hello_id_offset;

@@ -135,6 +135,11 @@ struct [[gnu::packed]] Socks5ConnResp {
 // https://web.archive.org/web/20081204082646/http://download.microsoft.com/download/9/5/E/95EF66AF-9026-4BB0-A41D-A4F81802D92C/%5BMS-GLOS%5D.pdf
 // for why the Unicode is UTF-16LE
 
+enum PlayIncarnation : uint32_t {
+    MMS_DISABLE_PACKET_PAIR = 0xf0f0f0ef,
+    MMS_USE_PACKET_PAIR = 0xf0f0f0f0
+};
+
 struct [[gnu::packed]] MMSTcpMessage {
     uint8_t rep;
     uint8_t version;
@@ -151,10 +156,7 @@ struct [[gnu::packed]] MMSTcpMessage {
         struct [[gnu::packed]] {
             uint32_t chunkLen;
             uint32_t MID;
-            enum PlayIncarnation : uint32_t {
-                MMS_DISABLE_PACKET_PAIR = 0xf0f0f0ef,
-                MMS_USE_PACKET_PAIR = 0xf0f0f0f0
-            };
+            enum PlayIncarnation playIncarnation;
             uint32_t MacToViewerProtocolRevision;
             uint32_t ViewerToMacProtocolRevision;
             wchar_t subscriberName[];

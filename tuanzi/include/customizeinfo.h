@@ -8,6 +8,7 @@ class CCustomizeInfo
     public:
         CCustomizeInfo();
         ~CCustomizeInfo();
+
         int Load(const char *str);
 
         std::string create_time;

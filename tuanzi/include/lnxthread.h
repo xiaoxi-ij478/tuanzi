@@ -7,11 +7,11 @@ class CLnxThread;
 
 struct LNXMSG {
     unsigned long mtype;
-    unsigned long buflen;
-    void *buf;
+    unsigned long arg1;
+    unsigned long arg2;
 };
 
-#define LNXMSG_MSGSZ (sizeof(struct LNXMSG) - offsetof(struct LNXMSG, buflen))
+#define LNXMSG_MSGSZ (sizeof(struct LNXMSG) - offsetof(struct LNXMSG, arg1))
 
 struct TIMERPARAM {
     int tflag;
@@ -20,6 +20,16 @@ struct TIMERPARAM {
     pthread_mutex_t pthread_mutex;
     CLnxThread *calling_thread;
 };
+
+// helper macro for writing DispathMessage() handlers
+#define HANDLE_MTYPE(mtype, func) \
+    case (mtype): (func)(msg->arg1, msg->arg2); break
+
+#define DECLARE_DISPATH_MESSAGE_HANDLER(name) \
+    void name(unsigned long arg1, unsigned long arg2)
+
+#define DEFINE_DISPATH_MESSAGE_HANDLER(name, class_name) \
+    void class_name::name(unsigned long arg1, unsigned long arg2)
 
 class CLnxThread
 {
@@ -32,9 +42,10 @@ class CLnxThread
         int GetMessageID() const;
         bool PostThreadMessage(
             unsigned long mtype,
-            unsigned long buflen,
-            void *buf
+            unsigned long arg1,
+            unsigned long arg2
         ) const;
+        void SafeExitThread(unsigned off_msec);
         int StartThread();
         int StopThread();
 
@@ -48,7 +59,6 @@ class CLnxThread
             int off_msec,
             void (*)(union sigval)
         );
-        void SafeExitThread(unsigned off_msec);
 
         virtual bool InitInstance();
         virtual bool Run();

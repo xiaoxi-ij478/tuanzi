@@ -7,7 +7,7 @@ WAIT_HANDLE::WAIT_HANDLE() : signal(), pthread_cond(), pthread_mutex()
     pthread_mutexattr_t mutexattr;
     int val;
 
-    if ((val = pthread_cond_init(&pthread_cond, NULL)))
+    if ((val = pthread_cond_init(&pthread_cond, nullptr)))
         g_logSystem.AppendText("pthread_cond_init error. retrun = %d", val);
 
     else {
@@ -27,5 +27,8 @@ WAIT_HANDLE::~WAIT_HANDLE()
     signal = false;
 }
 
-WAIT_HANDLE2::WAIT_HANDLE2() : no_need_send_msg(), calling_thread()
+WAIT_HANDLE2::WAIT_HANDLE2() :
+    WAIT_HANDLE(),
+    no_need_send_msg(),
+    calling_thread()
 {}

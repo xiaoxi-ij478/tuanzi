@@ -61,13 +61,13 @@ class CTcp
         bool IsMine(const struct TCPIP &pkg);
 
         char reqaddr_char[64]; // m_reqConnAddr
+        enum REQUEST_TYPE request_type;
+        struct TcpInfo tcpinfo;
+        unsigned short reqport; // m_reqPort
 
     protected:
-        enum REQUEST_TYPE request_type;
         in_addr_t reqaddr_int; // m_ulReqAddr
-        unsigned short reqport; // m_reqPort
         struct CHostEnt *hostent;
-        struct TcpInfo tcpinfo;
         struct {
             struct Socks5ConnReqHeader request_header;
             char may_be_address[0x101 - sizeof(struct Socks5ConnReqHeader)];

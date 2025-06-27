@@ -242,7 +242,13 @@ unsigned CCheckRunThread::create_sem_and_lock()
     while (semop(sem_id, &sops, 1)) {
         g_logChkRun.AppendText(
             "sem P error(%d):%s_EACCES=%d,EFAULT=%d,EINTR=%d, EINVAL=%d,E2BIG=%d\n",
-            errno, strerror(errno), EACCES, EFAULT, EINTR, EINVAL, E2BIG
+            errno,
+            strerror(errno),
+            EACCES,
+            EFAULT,
+            EINTR,
+            EINVAL,
+            E2BIG
         );
         sleep(1);
 
@@ -290,12 +296,15 @@ void *CCheckRunThread::thread_function([[maybe_unused]] void *arg)
     while (true) {
         g_logChkRun.AppendText(
             "Waiting...m_sem_id=%d,m_bRunning=%d\n",
-            sem_id, started
+            sem_id,
+            started
         );
         spret = semaphore_p(sem_id, 0);
         g_logChkRun.AppendText(
             "m_sem_id=%d,m_bRunning=%d...res=%d\n",
-            sem_id, started, spret
+            sem_id,
+            started,
+            spret
         );
 
         if (!started)
@@ -319,8 +328,10 @@ void *CCheckRunThread::thread_function([[maybe_unused]] void *arg)
     }
 
     g_logChkRun.AppendText(
-        "CCheckRunThread::thread_function del_sem before m_sem_id=%d,m_bRunning=%d\n",
-        sem_id, started
+        "CCheckRunThread::thread_function del_sem before "
+        "m_sem_id=%d,m_bRunning=%d\n",
+        sem_id,
+        started
     );
     del_sem(sem_id);
 

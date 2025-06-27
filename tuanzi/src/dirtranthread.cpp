@@ -5,6 +5,9 @@
 #include "netutil.h"
 #include "sudes.h"
 #include "vz_apiapp.h"
+#include "mtypes.h"
+#include "dirtransutil.h"
+#include "cmdutil.h"
 #include "dirtranthread.h"
 
 CDirTranThread::CDirTranThread() :
@@ -26,7 +29,7 @@ CDirTranThread::CDirTranThread() :
 {
     dir_respara.sender_bind.id = -1;
     dir_respara.sender_bind.on_receive_packet_post_mtype = 1;
-    memset(gateway_mac, 0xFF, sizeof(gateway_mac));
+    memset(&gateway_mac, 0xFF, sizeof(gateway_mac));
     InitializeCriticalSection(&send_bind_mutex);
     InitializeCriticalSection(&data_send_mutex);
     InitializeCriticalSection(&get_set_proto_param_mutex);
@@ -60,30 +63,31 @@ CDirTranThread::~CDirTranThread()
     DeleteCriticalSection(&get_set_proto_param_mutex);
 }
 
-bool CDirTranThread::DispathMessage(struct LNXMSG *msg)
+void CDirTranThread::DispathMessage(struct LNXMSG *msg)
 {
-    if (msg->mtype == ON_TRANSPACKET_MTYPE)
-        OnTransPacket(msg->buflen, msg->buf);
+    switch (msg->mtype) {
+            HANDLE_MTYPE(ON_TRANSPACKET_MTYPE, OnTransPacket);
+    }
 }
 
-void CDirTranThread::ClearRetPara() const
+void CDirTranThread::ClearRetPara()
 {
     for (
         auto it = ret_para.begin();
         it != ret_para.end();
         it = ret_para.erase(it)
     ) {
-        if (it->field_8) {
-            SetEvent(it->field_8, false);
-            CloseHandle(it->field_8);
+        if (it->eventret) {
+            SetEvent(it->eventret, false);
+            CloseHandle(it->eventret);
         }
 
-        delete it->field_0;
-        it->field_0 = nullptr;
+        delete it->ret;
+        it->ret = nullptr;
     }
 }
 
-void CDirTranThread::CloseAllGSNSender() const
+void CDirTranThread::CloseAllGSNSender()
 {
     EnterCriticalSection(&data_send_mutex);
 
@@ -115,7 +119,7 @@ void CDirTranThread::CloseGSNReceiver(int id) const
         udp_listenthread->CloseGSNReceiver(id);
 }
 
-void CDirTranThread::CloseGSNSender(int id) const
+void CDirTranThread::CloseGSNSender(int id)
 {
     EnterCriticalSection(&data_send_mutex);
 
@@ -159,7 +163,7 @@ bool CDirTranThread::DecryptPrivateData(
         sudes.Decrypts(buf, buflen);
 }
 
-bool CDirTranThread::DirTranThreadInit() const
+bool CDirTranThread::DirTranThreadInit()
 {
     bool ret = true;
     struct UdpListenParam *listen_param = new struct UdpListenParam;
@@ -199,7 +203,7 @@ bool CDirTranThread::DirTranThreadInit() const
 bool CDirTranThread::DoSendPacket(
     struct tagSenderBind &sender_bind,
     const struct tagDataSendUnit &send_unit
-) const
+)
 {
     struct ether_addr special_mac_all_zero =
     { { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } };
@@ -254,12 +258,12 @@ bool CDirTranThread::DoSendPacket(
     );
     trans_para.srcport = sender_bind.srcport;
     CtrlThread->GetAdapterMac(&trans_para.srcmacaddr);
-    trans_para.field_4C = a2a.field_40;
+    trans_para.field_4C = proto_param.field_40;
 
     for (unsigned i = 0; i < 4; i++) {
         if (
-            memcmp(gateway_mac, special_mac_all_zero, sizeof(gateway_mac)) &&
-            memcmp(gateway_mac, special_mac_all_ff, sizeof(gateway_mac))
+            memcmp(&gateway_mac, &special_mac_all_zero, sizeof(gateway_mac)) &&
+            memcmp(&gateway_mac, &special_mac_all_ff, sizeof(gateway_mac))
         ) {
             logFile_debug.AppendText(
                 "发包前，获取网关MAC %02x:%02x:%02x:%02x:%02x:%02x",
@@ -278,14 +282,15 @@ bool CDirTranThread::DoSendPacket(
         }
 
         get_ip_mac(
-            trans_para.field_4C ? sender_bind->dstaddr : proto_param.dstaddr,
+            trans_para.field_4C ? sender_bind.dstaddr : proto_param.dstaddr,
             &gateway_mac
         );
         Sleep(1000);
     }
 
     trans_para.dstmacaddr = gateway_mac;
-#define MAX_TRANSFERRED_DATALEN (MAX_MTU - sizeof(struct mtagFinalDirPacket))
+#define MAX_TRANSFERRED_DATALEN \
+    static_cast<unsigned>(MAX_MTU - sizeof(struct mtagFinalDirPacket))
     remain_len = send_unit.totallen;
     is_multi_send = remain_len > MAX_TRANSFERRED_DATALEN;
 
@@ -299,10 +304,14 @@ bool CDirTranThread::DoSendPacket(
         remain_len -= trans_para.mtu;
         CopyDirTranPara(&dir_transpara, &trans_para);
         direct_transfer.InitPara(&trans_para);
-        packet_head.reponse_code = DIRPACKET_REQUEST;
+        packet_head.response_code = DIRPACKET_REQUEST;
         packet_head.packet_len =
             htons(
-                std::min(MAX_MTU, remain_len + sizeof(struct mtagFinalDirPacket))
+                std::min(
+                    MAX_MTU,
+                    static_cast<unsigned>
+                    (remain_len + sizeof(struct mtagFinalDirPacket))
+                )
             );
         packet_head.version = proto_param.version;
         packet_head.id = htonl(sender_bind.on_receive_packet_post_mtype++);
@@ -319,7 +328,8 @@ bool CDirTranThread::DoSendPacket(
             !(
                 packet_head.timestamp =
                     udp_listenthread->GetNextTimeStampForSend(
-                        proto_param.addr, proto_param.port
+                        proto_param.addr,
+                        proto_param.port
                     )
             )
         )
@@ -464,11 +474,11 @@ int CDirTranThread::GSNSender(
     unsigned srcport,
     in_addr_t dstaddr,
     unsigned dstport
-) const
+)
 {
     EnterCriticalSection(&send_bind_mutex);
     send_bind.emplace_back(
-        next_alloc_sender_id++
+        next_alloc_sender_id++,
         srcaddr,
         srcport,
         dstaddr,
@@ -483,7 +493,7 @@ bool CDirTranThread::GetProtocalParam(
     struct tagDirectCom_ProtocalParam &proto_param,
     in_addr_t addr,
     unsigned short port
-) const
+)
 {
     EnterCriticalSection(&get_set_proto_param_mutex);
 
@@ -504,7 +514,7 @@ bool CDirTranThread::GetProtocalParam(
 bool CDirTranThread::GetProtocalParamFromSenderHand(
     struct tagDirectCom_ProtocalParam &proto_param,
     int id
-) const
+)
 {
     EnterCriticalSection(&send_bind_mutex);
 
@@ -523,10 +533,7 @@ bool CDirTranThread::GetProtocalParamFromSenderHand(
     return false;
 }
 
-void CDirTranThread::OnTransPacket(
-    [[maybe_unused]] unsigned long buflen,
-    [[maybe_unused]] void *buf
-) const
+DEFINE_DISPATH_MESSAGE_HANDLER(OnTransPacket, CDirTranThread)
 {
     struct tagDataSendUnit send_unit = {};
     struct tagSenderBind sender_bind = { -1, 0, 0, 0, 0, 1 };
@@ -639,7 +646,7 @@ bool CDirTranThread::PostPacketNoResponse(
     int id,
     unsigned char *buf,
     unsigned buflen
-) const
+)
 {
     struct tagDirectCom_ProtocalParam proto_param = {
         0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
@@ -675,7 +682,7 @@ bool CDirTranThread::PostPacketNoResponse(
     logFile_debug.AppendText(
         "%s PostThreadMessage =%d",
         "PostPacketNoResponse",
-        PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, nullptr)
+        PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, 0)
     );
     return true;
 }
@@ -684,7 +691,7 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
     int id,
     unsigned char *buf,
     unsigned buflen
-) const
+)
 {
     struct tagDirectCom_ProtocalParam proto_param = {
         0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
@@ -724,13 +731,13 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
                 e_pMd5Chanllenge + sizeof(e_pMd5Chanllenge),
                 0
             );
-        buf[buflen_new] = 0x14;
-        buf[buflen_new + 1] = 0x80; // buffer len
+        buf[buflen_new] = 20;
+        buf[buflen_new + 1] = 128; // buffer len
         CVz_APIApp::V3HeartbeatAPI(
             &cHeartBeatArray[(0x2D7 * heartbeat_checksum_sum % 0x35) << 7],
             buf[buflen_new + 1],
             &buf[buflen_new + 2],
-            0x2D7 * heartbeat_checksum_sum % 0x35
+            static_cast<enum HASH_TYPE>(0x2D7 * heartbeat_checksum_sum % 0x35)
         );
         buflen_new += buf[buflen_new + 1] + 2;
     }
@@ -751,7 +758,7 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
     logFile_debug.AppendText(
         "%s PostThreadMessage =%d",
         "PostPacketSAMHeartbeatNoResponse",
-        PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, nullptr)
+        PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, 0)
     );
     return true;
 }
@@ -761,7 +768,7 @@ bool CDirTranThread::SendPacketNoResponse(
     unsigned char *buf,
     unsigned buflen,
     unsigned timeout
-) const
+)
 {
     struct tagDirectCom_ProtocalParam proto_param = {
         0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
@@ -798,7 +805,7 @@ bool CDirTranThread::SendPacketNoResponse(
     EnterCriticalSection(&data_send_mutex);
     data_send.push_back(send_unit);
     LeaveCriticalSection(&data_send_mutex);
-    PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, nullptr);
+    PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, 0);
 
     if (WaitForSingleObject(send_unit.eventret, 1000 * timeout) == ETIMEDOUT) {
         ret_para.emplace_back(send_unit.ret, send_unit.eventret);
@@ -814,7 +821,7 @@ bool CDirTranThread::SendPacketNoResponse(
 
 bool CDirTranThread::SetDirParaXieYi(
     const struct tagDirectCom_ProtocalParam &proto_param
-) const
+)
 {
     bool found = false;
     EnterCriticalSection(&get_set_proto_param_mutex);
@@ -851,7 +858,7 @@ bool CDirTranThread::SetProtocalParam_TimeStamp(
     unsigned short port,
     unsigned long utc_time,
     unsigned long timestamp
-) const
+)
 {
     bool found = false;
     EnterCriticalSection(&get_set_proto_param_mutex);
@@ -885,7 +892,7 @@ bool CDirTranThread::SetReTranPara(
     unsigned short port,
     unsigned retry_count,
     unsigned timeout
-) const
+)
 {
     bool found = false;
     EnterCriticalSection(&get_set_proto_param_mutex);
@@ -908,13 +915,13 @@ bool CDirTranThread::SetReTranPara(
     return found;
 }
 
-void CDirTranThread::StartRun() const
+void CDirTranThread::StartRun()
 {
     running_dir = true;
     udp_listenthread->SetWorkingFalg(true);
 }
 
-void CDirTranThread::StopRun() const
+void CDirTranThread::StopRun()
 {
     if (!running_dir)
         return;
@@ -936,7 +943,7 @@ bool CDirTranThread::WaitUDP_DirectThread_OK(WAIT_HANDLE &event_udp_ready) const
         event_udp_ready.signal,
         &event_udp_ready
     );
-    wait_return = WaitForSingleObject(event_udp_ready, 0);
+    wait_return = WaitForSingleObject(&event_udp_ready, 0);
     rj_printf_debug("WaitForSingleObject bSignal =%d\n", event_udp_ready.signal);
 
     if (wait_return) {
@@ -955,7 +962,7 @@ bool CDirTranThread::postMessage(
     int id,
     unsigned char *buf,
     unsigned buflen
-) const
+)
 {
     struct tagDirectCom_ProtocalParam proto_param = {
         0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
@@ -987,7 +994,7 @@ bool CDirTranThread::postMessage(
     EnterCriticalSection(&data_send_mutex);
     data_send.push_back(send_unit);
     LeaveCriticalSection(&data_send_mutex);
-    PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, nullptr);
+    PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, 0);
     return true;
 }
 
@@ -995,7 +1002,7 @@ bool CDirTranThread::sendMessage(
     int id,
     unsigned char *buf,
     unsigned buflen
-) const
+)
 {
     struct tagDirectCom_ProtocalParam proto_param = {
         0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
@@ -1032,7 +1039,7 @@ bool CDirTranThread::sendMessage(
     EnterCriticalSection(&data_send_mutex);
     data_send.push_back(send_unit);
     LeaveCriticalSection(&data_send_mutex);
-    PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, nullptr);
+    PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, 0);
 
     if (WaitForSingleObject(send_unit.eventret, 0)) {
         ret_para.emplace_back(send_unit.ret, send_unit.eventret);
@@ -1051,7 +1058,7 @@ bool CDirTranThread::sendMessageWithTimeout(
     unsigned char *buf,
     unsigned buflen,
     unsigned timeout
-) const
+)
 {
     struct tagDirectCom_ProtocalParam proto_param = {
         0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
@@ -1098,7 +1105,7 @@ bool CDirTranThread::sendMessageWithTimeout(
     logFile_debug.AppendText(
         "%s PostThreadMessage =%d",
         "sendMessageWithTimeout",
-        PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, nullptr)
+        PostThreadMessage(ON_TRANSPACKET_MTYPE, 0, 0)
     );
 
     if (WaitForSingleObject(send_unit.eventret, 1000 * timeout) == ETIMEDOUT) {

@@ -19,14 +19,14 @@ extern bool TerminateThread(pthread_t thread_id);
 extern bool PostThreadMessage(
     key_t thread_key,
     unsigned mtype,
-    unsigned long buflen,
-    void *buf
+    unsigned long arg1,
+    unsigned long arg2
 );
 extern bool GPostThreadMessage(
     int msqid,
     unsigned mtype,
-    unsigned long buflen,
-    void *buf
+    unsigned long arg1,
+    unsigned long arg2
 );
 
 #endif // THREADUTIL_H_INCLUDED

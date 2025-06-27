@@ -1,6 +1,7 @@
 #include "all.h"
 #include "util.h"
 #include "netutil.h"
+#include "dirtransutil.h"
 #include "directtransfer.h"
 
 CDirectTransfer::CDirectTransfer() :

@@ -188,7 +188,7 @@ struct NICINFO *get_nics_info(const char *ifname)
             }
 
             if (get_gateway(&cur_info->gateway, cur_if->ifa_name)) {
-                memset(cur_info->gateway_mac, 0, sizeof(cur_info->gateway_mac));
+                memset(&cur_info->gateway_mac, 0, sizeof(cur_info->gateway_mac));
                 cur_info->gateway = ntohl(cur_info->gateway);
 
             } else
@@ -510,7 +510,7 @@ bool get_ip_mac(in_addr_t ipaddr, struct ether_addr *macaddr)
     std::string line;
     std::ifstream ifs("/proc/net/arp");
     std::string::iterator b, e;
-    std::string testip(inet_ntoa({ipaddr}));
+    std::string testip(inet_ntoa({ ipaddr }));
     std::vector<std::string> val;
     // minimal-ping related
     int fd = 0;
@@ -789,7 +789,7 @@ unsigned InitIpv4Header(
     header->daddr = inet_addr(dstaddr);
     header->check =
         checksum(
-            reinterpret_cast<unsigned short *>(header_c),
+            reinterpret_cast<unsigned short *>(header),
             sizeof(struct iphdr)
         );
     return sizeof(struct iphdr);
@@ -845,7 +845,7 @@ bool IsHostDstMac(struct ether_addr *macaddr)
 {
     struct ether_addr host_macaddr = {};
     CtrlThread->GetAdapterMac(&host_macaddr);
-    return !memcmp(macaddr1, macaddr2, sizeof(struct ether_addr));
+    return !memcmp(&host_macaddr, macaddr, sizeof(struct ether_addr));
 }
 
 bool IsMulDstMac(struct ether_addr *macaddr)
@@ -870,7 +870,7 @@ bool check_nic_isok(char *ifname)
     if (!ifname)
         return false;
 
-    if (!(handle = pcap_open_live(ifname, 2000, true, 0xFFFFFFFF, errbuf)))
+    if (!(handle = pcap_open_live(ifname, 2000, true, -1, errbuf)))
         return 0;
 
     pcap_close(handle);
@@ -995,7 +995,8 @@ void disable_enable_nic(const char *ifname)
 {
     // ifconfig $ifname down
     // ifconfig $ifname up
-    struct ifreq ifr = { ifname };
+    struct ifreq ifr = {};
+    strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
 
     if (fd == -1)
@@ -1183,57 +1184,6 @@ void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname)
     return;
 }
 
-bool SetLanFlag(unsigned flag)
-{
-    std::string regini_path;
-    dictionary *ini = nullptr;
-    FILE *fp = nullptr;
-    TakeAppPath(regini_path);
-    regini_path.append("\\").append("fileReg.ini");
-
-    if (!(ini = iniparser_load(regini_path.c_str()))) {
-        g_logSystem.AppendText(
-            "ini create[path=%s]failed",
-            regini_path.c_str()
-        );
-        return false;
-    }
-
-    iniparser_set(ini, "System:lantype", std::to_string(flag).c_str());
-
-    if (!(fp = fopen(regini_path.c_str(), "w")))
-        return false;
-
-    iniparser_dump_ini(ini, fp);
-    fclose(fp);
-    iniparser_freedict(ini);
-    return true;
-}
-
-void InitSmpInitPacket(struct tagSmpInitPacket &packet)
-{
-    packet.field_0.clear();
-    packet.basic_config.login_url.clear();
-    packet.basic_config.disable_arpbam.clear();
-    packet.basic_config.disable_dhcpbam.clear();
-    packet.basic_config.hi_detect_interval = 0;
-    packet.basic_config.hello_interval = 0;
-    packet.basic_config.hostinfo_report_interval = 0;
-    packet.basic_config.timeout = 3;
-    packet.basic_config.retry_times = 3;
-    packet.arp.enabled = 0;
-    packet.arp.gateway_ip.clear();
-    packet.arp.gateway_ip.clear();
-    packet.illegal_network_detect.enabled = 0;
-    packet.illegal_network_detect.syslog_ip.clear();
-    packet.illegal_network_detect.syslog_port = 0;
-    packet.illegal_network_detect.detect_interval = 0;
-    packet.illegal_network_detect.is_block = 0;
-    packet.illegal_network_detect.block_tip.clear();
-    packet.hi_xml.clear();
-    packet.security_domain_xml.clear();
-}
-
 bool IsEqualDhcpInfo(
     const struct DHCPIPInfo &info1,
     const struct DHCPIPInfo &info2
@@ -1282,7 +1232,7 @@ bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool)
     info.adapter_mac = nic_info->hwaddr;
     info.dns = htonl(nic_info->dns);
     info.gateway = htonl(nic_info->gateway);
-    info.gateway_mac = nic_info->gateway;
+    info.gateway_mac = nic_info->gateway_mac;
 
     if (nic_info->ipaddrs->ipaddr) {
         info.ip4_ipaddr = nic_info->ipaddrs->ipaddr;
@@ -1296,8 +1246,8 @@ bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool)
         cip;
         cip = cip->next
     ) {
-        swapipv6(cip->ipaddr);
-        swapipv6(cip->netmask);
+        swapipv6(&cip->ipaddr);
+        swapipv6(&cip->netmask);
         info.ip6_netmask = cip->netmask;
 
         if (cip->ipaddr.s6_addr[0] == 0xFE) {
@@ -1332,7 +1282,10 @@ void repair_ip_gateway(
     const std::string &adapter_name
 )
 {
-    struct ifreq ifr = { adapter_name.c_str() };
+    // ifconfig $adapter_name $info.ip4_ipaddr netmask $info.ip4_netmask
+    // route add default gw info.gateway 2>&-
+    struct ifreq ifr = {};
+    strncpy(ifr.ifr_name, adapter_name.c_str(), IFNAMSIZ);
     struct rtentry route = {};
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
 
@@ -1340,9 +1293,11 @@ void repair_ip_gateway(
         return;
 
 #define EXIT_ON_FAIL(expr) do { if (expr) { close(fd); return; } } while(0)
-    ifr.ifr_addr = htonl(info.ip4_ipaddr);
+    reinterpret_cast<struct sockaddr_in *>
+    (&ifr.ifr_addr)->sin_addr.s_addr = htonl(info.ip4_ipaddr);
     EXIT_ON_FAIL(ioctl(fd, SIOCSIFADDR, &ifr));
-    ifr.ifr_addr = htonl(info.ip4_netmask);
+    reinterpret_cast<struct sockaddr_in *>
+    (&ifr.ifr_addr)->sin_addr.s_addr = htonl(info.ip4_netmask);
     EXIT_ON_FAIL(ioctl(fd, SIOCSIFNETMASK, &ifr));
     reinterpret_cast<struct sockaddr_in *>
     (&route.rt_gateway)->sin_addr.s_addr = htonl(info.gateway);
@@ -1353,105 +1308,5 @@ void repair_ip_gateway(
 
 void swapipv6(struct in6_addr *addr)
 {
-    swap128(&addr->s6_addr);
-}
-
-void CopyDirTranPara(
-    struct tagDirTranPara *dst,
-    const struct tagDirTranPara *src
-)
-{
-    memcpy(dst, src, sizeof(struct tagDirTranPara));
-    memset(dst->data, 0, sizeof(dst->data));
-
-    if (dst->mtu > MAX_MTU)
-        dst->mtu = MAX_MTU;
-
-    memcpy(dst->data, src->data, dst->mtu);
-}
-
-void CreateDirPktHead(
-    struct mtagFinalDirPacket &final_packet_head,
-    struct tagDirPacketHead &packet_head,
-    [[maybe_unused]] struct tagSenderBind &sender_bind,
-    unsigned char *buf,
-    unsigned buflen,
-    unsigned char *keybuf,
-    unsigned char *ivbuf
-)
-{
-    unsigned char *checksum_buf = nullptr;
-    unsigned char md5_checksum[16] = {};
-    char *md5_checksum_ascii = nullptr;
-#define COPY_FIELD(name) final_packet_head.name = packet_head.name
-    COPY_FIELD(version);
-    COPY_FIELD(response_code);
-    COPY_FIELD(id);
-    COPY_FIELD(packet_len);
-    memcpy(
-        final_packet_head.md5sum,
-        packet_head.md5sum,
-        sizeof(packet_head.md5sum)
-    );
-    COPY_FIELD(session_id);
-    COPY_FIELD(timestamp);
-    final_packet_head.field_24 = packet_head.field_28;
-    COPY_FIELD(slicetype);
-    COPY_FIELD(data_len);
-#undef COPY_FIELD
-    checksum_buf = new unsigned char[ntohs(packet_head.packet_len) + 16];
-    *reinterpret_cast<struct mtagFinalDirPacket *>(checksum_buf) =
-        final_packet_head;
-    memset(
-        reinterpret_cast<struct mtagFinalDirPacket *>(checksum_buf)->md5sum,
-        0,
-        sizeof(md5_checksum)
-    );
-    // we must hard-code keybuf and ivbuf's size
-    memcpy(checksum_buf + sizeof(struct mtagFinalDirPacket), keybuf, 8);
-    memcpy(checksum_buf + sizeof(struct mtagFinalDirPacket) + 8, ivbuf, 8);
-    md5_checksum_ascii =
-        CMD5Checksum::GetMD5(
-            checksum_buf,
-            sizeof(struct mtagFinalDirPacket) + sizeof(md5_checksum)
-        );
-    MD5StrtoUChar(md5_checksum_ascii, md5_checksum);
-    memcpy(
-        reinterpret_cast<struct mtagFinalDirPacket *>(checksum_buf)->md5sum,
-        md5_checksum,
-        sizeof(md5_checksum)
-    );
-    delete[] md5_checksum_ascii;
-    delete[] checksum_buf;
-}
-
-void CreateSessionIfNecessary(
-    struct tagRecvBind &gsn_pkg,
-    in_addr_t srcaddr,
-    unsigned session_id,
-    struct tagRecvSessionBind &recv_session
-)
-{
-    for (struct tagRecvSessionBind &session : gsn_pkg.recv_session_bounds) {
-        if (session.srcaddr != srcaddr || session.session_id != session_id)
-            continue;
-
-        recv_session = session;
-        return;
-    }
-
-    gsn_pkg.recv_session_bounds.emplace_back(
-        session_id,
-        srcaddr,
-        0,
-        0,
-        0,
-        gsn_pkg.on_receive_packet_post_mtype,
-        nullptr,
-        0,
-        0,
-        GetTickCount(),
-        false
-    );
-    recv_session = gsn_pkg.recv_session_bounds.back();
+    swap128(addr->s6_addr);
 }

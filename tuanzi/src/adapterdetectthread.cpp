@@ -2,6 +2,7 @@
 #include "cmdutil.h"
 #include "netutil.h"
 #include "threadutil.h"
+#include "mtypes.h"
 #include "adapterdetectthread.h"
 
 #define POST_TO_CONTROL_THREAD(mtype) \
@@ -9,11 +10,10 @@
                          control_thread_key, \
                          control_thread_msgid, \
                          (mtype), \
-                         nullptr \
+                         0 \
                        )
 
 CAdapterDetectThread::CAdapterDetectThread() :
-    CLnxThread(),
     control_thread_key(),
     control_thread_msgid(),
     ipaddr(),
@@ -58,14 +58,17 @@ bool CAdapterDetectThread::StartDetect(
     info->disallow_multi_nic_ip = disallow_multi_nic_ip_l;
     g_log_Wireless.AppendText(
         "CAdapterDetectThread thread id:%u; msg id:%d; adapter name:%s ip:%u",
-        thread_key_l, msgid, nic_name_l, ipaddr
+        thread_key_l,
+        msgid,
+        nic_name_l,
+        ipaddr
     );
 
     if (
         !PostThreadMessage(
             START_DETECT_MTYPE,
             reinterpret_cast<unsigned long>(info),
-            nullptr
+            0
         )
     ) {
         delete info;
@@ -78,7 +81,7 @@ bool CAdapterDetectThread::StartDetect(
 bool CAdapterDetectThread::StopDetect(unsigned flag) const
 {
     if (flag & 3) {
-        if (PostThreadMessage(STOP_DETECT_MTYPE, flag, nullptr))
+        if (PostThreadMessage(STOP_DETECT_MTYPE, flag, 0))
             return true;
 
         g_log_Wireless.AppendText("%s Post message failed", "StopDetect");
@@ -92,20 +95,12 @@ bool CAdapterDetectThread::StopDetect(unsigned flag) const
     return false;
 }
 
-bool CAdapterDetectThread::DispathMessage(struct LNXMSG *msg)
+void CAdapterDetectThread::DispathMessage(struct LNXMSG *msg)
 {
     switch (msg->mtype) {
-        case START_DETECT_MTYPE:
-            OnStartDetect(msg->buflen, msg->buf);
-            break;
-
-        case STOP_DETECT_MTYPE:
-            OnStopDetect(msg->buflen, msg->buf);
-            break;
-
-        case ON_TIMER_MTYPE:
-            OnTimer(msg->buflen, msg->buf);
-            break;
+            HANDLE_MTYPE(START_DETECT_MTYPE, OnStartDetect);
+            HANDLE_MTYPE(STOP_DETECT_MTYPE, OnStopDetect);
+            HANDLE_MTYPE(ON_TIMER_MTYPE, OnTimer);
     }
 }
 
@@ -133,7 +128,7 @@ bool CAdapterDetectThread::InitInstance()
 void CAdapterDetectThread::OnTimer(int tflag) const
 {
     if (OnTimerEnter(tflag)) {
-        if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, reinterpret_cast<void *>(-1)))
+        if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, -1))
             OnTimerLeave(tflag);
 
     } else
@@ -244,12 +239,9 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
     free_nics_info(nic_infos);
 }
 
-void CAdapterDetectThread::OnStartDetect(
-    unsigned long buflen,
-    [[maybe_unused]] void *buf
-)
+DEFINE_DISPATH_MESSAGE_HANDLER(OnStartDetect, CAdapterDetectThread)
 {
-    struct DetectNICInfo *info = reinterpret_cast<struct DetectNICInfo *>(buflen);
+    struct DetectNICInfo *info = reinterpret_cast<struct DetectNICInfo *>(arg1);
 
     if (proxy_detect_timerid)
         KillTimer(proxy_detect_timerid);
@@ -264,8 +256,10 @@ void CAdapterDetectThread::OnStartDetect(
     control_thread_key = info->thread_key;
     control_thread_msgid = info->msgid;
     status = ADAPTER_UP;
-    proxy_detect_timerid = SetTimer(nullptr, 0x71, 60000, nullptr);
-    nic_state_detect_timerid = SetTimer(nullptr, 0x72, 1000, nullptr);
+    proxy_detect_timerid =
+        SetTimer(nullptr, PROXY_DETECT_TIMER_MTYPE, 60000, nullptr);
+    nic_state_detect_timerid =
+        SetTimer(nullptr, NIC_STATE_DETECT_TIMER_MTYPE, 1000, nullptr);
     g_log_Wireless.AppendText(
         "%s timer nics IP=%u; timer nic state=%u",
         "OnStartDetect",
@@ -274,28 +268,22 @@ void CAdapterDetectThread::OnStartDetect(
     );
 }
 
-void CAdapterDetectThread::OnStopDetect(
-    unsigned long buflen,
-    [[maybe_unused]] void *buf
-)
+DEFINE_DISPATH_MESSAGE_HANDLER(OnStopDetect, CAdapterDetectThread)
 {
-    if (buflen & STOP_PROXY_DETECT_TIMER_FLAG) {
+    if (arg1 & STOP_PROXY_DETECT_TIMER_FLAG) {
         g_log_Wireless.AppendText("adapter detect thread stop proxy detect");
         KillTimer(proxy_detect_timerid);
     }
 
-    if (buflen & STOP_NIC_STATE_DETECT_TIMER_FLAG) {
+    if (arg1 & STOP_NIC_STATE_DETECT_TIMER_FLAG) {
         g_log_Wireless.AppendText("adapter detect thread stop nic state detect");
         KillTimer(proxy_detect_timerid);
     }
 }
 
-void CAdapterDetectThread::OnTimer(
-    unsigned long buflen,
-    [[maybe_unused]] void *buf
-)
+DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CAdapterDetectThread)
 {
-    switch (buflen) {
+    switch (arg1) {
         case PROXY_DETECT_TIMER_MTYPE:
             if (proxy_detect_timerid)
                 MultipleAdaptesOrIPCheck();
@@ -309,7 +297,7 @@ void CAdapterDetectThread::OnTimer(
             break;
     }
 
-    OnTimerLeave(buflen);
+    OnTimerLeave(arg1);
 }
 
 void CAdapterDetectThread::adapter_state_check()
@@ -326,7 +314,8 @@ void CAdapterDetectThread::adapter_state_check()
         if (ioctl(socket_fd, SIOCETHTOOL, &ifr) < 0) {
             g_log_Wireless.AppendText(
                 "ioctl SIOCETHTOOL error(%d):%s",
-                errno, strerror(errno)
+                errno,
+                strerror(errno)
             );
 
             if (errno == ENODEV && status != ADAPTER_ERROR) {

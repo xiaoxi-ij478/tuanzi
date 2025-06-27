@@ -25,7 +25,7 @@ struct NICINFO {
     unsigned short speed;
     in_addr_t dns;
     in_addr_t gateway;
-    char gateway_mac[6];
+    struct ether_addr gateway_mac;
     unsigned ipaddr_count;
     struct IPAddrNode {
         in_addr_t ipaddr;
@@ -145,8 +145,6 @@ extern void *dhclient_thread(void *varg);
 extern void dhclient_exit();
 extern void disable_enable_nic(const char *ifname);
 extern void get_all_nics_statu(std::vector<struct NICsStatus> &dest);
-extern bool SetLanFlag(unsigned flag);
-extern void InitSmpInitPacket(struct tagSmpInitPacket &packet);
 extern bool IsEqualDhcpInfo(
     const struct DHCPIPInfo &info1,
     const struct DHCPIPInfo &info2
@@ -159,24 +157,5 @@ extern void repair_ip_gateway(
     const std::string &adapter_name
 );
 extern void swapipv6(struct in6_addr *addr);
-extern void CopyDirTranPara(
-    struct tagDirTranPara *dst,
-    const struct tagDirTranPara *src
-);
-extern void CreateDirPktHead(
-    struct mtagFinalDirPacket &final_packet_head,
-    struct tagDirPacketHead &packet_head,
-    struct tagSenderBind &sender_bind,
-    unsigned char *buf,
-    unsigned buflen,
-    unsigned char *keybuf,
-    unsigned char *ivbuf
-);
-extern void CreateSessionIfNecessary(
-    struct tagRecvBind &gsn_pkgs,
-    in_addr_t srcaddr,
-    unsigned session_id,
-    struct tagRecvSessionBind &recv_session
-);
 
 #endif // NETUTIL_H_INCLUDED

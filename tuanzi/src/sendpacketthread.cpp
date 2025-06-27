@@ -2,11 +2,14 @@
 #include "cmdutil.h"
 #include "global.h"
 #include "timeutil.h"
+#include "mtypes.h"
 #include "sendpacketthread.h"
 
 CSendPacketThread::CSendPacketThread() :
     CLnxThread(),
-    pcap_handle(), started(), adapter_name()
+    pcap_handle(),
+    started(),
+    adapter_name()
 {
     pthread_mutexattr_t mutexattr;
     pthread_mutexattr_init(&mutexattr);
@@ -49,24 +52,24 @@ bool CSendPacketThread::SetSenderAdapter(char *name)
     return 0;
 }
 
-bool CSendPacketThread::DispathMessage(struct LNXMSG *msg)
+void CSendPacketThread::DispathMessage(struct LNXMSG *msg)
 {
     switch (msg->mtype) {
         case SEND_MESSAGE_MTYPE:
             if (!started) {
                 g_logSystem.AppendText("Send Packet before open nic");
-                delete[] msg->buf;
+                delete[] reinterpret_cast<unsigned char *>(msg->arg2);
                 break;
             }
 
-            if (!DoSendPacket(static_cast<unsigned char *>(msg->buf), msg->buflen))
+            if (!DoSendPacket(msg->arg2, msg->arg1))
                 break;
 
             Sleep(1000);
 
             if (SetSenderAdapter(adapter_name)) {
                 g_logSystem.AppendText("open nic[%s] success", adapter_name);
-                DoSendPacket(static_cast<unsigned char *>(msg->buf), msg->buflen);
+                DoSendPacket(msg->arg2, msg->arg1);
 
             } else
                 g_logSystem.AppendText("open nic[%s] failed again", adapter_name);
@@ -80,15 +83,15 @@ bool CSendPacketThread::DispathMessage(struct LNXMSG *msg)
     }
 }
 
-int CSendPacketThread::DoSendPacket(const unsigned char *buf, int buflen)
+int CSendPacketThread::DoSendPacket(unsigned long arg1, unsigned long arg2)
 {
     int ret = 0;
 
-    if (!pcap_handle || buflen <= 0) {
+    if (!pcap_handle || arg1 <= 0) {
         g_logSystem.AppendText(
             "CSendPacketThread :: DoSendPacket error.m_pAdapter=%x buflen=%d",
             pcap_handle,
-            buflen
+            arg1
         );
         return -2;
     }
@@ -99,7 +102,16 @@ int CSendPacketThread::DoSendPacket(const unsigned char *buf, int buflen)
         rj_printf_debug("after pthread_mutex_lock\n");
     }
 
-    if (!(ret = pcap_sendpacket(pcap_handle, buf, buflen))) {
+    if (
+        !(
+            ret =
+                pcap_sendpacket(
+                    pcap_handle,
+                    reinterpret_cast<const unsigned char *>(arg2),
+                    arg1
+                )
+        )
+    ) {
         pthread_mutex_unlock(&pthread_mutex2);
         return 0;
     }
@@ -128,10 +140,10 @@ int CSendPacketThread::StartSendPacketThread()
 bool CSendPacketThread::StopSendPacketThread() const
 {
     rj_printf_debug("StopSendPacketThread\n");
-    return PostThreadMessage(CLOSE_ADAPTER_MTYPE, 0, nullptr);
+    return PostThreadMessage(CLOSE_ADAPTER_MTYPE, 0, 0);
 }
 
-int CSendPacketThread::SendPacket(const unsigned char *buf, int buflen)
+int CSendPacketThread::SendPacket(unsigned long arg1, unsigned long arg2)
 {
-    return DoSendPacket(buf, buflen);
+    return DoSendPacket(arg1, arg2);
 }

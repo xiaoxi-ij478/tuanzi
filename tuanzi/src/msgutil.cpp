@@ -58,15 +58,18 @@ void AddMsgItem(int type, const std::string &msg)
     for (int i = 0; i < msgarr.size(); i++) {
         inikey = "msg_" + std::to_string(i);
         iniparser_set(
-            ini, (inikey + ":ntype").c_str(),
+            ini,
+            (inikey + ":ntype").c_str(),
             std::to_string(msgarr[i].ntype).c_str()
         );
         iniparser_set(
-            ini, (inikey + ":msgtime").c_str(),
+            ini,
+            (inikey + ":msgtime").c_str(),
             msgarr[i].msgtime.c_str()
         );
         iniparser_set(
-            ini, (inikey + ":msg").c_str(),
+            ini,
+            (inikey + ":msg").c_str(),
             msgarr[i].msg.c_str()
         );
     }
@@ -98,8 +101,7 @@ void DelMsgItem(int type, const std::string &msg)
     }
 
     for (auto it = msgarr.begin(); it != msgarr.end(); it++)
-        if (type == it->ntype && msg == it->msg)
-            {
+        if (type == it->ntype && msg == it->msg) {
             msgarr.erase(it);
             break;
         }
@@ -195,8 +197,8 @@ const std::string &GetMessageType(int type)
 
 void print_msg_item(tagMsgItem *item)
 {
-    std::string s;
-    s.append(item->msg).append("\t").append(GetMessageType(item->ntype));
+    std::string s(item->msg);
+    s.append("\t").append(GetMessageType(item->ntype));
     format_tc_string(get_tc_width(), 40, s);
     std::cout << std::endl;
 }

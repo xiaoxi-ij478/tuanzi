@@ -43,41 +43,17 @@ int ProxyClientTcp::TryDetectTCPIP(
     }
 
     switch (request_type) {
-        case REQUEST_HTTP:
-            ret = HandleHttp(pkg, server);
-            break;
-
-        case REQUEST_SOCK4:
-            ret = HandleSocks4(pkg, server);
-            break;
-
-        case REQUEST_SOCK4A:
-            ret = HandleSocks4A(pkg, server);
-            break;
-
-        case REQUEST_SOCK5:
-            ret = HandleSocks5(pkg, server);
-            break;
-
-        case REQUEST_FTP:
-            ret = HandleFtp(pkg, server);
-            break;
-
-        case REQUEST_POP3:
-            ret = HandlePop3(pkg, server);
-            break;
-
-        case REQUEST_NNTP:
-            ret = HandleNntp(pkg, server);
-            break;
-
-        case REQUEST_MMS:
-            ret = HandleMms(pkg, server);
-            break;
-
-        case REQUEST_TELNET:
-            ret = HandleTelnet(pkg, server);
-            break;
+#define HANDLE_REQUEST(type, func) case (type): ret = (func)(pkg, server); break
+            HANDLE_REQUEST(REQUEST_HTTP, HandleHttp);
+            HANDLE_REQUEST(REQUEST_SOCK4, HandleSocks4);
+            HANDLE_REQUEST(REQUEST_SOCK4A, HandleSocks4A);
+            HANDLE_REQUEST(REQUEST_SOCK5, HandleSocks5);
+            HANDLE_REQUEST(REQUEST_FTP, HandleFtp);
+            HANDLE_REQUEST(REQUEST_POP3, HandlePop3);
+            HANDLE_REQUEST(REQUEST_NNTP, HandleNntp);
+            HANDLE_REQUEST(REQUEST_MMS, HandleMms);
+            HANDLE_REQUEST(REQUEST_TELNET, HandleTelnet);
+#undef HANDLE_REQUEST
 
         default:
             ret = 0;

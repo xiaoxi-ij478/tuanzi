@@ -3,17 +3,21 @@
 #include "netutil.h"
 #include "timeutil.h"
 #include "threadutil.h"
-#include "udplistenthread.h" // RECV_PACKET_RETURN_MTYPE
+#include "mtypes.h"
+#include "stdpkgs.h"
 #include "rxpacketthread.h"
 
 CRxPacketThread::CRxPacketThread() :
-    msgids({ -1, -1, -1 }),
-       adapter_name(),
-       stopped(true),
-       pcap_handle(),
-       adapter_mode(1),
-       recv_packet_waithandle()
+    msgids(),
+    adapter_name(),
+    stopped(true),
+    pcap_handle(),
+    adapter_mode(1),
+    recv_packet_waithandle()
 {
+    msgids.direct_msgid = -1;
+    msgids.proxy_msgid = -1;
+    msgids.main_msgid = -1;
     SetClassName("CRxPacketThread");
 }
 
@@ -25,10 +29,11 @@ CRxPacketThread::~CRxPacketThread()
         pcap_close(pcap_handle);
 }
 
-bool CRxPacketThread::DispathMessage(struct LNXMSG *msg)
+void CRxPacketThread::DispathMessage(struct LNXMSG *msg)
 {
-    if (msg->mtype == START_THREAD_MTYPE)
-        StartRecvPacket();
+    switch (msg->mtype) {
+            HANDLE_MTYPE(START_THREAD_MTYPE, StartRecvPacket);
+    }
 }
 
 void CRxPacketThread::CloseAdapter()
@@ -113,7 +118,7 @@ void CRxPacketThread::SetRxPacketAdapter(const char *adapter_name_l)
     strcpy(adapter_name, adapter_name_l);
 }
 
-void CRxPacketThread::StartRecvPacket()
+DEFINE_DISPATH_MESSAGE_HANDLER(StartRecvPacket, CRxPacketThread)
 {
     if (!InitAdapter())
         return;
@@ -195,7 +200,7 @@ void CRxPacketThread::RecvPacketCallBack(
     if (h->caplen < sizeof(struct ether_header))
         return;
 
-    alloc_size = std::max(h->caplen, 1999);
+    alloc_size = std::max(h->caplen, 1999u);
     pkg = reinterpret_cast<struct etherudppkg *>
           (pkg_char = new unsigned char[alloc_size]);
     memcpy(pkg, bytes, alloc_size);
@@ -213,7 +218,7 @@ void CRxPacketThread::RecvPacketCallBack(
                     msgids->main_msgid,
                     RECV_PAE_PACKET_MTYPE,
                     alloc_size,
-                    pkg
+                    reinterpret_cast<unsigned long>(pkg)
                 )
             )
                 delete[] pkg;
@@ -230,7 +235,7 @@ void CRxPacketThread::RecvPacketCallBack(
                     msgids->proxy_msgid,
                     RECV_PACKET_RETURN_MTYPE,
                     alloc_size,
-                    pkg2
+                    reinterpret_cast<unsigned long>(pkg2)
                 )
             )
                 delete[] pkg2;
@@ -252,7 +257,7 @@ void CRxPacketThread::RecvPacketCallBack(
                     msgids->direct_msgid,
                     RECV_PACKET_RETURN_MTYPE,
                     alloc_size,
-                    pkg
+                    reinterpret_cast<unsigned long>(pkg)
                 )
             )
                 delete[] pkg;

@@ -5,7 +5,6 @@ class XML_PARSER : public TiXmlDocument
 {
     public:
         XML_PARSER();
-        virtual ~XML_PARSER();
 
         bool Add_ElementAfter(const char *name);
         bool Add_ElementBefore(const char *name);
