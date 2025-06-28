@@ -119,7 +119,7 @@ void ChangeSelfSvrParam(void *)
 void CoInitialize()
 {}
 
-void CoUnInitialize(unsigned)
+void CoUnInitialize()
 {}
 
 std::string DWordToString(unsigned a)
@@ -326,7 +326,7 @@ int GKillTimer(timer_t timer)
 void GOnTimer(union sigval)
 {}
 
-void GSNRecvPacter(unsigned char *, int)
+void GSNRecvPacket(unsigned char *, int)
 {
     logFile.AppendText("receive gsn relative command!");
 }
@@ -429,7 +429,7 @@ void TrimRight(std::string &str, std::string chars)
     str.erase(p + 1);
 }
 
-void HIPacketUpdate(unsigned char *, int)
+void HIPacketUpdate(const unsigned char *, int)
 {
     logFile.AppendText("receive hi packet update command!");
 }
@@ -599,18 +599,6 @@ bool SuCreateDirectory(const std::string &dirname)
     }
 
     return true;
-}
-
-bool post_command(char c)
-{
-    for (int i = 0; i < 3; i++) {
-        if (write(g_rwpipe[1], &c, 1) != -1)
-            return true;
-
-        perror("post_command write pipe");
-    }
-
-    return false;
 }
 
 std::string IntToString(int num)
@@ -910,4 +898,10 @@ bool SetLanFlag(unsigned flag)
     fclose(fp);
     iniparser_freedict(ini);
     return true;
+}
+
+void RecvSecdomainPacket(unsigned char *buf, unsigned buflen)
+{
+  logFile.AppendText("receive secdomain update command!");
+  PostThreadMessage(theApp, RECEIVE_SEC_DOMAIN_MTYPE, buflen, buf);
 }

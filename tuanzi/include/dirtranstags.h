@@ -203,12 +203,12 @@ struct tagSmpInitPacket_SendPacketCheck {
     unsigned cycle;
     unsigned threshold;
     std::string warning_message;
-    std::string offline;
+    bool offline;
     std::string offline_message;
 };
 
 struct tagSmpInitPacket {
-    std::string field_0;
+    std::string smp_current_time;
     struct {
         unsigned hi_detect_interval;
         unsigned hello_interval;
@@ -323,6 +323,5 @@ struct tagPasSecurityInfo {
     unsigned force_offline;
     unsigned offline_wait_time;
 };
-
 
 #endif // DIRTRANSTAGS_H_INCLUDED

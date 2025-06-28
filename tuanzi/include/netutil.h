@@ -47,7 +47,7 @@ struct DHClientThreadStruct {
 };
 
 struct DHCPIPInfo {
-    unsigned field_0;
+    bool dhcp;
     in_addr_t ip4_ipaddr;
     in_addr_t ip4_netmask;
     in_addr_t gateway;

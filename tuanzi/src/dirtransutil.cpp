@@ -92,7 +92,7 @@ void CreateSessionIfNecessary(
 
 void InitSmpInitPacket(struct tagSmpInitPacket &packet)
 {
-    packet.field_0.clear();
+    packet.smp_current_time.clear();
     packet.basic_config.login_url.clear();
     packet.basic_config.disable_arpbam.clear();
     packet.basic_config.disable_dhcpbam.clear();

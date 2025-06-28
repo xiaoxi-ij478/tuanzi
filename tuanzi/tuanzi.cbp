@@ -131,6 +131,7 @@
 		<Unit filename="include/suconfigfile.h" />
 		<Unit filename="include/sudes.h" />
 		<Unit filename="include/supf.h" />
+		<Unit filename="include/supplicantapp.h" />
 		<Unit filename="include/suradiusprivate.h" />
 		<Unit filename="include/sysutil.h" />
 		<Unit filename="include/tcp.h" />
@@ -190,6 +191,7 @@
 		<Unit filename="src/suconfigfile.cpp" />
 		<Unit filename="src/sudes.cpp" />
 		<Unit filename="src/supf.cpp" />
+		<Unit filename="src/supplicantapp.cpp" />
 		<Unit filename="src/suradiusprivate.cpp" />
 		<Unit filename="src/sysutil.cpp" />
 		<Unit filename="src/tcp.cpp" />

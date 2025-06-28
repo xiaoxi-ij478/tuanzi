@@ -1,6 +1,7 @@
 #include "all.h"
 #include "global.h"
 #include "timeutil.h"
+#include "msgutil.h"
 #include "changelanguage.h"
 #include "cmdutil.h"
 
@@ -139,7 +140,7 @@ void print_string_list(
     const std::vector<std::string> &slist
 )
 {
-    format_tc_string(12, 0, std::string(prefix));
+    format_tc_string(12, 0, prefix);
     std::cout << CChangeLanguage::Instance().LoadString(2059)
               << '[' << slist.size() << ']' << std::endl;
 

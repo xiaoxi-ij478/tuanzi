@@ -27,7 +27,7 @@ extern void replace_all_distinct(
 extern bool set_msg_config(const std::string &key, int val);
 extern void ChangeSelfSvrParam(void *);
 extern void CoInitialize();
-extern void CoUnInitialize(unsigned);
+extern void CoUnInitialize();
 extern std::string DWordToString(unsigned a);
 extern bool DecryptSuConfig(); // this is not working
 extern bool EncryptSuConfig(); // this is not working
@@ -50,7 +50,7 @@ extern int FindSub(
 );
 extern int GKillTimer(timer_t timer);
 extern void GOnTimer(union sigval);
-extern void GSNRecvPacter(unsigned char *, int);
+extern void GSNRecvPacket(unsigned char *, int);
 extern timer_t GSetTimer(
     int off_msec,
     void (*thread_function)(union sigval),
@@ -64,7 +64,7 @@ extern void ParseString(
 );
 extern void TrimLeft(std::string &str, std::string chars);
 extern void TrimRight(std::string &str, std::string chars);
-extern void HIPacketUpdate(unsigned char *, int);
+extern void HIPacketUpdate(const unsigned char *, int);
 extern unsigned HexCharToAscii(
     const std::string &str,
     unsigned char *buf,
@@ -77,7 +77,6 @@ extern std::string AsciiToStr(
     const unsigned &len
 );
 extern bool SuCreateDirectory(const std::string &dirname);
-extern bool post_command(char c);
 extern std::string IntToString(int num);
 extern bool Is64BIT();
 //extern void KillRunModeCheckTimer();
@@ -92,12 +91,12 @@ extern int MemCmpare(
     const void *buf2,
     int len
 );
-extern void RcvACLParam(void *arg);
+extern void RcvACLParam(const void *arg);
 extern void RcvCMD_GetProcessAndNetworkInfo();
-extern void RcvFlowMonitorParam(void *arg);
+extern void RcvFlowMonitorParam(const void *arg);
 extern void RcvIPMACChangeNotify();
 extern void RcvLoginURL(const std::string &arg);
-extern void RcvNetSecParam(void *arg);
+extern void RcvNetSecParam(const void *arg);
 extern void RcvOpenUtrustUrlCmd(const std::string &arg);
 extern void RcvStartAuthNotification();
 extern void StrToLower(char *str);
@@ -115,6 +114,7 @@ extern void WriteRegUserInfo(const struct UserInfo &info);
 extern void ReadRegUserInfo(struct UserInfo &info);
 extern void SimulateSuLogoff(unsigned char *buf, unsigned buflen);
 extern bool SetLanFlag(unsigned flag);
+extern void RecvSecdomainPacket(unsigned char *buf, unsigned buflen);
 
 static inline void swap128(unsigned char *val)
 {

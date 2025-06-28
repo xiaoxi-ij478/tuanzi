@@ -23,7 +23,8 @@ extern int GetMsgArray_Ex(
     bool replace_crlf
 );
 extern const std::string &GetMessageType(int type);
-extern void print_msg_item(tagMsgItem *item);
+extern void print_msg_item(const struct tagMsgItem &item);
 extern void print_msg_item_header();
+extern void ShowLocalMsg(const std::string &content, const std::string &header);
 
 #endif // MSGUTIL_H_INCLUDED

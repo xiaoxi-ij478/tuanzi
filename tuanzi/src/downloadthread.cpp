@@ -27,8 +27,8 @@ void CDownLoadThread::SetDlPara(struct tagDownLoadPara &para)
     dl_para.thread_id = para.thread_id;
     dl_para.mtype = para.mtype;
     dl_para.url = para.url;
-    dl_para.default_path = para.default_path;
-    dl_para.suffix = para.suffix;
+    dl_para.save_path = para.save_path;
+    dl_para.save_filename = para.save_filename;
     dl_para.create_progress_dialog = para.create_progress_dialog;
     down_para_set = true;
 }
@@ -49,16 +49,16 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStartThread, CDownLoadThread)
 
     download(
         dl_para.url.c_str(),
-        dl_para.default_path.c_str(),
-        dl_para.suffix.c_str(),
+        dl_para.save_path.c_str(),
+        dl_para.save_filename.c_str(),
         create_progress_dialog
     );
 }
 
 bool CDownLoadThread::download(
     const char *url,
-    const char *default_path,
-    const char *suffix,
+    const char *save_path,
+    const char *save_filename,
     bool create_progress_dialog
 )
 {
@@ -72,13 +72,13 @@ bool CDownLoadThread::download(
 
     switch (get_url_kind(url)) {
         case URL_HTTP:
-            return http_download(url, default_path, suffix, domain, path, &port) != -1;
+            return http_download(url, save_path, save_filename, domain, path, &port) != -1;
 
         case URL_FTP:
             return ftp_download(
                        url,
-                       default_path,
-                       suffix,
+                       save_path,
+                       save_filename,
                        domain,
                        path,
                        &port,
@@ -93,8 +93,8 @@ bool CDownLoadThread::download(
 
 int CDownLoadThread::ftp_download(
     const char *url,
-    const char *default_path,
-    const char *suffix,
+    const char *save_path,
+    const char *save_filename,
     char *domain,
     char *path,
     unsigned *port,
@@ -118,7 +118,7 @@ int CDownLoadThread::ftp_download(
     hostinfo->addr = str2sockaddr(domain, *port, AI_CANONNAME);
 
     if (hostinfo->addr && (socket_file = ftp_login(hostinfo)))
-        ret = ftp_receive(hostinfo, socket_file, default_path, password, suffix);
+        ret = ftp_receive(hostinfo, socket_file, save_path, password, save_filename);
 
     else
         ret = -1;
@@ -239,16 +239,16 @@ int CDownLoadThread::ftp_parse_url(
 int CDownLoadThread::ftp_receive(
     struct ftp_host_info_s *ftp_info,
     FILE *socket_file,
-    const char *default_path,
+    const char *save_path,
     const char *server_path,
-    const char *suffix
+    const char *save_filename
 )
 {
     char reply[264] = {};
-    char save_path[2048] = {};
+    char final_save_path[2048] = {};
     char dir[1024] = {};
     char filename[1024] = {};
-    char *new_save_path = nullptr;
+    char *new_final_save_path = nullptr;
     int socket_fd = 0;
     int file_fd = 0;
     enum DOWNLOAD_STATUS ret = DOWNLOAD_OK;
@@ -284,8 +284,8 @@ int CDownLoadThread::ftp_receive(
     }
 
     if (
-        (default_path && strlen(default_path) >= sizeof(dir)) ||
-        (suffix && strlen(suffix) >= sizeof(filename))
+        (save_path && strlen(save_path) >= sizeof(dir)) ||
+        (save_filename && strlen(save_filename) >= sizeof(filename))
     ) {
         rj_printf_debug("local path or name file is too long\n");
         ret = DOWNLOAD_ERROR_9;
@@ -293,32 +293,32 @@ int CDownLoadThread::ftp_receive(
     }
 
     if (
-        get_local_path(default_path, dir) == -1 ||
-        get_local_filename(server_path, suffix, filename)
+        get_local_path(save_path, dir) == -1 ||
+        get_local_filename(server_path, save_filename, filename)
     ) {
         ret = DOWNLOAD_ERROR_8;
         goto quit;
     }
 
-    if (strlen(dir) + strlen(filename) >= sizeof(save_path)) {
+    if (strlen(dir) + strlen(filename) >= sizeof(final_save_path)) {
         rj_printf_debug("path + name is too long\n");
         ret = DOWNLOAD_ERROR_9;
         goto quit;
     }
 
-    strcpy(save_path, dir);
-    strcat(save_path, "/");
-    strcat(save_path, filename);
+    strcpy(final_save_path, dir);
+    strcat(final_save_path, "/");
+    strcat(final_save_path, filename);
 
     if (cmd_mkdir(dir) || is_exist_dir(dir)) {
         ret = DOWNLOAD_ERROR_8;
         goto quit;
     }
 
-    if ((file_fd = open(save_path, O_WRONLY | O_CREAT | O_TRUNC, 0777) == -1)) {
+    if ((file_fd = open(final_save_path, O_WRONLY | O_CREAT | O_TRUNC, 0777) == -1)) {
         std::cerr << "open path error:" << strerror(errno)
                   << std::endl;
-        rj_printf_debug("open %s file error\n", save_path);
+        rj_printf_debug("open %s file error\n", final_save_path);
         ret = DOWNLOAD_ERROR_6;
         goto quit;
     }
@@ -384,18 +384,18 @@ quit:
         return -1;
     }
 
-    new_save_path = new char[strlen(save_path) + 1];
-    strcpy(new_save_path, save_path);
+    new_final_save_path = new char[strlen(final_save_path) + 1];
+    strcpy(new_final_save_path, final_save_path);
 
     if (
         !::PostThreadMessage(
             dl_para.thread_id,
             dl_para.mtype,
-            reinterpret_cast<unsigned long>(new_save_path),
+            reinterpret_cast<unsigned long>(new_final_save_path),
             0
         )
     )
-        delete[] new_save_path;
+        delete[] new_final_save_path;
 
     ftpcmd("QUIT", nullptr, socket_file, reply);
 
@@ -440,7 +440,7 @@ int CDownLoadThread::ftpcmd(
 
 int CDownLoadThread::get_local_filename(
     const char *server_path,
-    const char *suffix,
+    const char *save_filename,
     char *filename
 ) const
 {
@@ -457,7 +457,7 @@ int CDownLoadThread::get_local_filename(
         return -1;
     }
 
-    if (!suffix) {
+    if (!save_filename) {
         strcpy(filename, &tmp[1]);
         return 0;
     }
@@ -465,29 +465,29 @@ int CDownLoadThread::get_local_filename(
     if (get_surfix(server_path, buf) == -1)
         return -1;
 
-    if (!strrchr(suffix, '.')) {
-        if (strlen(buf) + strlen(suffix) > sizeof(buf))
+    if (!strrchr(save_filename, '.')) {
+        if (strlen(buf) + strlen(save_filename) > sizeof(buf))
             return -1;
 
-        strcpy(filename, suffix);
+        strcpy(filename, save_filename);
         strcat(filename, buf);
         return 0;
     }
 
-    strcpy(filename, suffix);
+    strcpy(filename, save_filename);
     return 0;
 }
 
 int CDownLoadThread::get_local_path(
-    const char *default_path,
+    const char *save_path,
     char *final_path
 ) const
 {
     char *tmp = nullptr;
     *final_path = 0;
 
-    if (default_path) {
-        strcpy(final_path, default_path);
+    if (save_path) {
+        strcpy(final_path, save_path);
 
         if (final_path[strlen(final_path) - 1] == '/')
             final_path[strlen(final_path) - 1] = 0;
@@ -511,8 +511,8 @@ int CDownLoadThread::get_remote_file(
     const char *domain,
     unsigned port,
     const char *server_path,
-    const char *default_path,
-    const char *suffix
+    const char *save_path,
+    const char *save_filename
 )
 {
     fd_set listen_fd;
@@ -524,8 +524,8 @@ int CDownLoadThread::get_remote_file(
     unsigned long file_size = 0;
     char dir[1024] = {};
     char filename[1024] = {};
-    char save_path[2048] = {};
-    char *new_save_path = nullptr;
+    char final_save_path[2048] = {};
+    char *new_final_save_path = nullptr;
     char buf[2048] = {};
     char *content_begin = nullptr;
     enum DOWNLOAD_STATUS ret = DOWNLOAD_OK;
@@ -541,8 +541,8 @@ int CDownLoadThread::get_remote_file(
     }
 
     if (
-        (default_path && strlen(default_path) >= sizeof(dir)) ||
-        (suffix && strlen(suffix) >= sizeof(filename))
+        (save_path && strlen(save_path) >= sizeof(dir)) ||
+        (save_filename && strlen(save_filename) >= sizeof(filename))
     ) {
         rj_printf_debug("local path or name file is too long\n");
         ret = DOWNLOAD_ERROR_9;
@@ -551,24 +551,24 @@ int CDownLoadThread::get_remote_file(
     }
 
     if (
-        get_local_path(default_path, dir) == -1 ||
-        get_local_filename(server_path, suffix, filename) == -1
+        get_local_path(save_path, dir) == -1 ||
+        get_local_filename(server_path, save_filename, filename) == -1
     ) {
         ret = DOWNLOAD_ERROR_8;
         file_fd = -1;
         goto error_quit;
     }
 
-    if (strlen(dir) + strlen(filename) >= sizeof(save_path)) {
+    if (strlen(dir) + strlen(filename) >= sizeof(final_save_path)) {
         rj_printf_debug("path + name is too long\n");
         ret = DOWNLOAD_ERROR_9;
         file_fd = -1;
         goto error_quit;
     }
 
-    strcpy(save_path, dir);
-    strcat(save_path, "/");
-    strcat(save_path, filename);
+    strcpy(final_save_path, dir);
+    strcat(final_save_path, "/");
+    strcat(final_save_path, filename);
 
     if (cmd_mkdir(dir) || is_exist_dir(dir)) {
         ret = DOWNLOAD_ERROR_9;
@@ -576,7 +576,7 @@ int CDownLoadThread::get_remote_file(
         goto error_quit;
     }
 
-    if ((file_fd = open(save_path, O_WRONLY | O_CREAT | O_TRUNC, 0777)) == -1) {
+    if ((file_fd = open(final_save_path, O_WRONLY | O_CREAT | O_TRUNC, 0777)) == -1) {
         std::cerr << "open path error:" << strerror(errno) << std::endl;
         ret = DOWNLOAD_ERROR_6;
         goto error_quit;
@@ -690,23 +690,23 @@ int CDownLoadThread::get_remote_file(
         read_byte,
         file_size,
         100,
-        save_path
+        final_save_path
     );
 normal_quit:
 
     if (dl_para.thread_id) {
-        new_save_path = new char[strlen(save_path) + 1];
-        strcpy(new_save_path, save_path);
+        new_final_save_path = new char[strlen(final_save_path) + 1];
+        strcpy(new_final_save_path, final_save_path);
 
         if (
             !::PostThreadMessage(
                 dl_para.thread_id,
                 dl_para.mtype,
-                reinterpret_cast<unsigned long>(new_save_path),
+                reinterpret_cast<unsigned long>(new_final_save_path),
                 0
             )
         )
-            delete[] new_save_path;
+            delete[] new_final_save_path;
     }
 
     shutdown(socket_fd, SHUT_RDWR);
@@ -769,8 +769,8 @@ void CDownLoadThread::http_del_blank(char *str) const
 
 int CDownLoadThread::http_download(
     const char *url,
-    const char *default_path,
-    const char *suffix,
+    const char *save_path,
+    const char *save_filename,
     char *domain,
     char *path,
     unsigned *port
@@ -789,7 +789,7 @@ int CDownLoadThread::http_download(
             *port
         );
 
-        if (get_remote_file(domain, *port, path, default_path, suffix) == -1)
+        if (get_remote_file(domain, *port, path, save_path, save_filename) == -1)
             return -1;
     }
 

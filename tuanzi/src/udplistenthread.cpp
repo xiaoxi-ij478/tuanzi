@@ -260,7 +260,7 @@ bool CUDPListenThread::HandlePrivateData(
         SetEvent(dir_para.event_ret, false);
 
     else
-        CUDPListenThread::RevcDirectPack(buf, buflen);
+        RevcDirectPack(buf, buflen);
 
     return true;
 }

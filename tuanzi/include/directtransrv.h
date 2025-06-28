@@ -17,7 +17,7 @@ class CDirectTranSrv : public CLnxThread
 
     private:
         bool AnalyzePrivate_SAM(unsigned char *buf, unsigned buflen) const;
-        bool AnalyzePrivate_SMP(unsigned char *buf, unsigned buflen) const;
+        bool AnalyzePrivate_SMP(unsigned char *buf, unsigned buflen);
         bool AskForSmpInitData();
         bool DeInitDirectEnvironment();
         bool DeInit_Sam();
@@ -44,21 +44,21 @@ class CDirectTranSrv : public CLnxThread
         DECLARE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SAM) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnInit_SAM);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnDeInit_SAM);
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SMP) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SMP);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnInit_SMP);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnDeInit_SMP);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnPost_SMP) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnPost_SAM) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnPostNoResponse_SMP) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnPostNoResponse_SAM) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer);
         void ParseACLParam(unsigned char *buf, unsigned buflen) const;
         void ParseDHCPAuthResult_ForSAM(
             unsigned char *buf,
             unsigned buflen,
             unsigned &pos
         ) const;
-        void ParseDHCPAuthResult_ForSMP(unsigned char *buf, unsigned buflen) const;
+        void ParseDHCPAuthResult_ForSMP(unsigned char *buf, unsigned buflen);
         void ParseGetHIStatusNow(unsigned char *buf, unsigned buflen) const;
         void ParseGetHostInfoNow(unsigned char *buf, unsigned buflen) const;
         void ParseLogoff(unsigned char *buf, unsigned buflen) const;
@@ -68,7 +68,7 @@ class CDirectTranSrv : public CLnxThread
         void ParsePasswordSecurity(TiXmlDocument &xml) const;
         void ParseRM_Assist(unsigned char *buf, unsigned buflen) const;
         void ParseReAuth(unsigned char *buf, unsigned buflen) const;
-        void ParseSMPData(unsigned char *buf, unsigned buflen) const;
+        void ParseSMPData(unsigned char *buf, unsigned buflen);
         bool PostToSam(unsigned char *buf, unsigned buflen) const;
         bool PostToSamWithNoResponse(unsigned char *buf, unsigned buflen) const;
         bool PostToSmp(unsigned char *buf, unsigned buflen) const;

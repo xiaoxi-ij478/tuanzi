@@ -306,3 +306,15 @@ bool GPostThreadMessage(
 
     return ret != -1;
 }
+
+bool post_command(unsigned char c)
+{
+    for (int i = 0; i < 3; i++) {
+        if (write(g_rwpipe[1], &c, 1) != -1)
+            return true;
+
+        perror("post_command write pipe");
+    }
+
+    return false;
+}

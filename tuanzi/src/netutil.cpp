@@ -1201,7 +1201,7 @@ void InitDHCPIPInfo(struct DHCPIPInfo &info)
     info.gateway = 0;
     info.ip4_ipaddr = 0;
     info.ip4_netmask = 0;
-    info.field_0 = 1;
+    info.dhcp = true;
 }
 
 void InitDhcpIpInfo(struct DHCPIPInfo &info)
@@ -1213,7 +1213,7 @@ void InitDhcpIpInfo(struct DHCPIPInfo &info)
     info.field_24 = {};
     info.ip6_link_local_ipaddr = {};
     info.ip6_ipaddr = {};
-    info.field_0 = 1;
+    info.dhcp = true;
     info.ipaddr6_count = 0;
     info.adapter_mac = {};
 }
@@ -1228,7 +1228,7 @@ bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool)
     if (!nic_info)
         return false;
 
-    info.field_0 = CtrlThread->field_240.field_54;
+    info.dhcp = CtrlThread->field_240.field_54;
     info.adapter_mac = nic_info->hwaddr;
     info.dns = htonl(nic_info->dns);
     info.gateway = htonl(nic_info->gateway);

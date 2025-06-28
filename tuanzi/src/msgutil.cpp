@@ -5,6 +5,7 @@
 #include "util.h"
 #include "timeutil.h"
 #include "cmdutil.h"
+#include "logfile.h"
 #include "msgutil.h"
 
 static CRITICAL_SECTION msg_write_lock;
@@ -195,10 +196,10 @@ const std::string &GetMessageType(int type)
     }
 }
 
-void print_msg_item(tagMsgItem *item)
+void print_msg_item(const struct tagMsgItem &item)
 {
-    std::string s(item->msg);
-    s.append("\t").append(GetMessageType(item->ntype));
+    std::string s(item.msg);
+    s.append("\t").append(GetMessageType(item.ntype));
     format_tc_string(get_tc_width(), 40, s);
     std::cout << std::endl;
 }
@@ -209,4 +210,17 @@ void print_msg_item_header()
               << "\t\t" << CChangeLanguage::Instance().LoadString(2034)
               << "\t\t" << CChangeLanguage::Instance().LoadString(2035)
               << std::endl;
+}
+
+void ShowLocalMsg(const std::string &content, const std::string &header)
+{
+    char cur_date[64] = {};
+    GetCurDataAndTime(cur_date);
+    message_info(std::string(cur_date).append(header));
+    format_tc_string(
+        get_tc_width(),
+        20,
+        std::string("\n").append(content).append("\n")
+    );
+    CLogFile::LogToFile(header + ' ' + content, g_runLogFile.c_str(), true, true);
 }

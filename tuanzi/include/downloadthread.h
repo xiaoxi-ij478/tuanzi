@@ -36,10 +36,10 @@ enum DOWNLOAD_STATUS {
 
 struct tagDownLoadPara {
     pthread_t thread_id; // pThread
-    int mtype;
+    unsigned mtype;
     std::string url;
-    std::string default_path;
-    std::string suffix;
+    std::string save_path;
+    std::string save_filename;
     bool create_progress_dialog;
 };
 
@@ -57,14 +57,14 @@ class CDownLoadThread : public CLnxThread
         DECLARE_DISPATH_MESSAGE_HANDLER(OnStartThread);
         bool download(
             const char *url,
-            const char *default_path,
-            const char *suffix,
+            const char *save_path,
+            const char *save_filename,
             bool create_progress_dialog
-        );
+        )
         int ftp_download(
             const char *url,
-            const char *default_path,
-            const char *suffix,
+            const char *save_path,
+            const char *save_filename,
             char *domain,
             char *path,
             unsigned *port,
@@ -84,9 +84,9 @@ class CDownLoadThread : public CLnxThread
         int ftp_receive(
             struct ftp_host_info_s *ftp_info,
             FILE *socket_file,
-            const char *default_path,
+            const char *save_path,
             const char *server_path,
-            const char *suffix
+            const char *save_filename
         );
         int ftpcmd(
             const char *cmd,
@@ -96,24 +96,24 @@ class CDownLoadThread : public CLnxThread
         ) const;
         int get_local_filename(
             const char *server_path,
-            const char *suffix,
+            const char *save_filename,
             char *filename
         ) const;
-        int get_local_path(const char *default_path, char *final_path) const;
+        int get_local_path(const char *save_path, char *final_path) const;
         int get_remote_file(
             const char *domain,
             unsigned port,
             const char *server_path,
-            const char *default_path,
-            const char *suffix
+            const char *save_path,
+            const char *save_filename
         );
         int get_surfix(const char *filename, char *suffix) const;
         enum URL_KIND get_url_kind(const char *url) const;
         void http_del_blank(char *str) const;
         int http_download(
             const char *url,
-            const char *default_path,
-            const char *suffix,
+            const char *save_path,
+            const char *save_filename,
             char *domain,
             char *path,
             unsigned *port

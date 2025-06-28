@@ -1,4 +1,5 @@
 #include "all.h"
+#include "dirtransutil.h"
 #include "encodeutil.h"
 #include "msgutil.h"
 #include "threadutil.h"
@@ -107,7 +108,7 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
     // the format is TLV
     for (
         unsigned pos = 0;
-        pos < buflen
+        pos < buflen;
         advance_pos && (pos += buf[pos + 1] + 2), advance_pos = true
     ) {
         if (buf[pos] != 1)
@@ -190,7 +191,7 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
 bool CDirectTranSrv::AnalyzePrivate_SMP(
     unsigned char *buf,
     unsigned buflen
-) const
+)
 {
     unsigned short smp_datalen = 0;
     unsigned char *smp_data = nullptr, *other_data = nullptr;
@@ -1032,7 +1033,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPostNoResponse_SAM, CDirectTranSrv) const
                 dir_trans_srvpara.sam_ipaddr,
                 dir_trans_srvpara.sam_port
             ),
-            arg1,
+            reinterpret_cast<unsigned char *>(arg1),
             arg2
         );
 
@@ -1049,7 +1050,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPostNoResponse_SMP, CDirectTranSrv) const
                 dir_smp_para.smp_ipaddr,
                 dir_smp_para.smp_port
             ),
-            arg1,
+            reinterpret_cast<unsigned char *>(arg1),
             arg2
         );
 
@@ -1069,7 +1070,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPost_SAM, CDirectTranSrv) const
             dir_trans_srvpara.sam_ipaddr,
             dir_trans_srvpara.sam_port
         ),
-        arg1,
+        reinterpret_cast<unsigned char *>(arg1),
         arg2
     );
     delete[] reinterpret_cast<unsigned char *>(arg1);
@@ -1088,7 +1089,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPost_SMP, CDirectTranSrv) const
             dir_smp_para.smp_ipaddr,
             dir_smp_para.smp_port
         ),
-        arg1,
+        reinterpret_cast<unsigned char *>(arg1),
         arg2
     );
     delete[] reinterpret_cast<unsigned char *>(arg1);
@@ -1096,19 +1097,21 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPost_SMP, CDirectTranSrv) const
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SAM, CDirectTranSrv) const
 {
-    logFile_debug.HexPrinter(arg1, arg2);
-    AnalyzePrivate_SAM(arg1, arg2);
-    delete[] reinterpret_cast<unsigned char *>(arg1);
+    unsigned char *buf = reinterpret_cast<unsigned char *>(arg1);
+    logFile_debug.HexPrinter(buf, arg2);
+    AnalyzePrivate_SAM(buf, arg2);
+    delete[] buf;
 }
 
-DEFINE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SMP, CDirectTranSrv) const
+DEFINE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SMP, CDirectTranSrv)
 {
-    logFile_debug.HexPrinter(arg1, arg2);
-    AnalyzePrivate_SMP(arg1, arg2);
-    delete[] reinterpret_cast<unsigned char *>(arg1);
+    unsigned char *buf = reinterpret_cast<unsigned char *>(arg1);
+    logFile_debug.HexPrinter(buf, arg2);
+    AnalyzePrivate_SMP(buf, arg2);
+    delete[] buf;
 }
 
-DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CDirectTranSrv) const
+DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CDirectTranSrv)
 {
     if (!dir_thread) {
         OnTimerLeave(arg1);
@@ -1184,7 +1187,11 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSAM(
     for (; pos + buf[pos + 1] + 2 <= buflen; pos += buf[pos + 1] + 2)
         switch (buf[pos]) {
             case 2:
-                ConvertGBKToUtf8(some_string, &buf[pos + 2], buf[pos + 1]);
+                ConvertGBKToUtf8(
+                    some_string,
+                    reinterpret_cast<char *>(&buf[pos + 2]),
+                    buf[pos + 1]
+                );
                 some_string_buf = new unsigned char[buf[pos + 1] + 1];
                 memcpy(some_string_buf, some_string.c_str(), buf[pos + 1]);
                 break;
@@ -1208,7 +1215,7 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSAM(
 void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(
     unsigned char *buf,
     unsigned buflen
-) const
+)
 {
     std::string some_string;
     unsigned char *some_string_buf = nullptr;
@@ -1227,7 +1234,11 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(
                 break;
 
             case 207:
-                ConvertGBKToUtf8(some_string, &buf[pos + 3], datalen);
+                ConvertGBKToUtf8(
+                    some_string,
+                    reinterpret_cast<char *>(&buf[pos + 3]),
+                    datalen
+                );
                 some_string_buf = new unsigned char[datalen + 1];
                 memcpy(some_string_buf, some_string.c_str(), datalen);
                 break;
@@ -1277,7 +1288,11 @@ void CDirectTranSrv::ParseLogoff(unsigned char *buf, unsigned buflen) const
         switch (buf[pos]) {
             case 31:
                 if (datalen) {
-                    ConvertGBKToUtf8(some_string, &buf[pos + 3], datalen);
+                    ConvertGBKToUtf8(
+                        some_string,
+                        reinterpret_cast<char *>(&buf[pos + 3]),
+                        datalen
+                    );
                     some_string_buf = new unsigned char[datalen + 2];
                     memcpy(some_string_buf, some_string.c_str(), datalen);
                 }
@@ -1365,11 +1380,19 @@ void CDirectTranSrv::ParseMsgAndPro(unsigned char *buf, unsigned buflen) const
         switch (buf[pos]) {
             case 21:
                 has_message = true;
-                ConvertGBKToUtf8(message, &buf[pos + 3], datalen);
+                ConvertGBKToUtf8(
+                    message,
+                    reinterpret_cast<char *>(&buf[pos + 3]),
+                    datalen
+                );
                 break;
 
             case 23:
-                ConvertGBKToUtf8(url, &buf[pos + 3], datalen);
+                ConvertGBKToUtf8(
+                    url,
+                    reinterpret_cast<char *>(&buf[pos + 3]),
+                    datalen
+                );
                 [[fallthrough]];
 
             case 22:
@@ -1402,14 +1425,13 @@ void CDirectTranSrv::ParsePasswordSecurity(TiXmlDocument &xml) const
 {
     const TiXmlNode *ss_child = nullptr;
     const TiXmlNode *ssp_child = nullptr;
-    const TiXmlNode *sspm_child = nullptr;
     const TiXmlNode *psd_child = nullptr;
     struct tagPasSecurityInfo secinfo = {
-        false, 30, true, "", -1, false, -1
+        false, 30, true, "", 0xFFFFFFFF, false, 0xFFFFFFFF
     };
 
-    if ((ss_child = xml.FirstChildElement().FirstChild("self_service")))
-        if ((ssp_child = ss_child.FirstChild("password"))) {
+    if ((ss_child = xml.FirstChildElement()->FirstChild("self_service")))
+        if ((ssp_child = ss_child->FirstChild("password"))) {
             secinfo.enable_modify_pw =
                 GetXmlChild_Node_STR(
                     ssp_child,
@@ -1422,7 +1444,7 @@ void CDirectTranSrv::ParsePasswordSecurity(TiXmlDocument &xml) const
                     GetXmlChild_Node_INT(ssp_child, "wait_time", "password");
         }
 
-    if ((psd_child = xml.FirstChildElement().FirstChild("psw_security_detect"))) {
+    if ((psd_child = xml.FirstChildElement()->FirstChild("psw_security_detect"))) {
         secinfo.result =
             GetXmlChild_Node_INT(psd_child, "result", "psw_security_detect");
         secinfo.failcode =
@@ -1441,14 +1463,14 @@ void CDirectTranSrv::ParsePasswordSecurity(TiXmlDocument &xml) const
             );
     }
 
-    if ((ss_child = xml.FirstChildElement().FirstChild("self_service")))
-        if ((ssp_child = ss_child.FirstChild("password"))) {
+    if ((ss_child = xml.FirstChildElement()->FirstChild("self_service")))
+        if ((ssp_child = ss_child->FirstChild("password"))) {
             secinfo.enable_modify_pw =
                 GetXmlChild_Node_STR(ssp_child, "is_modify", "password") == "true";
             secinfo.timeout =
                 GetXmlChild_Node_INT(ssp_child, "wait_time", "password");
 
-            if (ssp_child.FirstChildElement("modify_at_once")) {
+            if (ssp_child->FirstChildElement("modify_at_once")) {
                 logFile_debug.AppendText(
                     "ParsePasswordSecurity modify_at_once element exist."
                 );
@@ -1468,7 +1490,7 @@ void CDirectTranSrv::ParsePasswordSecurity(TiXmlDocument &xml) const
                 password_modify_message.length()
             );
 
-            if (ssp_child.FirstChildElement("force_offline")) {
+            if (ssp_child->FirstChildElement("force_offline")) {
                 logFile_debug.AppendText(
                     "ParsePasswordSecurity force_offline element exist."
                 );
@@ -1480,7 +1502,7 @@ void CDirectTranSrv::ParsePasswordSecurity(TiXmlDocument &xml) const
                     ) == "true";
             }
 
-            if (ssp_child.FirstChildElement("offline_wait_time")) {
+            if (ssp_child->FirstChildElement("offline_wait_time")) {
                 logFile_debug.AppendText(
                     "ParsePasswordSecurity offline_wait_time element exist."
                 );
@@ -1515,8 +1537,432 @@ void CDirectTranSrv::ParseReAuth(unsigned char *buf, unsigned buflen) const
     CtrlThread->PostThreadMessage(REAUTH_MTYPE, 0, 0);
 }
 
-void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
 {
+    TiXmlDocument xml_data;
+    const TiXmlNode *bc_child = nullptr;
+    const TiXmlNode *dcp_child = nullptr;
+    const TiXmlNode *spc_child = nullptr;
+    const TiXmlNode *arpad_child = nullptr;
+    const TiXmlNode *arpad_gw_child = nullptr;
+    const TiXmlNode *arp_child = nullptr;
+    const TiXmlNode *ind_child = nullptr;
+    std::string dcp_sip_s;
+    in_addr_t dcp_sip = 0;
+    unsigned dcp_sp = 0;
+    unsigned long dcp_ts = 0;
+    unsigned char net_src_param[2] = {};
+    struct tagSmpInitPacket_SendPacketCheck spc_struct = {};
+    struct tagSmpInitPacket_ARPAttackDetection arpad_struct = {};
+    char *sec_domain_start_tag_pos = nullptr;
+    char *sec_domain_end_tag_pos = nullptr;
+    char *hi_start_tag_pos = nullptr;
+    char *hi_end_tag_pos = nullptr;
+    char *sec_domain_xml_buf = nullptr;
+    struct [[gnu::packed]] eappkg {
+        struct ether_header etherheader;
+        struct [[gnu::packed]] {
+            uint8_t code;
+            uint8_t identifier;
+            uint16_t length;
+        } eaphdr;
+        uint8_t eaptype;
+        uint8_t data[1481];
+    } eap_pkg = {};
+    unsigned eap_pkg_curpos = 0;
+    logFile_debug.WriteString(reinterpret_cast<char *>(buf));
+    InitSmpInitPacket(smp_init_packet);
+    xml_data.Parse(reinterpret_cast<char *>(buf), nullptr, TIXML_ENCODING_UNKNOWN);
+
+    if (xml_data.Error()) {
+        logFile_debug.AppendText(
+            "加载XML内存失败[xml报文]Error in %s: %s\n",
+            xml_data.Value(),
+            xml_data.ErrorDesc()
+        );
+        return;
+    }
+
+    logFile_debug.AppendText("xml解析成功[SMP初始化报文]");
+    logFile_debug.AppendText("ParseSMPData m_nTimerSMP_Init=%d", smp_init_timerid);
+
+    if (smp_init_timerid) {
+        logFile_debug.AppendText("");
+
+        if (KillTimer(smp_init_timerid))
+            logFile_debug.AppendText("KillTimer m_nTimerSMP_Init success.");
+
+        else
+            logFile_debug.AppendText("Failed to KillTimer m_nTimerSMP_Init.");
+
+        smp_init_timerid = 0;
+    }
+
+    if ((bc_child = xml_data.FirstChildElement()->FirstChild("basic_config"))) {
+        smp_init_packet.smp_current_time =
+            GetXmlChild_Node_STR(bc_child, "smp_current_time", "basic_config");
+        smp_init_packet.basic_config.hi_detect_interval =
+            GetXmlChild_Node_INT(bc_child, "hi_detect_interval", "basic_config");
+        smp_init_packet.basic_config.hello_interval =
+            GetXmlChild_Node_INT(bc_child, "hello_interval", "basic_config");
+        smp_init_packet.basic_config.hello_response =
+            GetXmlChild_Node_STR(bc_child, "hello_response", "basic_config");
+        smp_init_packet.basic_config.hostinfo_report_interval =
+            GetXmlChild_Node_INT(bc_child, "hostinfo_report_interval", "basic_config");
+        smp_init_packet.basic_config.timeout =
+            GetXmlChild_Node_INT(bc_child, "timeout", "basic_config");
+        smp_init_packet.basic_config.retry_times =
+            GetXmlChild_Node_INT(bc_child, "retry_times", "basic_config");
+        smp_init_packet.basic_config.login_url =
+            GetXmlChild_Node_STR(bc_child, "login_url", "basic_config");
+        smp_init_packet.basic_config.disable_arpbam =
+            GetXmlChild_Node_STR(bc_child, "forbid_arp_spoofing", "basic_config");
+        smp_init_packet.basic_config.disable_dhcpbam =
+            GetXmlChild_Node_STR(bc_child, "forbid_dhcp_spoofing", "basic_config");
+    }
+
+    logFile_debug.AppendText(
+        "smpPacketPara hi_detect_interval=%d,hello_interval=%d,timeout=%d,"
+        "retry_times=%d,strDisableARPBAM=%s,strDisableDHCPBAM=%s",
+        smp_init_packet.basic_config.hi_detect_interval,
+        smp_init_packet.basic_config.hello_interval,
+        smp_init_packet.basic_config.timeout,
+        smp_init_packet.basic_config.retry_times,
+        smp_init_packet.basic_config.disable_arpbam,
+        smp_init_packet.basic_config.disable_dhcpbam
+    );
+
+    if (smp_init_packet.basic_config.timeout)
+        dir_smp_para.timeout = 1000 * smp_init_packet.basic_config.timeout;
+
+    if (smp_init_packet.basic_config.retry_times)
+        dir_smp_para.retry_count = smp_init_packet.basic_config.retry_times;
+
+    if (
+        (dcp_child =
+             xml_data.FirstChildElement()->FirstChild("direct_communication_param"))
+    ) {
+        dcp_sip_s = GetXmlChild_Node_STR(
+                        dcp_child,
+                        "server_ip",
+                        "direct_communication_param"
+                    );
+        dcp_sip = inet_addr(dcp_sip_s.c_str());
+        dcp_sp = GetXmlChild_Node_INT(
+                     dcp_child,
+                     "server_port",
+                     "direct_communication_param"
+                 );
+        dcp_ts = std::stoul(
+                     GetXmlChild_Node_STR(
+                         dcp_child,
+                         "timestamp",
+                         "direct_communication_param"
+                     )
+                 );
+
+        if (dcp_sip != -1 && dcp_sp && dcp_ts)
+            if (dir_thread)
+                dir_thread->SetProtocalParam_TimeStamp(
+                    dcp_sip,
+                    dcp_sp,
+                    smp_utc_time = dcp_ts,
+                    smp_timestamp = GetTickCount()
+                );
+
+        logFile_debug.AppendText(
+            "smpPacketPara strSvrip=%s,dwSvrip=%d,nSvrport=%d,"
+            "llTimeStamp=%I64d,m_smpData.tmInit=%I64d",
+            dcp_sip_s,
+            dcp_sip,
+            dcp_sp,
+            dcp_ts,
+            smp_timestamp
+        );
+    }
+
+    dir_thread->SetReTranPara(
+        dir_smp_para.smp_ipaddr,
+        dir_smp_para.smp_port,
+        dir_smp_para.retry_count,
+        dir_smp_para.timeout
+    );
+
+    if (smp_init_packet.basic_config.hello_interval > 0) {
+        dir_smp_para.hello_interval = smp_init_packet.basic_config.hello_interval;
+        dir_smp_para.hello_fail_time = 0;
+        dir_smp_para.hello_response =
+            smp_init_packet.basic_config.hello_response == "true";
+        hello_timer =
+            SetTimer(
+                HANDSHAKE_TO_SMP_MTYPE,
+                60000 * smp_init_packet.basic_config.hello_interval
+            );
+        OnTimer(HANDSHAKE_TO_SMP_MTYPE);
+    }
+
+    if (!smp_init_packet.basic_config.login_url.empty()) {
+        CtrlThread->field_490 = smp_init_packet.basic_config.login_url;
+        show_login_url();
+    }
+
+    net_src_param[0] = smp_init_packet.basic_config.disable_arpbam == "true";
+    net_src_param[1] = smp_init_packet.basic_config.disable_dhcpbam == "true";
+    RcvNetSecParam(net_src_param);
+
+    if (
+        (spc_child =
+             xml_data.FirstChildElement()->FirstChild("send_packet_check"))
+    ) {
+        spc_struct.cycle =
+            GetXmlChild_Node_INT(spc_child, "cycle", "send_packet_check");
+        spc_struct.threshold =
+            GetXmlChild_Node_INT(spc_child, "threshold", "send_packet_check");
+        spc_struct.warning_message =
+            GetXmlChild_Node_STR(spc_child, "warning_message", "send_packet_check");
+        spc_struct.offline =
+            GetXmlChild_Node_STR(spc_child, "offline", "send_packet_check") == "true";
+        spc_struct.offline_message =
+            GetXmlChild_Node_STR(spc_child, "offline_message", "send_packet_check");
+        RcvFlowMonitorParam(&spc_struct);
+    }
+
+    if (
+        (arpad_child =
+             xml_data.FirstChildElement()->FirstChild("arp_attack_detection"))
+    ) {
+        arpad_struct.is_detection =
+            GetXmlChild_Node_STR(
+                spc_child,
+                "is_detection",
+                "arp_attack_detection"
+            ) == "true";
+
+        if (
+            arpad_struct.is_detection &&
+            (arpad_gw_child = arpad_child->FirstChild("gateway"))
+        ) {
+            arpad_struct.gateway_ip =
+                htonl(inet_addr(arpad_gw_child->ToElement()->Attribute("ip")));
+
+            if (
+                HexCharToAscii(
+                    arpad_gw_child->ToElement()->Attribute("mac"),
+                    reinterpret_cast<unsigned char *>(&arpad_struct.gateway_mac),
+                    sizeof(arpad_struct.gateway_mac)
+                ) != sizeof(arpad_struct.gateway_mac)
+            )
+                arpad_struct.gateway_mac = {};
+        }
+
+        arpad_struct.report_interval =
+            GetXmlChild_Node_INT(spc_child, "report_interval", "arp_attack_detection");
+
+        // it seems that CtrlThread does not handle POST_ARP_ATTACK_PARAM_MTYPE
+        if (
+            CtrlThread &&
+            !CtrlThread->PostThreadMessage(POST_ARP_ATTACK_PARAM_MTYPE, 0, &arpad_struct)
+        )
+            logFile_debug.AppendText("post arp attack detect param failed");
+    }
+
+    if ((arp_child = xml_data.FirstChildElement()->FirstChild("arp"))) {
+        smp_init_packet.arp.enabled = true;
+        smp_init_packet.arp.gateway_ip =
+            GetXmlChild_Node_STR(arp_child, "gateway_ip", "arp");
+        smp_init_packet.arp.gateway_mac =
+            GetXmlChild_Node_STR(arp_child, "gateway_mac", "arp");
+
+    } else
+        smp_init_packet.arp.enabled = false;
+
+    if (
+        (ind_child =
+             xml_data.FirstChildElement()->FirstChild("illegal_network_detect"))
+    ) {
+        smp_init_packet.illegal_network_detect.enabled = true;
+        smp_init_packet.illegal_network_detect.syslog_ip =
+            GetXmlChild_Node_STR(arp_child, "syslog_ip", "illegal_network_detect");
+        smp_init_packet.illegal_network_detect.syslog_port =
+            GetXmlChild_Node_INT(arp_child, "syslog_port", "illegal_network_detect");
+        smp_init_packet.illegal_network_detect.detect_interval =
+            GetXmlChild_Node_INT(arp_child, "detect_interval", "illegal_network_detect");
+        smp_init_packet.illegal_network_detect.is_block =
+            GetXmlChild_Node_INT(arp_child, "is_block", "illegal_network_detect");
+        smp_init_packet.illegal_network_detect.block_tip =
+            GetXmlChild_Node_STR(arp_child, "block_tip", "illegal_network_detect");
+
+    } else
+        smp_init_packet.illegal_network_detect.enabled = false;
+
+    if (
+        (sec_domain_start_tag_pos =
+             strstr(
+                 reinterpret_cast<char *>(buf), "<security_domain>"
+             )
+        ) &&
+        (sec_domain_end_tag_pos =
+             strstr(
+                 reinterpret_cast<char *>(buf), "</security_domain>"
+             )
+        )
+    ) {
+        smp_init_packet.security_domain_xml =
+            "<?xml version=\"1.0\" encoding=\"GBK\"?>"
+            "\n<root version=\"1\">\n";
+        smp_init_packet.security_domain_xml.append(
+            sec_domain_start_tag_pos,
+            sec_domain_end_tag_pos + strlen("</security_domain>") -
+            sec_domain_start_tag_pos
+        );
+        smp_init_packet.security_domain_xml.append("\n</root>");
+    }
+
+    if (
+        (hi_start_tag_pos = strstr(reinterpret_cast<char *>(buf), "<hi>")) &&
+        (hi_end_tag_pos = strstr(reinterpret_cast<char *>(buf), "</hi>"))
+    ) {
+        smp_init_packet.hi_xml =
+            "<?xml version=\"1.0\" encoding=\"GBK\"?>";
+        smp_init_packet.hi_xml.append(
+            hi_start_tag_pos,
+            hi_end_tag_pos + strlen("</hi>") - hi_start_tag_pos
+        );
+
+    } else if (strstr(reinterpret_cast<char *>(buf), "<hi />")) {
+        smp_init_packet.hi_xml =
+            "<?xml version=\"1.0\" encoding=\"GBK\"?>\n"
+            "<hi />";
+    }
+
+    CoUnInitialize();
+    HIPacketUpdate(
+        reinterpret_cast<const unsigned char *>(smp_init_packet.hi_xml.c_str()),
+        strlen(smp_init_packet.hi_xml.c_str()) + 1
+    );
+    eap_pkg.etherheader.ether_type = htons(ETH_P_PAE);
+    eap_pkg.eaphdr.code = 0x01; /* EAP_REQUEST */
+    eap_pkg.eaphdr.identifier = 0xC0;
+    eap_pkg.eaphdr.length = htons(0x189);
+    eap_pkg.eaptype = 0x00;
+    // this is useless
+    eap_pkg.data[0] = 0x00;
+    eap_pkg_curpos = 1;
+#define PUT_TYPE(type) eap_pkg.data[eap_pkg_curpos++] = (type)
+#define PUT_LENGTH(length) eap_pkg.data[eap_pkg_curpos++] = (length)
+#define PUT_DATA(buf, buflen) \
+    do { \
+        memcpy(&eap_pkg.data[eap_pkg_curpos], (buf), (buflen)); \
+        eap_pkg_curpos += (buflen); \
+    } while (0)
+#define PUT_DATA_IMMEDIATE_BYTE(byte) eap_pkg.data[eap_pkg_curpos++] = (byte)
+#define PUT_DATA_IMMEDIATE_UINT32(value) \
+    do { \
+        uint32_t i = htonl(value); \
+        memcpy(&eap_pkg.data[eap_pkg_curpos], &i, 4); \
+        eap_pkg_curpos += 4; \
+    } while (0)
+    unsigned char type_13_data[0x11 - 0x2] = {
+        0x1C, 0x03, 0x0D, 0x26, 0x06, 0x00, 0x00, 0x00,
+        0x01, 0x27, 0x06, 0x06, 0x00, 0x00, 0x00
+    };
+    unsigned char type_30_data[0x6 - 0x2] = { 0xF0, 0xFF, 0xFF, 0x00 };
+    unsigned char type_32_data[0x12 - 0x2] = {};
+    unsigned char type_33_data[0x82 - 0x2] = {};
+    struct ether_addr gateway_mac = {};
+    PUT_TYPE(0x13);
+    PUT_LENGTH(0x11);
+    PUT_DATA(type_13_data, sizeof(type_13_data));
+    PUT_TYPE(0x30);
+    PUT_LENGTH(0x06);
+    PUT_DATA(type_30_data, sizeof(type_30_data));
+    PUT_TYPE(0x31);
+    PUT_LENGTH(0x06);
+    PUT_DATA_IMMEDIATE_UINT32(smp_init_packet.basic_config.hi_detect_interval);
+    PUT_TYPE(0x32);
+    PUT_LENGTH(0x12);
+    PUT_DATA(type_32_data, sizeof(type_32_data));
+    PUT_TYPE(0x33);
+    PUT_LENGTH(0x82);
+    PUT_DATA(type_33_data, sizeof(type_33_data));
+    PUT_TYPE(0x34);
+    PUT_LENGTH(0x06);
+    PUT_DATA_IMMEDIATE_UINT32(
+        smp_init_packet.basic_config.hostinfo_report_interval
+    );
+    PUT_TYPE(0x19);
+    PUT_LENGTH(0x06);
+    PUT_DATA_IMMEDIATE_UINT32(dir_smp_para.smp_ipaddr);
+    PUT_TYPE(0x35);
+    PUT_LENGTH(0x06);
+    PUT_DATA_IMMEDIATE_UINT32(
+        ntohl(inet_addr(smp_init_packet.arp.gateway_ip.c_str()))
+    );
+    PUT_TYPE(0x36);
+    PUT_LENGTH(0x08);
+    StringToHex(
+        smp_init_packet.arp.gateway_mac,
+        reinterpret_cast<unsigned char *>(&gateway_mac),
+        sizeof(gateway_mac)
+    );
+    PUT_DATA(&gateway_mac, sizeof(gateway_mac));
+    PUT_TYPE(0x37);
+    PUT_TYPE(0x0C);
+    PUT_DATA(
+        smp_init_packet.smp_current_time.c_str(),
+        smp_init_packet.smp_current_time.length()
+    );
+    eap_pkg_curpos += 0x0C - 0x02 - smp_init_packet.smp_current_time.length();
+    PUT_TYPE(0x38);
+    PUT_TYPE(0x06);
+    PUT_DATA_IMMEDIATE_UINT32(smp_init_packet.illegal_network_detect.enabled);
+    PUT_TYPE(0x39);
+    PUT_TYPE(0x06);
+    PUT_DATA_IMMEDIATE_UINT32(
+        ntohl(inet_addr(smp_init_packet.illegal_network_detect.syslog_ip.c_str()))
+    );
+    PUT_TYPE(0x3A);
+    PUT_TYPE(0x06);
+    PUT_DATA_IMMEDIATE_UINT32(smp_init_packet.illegal_network_detect.syslog_port);
+    PUT_TYPE(0x3B);
+    PUT_TYPE(0x06);
+    PUT_DATA_IMMEDIATE_UINT32(smp_init_packet.illegal_network_detect.is_block);
+    PUT_TYPE(0x3C);
+    PUT_TYPE(0x82);
+    PUT_DATA(
+        smp_init_packet.illegal_network_detect.block_tip.c_str(),
+        smp_init_packet.illegal_network_detect.block_tip.length()
+    );
+    eap_pkg_curpos +=
+        0x82 - 0x02 - smp_init_packet.illegal_network_detect.block_tip.length();
+    PUT_TYPE(0x3D);
+    PUT_TYPE(0x06);
+    PUT_DATA_IMMEDIATE_UINT32(
+        smp_init_packet.illegal_network_detect.detect_interval
+    );
+#undef PUT_DATA
+#undef PUT_LENGTH
+#undef PUT_TYPE
+#undef PUT_DATA_IMMEDIATE_BYTE
+#undef PUT_DATA_IMMEDIATE_UINT32
+    GSNRecvPacket(reinterpret_cast<unsigned char *>(&eap_pkg), 0x19B);
+
+    if (!smp_init_packet.security_domain_xml.empty())
+        smp_init_packet.security_domain_xml.copy(
+            sec_domain_xml_buf =
+                new char[smp_init_packet.security_domain_xml.length() + 1],
+            smp_init_packet.security_domain_xml.length()
+        );
+
+    logFile_debug.AppendText(
+        "解析安全域相关信息pDomain=[%s]",
+        sec_domain_xml_buf
+    );
+    RecvSecdomainPacket(
+        reinterpret_cast<unsigned char *>(sec_domain_xml_buf),
+        smp_init_packet.security_domain_xml.length()
+    );
+    delete[] buf;
 }
 
 bool CDirectTranSrv::PostToSam(unsigned char *buf, unsigned buflen) const
@@ -1529,7 +1975,13 @@ bool CDirectTranSrv::PostToSam(unsigned char *buf, unsigned buflen) const
 
     memcpy(newbuf, buf, buflen);
 
-    if (!(ret =::PostThreadMessage(thread_id, ON_POST_SAM, newbuf, buflen)))
+    if (
+        !(
+            ret = ::PostThreadMessage(
+                      thread_id, ON_POST_SAM, reinterpret_cast<unsigned long>(newbuf), buflen
+                  )
+        )
+    )
         delete[] newbuf;
 
     return ret;
@@ -1546,7 +1998,12 @@ bool CDirectTranSrv::PostToSamWithNoResponse(
         return false;
 
     memcpy(newbuf, buf, buflen);
-    return ::PostThreadMessage(thread_id, ON_POST_NOREPONSE_SAM, newbuf, buflen);
+    return ::PostThreadMessage(
+               thread_id,
+               ON_POST_NOREPONSE_SAM,
+               reinterpret_cast<unsigned long>(newbuf),
+               buflen
+           );
 }
 
 bool CDirectTranSrv::PostToSmp(unsigned char *buf, unsigned buflen) const
@@ -1559,7 +2016,16 @@ bool CDirectTranSrv::PostToSmp(unsigned char *buf, unsigned buflen) const
 
     memcpy(newbuf, buf, buflen);
 
-    if (!(ret =::PostThreadMessage(thread_id, ON_POST_SMP, newbuf, buflen)))
+    if (
+        !(
+            ret = ::PostThreadMessage(
+                      thread_id,
+                      ON_POST_SMP,
+                      reinterpret_cast<unsigned long>(newbuf),
+                      buflen
+                  )
+        )
+    )
         delete[] newbuf;
 
     return ret;
@@ -1576,7 +2042,12 @@ bool CDirectTranSrv::PostToSmpWithNoResponse(
         return false;
 
     memcpy(newbuf, buf, buflen);
-    return ::PostThreadMessage(thread_id, ON_POST_NOREPONSE_SMP, newbuf, buflen);
+    return ::PostThreadMessage(
+               thread_id,
+               ON_POST_NOREPONSE_SMP,
+               reinterpret_cast<unsigned long>(newbuf),
+               buflen
+           );
 }
 
 bool CDirectTranSrv::SendToSam(
