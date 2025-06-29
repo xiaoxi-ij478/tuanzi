@@ -93,13 +93,13 @@ std::string XML_PARSER::GetAttributeValue(const char *name) const
     const char *attr = nullptr;
 
     if (!currentElement)
-        return "";
+        return std::string();
 
     if (!(el = currentElement->ToElement()))
-        return "";
+        return std::string();
 
     if (!(attr = el->Attribute(name)))
-        return "";
+        return std::string();
 
     return attr;
 }

@@ -1126,6 +1126,8 @@ CLogFile g_WlanStateLog;
 CLogFile g_logContextControl;
 CLogFile g_logFile_dns;
 
+CSupplicantApp theApp;
+
 CCheckRunThread chkRunThread;
 // TODO
 //CContextControlThread *CtrlThread = nullptr;

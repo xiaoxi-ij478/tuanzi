@@ -430,26 +430,25 @@ std::string CDirectTranSrv::GetXmlChild_Node_STR(
     const std::string &
 ) const
 {
-    std::string ret;
     const TiXmlElement *el = nullptr;
     const char *text = nullptr;
 
     if (value.empty())
-        return ret;
+        return std::string();
 
     if (!node)
-        return ret;
+        return std::string();
 
     if (!(el = node->FirstChildElement(value)))
-        return ret;
+        return std::string();
 
     if (!(el = el->ToElement()))
-        return ret;
+        return std::string();
 
     if (!(text = el->GetText()))
-        return ret;
+        return std::string();
 
-    return ret = text;
+    return text;
 }
 
 bool CDirectTranSrv::HandshakeToSAM()

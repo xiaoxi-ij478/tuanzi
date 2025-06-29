@@ -276,8 +276,6 @@ void shownotify(const std::string &content, const std::string &header, int)
 
 void show_url(const std::string &header, const std::string &content)
 {
-    std::string final_str;
-
     if (content.empty())
         return;
 

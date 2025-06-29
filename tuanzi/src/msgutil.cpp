@@ -12,7 +12,7 @@ static CRITICAL_SECTION msg_write_lock;
 
 void CreateNewMsgFile()
 {
-    std::string filename(g_strAppPath + "systemmsg.ini");
+    std::string &&filename = g_strAppPath + "systemmsg.ini";
     std::ofstream ofs(filename, std::ios::trunc);
 
     if (!ofs)
@@ -28,7 +28,6 @@ void AddMsgItem(int type, const std::string &msg)
 {
     std::string msgcopy(msg);
     std::string inifile(g_strAppPath + "systemmsg.ini");
-    std::string inikey;
     std::vector<struct tagMsgItem> msgarr;
     dictionary *ini = nullptr;
     char time[512] = {};
@@ -57,7 +56,7 @@ void AddMsgItem(int type, const std::string &msg)
     msgarr.emplace_back(type, time, msg);
 
     for (int i = 0; i < msgarr.size(); i++) {
-        inikey = "msg_" + std::to_string(i);
+        std::string &&inikey = "msg_" + std::to_string(i);
         iniparser_set(
             ini,
             (inikey + ":ntype").c_str(),
@@ -82,8 +81,7 @@ void AddMsgItem(int type, const std::string &msg)
 void DelMsgItem(int type, const std::string &msg)
 {
     std::string msgcopy(msg);
-    std::string inifile(g_strAppPath + "systemmsg.ini");
-    std::string inikey;
+    std::string &&inifile = g_strAppPath + "systemmsg.ini";
     std::vector<struct tagMsgItem> msgarr;
     dictionary *ini = nullptr;
 
@@ -108,7 +106,7 @@ void DelMsgItem(int type, const std::string &msg)
         }
 
     for (int i = 0; i < msgarr.size(); i++) {
-        inikey = "msg_" + std::to_string(i);
+        std::string &&inikey = "msg_" + std::to_string(i);
         iniparser_set(
             ini,
             (inikey + ":ntype").c_str(),
@@ -137,8 +135,7 @@ int GetMsgArray(std::vector<struct tagMsgItem> &msgarr)
 
 int GetMsgArray_Ex(std::vector<struct tagMsgItem> &msgarr, bool replace_crlf)
 {
-    std::string inipath(g_strAppPath + "systemmsg.ini");
-    std::string msgid;
+    std::string &&inipath = g_strAppPath + "systemmsg.ini";
     int ntype;
     std::string msgtime, msg;
     dictionary *ini = nullptr;
@@ -158,7 +155,7 @@ int GetMsgArray_Ex(std::vector<struct tagMsgItem> &msgarr, bool replace_crlf)
     }
 
     while (msgcnt--) {
-        msgid = "msg_" + std::to_string(msgcnt);
+        std::string &&msgid = "msg_" + std::to_string(msgcnt);
 
         if (replace_crlf)
             replace_all_distinct(msg, "\r\n", "{$\\r\\n$}");
@@ -179,8 +176,6 @@ int GetMsgArray_Ex(std::vector<struct tagMsgItem> &msgarr, bool replace_crlf)
 
 const std::string &GetMessageType(int type)
 {
-    static std::string none;
-
     switch (type) {
         case 0:
             return CChangeLanguage::Instance().LoadString(77);
@@ -192,7 +187,7 @@ const std::string &GetMessageType(int type)
             return CChangeLanguage::Instance().LoadString(92);
 
         default:
-            return none;
+            return std::string();
     }
 }
 

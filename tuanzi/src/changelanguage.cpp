@@ -32,7 +32,6 @@ bool CChangeLanguage::InitLanguage()
 {
     std::ifstream translate_file(translate_filename);
     std::string line;
-    std::string trans_id_str, trans_str;
     std::vector<std::string> val;
 //    size_t equal_pos;
 
@@ -55,15 +54,21 @@ bool CChangeLanguage::InitLanguage()
 //        trans_id_str = s.substr(0, equal_pos);
 //        trans_str = s.substr(equal_pos + 1);
         ParseString(line, '=', val);
-        trans_id_str = std::move(val[0]);
-        trans_str = std::move(val[1]);
+        std::string &trans_id_str = val[0];
+        std::string &trans_str = val[1];
 
-        while (trans_str.front() == ' ' || trans_str.front() == '\n' ||
-                trans_str.front() == '\r')
+        while (
+            trans_str.front() == ' ' ||
+            trans_str.front() == '\n' ||
+            trans_str.front() == '\r'
+        )
             trans_str.erase(trans_str.begin());
 
-        while (trans_str.back() == ' ' || trans_str.back() == '\n' ||
-                trans_str.back() == '\r')
+        while (
+            trans_str.back() == ' ' ||
+            trans_str.back() == '\n' ||
+            trans_str.back() == '\r'
+        )
             trans_str.pop_back();
 
         replace_all_distinct(trans_str, "\\r", "\r");

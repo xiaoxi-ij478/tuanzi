@@ -4,6 +4,7 @@
 #include "logfile.h"
 #include "checkrunthread.h"
 #include "contextcontrolthread.h"
+#include "supplicantapp.h"
 
 extern std::string g_strAppPath;
 extern std::string g_runLogFile;
@@ -71,6 +72,8 @@ extern CLogFile g_uilog;
 extern CLogFile g_WlanStateLog;
 extern CLogFile g_logContextControl;
 extern CLogFile g_logFile_dns;
+
+extern CSupplicantApp theApp;
 
 extern CCheckRunThread chkRunThread;
 // TODO

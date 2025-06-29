@@ -206,7 +206,6 @@ int CClientCenterPeerManager::ParseResult(const char *result)
     int ret = 0;
     XML_PARSER xml_parser;
     std::string upgrade_path;
-    std::string upgrade_full_url;
     std::ostringstream upgrade_full_url_oss;
     char *upgrade_full_url_buf = nullptr;
 
@@ -245,7 +244,7 @@ int CClientCenterPeerManager::ParseResult(const char *result)
     upgrade_full_url_oss << "http://" << control_center_info.domain
                          << ':' << control_center_info.port
                          << '/' << upgrade_path;
-    upgrade_full_url = upgrade_full_url_oss.str();
+    std::string &&upgrade_full_url = upgrade_full_url_oss.str();
     g_logContextControl.AppendText(
         "CClientCenterPeerManager::ParseResult，升级的全部url是:%s。",
         upgrade_full_url.c_str()
@@ -265,7 +264,6 @@ void CClientCenterPeerManager::ProcessConnect()
 {
     std::ostringstream url_oss;
     std::ostringstream query_param_oss;
-    std::string url;
     unsigned timer_interval_l = 0;
     unsigned http_length = 0;
     unsigned http_read = 0;
@@ -284,7 +282,7 @@ void CClientCenterPeerManager::ProcessConnect()
                     << "&mainver=" << control_center_info.major_ver
                     << "&subver=" << control_center_info.minor_ver;
     url_oss << EnCodeStr(query_param_oss.str());
-    url = url_oss.str();
+    std::string &&url = url_oss.str();
     g_logContextControl.AppendText(
         "CClientCenterPeerManager::ProcessConnect，构造的url是：%s",
         url.c_str()

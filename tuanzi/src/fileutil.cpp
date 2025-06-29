@@ -57,24 +57,13 @@ int get_sh_name(const char *src, char *dst)
     return 0;
 }
 
-bool decompressFile(const char *cfilename, const char *cdestdir)
+bool decompressFile(const char *filename, const char *destdir)
 {
-    std::string filename;
-    std::string destdir;
-
-    if (!cfilename || !cdestdir)
+    if (!filename || !destdir)
         return false;
 
-    filename = cfilename;
-    destdir = cdestdir;
 #define COMPARE_EQUAL(suffix) \
-    ( \
-      !filename.compare( \
-                         filename.length() - strlen(suffix) - 1, \
-                         strlen(suffix), \
-                         (suffix) \
-                       ) \
-    )
+    (!strcmp(strchr(filename, 0) - strlen(suffix), suffix))
 
     if (COMPARE_EQUAL(".tar.gz"))
         system(
