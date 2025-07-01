@@ -57,7 +57,7 @@ class CSupplicantApp
         bool IsOnline() const;
 
     private:
-        unsigned long field_0;
+        key_t thread_key;
         unsigned field_8;
         std::string version;
         CRITICAL_SECTION field_18;

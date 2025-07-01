@@ -1906,28 +1906,28 @@ void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
     );
     PUT_DATA(&gateway_mac, sizeof(gateway_mac));
     PUT_TYPE(0x37);
-    PUT_TYPE(0x0C);
+    PUT_LENGTH(0x0C);
     PUT_DATA(
         smp_init_packet.smp_current_time.c_str(),
         smp_init_packet.smp_current_time.length()
     );
     eap_pkg_curpos += 0x0C - 0x02 - smp_init_packet.smp_current_time.length();
     PUT_TYPE(0x38);
-    PUT_TYPE(0x06);
+    PUT_LENGTH(0x06);
     PUT_DATA_IMMEDIATE_UINT32(smp_init_packet.illegal_network_detect.enabled);
     PUT_TYPE(0x39);
-    PUT_TYPE(0x06);
+    PUT_LENGTH(0x06);
     PUT_DATA_IMMEDIATE_UINT32(
         ntohl(inet_addr(smp_init_packet.illegal_network_detect.syslog_ip.c_str()))
     );
     PUT_TYPE(0x3A);
-    PUT_TYPE(0x06);
+    PUT_LENGTH(0x06);
     PUT_DATA_IMMEDIATE_UINT32(smp_init_packet.illegal_network_detect.syslog_port);
     PUT_TYPE(0x3B);
-    PUT_TYPE(0x06);
+    PUT_LENGTH(0x06);
     PUT_DATA_IMMEDIATE_UINT32(smp_init_packet.illegal_network_detect.is_block);
     PUT_TYPE(0x3C);
-    PUT_TYPE(0x82);
+    PUT_LENGTH(0x82);
     PUT_DATA(
         smp_init_packet.illegal_network_detect.block_tip.c_str(),
         smp_init_packet.illegal_network_detect.block_tip.length()
@@ -1935,7 +1935,7 @@ void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
     eap_pkg_curpos +=
         0x82 - 0x02 - smp_init_packet.illegal_network_detect.block_tip.length();
     PUT_TYPE(0x3D);
-    PUT_TYPE(0x06);
+    PUT_LENGTH(0x06);
     PUT_DATA_IMMEDIATE_UINT32(
         smp_init_packet.illegal_network_detect.detect_interval
     );

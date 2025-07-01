@@ -324,4 +324,15 @@ struct tagPasSecurityInfo {
     unsigned offline_wait_time;
 };
 
+struct tagWirelessConf {
+    std::string field_0;
+    std::string field_8;
+    unsigned char field_10[32];
+    unsigned field_10_len;
+    std::string field_38;
+    std::string field_40;
+    struct ether_addr macaddr;
+    unsigned field_50;
+};
+
 #endif // DIRTRANSTAGS_H_INCLUDED

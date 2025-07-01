@@ -8,7 +8,7 @@
 #include "supplicantapp.h"
 
 CSupplicantApp::CSupplicantApp() :
-    field_0(),
+    thread_key(),
     field_8(1),
     version("RG-SU For Linux V1.30"),
     status(),
@@ -51,9 +51,11 @@ void CSupplicantApp::GUI_update_LOGOFF(
 {
     std::string notify_msg;
     bool should_not_exit = false;
+    char cur_date[256] = {};
+    CChangeLanguage &cinstance = CChangeLanguage::Instance();
 #define SET_MSG_AND_EXIT_FLAG(reason, msg_id, flag) \
 case (reason): \
-    notify_msg = CChangeLanguage::Instance().LoadString(msg_id); \
+    notify_msg = cinstance.LoadString(msg_id); \
     should_not_exit = (flag); \
     break
 #define SET_CUSTOM_MSG_AND_EXIT_FLAG(reason, msg, flag) \
@@ -71,7 +73,7 @@ case (reason): \
             SET_CUSTOM_MSG_AND_EXIT_FLAG(
                 LOGOFF_REASON_AUTH_FAIL,
                 CtrlThread->logoff_message.empty() ?
-                CChangeLanguage::Instance().LoadString(91) :
+                cinstance.LoadString(91) :
                 CtrlThread->logoff_message,
                 true
             );
@@ -79,14 +81,14 @@ case (reason): \
                 LOGOFF_REASON_FORCE_OFFLINE_3,
                 CtrlThread->logoff_message.empty() ?
                 "" :
-                CChangeLanguage::Instance().LoadString(29) +
+                cinstance.LoadString(29) +
                 ": " + CtrlThread->logoff_message,
                 false
             );
             SET_CUSTOM_MSG_AND_EXIT_FLAG(
                 LOGOFF_REASON_FORCE_OFFLINE_2,
                 CtrlThread->logoff_message.empty() ?
-                CChangeLanguage::Instance().LoadString(91) :
+                cinstance.LoadString(91) :
                 CtrlThread->logoff_message,
                 true
             );
@@ -97,14 +99,14 @@ case (reason): \
             SET_CUSTOM_MSG_AND_EXIT_FLAG(
                 LOGOFF_REASON_HTTP_PROXY,
                 CtrlThread->logoff_message.empty() ?
-                CChangeLanguage::Instance().LoadString(99) :
+                cinstance.LoadString(99) :
                 CtrlThread->logoff_message,
                 true
             );
             SET_CUSTOM_MSG_AND_EXIT_FLAG(
                 LOGOFF_REASON_SOCKS_PROXY,
                 CtrlThread->logoff_message.empty() ?
-                CChangeLanguage::Instance().LoadString(99) :
+                cinstance.LoadString(99) :
                 CtrlThread->logoff_message,
                 true
             );
@@ -117,9 +119,25 @@ case (reason): \
             SET_MSG_AND_EXIT_FLAG(LOGOFF_REASON_IP_CHANGED, 60, true);
             SET_MSG_AND_EXIT_FLAG(LOGOFF_REASON_MAC_CHANGED, 62, true);
     }
+
 #undef SET_MSG_AND_EXIT_FLAG
 #undef SET_CUSTOM_MSG_AND_EXIT_FLAG
-AddMsgItem(5,notify_msg);GUI_update_connectdlg_by_states(new_status);
+    AddMsgItem(5, notify_msg);
+    GUI_update_connectdlg_by_states(new_status);
+
+    if (!should_not_exit) {
+        GetCurDataAndTime(cur_date);
+        const std::string &final_msg = std::string(cur_date).append(notify_msg);
+        GUI_update_connect_text(final_msg);
+        CLogFile::LogToFile(final_msg, g_runLogFile, true, true);
+
+    } else
+        GUI_ShowMainWindow(notify_msg);
+
+    g_uilog.AppendText(
+        "CSupplicantApp::GUI_update_LOGOFF (STATE_LOGOFF) strLogoffInfo=%s",
+        notify_msg.c_str()
+    );
 }
 
 void CSupplicantApp::GUI_update_connect_states_and_text(

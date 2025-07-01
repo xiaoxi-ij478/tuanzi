@@ -77,4 +77,6 @@
 
 #define RECEIVE_SEC_DOMAIN_MTYPE 0xB2
 
+#define STOP_OCX_MTYPE 0xB9
+
 #endif // MTYPES_H_INCLUDED

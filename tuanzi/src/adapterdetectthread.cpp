@@ -5,14 +5,15 @@
 #include "mtypes.h"
 #include "adapterdetectthread.h"
 
+// *INDENT-OFF*
 #define POST_TO_CONTROL_THREAD(mtype) \
     ::PostThreadMessage( \
-                         control_thread_key, \
-                         control_thread_msgid, \
-                         (mtype), \
-                         0 \
-                       )
-
+        control_thread_key, \
+        control_thread_msgid, \
+        (mtype), \
+        0 \
+    )
+// *INDENT-ON*
 CAdapterDetectThread::CAdapterDetectThread() :
     control_thread_key(),
     control_thread_msgid(),

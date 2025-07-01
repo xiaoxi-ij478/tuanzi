@@ -39,7 +39,8 @@ void CSuConfigFile::Close()
 bool CSuConfigFile::Open()
 {
     std::string apppath;
-    cfg_filename = apppath + "SuConfig.dat";
+    TakeAppPath(apppath);
+    cfg_filename = apppath.append("SuConfig.dat");
     return Open(cfg_filename.c_str());
 }
 
@@ -140,11 +141,11 @@ void CSuConfigFile::LogToFile([[maybe_unused]] const char *str)
 
 bool CSuConfigFile::Open(const char *rfilename)
 {
-    std::ifstream ifs(rfilename, std::ios::binary);
+    std::ifstream ifs(rfilename);
     std::string filename;
     TakeAppPath(filename);
     filename.append("SuTempConfig.dat");
-    std::ofstream ofs(filename, std::ios::binary);
+    std::ofstream ofs(filename);
     unsigned char *ibuf = nullptr;
     unsigned char *obuf = nullptr;
     unsigned long orig_size = 0;
@@ -168,7 +169,7 @@ bool CSuConfigFile::Open(const char *rfilename)
     ifs.seekg(0, std::ios::end);
     orig_size = ifs.tellg();
     ifs.seekg(0, std::ios::beg);
-    ibuf = new unsigned char[orig_size];
+    ibuf = new unsigned char[orig_size + 1];
 
     for (unsigned i = 0; !ifs.eof(); i++)
         ibuf[i] = ~ifs.get();
@@ -186,9 +187,15 @@ bool CSuConfigFile::Open(const char *rfilename)
     }
 
     is_open = true;
+    delete[] ibuf;
     delete[] obuf;
-    obuf = nullptr;
+    ibuf = obuf = nullptr;
     return true;
+}
+
+static void ConvertEnternewlineToOnetwo(std::string &str)
+{
+    replace_all_distinct(str, "\x01\x02", "\r\n");
 }
 
 void CSuConfigFile::ProfileStringToString(std::string &str)
@@ -198,16 +205,8 @@ void CSuConfigFile::ProfileStringToString(std::string &str)
 
 void CSuConfigFile::StringToProfileString(std::string &str)
 {
-    replace_all_distinct(str, "\x01\x02", "\r\n");
+    ConvertEnternewlineToOnetwo(str);
     AppendComma(str);
-}
-
-// this function was originally used in StringToProfileString
-// but it is nothing more than one call to replace_all_distinct
-// so it is here only for referencing
-[[maybe_unused]] static void ConvertEnternewlineToOnetwo(std::string &str)
-{
-    replace_all_distinct(str, "\x01\x02", "\r\n");
 }
 
 bool CSuConfigFile::UpdateConfig()
@@ -215,8 +214,8 @@ bool CSuConfigFile::UpdateConfig()
     std::string filename;
     TakeAppPath(filename);
     filename.append("SuTempConfig.dat");
-    std::ifstream ifs(filename, std::ios::binary);
-    std::ofstream ofs(cfg_filename, std::ios::binary);
+    std::ifstream ifs(filename);
+    std::ofstream ofs(cfg_filename);
     unsigned long orig_size = 0;
     unsigned long comp_size = 0;
     unsigned char *ibuf = nullptr;
@@ -235,7 +234,7 @@ bool CSuConfigFile::UpdateConfig()
     ifs.seekg(0, std::ios::end);
     orig_size = ifs.tellg();
     ifs.seekg(0, std::ios::beg);
-    ibuf = new unsigned char[orig_size];
+    ibuf = new unsigned char[orig_size + 1];
     ifs.read(reinterpret_cast<char *>(ibuf), orig_size);
     ifs.close();
     comp_size = Compress(ibuf, obuf, orig_size, 0);
@@ -252,8 +251,9 @@ bool CSuConfigFile::UpdateConfig()
         return false;
     }
 
+    delete[] ibuf;
     delete[] obuf;
-    obuf = nullptr;
+    ibuf = obuf = nullptr;
     config_dirty = false;
     return true;
 }

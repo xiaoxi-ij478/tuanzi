@@ -13,9 +13,7 @@ extern std::string g_strError;
 extern bool bLoadLib; // librt loaded
 // used in update procedure
 extern bool updteParam; // update requested
-// original name: qword_70D9A8
 extern std::string update_message;
-// original name: qword_70D9B0
 // this is always set to empty
 extern std::string alt_update_message;
 extern int g_rwpipe[2];

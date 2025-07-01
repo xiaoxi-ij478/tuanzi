@@ -400,7 +400,7 @@ void CVz_APIApp::PrepareData(
                 md5_challenge,
                 appdata_sha1,
                 6,
-                 10
+                10
             );
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(

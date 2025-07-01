@@ -318,3 +318,8 @@ bool post_command(unsigned char c)
 
     return false;
 }
+
+void StopOcx()
+{
+    PostThreadMessage(theApp, STOP_OCX_MTYPE, 0, 0);
+}

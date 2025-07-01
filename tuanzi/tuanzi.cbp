@@ -8,7 +8,7 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/tuanzi" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
+				<Option object_output="obj/Debug" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option parameters="--help" />
@@ -22,6 +22,35 @@
 				<Option object_output="obj/Release" />
 				<Option type="1" />
 				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+			<Target title="Configure Reader / Writer Debug">
+				<Option output="bin/Debug/cfg_rw" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-ggdb3" />
+					<Add directory="include" />
+				</Compiler>
+			</Target>
+			<Target title="Configure Reader / Writer Release">
+				<Option output="bin/Release/cfg_rw" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectResourceIncludeDirsRelation="1" />
+				<Option projectLibDirsRelation="1" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add directory="include" />
@@ -77,131 +106,503 @@
 			<Add directory="../openssl/out/lib" />
 			<Add directory="../pcap/out/lib" />
 		</Linker>
-		<Unit filename="include/adapterdetectthread.h" />
+		<Unit filename="cfg_rw.cpp">
+			<Option target="Configure Reader / Writer Debug" />
+			<Option target="Configure Reader / Writer Release" />
+		</Unit>
+		<Unit filename="include/adapterdetectthread.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="include/all.h">
 			<Option compile="1" />
 		</Unit>
-		<Unit filename="include/autorun.h" />
-		<Unit filename="include/backoffreauthenticationmanager.h" />
-		<Unit filename="include/changelanguage.h" />
-		<Unit filename="include/checkrunthread.h" />
-		<Unit filename="include/clientcenterpeermanager.h" />
-		<Unit filename="include/cmdutil.h" />
-		<Unit filename="include/compressor.h" />
-		<Unit filename="include/confupdateutilinstance.h" />
-		<Unit filename="include/contextcontrolthread.h" />
-		<Unit filename="include/criticalsection.h" />
-		<Unit filename="include/customizeinfo.h" />
-		<Unit filename="include/directtransfer.h" />
-		<Unit filename="include/directtransrv.h" />
-		<Unit filename="include/dirtranstags.h" />
-		<Unit filename="include/dirtransutil.h" />
-		<Unit filename="include/dirtranthread.h" />
-		<Unit filename="include/diskutil.h" />
-		<Unit filename="include/dnsquery.h" />
-		<Unit filename="include/downloadthread.h" />
-		<Unit filename="include/encodeutil.h" />
-		<Unit filename="include/encryption.h" />
-		<Unit filename="include/fileutil.h" />
-		<Unit filename="include/global.h" />
-		<Unit filename="include/helloprocessor.h" />
-		<Unit filename="include/hellothread.h" />
-		<Unit filename="include/hostentutil.h" />
-		<Unit filename="include/httpconnection.h" />
-		<Unit filename="include/isproser.h" />
-		<Unit filename="include/libutil.h" />
-		<Unit filename="include/lnxthread.h" />
-		<Unit filename="include/logfile.h" />
-		<Unit filename="include/md5checksum.h" />
-		<Unit filename="include/md5forvz.h" />
-		<Unit filename="include/msgutil.h" />
-		<Unit filename="include/mtypes.h" />
-		<Unit filename="include/netutil.h" />
-		<Unit filename="include/proxyclienttcp.h" />
-		<Unit filename="include/proxydetectthread.h" />
-		<Unit filename="include/proxysertcp.h" />
-		<Unit filename="include/psutil.h" />
-		<Unit filename="include/rxpacketthread.h" />
-		<Unit filename="include/saveconfigureinfo.h" />
-		<Unit filename="include/sendpacketthread.h" />
-		<Unit filename="include/signals.h" />
-		<Unit filename="include/statedata.h" />
-		<Unit filename="include/statevisual.h" />
-		<Unit filename="include/stdpkgs.h" />
-		<Unit filename="include/suconfigfile.h" />
-		<Unit filename="include/sudes.h" />
-		<Unit filename="include/supf.h" />
-		<Unit filename="include/supplicantapp.h" />
-		<Unit filename="include/suradiusprivate.h" />
-		<Unit filename="include/sysutil.h" />
-		<Unit filename="include/tcp.h" />
-		<Unit filename="include/threadutil.h" />
-		<Unit filename="include/timeutil.h" />
-		<Unit filename="include/udplistenthread.h" />
-		<Unit filename="include/util.h" />
-		<Unit filename="include/vz_apiapp.h" />
-		<Unit filename="include/waithandle.h" />
-		<Unit filename="include/xmlparser.h" />
-		<Unit filename="src/adapterdetectthread.cpp" />
-		<Unit filename="src/autorun.cpp" />
-		<Unit filename="src/backoffreauthenticationmanager.cpp" />
-		<Unit filename="src/changelanguage.cpp" />
-		<Unit filename="src/checkrunthread.cpp" />
-		<Unit filename="src/clientcenterpeermanager.cpp" />
-		<Unit filename="src/cmdutil.cpp" />
+		<Unit filename="include/autorun.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/backoffreauthenticationmanager.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/changelanguage.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/checkrunthread.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/clientcenterpeermanager.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/cmdutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/compressor.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/confupdateutilinstance.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/contextcontrolthread.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/criticalsection.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/customizeinfo.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/directtransfer.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/directtransrv.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/dirtranstags.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/dirtransutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/dirtranthread.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/diskutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/dnsquery.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/downloadthread.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/encodeutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/encryption.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/fileutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/global.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/helloprocessor.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/hellothread.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/hostentutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/httpconnection.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/isproser.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/libutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/lnxthread.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/logfile.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/md5checksum.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/md5forvz.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/msgutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/mtypes.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/netutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/proxyclienttcp.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/proxydetectthread.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/proxysertcp.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/psutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/rxpacketthread.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/saveconfigureinfo.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/sendpacketthread.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/signals.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/statedata.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/statevisual.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/stdpkgs.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/suconfigfile.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/sudes.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/supf.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/supplicantapp.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/suradiusprivate.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/sysutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/tcp.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/threadutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/timeutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/udplistenthread.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/userconfig.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/util.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/vz_apiapp.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/waithandle.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/xmlparser.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/adapterdetectthread.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/autorun.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/backoffreauthenticationmanager.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/changelanguage.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/checkrunthread.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/clientcenterpeermanager.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/cmdutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="src/compressor.cpp" />
-		<Unit filename="src/confupdateutilinstance.cpp" />
-		<Unit filename="src/contextcontrolthread.cpp" />
-		<Unit filename="src/criticalsection.cpp" />
-		<Unit filename="src/customizeinfo.cpp" />
-		<Unit filename="src/directtransfer.cpp" />
-		<Unit filename="src/directtransrv.cpp" />
-		<Unit filename="src/dirtransutil.cpp" />
-		<Unit filename="src/dirtranthread.cpp" />
-		<Unit filename="src/diskutil.cpp" />
-		<Unit filename="src/dnsquery.cpp" />
-		<Unit filename="src/downloadthread.cpp" />
-		<Unit filename="src/encodeutil.cpp" />
-		<Unit filename="src/encryption.cpp" />
-		<Unit filename="src/fileutil.cpp" />
-		<Unit filename="src/global.cpp" />
-		<Unit filename="src/helloprocessor.cpp" />
-		<Unit filename="src/hellothread.cpp" />
-		<Unit filename="src/hostentutil.cpp" />
-		<Unit filename="src/httpconnection.cpp" />
-		<Unit filename="src/isproser.cpp" />
-		<Unit filename="src/libutil.cpp" />
-		<Unit filename="src/lnxthread.cpp" />
-		<Unit filename="src/logfile.cpp" />
-		<Unit filename="src/main.cpp" />
-		<Unit filename="src/md5checksum.cpp" />
-		<Unit filename="src/md5forvz.cpp" />
-		<Unit filename="src/msgutil.cpp" />
-		<Unit filename="src/netutil.cpp" />
-		<Unit filename="src/proxyclienttcp.cpp" />
-		<Unit filename="src/proxydetectthread.cpp" />
-		<Unit filename="src/proxysertcp.cpp" />
-		<Unit filename="src/psutil.cpp" />
-		<Unit filename="src/rxpacketthread.cpp" />
-		<Unit filename="src/saveconfigureinfo.cpp" />
-		<Unit filename="src/sendpacketthread.cpp" />
-		<Unit filename="src/signals.cpp" />
-		<Unit filename="src/statedata.cpp" />
-		<Unit filename="src/statevisual.cpp" />
-		<Unit filename="src/suconfigfile.cpp" />
-		<Unit filename="src/sudes.cpp" />
-		<Unit filename="src/supf.cpp" />
-		<Unit filename="src/supplicantapp.cpp" />
-		<Unit filename="src/suradiusprivate.cpp" />
-		<Unit filename="src/sysutil.cpp" />
-		<Unit filename="src/tcp.cpp" />
-		<Unit filename="src/threadutil.cpp" />
-		<Unit filename="src/timeutil.cpp" />
-		<Unit filename="src/udplistenthread.cpp" />
-		<Unit filename="src/util.cpp" />
-		<Unit filename="src/vz_apiapp.cpp" />
-		<Unit filename="src/waithandle.cpp" />
-		<Unit filename="src/xmlparser.cpp" />
+		<Unit filename="src/confupdateutilinstance.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/contextcontrolthread.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/criticalsection.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/customizeinfo.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/directtransfer.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/directtransrv.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/dirtransutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/dirtranthread.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/diskutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/dnsquery.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/downloadthread.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/encodeutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/encryption.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/fileutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/global.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/helloprocessor.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/hellothread.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/hostentutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/httpconnection.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/isproser.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/libutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/lnxthread.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/logfile.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/main.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/md5checksum.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/md5forvz.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/msgutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/netutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/proxyclienttcp.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/proxydetectthread.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/proxysertcp.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/psutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/rxpacketthread.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/sendpacketthread.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/signals.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/statedata.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/statevisual.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/suconfigfile.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/sudes.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/supf.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/supplicantapp.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/suradiusprivate.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/sysutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/tcp.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/threadutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/timeutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/udplistenthread.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/userconfig.cpp">
+			<Option compilerVar="CC" />
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/util.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/vz_apiapp.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/waithandle.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/xmlparser.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>

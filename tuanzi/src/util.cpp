@@ -129,8 +129,8 @@ std::string DWordToString(unsigned a)
 
 bool DecryptSuConfig()
 {
-    std::ifstream ifs("SuConfig.dat", std::ios::binary);
-    std::ofstream ofs("SuConfig_Decrypt.dat", std::ios::binary);
+    std::ifstream ifs("SuConfig.dat");
+    std::ofstream ofs("SuConfig_Decrypt.dat");
     unsigned char *ibuf = nullptr;
     unsigned char *obuf = nullptr;
     unsigned long orig_len = 0;
@@ -169,8 +169,8 @@ bool DecryptSuConfig()
 
 bool EncryptSuConfig()
 {
-    std::ifstream ifs("SuConfig.dat", std::ios::binary);
-    std::ofstream ofs("SuConfig_Encrypt.dat", std::ios::binary);
+    std::ifstream ifs("SuConfig.dat");
+    std::ofstream ofs("SuConfig_Encrypt.dat");
     unsigned char *ibuf = nullptr;
     unsigned char *obuf = nullptr;
     unsigned long orig_len = 0;
@@ -400,7 +400,7 @@ void ParseString(
     while (std::getline(iss, tmp, delim)) {
         dest.push_back(tmp);
 
-        while (iss.get() == ' ');
+        while (iss.get() == delim);
 
         if (iss.eof())
             break;
@@ -862,8 +862,8 @@ void ReadRegUserInfo(struct UserInfo &info)
 
     info.unl2t1 = iniparser_getint(ini, "pu32list:unl2t1", 5);
     info.dcd2x = iniparser_getint(ini, "pu32list:dcd2x", 5);
-    info.ed2e1.assign(iniparser_getstring(ini, "pu32list:ed2e1", ""));
-    info.gr2a1.assign(iniparser_getstring(ini, "pu32list:gr2a1", ""));
+    info.ed2e1 = iniparser_getstring(ini, "pu32list:ed2e1", "");
+    info.gr2a1 = iniparser_getstring(ini, "pu32list:gr2a1", "");
     iniparser_freedict(ini);
 }
 
@@ -902,6 +902,6 @@ bool SetLanFlag(unsigned flag)
 
 void RecvSecdomainPacket(unsigned char *buf, unsigned buflen)
 {
-  logFile.AppendText("receive secdomain update command!");
-  PostThreadMessage(theApp, RECEIVE_SEC_DOMAIN_MTYPE, buflen, buf);
+    logFile.AppendText("receive secdomain update command!");
+    PostThreadMessage(theApp, RECEIVE_SEC_DOMAIN_MTYPE, buflen, buf);
 }
