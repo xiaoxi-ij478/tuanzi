@@ -87,7 +87,7 @@ extern unsigned short checksum(const unsigned short *data, unsigned len);
 extern struct NICINFO *get_nics_info(const char *ifname);
 extern void free_nics_info(struct NICINFO *info);
 extern bool get_dns(in_addr_t *dst);
-extern bool get_alternate_dns(char *dst, int &counts);
+extern bool get_alternate_dns(char *dst, unsigned &counts);
 extern bool get_gateway(in_addr_t *result, const char *ifname);
 extern unsigned short get_speed_wl(int fd, char *ifname);
 extern unsigned short get_speed(int fd, char *ifname);
@@ -157,5 +157,6 @@ extern void repair_ip_gateway(
     const std::string &adapter_name
 );
 extern void swapipv6(struct in6_addr *addr);
+extern void del_default_gateway();
 
 #endif // NETUTIL_H_INCLUDED

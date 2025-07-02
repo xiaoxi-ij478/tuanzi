@@ -503,7 +503,7 @@ int ASCIIStrtoChar(const std::string &str, unsigned char *buf)
 
     for (
         auto it = str.cbegin();
-        it != str.cend() && it - str.cbegin() < 254;
+        it != str.cend() && std::distance(it, str.cbegin()) < 254;
         it++
     ) {
         if (*it == ':')

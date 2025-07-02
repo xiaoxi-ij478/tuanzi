@@ -384,7 +384,7 @@ std::string CClientCenterPeerManager::DeCodeStr(const std::string &str)
     for (auto it = str.cbegin(); it != str.cend(); it++) {
         if (*it == '%') {
             oss << static_cast<unsigned char>
-                (std::stoul(str.substr(++it - str.cbegin(), 2)));
+                (std::stoul(str.substr(std::distance(++it, str.cbegin()), 2)));
             it++;
 
         } else if (*it == '+')

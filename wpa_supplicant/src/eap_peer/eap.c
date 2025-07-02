@@ -1023,6 +1023,120 @@ struct wpabuf * eap_sm_buildIdentity(struct eap_sm *sm, int id, int encrypted)
 	return resp;
 }
 
+// ADDED BY xiaoxi-ij478 for tuanzi
+
+static int code_converter(
+	char *from_charset,
+	char *to_charset,
+	char *inbuf,
+	int inlen,
+	char *outbuf,
+	int outlen
+)
+{
+	iconv_t iconv_handle;
+
+	if (!(iconv_handle = iconv_open(to_charset, from_charset)))
+		return -1;
+	memset(outbufa, 0, outlena);
+	if ( iconv(iconv_handle, &inbuf, &inlen, &outbuf, &outlen) == -1 )
+		return -1;
+	iconv_close(iconv_handle);
+	return 0;
+}
+
+static int utf2gbk(char *inbuf, size_t inlen, char *outbuf, size_t outlen)
+{
+	return code_converter("utf-8", "gbk", inbuf, inlen, outbuf, outlen);
+}
+
+static int convert_utf2gbk(
+	char *outStr,
+	int *outLen,
+	char *inbuf,
+	int inlen
+)
+{
+	char *v5;
+	char szUTF8[1024];
+
+	v5 = outStr;
+	if (!outLen || !outStr || *outLen <= 0)
+		return 0;
+	memset(szUTF8, 0, sizeof(szUTF8));
+	utf2gbk(inbuf, inlen, szUTF8, sizeof(szUTF8));
+	if (strlen(szUTF8) > *outLen)
+		v5 = NULL;
+	*outLen = strlen(szUTF8);
+	memcpy(v5, szUTF8, *outLen);
+	return *outLen;
+}
+
+struct wpabuf * eap_sm_buildIdentity_gbk(struct eap_sm *sm, int id, int encrypted)
+{
+	struct eap_peer_config *config = eap_get_config(sm);
+	struct wpabuf *resp;
+	const u8 *identity;
+	size_t identity_len;
+	char szName[512];
+	int nLen;
+
+	if (config == NULL) {
+		wpa_printf(MSG_WARNING, "EAP: buildIdentity: configuration "
+			   "was not available");
+		return NULL;
+	}
+
+	if (sm->m && sm->m->get_identity &&
+	    (identity = sm->m->get_identity(sm, sm->eap_method_priv,
+					    &identity_len)) != NULL) {
+		wpa_hexdump_ascii(MSG_DEBUG, "EAP: using method re-auth "
+				  "identity", identity, identity_len);
+	} else if (!encrypted && config->anonymous_identity) {
+		identity = config->anonymous_identity;
+		identity_len = config->anonymous_identity_len;
+		wpa_hexdump_ascii(MSG_DEBUG, "EAP: using anonymous identity",
+				  identity, identity_len);
+	} else {
+		identity = config->identity;
+		identity_len = config->identity_len;
+		wpa_hexdump_ascii(MSG_DEBUG, "EAP: using real identity",
+				  identity, identity_len);
+	}
+
+	if (identity == NULL) {
+		wpa_printf(MSG_WARNING, "EAP: buildIdentity: identity "
+			   "configuration was not available");
+		if (config->pcsc) {
+			if (eap_sm_get_scard_identity(sm, config) < 0)
+				return NULL;
+			identity = config->identity;
+			identity_len = config->identity_len;
+			wpa_hexdump_ascii(MSG_DEBUG, "permanent identity from "
+					  "IMSI", identity, identity_len);
+		} else {
+			eap_sm_request_identity(sm);
+			return NULL;
+		}
+	} else if (config->pcsc) {
+		if (eap_sm_set_scard_pin(sm, config) < 0)
+			return NULL;
+	}
+	memset(szName, 0, sizeof(szName));
+	nLen = 512;
+	convert_utf2gbk(szName, &nLen, identity, identity_len);
+	identity_len = nLen;
+	resp = eap_msg_alloc(EAP_VENDOR_IETF, EAP_TYPE_IDENTITY, identity_len,
+			     EAP_CODE_RESPONSE, id);
+	if (resp == NULL)
+		return NULL;
+
+	wpabuf_put_data(resp, szName, identity_len);
+
+	return resp;
+}
+
+// ADDED BY xiaoxi-ij478 for tuanzi END
 
 static void eap_sm_processNotify(struct eap_sm *sm, const struct wpabuf *req)
 {

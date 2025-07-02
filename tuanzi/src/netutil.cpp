@@ -309,13 +309,13 @@ bool get_dns(in_addr_t *dst)
     return true;
 }
 
-bool get_alternate_dns(char *dest, int &counts)
+bool get_alternate_dns(char *dest, unsigned &counts)
 {
     // cat /etc/resolv.conf 2>&- |awk '{if ($1==\"nameserver\") {print $2}}' |awk 'NR>1'
     std::ifstream ifs("/etc/resolv.conf");
     std::string line;
     std::vector<std::string> val;
-    int c = 0;
+    unsigned c = 0;
 
     if (!ifs) {
         counts = 0;
@@ -1309,4 +1309,15 @@ void repair_ip_gateway(
 void swapipv6(struct in6_addr *addr)
 {
     swap128(addr->s6_addr);
+}
+
+void del_default_gateway()
+{
+    // route del default 2>&-
+    struct rtentry route = {};
+    int fd = socket(AF_INET, SOCK_DGRAM, 0);
+#define EXIT_ON_FAIL(expr) do { if (expr) { close(fd); return; } } while(0)
+    EXIT_ON_FAIL(ioctl(fd, SIOCDELRT, &route));
+#undef EXIT_ON_FAIL
+    close(fd);
 }

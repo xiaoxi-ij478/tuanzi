@@ -327,6 +327,11 @@ static void eap_mschapv2_password_changed(struct eap_sm *sm,
 	}
 }
 
+// ADDED BY xiaoxi-ij478 for tuanzi
+
+
+
+// ADDED BY xiaoxi-ij478 for tuanzi END
 
 /**
  * eap_mschapv2_process - Process an EAP-MSCHAPv2 success message
@@ -349,9 +354,16 @@ static struct wpabuf * eap_mschapv2_success(struct eap_sm *sm,
 	const u8 *pos;
 	size_t len;
 
-	wpa_printf(MSG_DEBUG, "EAP-MSCHAPV2: Received success");
+	// ADDED BY xiaoxi-ij478 for tuanzi
+//	wpa_printf(MSG_DEBUG, "EAP-MSCHAPV2: Received success");
 	len = req_len - sizeof(*req);
 	pos = (const u8 *) (req + 1);
+	if (req->op_code==3) {
+		wpa_printf(MSG_DEBUG, "EAP-MSCHAPV2: Received success req_len(%d)", len);
+		wpa_hexdump_line(, "EAP-MSCHAPV2: Received success - req data", v9, v26);
+		if ()
+	}
+	// ADDED BY xiaoxi-ij478 for tuanzi END
 	if (!data->auth_response_valid ||
 	    mschapv2_verify_auth_response(data->auth_response, pos, len)) {
 		wpa_printf(MSG_WARNING, "EAP-MSCHAPV2: Invalid authenticator "

@@ -1,6 +1,7 @@
 # 团子 (TuanZi) 锐捷验证客户端
 
 这是一个试图复刻原版锐捷验证客户端的代码。
+
 基本都是靠反编译得来的，外加上我自己的一些调整
 
 ## 使用的外部库
@@ -16,8 +17,16 @@
 - ampheck (魔改里面的 RipeMD128 算法) (<https://github.com/polarina/ampheck>)
 - rc4 (<https://github.com/a7t0fwa7/win32func/blob/main/crypt/rc4.cpp>)
 - openssl (<https://github.com/openssl/openssl/releases/download/OpenSSL_0_9_8b/openssl-0.9.8b.tar.gz>)
-- wpa_supplicant (<https://w1.fi/releases/wpa_supplicant-0.7.3.tar.gz>)
+- wpa_supplicant (被修改过) (<https://w1.fi/releases/wpa_supplicant-0.7.3.tar.gz>)
 - libpcap (<https://web.archive.org/web/20080403212941/http://www.tcpdump.org/release/libpcap-0.9.5.tar.gz>)
+
+## 编译方法
+
+这个程序仅支持 Linux，Windows ~~等平台我可能会开一个新仓库来重写~~ 但其实我不会写 Windows。
+
+首先安装 [Codeblocks](https://www.codeblocks.org/downloads/binaries/)，然后打开 tuanzi.workspace，根据你的需要选择 Debug / Release 编译目标，然后就可以运行了。
+
+纯 Makefile 现在还没有想法。
 
 ## 什么是团子？
 

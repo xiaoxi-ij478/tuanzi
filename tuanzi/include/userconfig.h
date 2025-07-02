@@ -7,10 +7,6 @@
 class CUserConfig
 {
     public:
-        static void DecryptPassword(std::string &password);
-        static void DecryptUserName(std::string &username);
-        static void EncryptPassword(std::string &password);
-        static void EncryptUserName(std::string &username);
         static bool ParseWirelessConf(
             const std::string &wireless_confstr,
             struct tagWirelessConf *conf
@@ -29,7 +25,7 @@ class CUserConfig
         static void SaveSupplicantConf();
         static void SaveUsernameAndPW(
             std::string username,
-            std: string password,
+            std::string password,
             bool write_password
         );
         static void SuWriteConfigString(
@@ -38,6 +34,12 @@ class CUserConfig
             const char *val
         );
         static void W95StartService(unsigned);
+
+    private:
+        static void DecryptPassword(std::string &password);
+        static void DecryptUserName(std::string &username);
+        static void EncryptPassword(std::string &password);
+        static void EncryptUserName(std::string &username);
 };
 
 #endif // USERCONFIG_H_INCLUDED

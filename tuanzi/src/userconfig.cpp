@@ -7,29 +7,41 @@
 void CUserConfig::DecryptPassword(std::string &password)
 {
     unsigned char buf[32] = {};
-    CEncryption::decrypt(buf, password.c_str());
-    password = buf;
+    CEncryption::decrypt(
+        buf,
+        reinterpret_cast<const unsigned char *>(password.c_str())
+    );
+    password = reinterpret_cast<char *>(buf);
 }
 
 void CUserConfig::DecryptUserName(std::string &username)
 {
     unsigned char buf[32] = {};
-    CEncryption::decrypt(buf, username.c_str());
-    username = buf;
+    CEncryption::decrypt(
+        buf,
+        reinterpret_cast<const unsigned char *>(username.c_str())
+    );
+    username = reinterpret_cast<char *>(buf);
 }
 
 void CUserConfig::EncryptPassword(std::string &password)
 {
     unsigned char buf[32] = {};
-    CEncryption::encrypt(buf, password.c_str());
-    password = buf;
+    CEncryption::encrypt(
+        buf,
+        reinterpret_cast<const unsigned char *>(password.c_str())
+    );
+    password = reinterpret_cast<char *>(buf);
 }
 
 void CUserConfig::EncryptUserName(std::string &username)
 {
     unsigned char buf[32] = {};
-    CEncryption::encrypt(buf, username.c_str());
-    username = buf;
+    CEncryption::encrypt(
+        buf,
+        reinterpret_cast<const unsigned char *>(username.c_str())
+    );
+    username = reinterpret_cast<char *>(buf);
 }
 
 bool CUserConfig::ParseWirelessConf(
@@ -37,18 +49,17 @@ bool CUserConfig::ParseWirelessConf(
     struct tagWirelessConf *conf
 )
 {
-    unsigned prev_pos = 0, next_pos = 0;
     std::vector<std::string> fields;
     assert(conf);
 
     if (wireless_confstr.empty())
-        return;
+        return false;
 
     ParseString(wireless_confstr, '\x01', fields);
     conf->field_8 = fields[0];
     conf->field_10_len =
         StringToHex(
-            fields[1]
+            fields[1],
             conf->field_10,
             sizeof(conf->field_10)
         );
@@ -57,7 +68,7 @@ bool CUserConfig::ParseWirelessConf(
 
     if (
         StringToHex(
-            fields[4]
+            fields[4],
             reinterpret_cast<unsigned char *>(&conf->macaddr),
             sizeof(conf->macaddr)
         ) != sizeof(conf->macaddr)
@@ -113,7 +124,7 @@ bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo &info)
         struct tagWirelessConf wireless_conf = {};
         conffile.GetPrivateProfileString(
             "WIRELESS",
-            "WirelessConf" + IntToString(i),
+            std::string("WirelessConf").append(IntToString(i)).c_str(),
             "",
             wireless_conf_str
         );
@@ -157,7 +168,7 @@ bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo &info)
         std::vector<std::string> splited_name;
         conffile.GetPrivateProfileString(
             "SERVER",
-            "Name" + IntToString(i),
+            std::string("Name").append(IntToString(i)).c_str(),
             "",
             server_name_str
         );
@@ -179,7 +190,7 @@ bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo &info)
         std::string secdomain_str;
         conffile.GetPrivateProfileString(
             "SECDOMAIN",
-            "SecDomain" + IntToString(i),
+            std::string("SecDomain").append(IntToString(i)).c_str(),
             "",
             secdomain_str
         );
@@ -220,7 +231,7 @@ bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo &info)
         softproduct_releasever,
         "SOFTPRODUCT",
         "ReleaseVer",
-        "",
+        ""
     );
     GET_INT(
         softproduct_internalver_major,
@@ -301,7 +312,7 @@ void CUserConfig::SaveConfigParam()
     // *INDENT-OFF*
 #define CONF_INFO (CtrlThread->configure_info)
 #define WRITE_DIRECT_INT(domain, key, val) \
-    conffile.WritePrivateProfileString((domain), (key), IntToString(val))
+    conffile.WritePrivateProfileString((domain), (key), IntToString(val).c_str())
 #define WRITE_DIRECT_FIELD(domain, key, val) \
     conffile.WritePrivateProfileString((domain), (key), (val))
 #define WRITE_INT(domain, key, name) \
@@ -344,20 +355,52 @@ void CUserConfig::SaveConfigParam()
     WRITE_FIELD("DHCPMODE", "DhcpWayName", dhcpmode_dhcpwayname);
     WRITE_INT("MACMODE", "Value", macmode_value);
     WRITE_INT("WIRELESS", "Number", wireless_confs.length());
-    unsigned wireless_conf_count = 0;
 
-    for (const struct tagWirelessConf &wireless_conf : CONF_INFO.wireless_confs) {
+    for (
+        auto it = CONF_INFO.wireless_confs.cbegin();
+        it != CONF_INFO.wireless_confs.cend();
+        it++
+    ) {
+        std::string wireless_conf_name("WirelessConf");
+        std::string field_10_converted =
+            HexToString(
+                it->field_10,
+                it->field_10_len
+            );
+        std::string macaddr_converted =
+            HexToString(
+                reinterpret_cast<unsigned char *>(&it->macaddr),
+                sizeof(it->macaddr)
+            );
+        std::string wireless_conf_val;
+        wireless_conf_name.append(
+            std::to_string(
+                std::distance(
+                    it,
+                    CONF_INFO.wireless_confs.cbegin()
+                )
+            )
+        );
+        wireless_conf_val
+        .append(it->field_8)
+        .append('\x01')
+        .append(field_10_converted)
+        .append('\x01')
+        .append(it->field_38)
+        .append('\x01')
+        .append(it->field_40)
+        .append('\x01')
+        .append(macaddr_converted)
+        .append("\x01end");
         WRITE_DIRECT_FIELD(
             "WIRELESS",
-            (
-                std::string("WirelessConf") + std::to_string(wireless_conf_count++)
-            ).c_str(),
-            std::string()
-                           .append(wireless_conf.field_8)
-                           .append('\x01')
-                           .append()
-        )
+            wireless_conf_name.c_str(),
+            wireless_conf_val.c_str()
+        );
     }
+
+    conffile.Close();
+    conffile.Unlock();
 }
 
 void CUserConfig::SaveSupplicantConf()
@@ -372,7 +415,7 @@ void CUserConfig::SaveSupplicantConf()
 
 void CUserConfig::SaveUsernameAndPW(
     std::string username,
-    std: string password,
+    std::string password,
     bool write_password
 )
 {
@@ -385,7 +428,7 @@ void CUserConfig::SaveUsernameAndPW(
         EncryptUserName(password);
 
     userinfo.unl2t1 = username.length();
-    userinfo.dcd2x = write_password ? password.length();
+    userinfo.dcd2x = write_password ? password.length() : 0;
     userinfo.ed2e1 = username;
     userinfo.gr2a1 = write_password ? "" : password;
     WriteRegUserInfo(userinfo);
