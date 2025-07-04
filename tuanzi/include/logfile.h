@@ -17,7 +17,7 @@ class CLogFile
         void AppendText_V(const char *format, va_list va);
         // TODO: prio arg is unknown
         void CreateLogFile_S(const std::string &filename, int prio);
-        void HexPrinter(const unsigned char *arr, unsigned len);
+        void HexPrinter(const char *arr, unsigned len);
         void WriteString(const char *str);
 
         static void LogToFile(

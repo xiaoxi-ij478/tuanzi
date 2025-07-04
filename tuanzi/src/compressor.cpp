@@ -1,18 +1,18 @@
 #include "all.h"
 #include "compressor.h"
 
-//static const unsigned char *in_pos  = nullptr;       /* orig name: pInPos     */
-//static const unsigned char *in_mem  = nullptr;       /* orig name: pInputMem  */
-//static       unsigned char *out_pos = nullptr;       /* orig name: pOutPos    */
-//static       unsigned char *out_mem = nullptr;       /* orig name: pOutputMem */
-static unsigned char pc_table[32768] = {}; /* orig name: pcTable    */
+//static const char *in_pos  = nullptr;       /* orig name: pInPos     */
+//static const char *in_mem  = nullptr;       /* orig name: pInputMem  */
+//static       char *out_pos = nullptr;       /* orig name: pOutPos    */
+//static       char *out_mem = nullptr;       /* orig name: pOutputMem */
+static char pc_table[32768] = {}; /* orig name: pcTable    */
 
-//static unsigned char mgetc()
+//static char mgetc()
 //{
 //    return *in_pos++;
 //}
 //
-//static void mputc(unsigned char c)
+//static void mputc(char c)
 //{
 //    *out_pos++ = c;
 //}
@@ -27,15 +27,15 @@ static unsigned char pc_table[32768] = {}; /* orig name: pcTable    */
  */
 
 unsigned Decompress(
-    const unsigned char *in,
-    unsigned char *out,
+    const char *in,
+    char *out,
     unsigned in_len,
     unsigned out_len
 )
 {
     unsigned in_pos = 0, out_pos = 0;
-    unsigned char prev_prev_char = 0, prev_char = 0, cur_char = 0;
-    unsigned char master_byte = 0;
+    char prev_prev_char = 0, prev_char = 0, cur_char = 0;
+    char master_byte = 0;
     unsigned uncompressed_size = 0;
     memset(pc_table, ' ', sizeof(pc_table));
 
@@ -72,17 +72,17 @@ unsigned Decompress(
 }
 
 unsigned Compress(
-    const unsigned char *in,
-    unsigned char *out,
+    const char *in,
+    char *out,
     unsigned in_len,
     unsigned out_len
 )
 {
     unsigned in_pos = 0, out_pos = 0;
-    unsigned char prev_prev_char = 0, prev_char = 0, cur_char = 0;
-    unsigned char master_byte = 0;
-    unsigned char buffer[8] = {};
-    unsigned char buffer_index = 0;
+    char prev_prev_char = 0, prev_char = 0, cur_char = 0;
+    char master_byte = 0;
+    char buffer[8] = {};
+    char buffer_index = 0;
     unsigned compressed_size = 0;
     memset(pc_table, ' ', sizeof(pc_table));
 

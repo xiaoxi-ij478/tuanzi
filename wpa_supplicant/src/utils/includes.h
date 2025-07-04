@@ -35,6 +35,7 @@
 #endif /* _WIN32_WCE */
 #include <ctype.h>
 #include <time.h>
+#include <iconv.h>
 
 #ifndef CONFIG_TI_COMPILER
 #ifndef _MSC_VER

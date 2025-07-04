@@ -220,6 +220,12 @@ struct eapol_ctx {
 	 * @authorized: Whether the supplicant port is now in authorized state
 	 */
 	void (*port_cb)(void *ctx, int authorized);
+
+	// ADDED BY xiaoxi-ij478 for tuanzi
+	const u8 *(*get_upload_private_data)(void *ctx, int *len);
+	void (*eap_notify_msg)(void *ctx, int type, const u8 *msg,
+							int msg_len);
+	// ADDED BY xiaoxi-ij478 for tuanzi END
 };
 
 

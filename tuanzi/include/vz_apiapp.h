@@ -20,9 +20,9 @@ class CVz_APIApp
 
         void Vz_API(char *result, const char *md5_challenge, const char *a4) const;
         static void V3HeartbeatAPI(
-            const unsigned char *data,
+            const char *data,
             unsigned datalen,
-            unsigned char *result,
+            char *result,
             enum HASH_TYPE hash_type
         );
 

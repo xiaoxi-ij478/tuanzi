@@ -221,6 +221,12 @@ struct eapol_callbacks {
 	 */
 	void (*eap_param_needed)(void *ctx, const char *field,
 				 const char *txt);
+
+	// ADDED BY xiaoxi-ij478 for tuanzi
+	const u8 *(*get_upload_private_data)(void *ctx, int *len);
+	void (*eap_notify_msg)(void *ctx, int type, const u8 *msg,
+							int msg_len);
+	// ADDED BY xiaoxi-ij478 for tuanzi END
 };
 
 /**

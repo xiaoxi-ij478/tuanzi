@@ -8,10 +8,10 @@ extern void CreateDirPktHead(
     struct mtagFinalDirPacket &final_packet_head,
     struct tagDirPacketHead &packet_head,
     struct tagSenderBind &sender_bind,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen,
-    unsigned char *keybuf,
-    unsigned char *ivbuf
+    char *keybuf,
+    char *ivbuf
 );
 extern void CreateSessionIfNecessary(
     struct tagRecvBind &gsn_pkgs,

@@ -146,8 +146,8 @@ bool CSuConfigFile::Open(const char *rfilename)
     TakeAppPath(filename);
     filename.append("SuTempConfig.dat");
     std::ofstream ofs(filename);
-    unsigned char *ibuf = nullptr;
-    unsigned char *obuf = nullptr;
+    char *ibuf = nullptr;
+    char *obuf = nullptr;
     unsigned long orig_size = 0;
     unsigned long decompress_size = 0;
     cfg_filename = rfilename;
@@ -169,17 +169,17 @@ bool CSuConfigFile::Open(const char *rfilename)
     ifs.seekg(0, std::ios::end);
     orig_size = ifs.tellg();
     ifs.seekg(0, std::ios::beg);
-    ibuf = new unsigned char[orig_size + 1];
+    ibuf = new char[orig_size + 1];
 
     for (unsigned i = 0; !ifs.eof(); i++)
         ibuf[i] = ~ifs.get();
 
     ifs.close();
     decompress_size = Decompress(ibuf, obuf, orig_size, 0);
-    obuf = new unsigned char[decompress_size];
+    obuf = new char[decompress_size];
     Decompress(ibuf, obuf, orig_size, decompress_size);
 
-    if (!ofs.write(reinterpret_cast<const char *>(obuf), decompress_size)) {
+    if (!ofs.write(obuf, decompress_size)) {
         g_logSystem.AppendText("ERROR: write file %s failed.\n", filename.c_str());
         delete[] obuf;
         obuf = nullptr;
@@ -218,8 +218,8 @@ bool CSuConfigFile::UpdateConfig()
     std::ofstream ofs(cfg_filename);
     unsigned long orig_size = 0;
     unsigned long comp_size = 0;
-    unsigned char *ibuf = nullptr;
-    unsigned char *obuf = nullptr;
+    char *ibuf = nullptr;
+    char *obuf = nullptr;
 
     if (!ifs) {
         g_logSystem.AppendText("ERROR: Open file %s failed.\n", filename.c_str());
@@ -234,17 +234,17 @@ bool CSuConfigFile::UpdateConfig()
     ifs.seekg(0, std::ios::end);
     orig_size = ifs.tellg();
     ifs.seekg(0, std::ios::beg);
-    ibuf = new unsigned char[orig_size + 1];
-    ifs.read(reinterpret_cast<char *>(ibuf), orig_size);
+    ibuf = new char[orig_size + 1];
+    ifs.read(ibuf, orig_size);
     ifs.close();
     comp_size = Compress(ibuf, obuf, orig_size, 0);
-    obuf = new unsigned char[comp_size];
+    obuf = new char[comp_size];
     Compress(ibuf, obuf, orig_size, comp_size);
     // *INDENT-OFF*
-    std::for_each(obuf, obuf + comp_size + 1, [](unsigned char &i) { i = ~i; });
+    std::for_each(obuf, obuf + comp_size + 1, [](char &i) { i = ~i; });
     // *INDENT-ON*
 
-    if (!ofs.write(reinterpret_cast<const char *>(obuf), comp_size)) {
+    if (!ofs.write(obuf, comp_size)) {
         g_logSystem.AppendText("ERROR: write file %s failed.\n", cfg_filename.c_str());
         delete[] obuf;
         obuf = nullptr;

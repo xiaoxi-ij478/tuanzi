@@ -139,7 +139,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(StartRecvPacket, CRxPacketThread)
                 pcap_handle,
                 1,
                 CRxPacketThread::RecvPacketCallBack,
-                reinterpret_cast<unsigned char *>(&msgids)
+                reinterpret_cast<char *>(&msgids)
             ) == -1
         ) {
             g_logSystem.AppendText(
@@ -185,16 +185,16 @@ int CRxPacketThread::StopRxPacketThread()
 }
 
 void CRxPacketThread::RecvPacketCallBack(
-    unsigned char *user,
+    char *user,
     const struct pcap_pkthdr *h,
-    const unsigned char *bytes
+    const char *bytes
 )
 {
     struct CRxPacketThread_msgids *msgids =
             reinterpret_cast<struct CRxPacketThread_msgids *>(user);
     struct etherudppkg *pkg = nullptr;
     struct etherudppkg *pkg2 = nullptr;
-    unsigned char *pkg_char = nullptr;
+    char *pkg_char = nullptr;
     unsigned alloc_size = 0;
 
     if (h->caplen < sizeof(struct ether_header))
@@ -202,7 +202,7 @@ void CRxPacketThread::RecvPacketCallBack(
 
     alloc_size = std::max(h->caplen, 1999u);
     pkg = reinterpret_cast<struct etherudppkg *>
-          (pkg_char = new unsigned char[alloc_size]);
+          (pkg_char = new char[alloc_size]);
     memcpy(pkg, bytes, alloc_size);
 
     if (pkg->etherheader.ether_type == htons(ETH_P_PAE)) {
@@ -227,7 +227,7 @@ void CRxPacketThread::RecvPacketCallBack(
     } else {
         if (msgids->proxy_msgid != -1) {
             pkg2 = reinterpret_cast<struct etherudppkg *>
-                   (new unsigned char[alloc_size]);
+                   (new char[alloc_size]);
             memcpy(pkg2, bytes, alloc_size);
 
             if (

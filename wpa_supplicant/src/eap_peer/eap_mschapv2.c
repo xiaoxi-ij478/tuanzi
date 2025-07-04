@@ -328,8 +328,74 @@ static void eap_mschapv2_password_changed(struct eap_sm *sm,
 }
 
 // ADDED BY xiaoxi-ij478 for tuanzi
+// this function was originally in src/util/common.c
+// but since it is only used here so we move it here and declare it 'static'
 
+static char *getHexStr(const void *buf, int lenSrc)
+{
+	char *retBuf=NULL;
+	unsigned nextPrintPos=0;
+	unsigned curLine=0;
+	unsigned curBufPos=0;
+	const unsigned char *origBuf=buf;
+	const unsigned char *newBuf=buf;
+	char ended=0;
+	if (lenSrc<=0)return NULL;
+	if (!(retBuf=malloc(80 * ((lenSrc >> 4) + ((lenSrc & 0xF) != 0)) + 1)))
+		return NULL;
+	while (!ended) {
+		curBufPos=0;
+		nextPrintPos+=sprintf(&retBuf[nextPrintPos], "%6.6X: ", curLine++ * 16);
+		for (unsigned i=0;i<8;i++) {
+			if (newBuf-origBuf>=lenSrc) {
+				ended=1;
+				nextPrintPos+=3;
+				strcat(retBuf, "   ");
+			} else {
+				nextPrintPos+=sprintf(&retBuf[nextPrintPos]," %2.2X", *newBuf++);
+				curBufPos++;
+			}
+		}
+		nextPrintPos+=2;
+		strcat(retBuf, " :");
+		for (unsigned i=0;i<8;i++) {
+			if (newBuf-origBuf>=lenSrc) {
+				ended=1;
+				nextPrintPos+=3;
+				strcat(retBuf, "   ");
+			} else {
+				nextPrintPos+=sprintf(&retBuf[nextPrintPos]," %2.2X", *newBuf++);
+				curBufPos++;
+			}
+		}
+		nextPrintPos+=4;
+		strcat(retBuf, "    ");
+		newBuf-=curBufPos;
+		for (unsigned i=0;i<curBufPos;i++) {
+			retBuf[nextPrintPos++]=isprint(*newBuf)?*newBuf:'.';
+			newBuf++;
+		}
+		retBuf[nextPrintPos++]='\n';
+		ended=newBuf-origBuf>=lenSrc;
+	}
+	return retBuf;
+}
 
+static void wpa_hexdump_line(
+	int level,
+	const char *title,
+	const u8 *buf,
+	size_t len
+)
+{
+  char *HexStr=NULL;
+
+  HexStr = getHexStr(buf, len);
+  if ( !HexStr )
+    HexStr = "[GetHexStr failed]";
+  wpa_printf(level, "%s(len=%d)\n%s", title, len, HexStr);
+  free(HexStr);
+}
 
 // ADDED BY xiaoxi-ij478 for tuanzi END
 
@@ -360,8 +426,14 @@ static struct wpabuf * eap_mschapv2_success(struct eap_sm *sm,
 	pos = (const u8 *) (req + 1);
 	if (req->op_code==3) {
 		wpa_printf(MSG_DEBUG, "EAP-MSCHAPV2: Received success req_len(%d)", len);
-		wpa_hexdump_line(, "EAP-MSCHAPV2: Received success - req data", v9, v26);
-		if ()
+		wpa_hexdump_line(MSG_MSGDUMP, "EAP-MSCHAPV2: Received success - req data", (const u8 *)(req), len);
+		if (len>0x30&&pos[0]=='S'&&pos[1]=='=') {
+			const u8 *d=strstr(pos+41,"M=");
+			if(d&&len>d+2-pos) {
+				if(sm->eapol_cb->eap_notify_msg)
+					sm->eapol_cb->eap_notify_msg(sm->eapol_ctx, 1, d+2,len-(d+2-pos));
+			}
+		}
 	}
 	// ADDED BY xiaoxi-ij478 for tuanzi END
 	if (!data->auth_response_valid ||

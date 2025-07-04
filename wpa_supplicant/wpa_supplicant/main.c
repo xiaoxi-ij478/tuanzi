@@ -20,9 +20,18 @@
 #include "common.h"
 #include "wpa_supplicant_i.h"
 #include "driver_i.h"
+// ADDED BY xiaoxi-ij478 for tuanzi
+#include "scan.h"
+#include "utils/eloop.h"
+// ADDED BY xiaoxi-ij478 for tuanzi END
 
 extern struct wpa_driver_ops *wpa_drivers[];
 
+// ADDED BY xiaoxi-ij478 for tuanzi
+int g_supf_cmd_read_pipe = -1;
+int g_supf_cb_write_pipe = -1;
+int g_conf_pipe_read = -1;
+// ADDED BY xiaoxi-ij478 for tuanzi END
 
 static void usage(void)
 {
@@ -120,6 +129,203 @@ static void wpa_supplicant_fd_workaround(void)
 #endif /* __linux__ */
 }
 
+// ADDED BY xiaoxi-ij478 for tuanzi
+enum SupfState : unsigned {
+    SUPF_STOP,
+    SUPF_START,
+    SUPF_WLAN_NOFOUND,
+    SUPF_DISASSOC,
+    SUPF_ASSOCIATING,
+    SUPF_ASSOCIATED,
+    SUPF_CONNECTING,
+    SUPF_AUTHENTICATING,
+    SUPF_4WAY_HANDSHAKE,
+    SUPF_GROUP_HANDSHAKE,
+    SUPF_COMPLETE_SUCCESS,
+    SUPF_AUTH_TIMEOUT
+};
+
+enum SupfPipeCmdType : u8 {
+    SUPF_PIPE_STOP_CMD,
+    SUPF_PIPE_START_CMD,
+    SUPF_PIPE_SCAN_CMD,
+    SUPF_PIPE_EXIT_CMD
+};
+
+enum SupfMsg {
+    SUPF_MSG_SCAN_RES,
+    SUPF_MSG_EAP_ERR,
+    SUPF_MSG_EAP_SUC
+};
+
+struct SupfMsgData {
+    enum SupfMsg msg;
+    const void *buf;
+    unsigned len;
+};
+
+struct SupfPipeStateMsgData {
+    enum SUPF_EVENT_TYPE type;
+    union {
+        enum SupfState msg; // type == SUPF_STATE
+        struct { // type == SUPF_MSG
+            unsigned len; // data's length
+            unsigned char data[]; // exact data
+        };
+    };
+};
+
+struct SupfPipeCmdMsgData {
+    enum SupfPipeCmdType cmd;
+    struct { // used only when cmd == SUPF_PIPE_START_CMD
+        unsigned data_len;
+        u8 private_data[];
+    };
+};
+
+static void wpa_supplicant_stop_auth(struct wpa_supplicant *wpa_s)
+{
+	enum SupfState newState;
+
+	if (wpa_s->event_callback) {
+		newState = SUPF_STOP;
+		wpa_s->event_callback(SUPF_STATE, &newState);
+	}
+	wpa_s->reassociate = 0;
+	wpa_s->disconnected = 1;
+	wpa_supplicant_deauthenticate(wpa_s, 3);
+}
+
+static void wpa_supplicant_start_auth(
+        struct wpa_supplicant *wpa_s,
+        u8 *private_data,
+        int data_len)
+{
+	enum SupfState newState;
+
+	free(wpa_s->private_upload_data);
+	wpa_s->private_upload_data = private_data;
+	wpa_s->private_upload_data_len = data_len;
+	wpa_s->disconnected = 0;
+	wpa_s->reassociate = 1;
+	wpa_s->conf_pipe_read = g_conf_pipe_read;
+	if (wpa_supplicant_reload_configuration(wpa_s)) {
+		wpa_printf(MSG_ERROR, "wpa_supplicant_reload_configuration error.");
+	} else if (wpa_s->event_callback) {
+		newState = SUPF_START;
+		wpa_s->event_callback(SUPF_STATE, &newState);
+	}
+}
+
+static void wpa_supplicant_manual_req_scan(
+	struct wpa_supplicant *wpa_s,
+	int sec,
+	int usec)
+{
+	wpa_s->scan_req = 2;
+	wpa_supplicant_req_scan(wpa_s, sec, usec);
+}
+
+static void wpa_supplicant_ctrl_handler(
+        int sock,
+        void *eloop_ctx,
+        void *sock_ctx)
+{
+	int readlen;
+	// allocate 100 bytes first
+	struct SupfPipeCmdMsgData *buffer = malloc(
+			sizeof(struct SupfPipeCmdMsgData) + 100);
+
+	readlen = read(sock, (u8 *)buffer, sizeof(buffer));
+	if ( readlen <= 0 ) {
+		wpa_printf(MSG_ERROR, "%s read num=%d\n", __func__, readlen);
+		return;
+	}
+
+	if ( !eloop_ctx ) {
+		wpa_printf(MSG_ERROR, "wpa_s is null");
+		return;
+	}
+	for (unsigned i = 0; i < readlen;) {
+		wpa_printf(
+		  MSG_DEBUG,
+			"%s read(%d/%d):%d\n",
+			__func__,
+			i, readlen, ((u8 *)buffer)[i]);
+		switch (buffer->cmd) {
+			case SUPF_PIPE_STOP_CMD:
+				i++;
+				wpa_printf(MSG_DEBUG, "Recv WPA_STOP CMD");
+				wpa_supplicant_stop_auth((struct wpa_supplicant *)eloop_ctx);
+				wpa_printf(MSG_DEBUG, "Recv WPA_STOP CMD END");
+				break;
+			case SUPF_PIPE_START_CMD:
+				wpa_printf(MSG_DEBUG, "Recv WPA_START CMD");
+				if (readlen - i <= 1) {
+					i++;
+					wpa_printf(MSG_ERROR, "%s START ERROR PARA\n", __func__);
+					break;
+				}
+				if(buffer->data_len > 100)
+					// buffer too small, reallocate
+					buffer = realloc(buffer, readlen);
+				wpa_printf(MSG_DEBUG, "%s data_len=%d", __func__, buffer->data_len);
+				wpa_supplicant_start_auth(
+					(struct wpa_supplicant *)eloop_ctx,
+					buffer->private_data,
+					buffer->data_len);
+				break;
+			case SUPF_PIPE_SCAN_CMD:
+				wpa_printf(MSG_DEBUG, "Recv WPA_SCAN CMD");
+				wpa_supplicant_manual_req_scan((struct wpa_supplicant *)eloop_ctx, 0, 0);
+				break;
+			case SUPF_PIPE_EXIT_CMD:
+				wpa_printf(MSG_DEBUG, "Recv WPA_EXIT CMD");
+				eloop_terminate();
+				break;
+			default:
+			  wpa_printf(
+				MSG_DEBUG,
+				"%s read(%d):%d,undefine command\n",
+				__func__,
+				readlen,
+				((u8 *)buffer)[i]);
+				break;
+		}
+	}
+}
+
+static void supf_event_cb(
+	enum SUPF_EVENT_TYPE event_type,
+	const void *msg_data
+)
+{
+	struct SupfPipeStateMsgData *write_data = malloc(sizeof(struct SupfPipeStateMsgData));
+
+	switch (event_type) {
+		case SUPF_STATE:
+			write_data->msg = *(enum SupfState *)msg_data;
+			write(g_supf_cb_write_pipe, write_data, sizeof(struct SupfPipeStateMsgData));
+			break;
+
+		case SUPF_MSG:
+			write_data = realloc(
+				write_data,
+				sizeof(struct SupfPipeStateMsgData) + ((struct SupfMsgData *)msg_data)->len
+			);
+			write_data->len = ((struct SupfMsgData *)msg_data)->len;
+			memcpy(
+				write_data->data,
+				((struct SupfMsgData *)msg_data)->buf,
+				((struct SupfMsgData *)msg_data)->len
+			);
+
+			write(g_supf_cb_write_pipe, write_data, sizeof(struct SupfPipeStateMsgData) + write_data->len);
+			break;
+	}
+	free(write_data);
+}
+// ADDED BY xiaoxi-ij478 for tuanzi END
 
 int main(int argc, char *argv[])
 {
@@ -141,6 +347,23 @@ int main(int argc, char *argv[])
 	iface_count = 1;
 
 	wpa_supplicant_fd_workaround();
+
+	// ADDED BY xiaoxi-ij478 for tuanzi
+	// as a special case, if the supplicant was started with argv[0][0] == '-'
+	// then the first three arguments are:
+	// - command read pipe fd
+	// - callback write pipe fd
+	// - configuration read pipe fd, respectively
+	// I know I should use argument switch to cleanly implement this
+
+	if (argv[0][0] == '-') {
+		g_supf_cmd_read_pipe = strtol(argv[1], NULL, 10);
+		g_supf_cb_write_pipe = strtol(argv[2], NULL, 10);
+		g_conf_pipe_read = strtol(argv[3], NULL, 10);
+		argv += 3;
+		argc -= 3;
+	}
+	// ADDED BY xiaoxi-ij478 for tuanzi END
 
 	for (;;) {
 		c = getopt(argc, argv, "b:Bc:C:D:df:g:hi:KLNo:O:p:P:qstuvW");
@@ -237,7 +460,7 @@ int main(int argc, char *argv[])
 			if (iface == NULL)
 				goto out;
 			ifaces = iface;
-			iface = &ifaces[iface_count - 1]; 
+			iface = &ifaces[iface_count - 1];
 			os_memset(iface, 0, sizeof(*iface));
 			break;
 		default:
@@ -255,10 +478,29 @@ int main(int argc, char *argv[])
 		goto out;
 	}
 
+	// ADDED BY xiaoxi-ij478 for tuanzi
+	wpa_printf(
+		MSG_INFO,
+		"++++++++++++++++++++++++++++++"
+		"wpa_supplicant_init success"
+		"+++++++++++++++++++++++++++++++++++++++");
 	for (i = 0; exitcode == 0 && i < iface_count; i++) {
+		wpa_printf(
+			MSG_INFO,
+			"confname=%s; ctrl_interface=%s; conf_pipe_read=%d; ifname=%s\n",
+			ifaces[i].confname ?: "NULL",
+			ifaces[i].ctrl_interface ?: "NULL",
+			ifaces[i].conf_pipe_read,
+			ifaces[i].ifname ?: "NULL");
 		if ((ifaces[i].confname == NULL &&
 		     ifaces[i].ctrl_interface == NULL) ||
 		    ifaces[i].ifname == NULL) {
+			wpa_printf(
+				MSG_INFO,
+				"iface_count=%d; params.ctrl_interface=%s; params.dbus_ctrl_interface=%s",
+				i,
+				params.ctrl_interface ? "NO NULL" : "NULL",
+				params.dbus_ctrl_interface ? "NO NULL" : "NULL");
 			if (iface_count == 1 && (params.ctrl_interface ||
 						 params.dbus_ctrl_interface))
 				break;
@@ -270,16 +512,30 @@ int main(int argc, char *argv[])
 			exitcode = -1;
 	}
 
+	global->ifaces->event_callback = supf_event_cb;
+	eloop_register_read_sock(
+		g_supf_cmd_read_pipe,
+		wpa_supplicant_ctrl_handler,
+		global->ifaces,
+		NULL
+	);
 	if (exitcode == 0)
 		exitcode = wpa_supplicant_run(global);
-
+    wpa_printf(MSG_DEBUG, "wpa_supplicant_run - end.");
+	eloop_unregister_read_sock(g_supf_cmd_read_pipe);
+	wpa_printf(MSG_DEBUG, "wpa_supplicant_deinit.");
 	wpa_supplicant_deinit(global);
+	// ADDED BY xiaoxi-ij478 for tuanzi END
 
 out:
 	os_free(ifaces);
 	os_free(params.pid_file);
 
 	os_program_deinit();
+	// ADDED BY xiaoxi-ij478 for tuanzi
+	close(g_supf_cmd_read_pipe);
+	close(g_supf_cb_write_pipe);
+	// ADDED BY xiaoxi-ij478 for tuanzi END
 
 	return exitcode;
 }

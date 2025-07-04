@@ -50,7 +50,7 @@ extern int FindSub(
 );
 extern int GKillTimer(timer_t timer);
 extern void GOnTimer(union sigval);
-extern void GSNRecvPacket(unsigned char *, int);
+extern void GSNRecvPacket(char *, int);
 extern timer_t GSetTimer(
     int off_msec,
     void (*thread_function)(union sigval),
@@ -64,16 +64,16 @@ extern void ParseString(
 );
 extern void TrimLeft(std::string &str, std::string chars);
 extern void TrimRight(std::string &str, std::string chars);
-extern void HIPacketUpdate(const unsigned char *, int);
+extern void HIPacketUpdate(const char *, int);
 extern unsigned HexCharToAscii(
     const std::string &str,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 );
-extern std::string HexToString(const unsigned char *buf, int buflen);
-extern int ASCIIStrtoChar(const std::string &str, unsigned char *buf);
+extern std::string HexToString(const char *buf, int buflen);
+extern int ASCIIStrtoChar(const std::string &str, char *buf);
 extern std::string AsciiToStr(
-    const unsigned char *buf,
+    const char *buf,
     const unsigned &len
 );
 extern bool SuCreateDirectory(const std::string &dirname);
@@ -82,7 +82,7 @@ extern bool Is64BIT();
 //extern void KillRunModeCheckTimer();
 //extern void *OnRunModeCheckTimer(union sigval arg);
 //extern void SetRunModeCheckTimer();
-extern unsigned MD5StrtoUChar(const std::string &str, unsigned char *buf);
+extern unsigned MD5StrtoUChar(const std::string &str, char *buf);
 extern int do_quit();
 extern int MemCmpare(
     const void *buf1,
@@ -101,24 +101,24 @@ extern void RcvOpenUtrustUrlCmd(const std::string &arg);
 extern void RcvStartAuthNotification();
 extern void StrToLower(char *str);
 extern bool convertInt(const char *str, int &result);
-extern void decode(unsigned char *buf, int buflen);
-extern void encode(unsigned char *buf, int buflen);
+extern void decode(char *buf, int buflen);
+extern void encode(char *buf, int buflen);
 extern std::string makeLower(const std::string &str);
 extern std::string makeUpper(const std::string &str);
 extern int StringToHex(
     const std::string &str,
-    unsigned char *retbuf,
+    char *retbuf,
     int retbuflen
 );
 extern void WriteRegUserInfo(const struct UserInfo &info);
 extern void ReadRegUserInfo(struct UserInfo &info);
-extern void SimulateSuLogoff(unsigned char *buf, unsigned buflen);
+extern void SimulateSuLogoff(char *buf, unsigned buflen);
 extern bool SetLanFlag(unsigned flag);
-extern void RecvSecdomainPacket(unsigned char *buf, unsigned buflen);
+extern void RecvSecdomainPacket(char *buf, unsigned buflen);
 
-static inline void swap128(unsigned char *val)
+static inline void swap128(char *val)
 {
-    unsigned char t;
+    char t;
 #define SWAP(a, b) do { t = (a); (a) = (b); (b) = t; } while(0)
     SWAP(val[0], val[15]);
     SWAP(val[1], val[14]);

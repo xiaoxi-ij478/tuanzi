@@ -267,7 +267,7 @@ void CClientCenterPeerManager::ProcessConnect()
     unsigned timer_interval_l = 0;
     unsigned http_length = 0;
     unsigned http_read = 0;
-    unsigned char *buf = nullptr;
+    char *buf = nullptr;
     CHttpConnection http_client;
     url_oss << "http://" << control_center_info.domain
             << ':' << control_center_info.port
@@ -314,7 +314,7 @@ void CClientCenterPeerManager::ProcessConnect()
         goto http_close;
     }
 
-    buf = new unsigned char[http_length + 1];
+    buf = new char[http_length + 1];
 
     if ((http_read = http_client.httpRead(buf, http_length)) == http_length) {
         buf[http_length] = 0;
@@ -343,7 +343,7 @@ http_close:
         "CClientCenterPeerManager::ProcessConnect，http请求返回成功"
     );
     g_logContextControl.AppendText("%s", buf);
-    ParseResult(reinterpret_cast<char *>(buf));
+    ParseResult(buf);
     return;
 set_timer:
 
@@ -362,7 +362,7 @@ std::string CClientCenterPeerManager::EnCodeStr(const std::string &str)
     std::ostringstream oss;
     oss << std::hex << std::setfill('0');
 
-    for (const unsigned char i : str)
+    for (const char i : str)
         if (isalnum(i))
             oss << i;
 
@@ -383,7 +383,7 @@ std::string CClientCenterPeerManager::DeCodeStr(const std::string &str)
 
     for (auto it = str.cbegin(); it != str.cend(); it++) {
         if (*it == '%') {
-            oss << static_cast<unsigned char>
+            oss << static_cast<char>
                 (std::stoul(str.substr(std::distance(++it, str.cbegin()), 2)));
             it++;
 

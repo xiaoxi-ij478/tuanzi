@@ -76,16 +76,16 @@ class CUDPListenThread : public CLnxThread
     private:
         bool DecryptPrivateData(
             const struct tagDirectCom_ProtocalParam &proto_param,
-            unsigned char *buf,
+            char *buf,
             unsigned buflen
         ) const;
         bool EncryptPrivateData(
             const struct tagDirectCom_ProtocalParam &proto_param,
-            unsigned char *buf,
+            char *buf,
             unsigned buflen
         ) const;
         bool HandlePrivateData(
-            const unsigned char * /* struct DirTransFullPkg * */ buf,
+            const char * /* struct DirTransFullPkg * */ buf,
             unsigned buflen
         );
         void InitTimeStampV2(
@@ -97,14 +97,14 @@ class CUDPListenThread : public CLnxThread
             const struct tagDirectCom_ProtocalParam &proto_param,
             unsigned long timestamp
         );
-        bool IsIPHeadChecksumRight(const unsigned char *buf, unsigned buflen) const;
-        bool IsSuExpected(const unsigned char *buf, unsigned buflen) const;
-        bool IsUDPChecksumRight(const unsigned char *buf, unsigned buflen) const;
-        bool IsUDPPacket(const unsigned char *buf, unsigned buflen) const;
+        bool IsIPHeadChecksumRight(const char *buf, unsigned buflen) const;
+        bool IsSuExpected(const char *buf, unsigned buflen) const;
+        bool IsUDPChecksumRight(const char *buf, unsigned buflen) const;
+        bool IsUDPPacket(const char *buf, unsigned buflen) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnRecvPacketReturn);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer);
-        bool ResponseSender(const unsigned char *buf, unsigned buflen);
-        bool RevcDirectPack(const unsigned char *buf, unsigned buflen);
+        bool ResponseSender(const char *buf, unsigned buflen);
+        bool RevcDirectPack(const char *buf, unsigned buflen);
         void SendResponse(
             const struct tagDirectCom_ProtocalParam &proto_param,
             struct tagDirPacketHead &packet_head,
@@ -112,12 +112,12 @@ class CUDPListenThread : public CLnxThread
             unsigned dstport,
             in_addr_t srcaddr,
             unsigned srcport,
-            const unsigned char *packet
+            const char *packet
         );
         void freeMemory();
 
         static unsigned short CheckSumForRecv(
-            const unsigned char *buf,
+            const char *buf,
             unsigned buflen
         );
 

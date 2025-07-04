@@ -59,7 +59,7 @@ bool CDirectTransfer::sendudp(
 {
     struct [[gnu::packed]] {
         struct etherudppkg header;
-        unsigned char data[2048];
+        char data[2048];
     } tmpbuf;
     unsigned ipv4_len = 0, udp_len = 0;
     *reinterpret_cast<struct ether_addr *>
@@ -72,7 +72,7 @@ bool CDirectTransfer::sendudp(
     ComputeUdpPseudoHeaderChecksumV4(
         &tmpbuf.header.ipheader,
         &tmpbuf.header.udpheader,
-        static_cast<const unsigned char *>(buf),
+        static_cast<const char *>(buf),
         buflen
     );
     memcpy(&tmpbuf.data, buf, buflen);
@@ -98,10 +98,10 @@ bool CDirectTransfer::sendudp(
 #define DESKEY reinterpret_cast<const unsigned char *>("|sS1&@8q")
 #define INIT_XORKEY { 'A', 'c', '3', '#', '1', '!', 'Q', 'd' }
 
-bool CDirectTransfer::DescryptForSAM(unsigned char *buf, unsigned buflen)
+bool CDirectTransfer::DescryptForSAM(char *buf, unsigned buflen)
 {
     unsigned char tmpibuf[8] = {}, tmpobuf[8] = {};
-    unsigned char xorkey[8] = INIT_XORKEY;
+    char xorkey[8] = INIT_XORKEY;
 
     if (buflen & 0x7)
         return false;
@@ -127,10 +127,10 @@ bool CDirectTransfer::DescryptForSAM(unsigned char *buf, unsigned buflen)
     return true;
 }
 
-bool CDirectTransfer::EncryptForSAM(unsigned char *buf, unsigned buflen)
+bool CDirectTransfer::EncryptForSAM(char *buf, unsigned buflen)
 {
     unsigned char tmpibuf[8] = {}, tmpobuf[8] = {};
-    unsigned char xorkey[8] = INIT_XORKEY;
+    char xorkey[8] = INIT_XORKEY;
 
     if (buflen & 0x7)
         return false;

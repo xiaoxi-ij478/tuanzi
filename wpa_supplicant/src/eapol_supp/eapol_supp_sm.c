@@ -100,7 +100,7 @@ struct eapol_sm {
 		SUPP_BE_RECEIVE = 4,
 		SUPP_BE_RESPONSE = 5,
 		SUPP_BE_FAIL = 6,
-		SUPP_BE_TIMEOUT = 7, 
+		SUPP_BE_TIMEOUT = 7,
 		SUPP_BE_SUCCESS = 8
 	} SUPP_BE_state; /* dot1xSuppBackendPaeState */
 	/* Variables */
@@ -1810,6 +1810,35 @@ static void eapol_sm_eap_param_needed(void *ctx, const char *field,
 #define eapol_sm_eap_param_needed NULL
 #endif /* CONFIG_CTRL_IFACE || !CONFIG_NO_STDOUT_DEBUG */
 
+// ADDED BY xiaoxi-ij478 for tuanzi
+static void eapol_sm_eap_notify_msg(
+	void *ctx,
+	int type,
+	const  u8 *msg,
+	int msg_len)
+{
+	char title[128];
+	struct eapol_sm *sm = ctx;
+
+	sprintf(title, "EAPOL: EAP notify %s msg", type ? "success" : "error");
+	wpa_hexdump_ascii(MSG_DEBUG, title, msg, msg_len);
+	if ( sm->ctx->eap_notify_msg )
+		sm->ctx->eap_notify_msg(sm->ctx, type, msg, msg_len);
+}
+
+static const u8 *eapol_sm_get_upload_private_data(
+	void *ctx,
+	int *len)
+{
+	struct eapol_sm *sm = ctx;
+
+	if ( sm )
+		return sm->ctx->get_upload_private_data(sm->ctx->ctx, len);
+	else
+		return NULL;
+}
+
+// ADDED BY xiaoxi-ij478 for tuanzi END
 
 static struct eapol_callbacks eapol_cb =
 {
@@ -1822,7 +1851,11 @@ static struct eapol_callbacks eapol_cb =
 	eapol_sm_set_config_blob,
 	eapol_sm_get_config_blob,
 	eapol_sm_notify_pending,
-	eapol_sm_eap_param_needed
+	eapol_sm_eap_param_needed,
+	// ADDED BY xiaoxi-ij478 for tuanzi
+	eapol_sm_get_upload_private_data,
+	eapol_sm_eap_notify_msg
+	// ADDED BY xiaoxi-ij478 for tuanzi END
 };
 
 

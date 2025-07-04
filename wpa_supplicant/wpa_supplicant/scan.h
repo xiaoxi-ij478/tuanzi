@@ -33,5 +33,6 @@ const u8 * wpa_scan_get_vendor_ie(const struct wpa_scan_res *res,
 struct wpabuf * wpa_scan_get_vendor_ie_multi(const struct wpa_scan_res *res,
 					     u32 vendor_type);
 void wpa_scan_results_free(struct wpa_scan_results *res);
+void wpa_printf_scan_info(struct wpa_scan_results *scan_res);
 
 #endif /* SCAN_H */

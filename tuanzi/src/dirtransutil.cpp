@@ -8,14 +8,14 @@ void CreateDirPktHead(
     struct mtagFinalDirPacket &final_packet_head,
     struct tagDirPacketHead &packet_head,
     [[maybe_unused]] struct tagSenderBind &sender_bind,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen,
-    unsigned char *keybuf,
-    unsigned char *ivbuf
+    char *keybuf,
+    char *ivbuf
 )
 {
-    unsigned char *checksum_buf = nullptr;
-    unsigned char md5_checksum[16] = {};
+    char *checksum_buf = nullptr;
+    char md5_checksum[16] = {};
     char *md5_checksum_ascii = nullptr;
 #define COPY_FIELD(name) final_packet_head.name = packet_head.name
     COPY_FIELD(version);
@@ -33,7 +33,7 @@ void CreateDirPktHead(
     COPY_FIELD(slicetype);
     COPY_FIELD(data_len);
 #undef COPY_FIELD
-    checksum_buf = new unsigned char[ntohs(packet_head.packet_len) + 16];
+    checksum_buf = new char[ntohs(packet_head.packet_len) + 16];
     *reinterpret_cast<struct mtagFinalDirPacket *>(checksum_buf) =
         final_packet_head;
     memset(

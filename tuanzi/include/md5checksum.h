@@ -7,14 +7,14 @@ class CMD5Checksum
         CMD5Checksum();
         virtual ~CMD5Checksum();
 
-        void Update(const unsigned char *buf, unsigned buflen);
-        void Final2CharBuff(unsigned char *buf, int buflen);
+        void Update(const char *buf, unsigned buflen);
+        void Final2CharBuff(char *buf, int buflen);
         char *Final();
 
-        static char *GetMD5(const unsigned char *buf, unsigned buflen);
+        static char *GetMD5(const char *buf, unsigned buflen);
         static void GetCharMd5(
-            unsigned char *dst,
-            const unsigned char *src,
+            char *dst,
+            const char *src,
             int srclen,
             int dstlen
         );

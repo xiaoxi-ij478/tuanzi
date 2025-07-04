@@ -10,9 +10,9 @@ CSuDES::~CSuDES()
     delete[] keybuf;
 }
 
-int CSuDES::Decrypts(unsigned char *buf, unsigned buflen) const
+int CSuDES::Decrypts(char *buf, unsigned buflen) const
 {
-    unsigned char tmp1[8] = {}, tmp2[8] = {}, tmp3[8] = {};
+    char tmp1[8] = {}, tmp2[8] = {}, tmp3[8] = {};
     assert(buf && buflen);
 
     if (!ivbuf || !keybuf)
@@ -44,9 +44,9 @@ int CSuDES::Decrypts(unsigned char *buf, unsigned buflen) const
     return 0;
 }
 
-int CSuDES::Encrypts(unsigned char *buf, unsigned buflen) const
+int CSuDES::Encrypts(char *buf, unsigned buflen) const
 {
-    unsigned char tmp1[8] = {}, tmp2[8] = {};
+    char tmp1[8] = {}, tmp2[8] = {};
     assert(buf && buflen);
 
     if (!ivbuf || !keybuf)
@@ -77,24 +77,24 @@ int CSuDES::Encrypts(unsigned char *buf, unsigned buflen) const
     return 0;
 }
 
-int CSuDES::SetIVBuf(const unsigned char *iv, unsigned ivlen) const
+int CSuDES::SetIVBuf(const char *iv, unsigned ivlen) const
 {
     assert(iv);
 
     if (ivlen != 8)
         return 1;
 
-    memcpy(ivbuf ? : new unsigned char[8], iv, sizeof(char) * 8);
+    memcpy(ivbuf ? : new char[8], iv, sizeof(char) * 8);
     return 0;
 }
 
-int CSuDES::SetKeyBuf(const unsigned char *key, unsigned keylen) const
+int CSuDES::SetKeyBuf(const char *key, unsigned keylen) const
 {
     assert(key);
 
     if (keylen != 8)
         return 1;
 
-    memcpy(keybuf ? : new unsigned char[8], key, sizeof(char) * 8);
+    memcpy(keybuf ? : new char[8], key, sizeof(char) * 8);
     return 0;
 }

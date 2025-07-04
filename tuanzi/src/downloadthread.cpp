@@ -857,7 +857,7 @@ int CDownLoadThread::http_send(
     const char *path
 ) const
 {
-    unsigned char tmp_ipaddr[4] = {};
+    char tmp_ipaddr[4] = {};
     char send_buf[2048] = {};
     struct sockaddr_in dest_ipaddr = {};
     struct hostent *domain_resolve = nullptr;

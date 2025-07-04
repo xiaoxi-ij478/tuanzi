@@ -12,13 +12,20 @@ enum SupfCmdType {
     SUPF_STOP_CMD
 };
 
+enum SupfPipeCmdType : char {
+    SUPF_PIPE_STOP_CMD,
+    SUPF_PIPE_START_CMD,
+    SUPF_PIPE_SCAN_CMD,
+    SUPF_PIPE_EXIT_CMD
+};
+
 enum SupfMsg {
     SUPF_MSG_SCAN_RES,
     SUPF_MSG_EAP_ERR,
     SUPF_MSG_EAP_SUC
 };
 
-enum SupfState {
+enum SupfState : unsigned {
     SUPF_STOP,
     SUPF_START,
     SUPF_WLAN_NOFOUND,
@@ -33,6 +40,7 @@ enum SupfState {
     SUPF_AUTH_TIMEOUT
 };
 
+// actually from wpa_supplicant/src/eap_common/eap_defs.h
 enum EAP_TYPE_RFC {
     RFC_EAP_NONE,
     RFC_EAP_IDENTITY,
@@ -74,9 +82,9 @@ struct su_wpa_ie {
 
 struct SupfWlanScanRes {
     unsigned flags;
-    unsigned char ssid[33];
+    char ssid[33];
     size_t ssid_len;
-    unsigned char bssid[6];
+    char bssid[6];
     int freq;
     unsigned short beacon_int;
     unsigned short caps;
@@ -98,33 +106,73 @@ struct StartCmdCtx {
     char password[256];
     char ssid[32];
     int ssid_len;
-    unsigned char *private_data;
+    char *private_data;
     int private_len;
 };
 
 struct SuPlatformParam {
     char driver_name[64];
     char ifname[128];
-    supf_event_callback event_callback;
+//    supf_event_callback event_callback;
     char *debug_file;
 };
 
 struct SupfCmd {
     enum SupfCmdType cmd_type;
-    void *cmd_ctx;
+    struct StartCmdCtx *cmd_ctx;
 };
 
 struct SupfMsgData {
     enum SupfMsg msg;
     const void *buf;
-    int len;
+    unsigned len;
+};
+
+struct SupfPipeStateMsgData {
+    enum SUPF_EVENT_TYPE type;
+    union {
+        enum SupfState msg; // type == SUPF_STATE
+        struct { // type == SUPF_MSG
+            unsigned len; // data's length
+            char data[]; // exact data
+        };
+    };
+};
+
+struct SupfPipeCmdMsgData {
+    enum SupfPipeCmdType cmd;
+    struct { // used only when cmd == SUPF_PIPE_START_CMD
+        unsigned data_len;
+        char private_data[];
+    };
 };
 
 extern const char *getSupfMsgText(enum SupfMsg msg);
 extern const char *getSupfStateText(enum SupfState state);
-extern void supf_event_callback_fun(
-    enum SUPF_EVENT_TYPE event_type,
-    const struct SupfMsgData *msg_data
+extern void *supf_event_callback_recv_fun(void *param);
+extern unsigned generate_network_config(
+    int *read_config_pipe,
+    const char *ssid,
+    const char *identity,
+    const char *password
 );
+extern unsigned generate_cmd_arguments(
+    int *num,
+    char ***arguments,
+    const struct SuPlatformParam *param,
+    int config_pipe_read
+);
+extern void supf_thread_function();
+extern unsigned su_platform_init(const struct SuPlatformParam *param);
+extern unsigned su_platform_deinit();
+extern unsigned wpa_global_init(const struct SuPlatformParam *param);
+extern void wpa_global_free();
+extern unsigned su_platform_cmd(struct SupfCmd *cmd);
+extern unsigned supf_start(struct StartCmdCtx *start_ctx);
+extern void supf_msg_handle(const struct SupfMsgData *msg_data);
+extern void supf_state_handle(enum SupfState state);
+extern unsigned supf_wlan_scan();
+extern unsigned supf_write_config_to_pipe(char *config_buf, int *pipe_read);
+
 
 #endif // SUPF_H_INCLUDED

@@ -30,7 +30,7 @@ CIsProSer::~CIsProSer()
         DelFromRHList(clienttcp_begin);
 }
 
-int CIsProSer::Detect(const unsigned char *pkg, unsigned pkglen)
+int CIsProSer::Detect(const char *pkg, unsigned pkglen)
 {
     const struct ether_header *etherheader =
             reinterpret_cast<const struct ether_header *>(pkg);

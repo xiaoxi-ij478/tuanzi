@@ -20,9 +20,7 @@
 		<Project filename="md5/md5.cbp" />
 		<Project filename="ampheck/ampheck.cbp" />
 		<Project filename="pcap/pcap.cbp" />
-		<Project filename="wpa_supplicant/wpa_supplicant.cbp">
-			<Depends filename="openssl/openssl.cbp" />
-		</Project>
+		<Project filename="wpa_supplicant/wpa_supplicant.cbp" />
 		<Project filename="openssl/openssl.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

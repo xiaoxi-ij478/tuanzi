@@ -126,7 +126,6 @@ static int wpa_config_validate_network(struct wpa_ssid *ssid, int line)
 	return errors;
 }
 
-
 static struct wpa_ssid * wpa_config_read_network(FILE *f, int *line, int id)
 {
 	struct wpa_ssid *ssid;
@@ -573,7 +572,6 @@ struct wpa_config * wpa_config_read(const char *name)
 	return config;
 }
 
-
 #ifndef CONFIG_NO_CONFIG_WRITE
 
 static void write_str(FILE *f, const char *field, struct wpa_ssid *ssid)
@@ -945,3 +943,78 @@ int wpa_config_write(const char *name, struct wpa_config *config)
 	return -1;
 #endif /* CONFIG_NO_CONFIG_WRITE */
 }
+
+// ADDED BY xiaoxi-ij478 for tuanzi
+struct wpa_config * wpa_config_read_pipe(int file_pipe)
+{
+	FILE *f;
+	char buf[256], *pos;
+	int errors = 0, line = 0;
+	struct wpa_ssid *ssid, *tail = NULL, *head = NULL;
+	struct wpa_config *config;
+	int id = 0;
+
+	config = wpa_config_alloc_empty(NULL, NULL);
+	if (config == NULL)
+		return NULL;
+	f = fdopen(file_pipe, "r");
+	if (f == NULL) {
+		wpa_printf(MSG_ERROR, "fdopen error");
+		os_free(config);
+		return NULL;
+	}
+
+	while (wpa_config_get_line(buf, sizeof(buf), f, &line, &pos)) {
+		if (os_strcmp(pos, "network={") == 0) {
+			ssid = wpa_config_read_network(f, &line, id++);
+			if (ssid == NULL) {
+				wpa_printf(MSG_ERROR, "Line %d: failed to "
+					   "parse network block.", line);
+				errors++;
+				continue;
+			}
+			if (head == NULL) {
+				head = tail = ssid;
+			} else {
+				tail->next = ssid;
+				tail = ssid;
+			}
+			if (wpa_config_add_prio_network(config, ssid)) {
+				wpa_printf(MSG_ERROR, "Line %d: failed to add "
+					   "network block to priority list.",
+					   line);
+				errors++;
+				continue;
+			}
+#ifndef CONFIG_NO_CONFIG_BLOBS
+		} else if (os_strncmp(pos, "blob-base64-", 12) == 0) {
+			if (wpa_config_process_blob(config, f, &line, pos + 12)
+			    < 0) {
+				errors++;
+				continue;
+			}
+#endif /* CONFIG_NO_CONFIG_BLOBS */
+		} else if (wpa_config_process_global(config, pos, line) < 0) {
+			wpa_printf(MSG_ERROR, "Line %d: Invalid configuration "
+				   "line '%s'.", line, pos);
+			errors++;
+			continue;
+		}
+	}
+	wpa_printf(MSG_DEBUG, "Config - Read exit while");
+	fclose(f);
+	wpa_printf(MSG_DEBUG, "Config -Read fclose");
+	config->ssid = head;
+	wpa_config_debug_dump_networks(config);
+	wpa_printf(MSG_DEBUG, "Config -Read wpa_config_debug_dump_networks");
+
+	if (errors) {
+		wpa_config_free(config);
+		config = NULL;
+		head = NULL;
+	}
+
+	return config;
+}
+// ADDED BY xiaoxi-ij478 for tuanzi END
+

@@ -38,7 +38,7 @@ struct TCPIP {
     const struct ether_header *etherheader;
     const struct iphdr *ipheader;
     const struct tcphdr *tcpheader;
-    const unsigned char *content;
+    const char *content;
     unsigned content_length;
 };
 
@@ -73,7 +73,7 @@ class CTcp
             char may_be_address[0x101 - sizeof(struct Socks5ConnReqHeader)];
         } socks5_request_addr;
         struct Socks5ConnReqHeader socks5_request_header;
-        unsigned char socks5_request_domain_len;
+        char socks5_request_domain_len;
 
         static CDNSQuery dns_queryer; // m_dns
 

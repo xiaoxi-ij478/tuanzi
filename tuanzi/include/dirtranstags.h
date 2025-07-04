@@ -20,13 +20,13 @@ struct tagDirectCom_ProtocalParam {
     in_addr_t dstaddr;
     unsigned retry_count;
     unsigned timeout;
-    unsigned char keybuf[8];
-    unsigned char ivbuf[8];
+    char keybuf[8];
+    char ivbuf[8];
     bool check_timestamp;
     unsigned long utc_time;
     unsigned long timestamp;
     bool field_40;
-    unsigned char version;
+    char version;
 };
 
 struct tagRecvSessionBind {
@@ -38,7 +38,7 @@ struct tagRecvSessionBind {
         in_addr_t dstaddr,
         unsigned dstport,
         int on_receive_packet_post_mtype,
-        unsigned char *data,
+        char *data,
         unsigned received,
         unsigned cur_sliceid,
         unsigned long creation_time,
@@ -62,7 +62,7 @@ struct tagRecvSessionBind {
     in_addr_t dstaddr;
     unsigned dstport;
     int on_receive_packet_post_mtype;
-    unsigned char *data;
+    char *data;
     unsigned received;
     unsigned cur_sliceid;
     unsigned long creation_time;
@@ -119,11 +119,11 @@ struct [[gnu::packed]] mtagFinalDirPacket {
 struct [[gnu::packed]] DirTransFullPkg : etherudppkg, mtagFinalDirPacket {};
 
 struct tagDirPacketHead {
-    unsigned char version;
+    char version;
     enum DIRPACKET_RESPCODE response_code;
     unsigned id;
     unsigned short packet_len;
-    unsigned char md5sum[16];
+    char md5sum[16];
     unsigned session_id;
     unsigned long timestamp;
     bool field_28;
@@ -240,7 +240,7 @@ struct tagSmpInitPacket {
 struct tagDataSendUnit {
     unsigned id;
     unsigned field_4;
-    unsigned char *msg;
+    char *msg;
     unsigned totallen;
     unsigned field_14;
     WAIT_HANDLE *eventret;
@@ -268,7 +268,7 @@ struct tagDirTranPara {
     struct ether_addr dstmacaddr;
     bool field_4C;
     unsigned long field_50;
-    unsigned char data[MAX_MTU];
+    char data[MAX_MTU];
     unsigned mtu;
     unsigned field_5D4;
 };
@@ -283,12 +283,12 @@ struct tagSmpParaDir {
     in_addr_t gateway_ipaddr;
     unsigned smp_port;
     unsigned su_port;
-    unsigned char keybuf[8];
-    unsigned char ivbuf[8];
+    char keybuf[8];
+    char ivbuf[8];
     unsigned long utc_time;
     unsigned timeout;
     unsigned retry_count;
-    unsigned char version;
+    char version;
     unsigned hello_interval;
     bool hello_response;
     unsigned hello_fail_time;
@@ -305,12 +305,12 @@ struct tagDirectTranSrvPara {
     in_addr_t gateway_ipaddr;
     unsigned sam_port;
     unsigned su_port;
-    unsigned char keybuf[8];
-    unsigned char ivbuf[8];
+    char keybuf[8];
+    char ivbuf[8];
     unsigned long utc_time;
     unsigned timeout;
     unsigned retry_count;
-    unsigned char version;
+    char version;
     bool field_C5;
 };
 
@@ -327,7 +327,7 @@ struct tagPasSecurityInfo {
 struct tagWirelessConf {
     std::string field_0;
     std::string field_8;
-    unsigned char field_10[32];
+    char field_10[32];
     unsigned field_10_len;
     std::string field_38;
     std::string field_40;

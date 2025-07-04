@@ -23,12 +23,12 @@ class CDirectTransfer
             unsigned buflen
         );
 
-        static bool DescryptForSAM(unsigned char *buf, unsigned buflen);
-        static bool EncryptForSAM(unsigned char *buf, unsigned buflen);
+        static bool DescryptForSAM(char *buf, unsigned buflen);
+        static bool EncryptForSAM(char *buf, unsigned buflen);
 
         struct tagDirTranPara dir_tran_para;
         bool packet_sent;
-        unsigned char last_sent_packet[2048];
+        char last_sent_packet[2048];
         unsigned last_sent_packet_len;
 };
 

@@ -7,14 +7,14 @@ class CSuDES
         CSuDES();
         virtual ~CSuDES();
 
-        int Decrypts(unsigned char *buf, unsigned buflen) const;
-        int Encrypts(unsigned char *buf, unsigned buflen) const;
-        int SetIVBuf(const unsigned char *iv, unsigned ivlen) const;
-        int SetKeyBuf(const unsigned char *key, unsigned keylen) const;
+        int Decrypts(char *buf, unsigned buflen) const;
+        int Encrypts(char *buf, unsigned buflen) const;
+        int SetIVBuf(const char *iv, unsigned ivlen) const;
+        int SetKeyBuf(const char *key, unsigned keylen) const;
 
     private:
-        unsigned char *ivbuf;
-        unsigned char *keybuf;
+        char *ivbuf;
+        char *keybuf;
 };
 
 #endif // SUDES_H_INCLUDED

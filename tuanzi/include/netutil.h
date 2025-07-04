@@ -74,13 +74,13 @@ extern enum ADAPTER_TYPE get_nic_type(const char *ifname);
 extern unsigned short ComputeTcpPseudoHeaderChecksum(
     const struct iphdr *ipheader,
     struct TCPHeader *tcpheader,
-    const unsigned char *databuf,
+    const char *databuf,
     int length
 );
 extern unsigned short ComputeUdpPseudoHeaderChecksumV4(
     const struct iphdr *ipheader,
     struct udphdr *udpheader,
-    const unsigned char *databuf,
+    const char *databuf,
     int length
 );
 extern unsigned short checksum(const unsigned short *data, unsigned len);

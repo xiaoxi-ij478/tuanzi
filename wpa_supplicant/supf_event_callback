@@ -1,0 +1,14 @@
+原本：
+直接嵌入wpa_supplicant的一个回调，有两个参数：一个event_type和一个可选的buffer
+现在：
+建一个新管道，我方读取，他方写入，写入的格式：
+struct {
+    int type; // SUPF_STATE || SUPF_MSG，目前就这两种调用方式
+    union {
+        int msg; // type == SUPF_STATE
+        struct { // type == SUPF_MSG
+            int len; // data的长度
+            char data[]; // 实际数据
+        };
+    };
+};

@@ -9,16 +9,16 @@ CMD5ForVz::CMD5ForVz() : ctx()
 CMD5ForVz::~CMD5ForVz()
 {}
 
-void CMD5ForVz::Update(const unsigned char *buf, unsigned buflen)
+void CMD5ForVz::Update(const char *buf, unsigned buflen)
 {
     MD5Update_Vz(&ctx, buf, buflen);
 }
 
 char *CMD5ForVz::Final()
 {
-    unsigned char digest[16] = {};
+    char digest[16] = {};
     char *digest_txt = new char[16 * 2 + 1];
-    unsigned char upper = 0, lower = 0;
+    char upper = 0, lower = 0;
     Final2CharBuff(digest, 16);
 
     for (int i = 0; i < 16; i++) {
@@ -41,7 +41,7 @@ char *CMD5ForVz::Final()
     return digest_txt;
 }
 
-void CMD5ForVz::Final2CharBuff(unsigned char *buf, int buflen)
+void CMD5ForVz::Final2CharBuff(char *buf, int buflen)
 {
     if (buflen < 16) // buffer size is not enough
         return;
@@ -49,7 +49,7 @@ void CMD5ForVz::Final2CharBuff(unsigned char *buf, int buflen)
     MD5Final_Vz(buf, &ctx);
 }
 
-char *CMD5ForVz::GetMD5(const unsigned char *buf, unsigned buflen)
+char *CMD5ForVz::GetMD5(const char *buf, unsigned buflen)
 {
     CMD5ForVz cksum;
     cksum.Update(buf, buflen);
@@ -57,8 +57,8 @@ char *CMD5ForVz::GetMD5(const unsigned char *buf, unsigned buflen)
 }
 
 void CMD5ForVz::GetCharMd5(
-    unsigned char *dst,
-    const unsigned char *src,
+    char *dst,
+    const char *src,
     int srclen,
     int dstlen
 )

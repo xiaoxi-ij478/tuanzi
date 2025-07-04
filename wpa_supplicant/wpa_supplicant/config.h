@@ -367,6 +367,7 @@ int wpa_config_add_prio_network(struct wpa_config *config,
 int wpa_config_update_prio_list(struct wpa_config *config);
 const struct wpa_config_blob * wpa_config_get_blob(struct wpa_config *config,
 						   const char *name);
+struct wpa_config * wpa_config_read_pipe(int file_pipe);
 void wpa_config_set_blob(struct wpa_config *config,
 			 struct wpa_config_blob *blob);
 void wpa_config_free_blob(struct wpa_config_blob *blob);

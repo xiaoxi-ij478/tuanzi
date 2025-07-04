@@ -14,7 +14,7 @@ class CHttpConnection
         void setTimeout(int timeout);
         void httpClose();
         int httpConnect(const char *url);
-        int httpRead(unsigned char *buf, int buflen);
+        int httpRead(char *buf, int buflen);
 
     private:
         int getHttpContentLength(const char *header) const;

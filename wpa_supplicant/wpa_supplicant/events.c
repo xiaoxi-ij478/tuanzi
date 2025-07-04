@@ -888,6 +888,7 @@ static void wpa_supplicant_event_scan_results(struct wpa_supplicant *wpa_s,
 	scan_res = wpa_supplicant_get_scan_results(wpa_s,
 						   data ? &data->scan_info :
 						   NULL, 1);
+	wpa_printf_scan_info(scan_res);
 	if (scan_res == NULL) {
 		if (wpa_s->conf->ap_scan == 2 || ap)
 			return;

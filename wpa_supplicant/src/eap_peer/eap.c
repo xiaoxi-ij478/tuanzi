@@ -1029,16 +1029,16 @@ static int code_converter(
 	char *from_charset,
 	char *to_charset,
 	char *inbuf,
-	int inlen,
+	size_t inlen,
 	char *outbuf,
-	int outlen
+	size_t outlen
 )
 {
 	iconv_t iconv_handle;
 
 	if (!(iconv_handle = iconv_open(to_charset, from_charset)))
 		return -1;
-	memset(outbufa, 0, outlena);
+	memset(outbuf, 0, outlen);
 	if ( iconv(iconv_handle, &inbuf, &inlen, &outbuf, &outlen) == -1 )
 		return -1;
 	iconv_close(iconv_handle);
@@ -2201,6 +2201,14 @@ void eap_set_force_disabled(struct eap_sm *sm, int disabled)
 	sm->force_disabled = disabled;
 }
 
+// ADDED BY xiaoxi-ij478 for tuanzi
+//void eap_key_clear(eap_sm *sm)
+//{
+//	free(sm->eapKeyData);
+//	sm->eapKeyData = NULL;
+//	sm->eapKeyAvailable = FALSE;
+//}
+// ADDED BY xiaoxi-ij478 for tuanzi END
 
  /**
  * eap_notify_pending - Notify that EAP method is ready to re-process a request

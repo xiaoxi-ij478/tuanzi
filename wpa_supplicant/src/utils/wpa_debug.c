@@ -33,21 +33,63 @@ int wpa_debug_timestamp = 0;
 
 #ifndef CONFIG_NO_STDOUT_DEBUG
 
+// ADDED BY xiaoxi-ij478 for tuanzi
+typedef struct tm os_local_time;
+int os_get_local_time(os_local_time *t)
+{
+  os_local_time *ret; // rdx
+  time_t currentTime; // [rsp+10h] [rbp-18h] BYREF
+
+  time(&currentTime);
+  if ((ret = (os_local_time *)localtime(&currentTime)))
+  {
+    *t = *ret;
+    return 0;
+  }
+  return -1;
+}
+// ADDED BY xiaoxi-ij478 for tuanzi END
+
 void wpa_debug_print_timestamp(void)
 {
-	struct os_time tv;
+	os_local_time lt;
 
 	if (!wpa_debug_timestamp)
 		return;
 
-	os_get_time(&tv);
+	// ADDED BY xiaoxi-ij478 for tuanzi
+	if (os_get_local_time(&lt) == -1)
+		return;
+
+	// the original implementation has no "print to stdout" feature
 #ifdef CONFIG_DEBUG_FILE
-	if (out_file) {
-		fprintf(out_file, "%ld.%06u: ", (long) tv.sec,
-			(unsigned int) tv.usec);
-	} else
-#endif /* CONFIG_DEBUG_FILE */
-	printf("%ld.%06u: ", (long) tv.sec, (unsigned int) tv.usec);
+	if (out_file)
+		fprintf(
+			out_file,
+			"%.2d-%.2d :%.2d:%.2d:%.2d  ",
+			lt.tm_mon + 1,
+			lt.tm_mday,
+			lt.tm_hour,
+			lt.tm_min,
+			lt.tm_sec);
+#endif
+	else
+		printf(
+			"%.2d-%.2d :%.2d:%.2d:%.2d  ",
+			lt.tm_mon + 1,
+			lt.tm_mday,
+			lt.tm_hour,
+			lt.tm_min,
+			lt.tm_sec);
+//	os_get_time(&tv);
+//#ifdef CONFIG_DEBUG_FILE
+//	if (out_file) {
+//		fprintf(out_file, "%ld.%06u: ", (long) tv.sec,
+//			(unsigned int) tv.usec);
+//	} else
+//#endif /* CONFIG_DEBUG_FILE */
+//	printf("%ld.%06u: ", (long) tv.sec, (unsigned int) tv.usec);
+	// ADDED BY xiaoxi-ij478 for tuanzi END
 }
 
 

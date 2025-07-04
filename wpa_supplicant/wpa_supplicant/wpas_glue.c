@@ -63,8 +63,8 @@ wpa_supplicant_get_config_blob(void *ctx, const char *name)
 
 #if defined(IEEE8021X_EAPOL) || !defined(CONFIG_NO_WPA)
 static u8 * wpa_alloc_eapol(const struct wpa_supplicant *wpa_s, u8 type,
-			    const void *data, u16 data_len,
-			    size_t *msg_len, void **data_pos)
+				const void *data, u16 data_len,
+				size_t *msg_len, void **data_pos)
 {
 	struct ieee802_1x_hdr *hdr;
 
@@ -124,7 +124,7 @@ static int wpa_ether_send(struct wpa_supplicant *wpa_s, const u8 *dest,
  * to the current Authenticator.
  */
 static int wpa_supplicant_eapol_send(void *ctx, int type, const u8 *buf,
-				     size_t len)
+					 size_t len)
 {
 	struct wpa_supplicant *wpa_s = ctx;
 	u8 *msg, *dst, bssid[ETH_ALEN];
@@ -135,7 +135,7 @@ static int wpa_supplicant_eapol_send(void *ctx, int type, const u8 *buf,
 	 * extra copy here */
 
 	if (wpa_key_mgmt_wpa_psk(wpa_s->key_mgmt) ||
-	    wpa_s->key_mgmt == WPA_KEY_MGMT_NONE) {
+		wpa_s->key_mgmt == WPA_KEY_MGMT_NONE) {
 		/* Current SSID is not using IEEE 802.1X/EAP, so drop possible
 		 * EAPOL frames (mainly, EAPOL-Start) from EAPOL state
 		 * machines. */
@@ -146,7 +146,7 @@ static int wpa_supplicant_eapol_send(void *ctx, int type, const u8 *buf,
 	}
 
 	if (pmksa_cache_get_current(wpa_s->wpa) &&
-	    type == IEEE802_1X_TYPE_EAPOL_START) {
+		type == IEEE802_1X_TYPE_EAPOL_START) {
 		/* Trying to use PMKSA caching - do not send EAPOL-Start frames
 		 * since they will trigger full EAPOL authentication. */
 		wpa_printf(MSG_DEBUG, "RSN: PMKSA caching - do not send "
@@ -158,7 +158,7 @@ static int wpa_supplicant_eapol_send(void *ctx, int type, const u8 *buf,
 		wpa_printf(MSG_DEBUG, "BSSID not set when trying to send an "
 			   "EAPOL frame");
 		if (wpa_drv_get_bssid(wpa_s, bssid) == 0 &&
-		    !is_zero_ether_addr(bssid)) {
+			!is_zero_ether_addr(bssid)) {
 			dst = bssid;
 			wpa_printf(MSG_DEBUG, "Using current BSSID " MACSTR
 				   " from the driver as the EAPOL destination",
@@ -210,9 +210,9 @@ static int wpa_eapol_set_wep_key(void *ctx, int unicast, int keyidx,
 			wpa_s->group_cipher = cipher;
 	}
 	return wpa_drv_set_key(wpa_s, WPA_ALG_WEP,
-			       unicast ? wpa_s->bssid :
-			       (u8 *) "\xff\xff\xff\xff\xff\xff",
-			       keyidx, unicast, (u8 *) "", 0, key, keylen);
+				   unicast ? wpa_s->bssid :
+				   (u8 *) "\xff\xff\xff\xff\xff\xff",
+				   keyidx, unicast, (u8 *) "", 0, key, keylen);
 }
 
 
@@ -224,7 +224,7 @@ static void wpa_supplicant_aborted_cached(void *ctx)
 
 
 static void wpa_supplicant_eapol_cb(struct eapol_sm *eapol, int success,
-				    void *ctx)
+					void *ctx)
 {
 	struct wpa_supplicant *wpa_s = ctx;
 	int res, pmk_len;
@@ -272,7 +272,7 @@ static void wpa_supplicant_eapol_cb(struct eapol_sm *eapol, int success,
 	}
 
 	if (wpa_drv_set_key(wpa_s, WPA_ALG_PMK, NULL, 0, 0, NULL, 0, pmk,
-			    pmk_len)) {
+				pmk_len)) {
 		wpa_printf(MSG_DEBUG, "Failed to set PMK to the driver");
 	}
 
@@ -311,9 +311,9 @@ static int wpa_get_beacon_ie(struct wpa_supplicant *wpa_s)
 		if (os_memcmp(bss->bssid, wpa_s->bssid, ETH_ALEN) != 0)
 			continue;
 		if (ssid == NULL ||
-		    ((bss->ssid_len == ssid->ssid_len &&
-		      os_memcmp(bss->ssid, ssid->ssid, ssid->ssid_len) == 0) ||
-		     ssid->ssid_len == 0)) {
+			((bss->ssid_len == ssid->ssid_len &&
+			  os_memcmp(bss->ssid, ssid->ssid, ssid->ssid_len) == 0) ||
+			 ssid->ssid_len == 0)) {
 			curr = bss;
 			break;
 		}
@@ -352,8 +352,8 @@ static int wpa_supplicant_get_beacon_ie(void *ctx)
 
 
 static u8 * _wpa_alloc_eapol(void *wpa_s, u8 type,
-			     const void *data, u16 data_len,
-			     size_t *msg_len, void **data_pos)
+				 const void *data, u16 data_len,
+				 size_t *msg_len, void **data_pos)
 {
 	return wpa_alloc_eapol(wpa_s, type, data, data_len, msg_len, data_pos);
 }
@@ -439,13 +439,13 @@ static int wpa_supplicant_set_key(void *_wpa_s, enum wpa_alg alg,
 		wpa_s->mic_errors_seen = 0;
 	}
 	return wpa_drv_set_key(wpa_s, alg, addr, key_idx, set_tx, seq, seq_len,
-			       key, key_len);
+				   key, key_len);
 }
 
 
 static int wpa_supplicant_mlme_setprotection(void *wpa_s, const u8 *addr,
-					     int protection_type,
-					     int key_type)
+						 int protection_type,
+						 int key_type)
 {
 	return wpa_drv_mlme_setprotection(wpa_s, addr, protection_type,
 					  key_type);
@@ -453,14 +453,14 @@ static int wpa_supplicant_mlme_setprotection(void *wpa_s, const u8 *addr,
 
 
 static int wpa_supplicant_add_pmkid(void *wpa_s,
-				    const u8 *bssid, const u8 *pmkid)
+					const u8 *bssid, const u8 *pmkid)
 {
 	return wpa_drv_add_pmkid(wpa_s, bssid, pmkid);
 }
 
 
 static int wpa_supplicant_remove_pmkid(void *wpa_s,
-				       const u8 *bssid, const u8 *pmkid)
+					   const u8 *bssid, const u8 *pmkid)
 {
 	return wpa_drv_remove_pmkid(wpa_s, bssid, pmkid);
 }
@@ -486,7 +486,7 @@ static int wpa_supplicant_send_ft_action(void *ctx, u8 action,
 	struct wpa_supplicant *wpa_s = ctx;
 	if (wpa_s->drv_flags & WPA_DRIVER_FLAGS_USER_SPACE_MLME)
 		return ieee80211_sta_send_ft_action(wpa_s, action, target_ap,
-						    ies, ies_len);
+							ies, ies_len);
 	return wpa_drv_send_ft_action(wpa_s, action, target_ap, ies, ies_len);
 }
 
@@ -521,7 +521,7 @@ static int wpa_supplicant_mark_authenticated(void *ctx, const u8 *target_ap)
 #ifdef IEEE8021X_EAPOL
 #if defined(CONFIG_CTRL_IFACE) || !defined(CONFIG_NO_STDOUT_DEBUG)
 static void wpa_supplicant_eap_param_needed(void *ctx, const char *field,
-					    const char *txt)
+						const char *txt)
 {
 	struct wpa_supplicant *wpa_s = ctx;
 	struct wpa_ssid *ssid = wpa_s->current_ssid;
@@ -574,6 +574,64 @@ static void wpa_supplicant_port_cb(void *ctx, int authorized)
 }
 #endif /* IEEE8021X_EAPOL */
 
+// ADDED BY xiaoxi-ij478 for tuanzi
+enum SupfMsg {
+	SUPF_MSG_SCAN_RES,
+	SUPF_MSG_EAP_ERR,
+	SUPF_MSG_EAP_SUC
+};
+
+struct SupfMsgData {
+	enum SupfMsg msg;
+	const void *buf;
+	int len;
+};
+
+static void wpa_supplicant_notify_eap_msg(
+	void *ctx,
+	int type,
+	const u8 *msg,
+	int msg_len)
+{
+	char title[128];
+	struct SupfMsgData msg_data;
+	struct wpa_supplicant *wpa_s = ctx;
+
+	sprintf(title, "WPA: notify recv eap %s msg", type?"success":"error");
+	wpa_hexdump_ascii(MSG_DEBUG, title, msg, msg_len);
+	if ( wpa_s->event_callback ) {
+		if ( type ) {
+		  if ( type != 1 ) {
+				wpa_printf(
+					MSG_ERROR,
+					"WPA: notify recv unknown eap msg(type=%d)",
+					type);
+				return;
+			}
+			msg_data.msg = SUPF_MSG_EAP_SUC;
+		} else {
+			msg_data.msg = SUPF_MSG_EAP_ERR;
+		}
+		msg_data.buf = msg;
+		msg_data.len = msg_len;
+		wpa_s->event_callback(SUPF_MSG, &msg_data);
+	}
+}
+// ADDED BY xiaoxi-ij478 for tuanzi END
+
+const u8 *wpa_supplicant_get_upload_private_data(void *ctx, int *len)
+{
+	const u8 *result;
+	struct wpa_supplicant *wpa_s = ctx;
+
+	if ( wpa_s ) {
+		*len = wpa_s->private_upload_data_len;
+		return wpa_s->private_upload_data;
+	} else {
+		*len = 0;
+		return NULL;
+	}
+}
 
 int wpa_supplicant_init_eapol(struct wpa_supplicant *wpa_s)
 {
@@ -603,6 +661,8 @@ int wpa_supplicant_init_eapol(struct wpa_supplicant *wpa_s)
 	ctx->port_cb = wpa_supplicant_port_cb;
 	ctx->cb = wpa_supplicant_eapol_cb;
 	ctx->cb_ctx = wpa_s;
+	ctx->get_upload_private_data = wpa_supplicant_get_upload_private_data;
+	ctx->eap_notify_msg = wpa_supplicant_notify_eap_msg;
 	wpa_s->eapol = eapol_sm_init(ctx);
 	if (wpa_s->eapol == NULL) {
 		os_free(ctx);

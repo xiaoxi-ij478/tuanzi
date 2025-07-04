@@ -131,8 +131,8 @@ bool DecryptSuConfig()
 {
     std::ifstream ifs("SuConfig.dat");
     std::ofstream ofs("SuConfig_Decrypt.dat");
-    unsigned char *ibuf = nullptr;
-    unsigned char *obuf = nullptr;
+    char *ibuf = nullptr;
+    char *obuf = nullptr;
     unsigned long orig_len = 0;
     unsigned long comp_len = 0;
 
@@ -148,15 +148,15 @@ bool DecryptSuConfig()
 
     ifs.seekg(0, std::ios::end);
     orig_len = ifs.tellg();
-    ibuf = new unsigned char[orig_len];
+    ibuf = new char[orig_len];
     ifs.seekg(0, std::ios::beg);
-    ifs.read(reinterpret_cast<char *>(ibuf), orig_len);
+    ifs.read(ibuf, orig_len);
     ifs.close();
     comp_len = Decompress(ibuf, obuf, orig_len, 0);
-    obuf = new unsigned char[comp_len];
+    obuf = new char[comp_len];
     Decompress(ibuf, obuf, orig_len, comp_len);
 
-    if (!ofs.write(reinterpret_cast<const char *>(obuf), comp_len)) {
+    if (!ofs.write(obuf, comp_len)) {
         g_logSystem.AppendText(
             "ERROR: write file %s failed.\n",
             "SuConfig_Decrypt.dat"
@@ -171,8 +171,8 @@ bool EncryptSuConfig()
 {
     std::ifstream ifs("SuConfig.dat");
     std::ofstream ofs("SuConfig_Encrypt.dat");
-    unsigned char *ibuf = nullptr;
-    unsigned char *obuf = nullptr;
+    char *ibuf = nullptr;
+    char *obuf = nullptr;
     unsigned long orig_len = 0;
     unsigned long comp_len = 0;
 
@@ -191,15 +191,15 @@ bool EncryptSuConfig()
 
     ifs.seekg(0, std::ios::end);
     orig_len = ifs.tellg();
-    ibuf = new unsigned char[orig_len];
+    ibuf = new char[orig_len];
     ifs.seekg(0, std::ios::beg);
-    ifs.read(reinterpret_cast<char *>(ibuf), orig_len);
+    ifs.read(ibuf, orig_len);
     ifs.close();
     comp_len = Compress(ibuf, obuf, orig_len, 0);
-    obuf = new unsigned char[comp_len];
+    obuf = new char[comp_len];
     Compress(ibuf, obuf, orig_len, comp_len);
 
-    if (!ofs.write(reinterpret_cast<const char *>(obuf), comp_len)) {
+    if (!ofs.write(obuf, comp_len)) {
         g_logSystem.AppendText(
             "ERROR: write file %s failed.\n",
             "SuConfig_Encrypt.dat"
@@ -326,7 +326,7 @@ int GKillTimer(timer_t timer)
 void GOnTimer(union sigval)
 {}
 
-void GSNRecvPacket(unsigned char *, int)
+void GSNRecvPacket(char *, int)
 {
     logFile.AppendText("receive gsn relative command!");
 }
@@ -364,8 +364,8 @@ timer_t GSetTimer(
 void GetMD5File(const char *filename, char *result)
 {
     std::ifstream ifs(filename);
-    unsigned char digest[16] = {};
-    unsigned char buf[0x200] = {};
+    char digest[16] = {};
+    char buf[0x200] = {};
     MD5_CTX ctx;
 
     if (!ifs)
@@ -374,7 +374,7 @@ void GetMD5File(const char *filename, char *result)
     MD5Init(&ctx);
 
     while (!ifs.eof()) {
-        ifs.read(reinterpret_cast<char *>(buf), sizeof(buf));
+        ifs.read(buf, sizeof(buf));
         MD5Update(&ctx, buf, sizeof(buf));
     }
 
@@ -429,14 +429,14 @@ void TrimRight(std::string &str, std::string chars)
     str.erase(p + 1);
 }
 
-void HIPacketUpdate(const unsigned char *, int)
+void HIPacketUpdate(const char *, int)
 {
     logFile.AppendText("receive hi packet update command!");
 }
 
 unsigned HexCharToAscii(
     const std::string &str,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 )
 {
@@ -470,10 +470,10 @@ unsigned HexCharToAscii(
     return str.length() >> 1;
 }
 
-std::string HexToString(const unsigned char *buf, int buflen)
+std::string HexToString(const char *buf, int buflen)
 {
     std::string ret;
-    unsigned char upper = 0, lower = 0;
+    char upper = 0, lower = 0;
 
     for (; buflen; buflen--, buf++) {
         upper = *buf >> 4;
@@ -496,7 +496,7 @@ std::string HexToString(const unsigned char *buf, int buflen)
 }
 
 // should be used to decode mac address
-int ASCIIStrtoChar(const std::string &str, unsigned char *buf)
+int ASCIIStrtoChar(const std::string &str, char *buf)
 {
     if (!str.length())
         return 0;
@@ -537,12 +537,12 @@ int ASCIIStrtoChar(const std::string &str, unsigned char *buf)
     return str.length() > 254 ? 255 : str.length();
 }
 
-std::string AsciiToStr(const unsigned char *buf, const unsigned &len)
+std::string AsciiToStr(const char *buf, const unsigned &len)
 {
-    return std::string(reinterpret_cast<const char *>(buf), len);
+    return std::string(buf, len);
 }
 
-unsigned MD5StrtoUChar(const std::string &str, unsigned char *buf)
+unsigned MD5StrtoUChar(const std::string &str, char *buf)
 {
     if (!str.length())
         return 0;
@@ -729,7 +729,7 @@ bool convertInt(const char *str, int &result)
     return true;
 }
 
-void decode(unsigned char *buf, int buflen)
+void decode(char *buf, int buflen)
 {
     if (buflen <= 0)
         return;
@@ -747,7 +747,7 @@ void decode(unsigned char *buf, int buflen)
     }
 }
 
-void encode(unsigned char *buf, int buflen)
+void encode(char *buf, int buflen)
 {
     return decode(buf, buflen);
 }
@@ -756,7 +756,7 @@ std::string makeLower(const std::string &str)
 {
     std::string ret;
 
-    for (const unsigned char i : str)
+    for (const char i : str)
         ret.push_back(tolower(i));
 
     return ret;
@@ -766,7 +766,7 @@ std::string makeUpper(const std::string &str)
 {
     std::string ret;
 
-    for (const unsigned char i : str)
+    for (const char i : str)
         ret.push_back(toupper(i));
 
     return ret;
@@ -774,7 +774,7 @@ std::string makeUpper(const std::string &str)
 
 int StringToHex(
     const std::string &str,
-    unsigned char *retbuf,
+    char *retbuf,
     int retbuflen
 )
 {
@@ -867,7 +867,7 @@ void ReadRegUserInfo(struct UserInfo &info)
     iniparser_freedict(ini);
 }
 
-void SimulateSuLogoff(unsigned char *buf, unsigned buflen)
+void SimulateSuLogoff(char *buf, unsigned buflen)
 {
     logFile.AppendText("receive simulate su logoff command!");
     CtrlThread->PostThreadMessage(SIMULATE_SU_LOGOFF_MTYPE, buflen, buf);
@@ -900,7 +900,7 @@ bool SetLanFlag(unsigned flag)
     return true;
 }
 
-void RecvSecdomainPacket(unsigned char *buf, unsigned buflen)
+void RecvSecdomainPacket(char *buf, unsigned buflen)
 {
     logFile.AppendText("receive secdomain update command!");
     PostThreadMessage(theApp, RECEIVE_SEC_DOMAIN_MTYPE, buflen, buf);

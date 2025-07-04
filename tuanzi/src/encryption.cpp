@@ -15,13 +15,13 @@ const char CEncryption::base64_cbytes[128] = {
     40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 0, 0, 0, 0, 0
 };
 
-int CEncryption::base64_decode(const char *src, unsigned char *dst)
+int CEncryption::base64_decode(const char *src, char *dst)
 {
     // this was written by myself
     int srclen = strlen(src);
     int written = 0;
     bool met_equal = false;
-    unsigned char tmp[4] = {};
+    char tmp[4] = {};
 
     // read 4 bytes from the base64 string one time
     for (int i = 0; i < srclen / 4 && !met_equal; i++) {
@@ -44,11 +44,11 @@ int CEncryption::base64_decode(const char *src, unsigned char *dst)
     return written;
 }
 
-int CEncryption::base64_encode(const unsigned char *src, int len, char *dst)
+int CEncryption::base64_encode(const char *src, int len, char *dst)
 {
     // this was written by myself too
     int written = 0;
-    unsigned char tmp[3] = {};
+    char tmp[3] = {};
 
     // process up to the 3-byte boundary
     for (int i = 0; i < len / 3; i++) {
@@ -92,7 +92,7 @@ int CEncryption::base64_encode(const unsigned char *src, int len, char *dst)
 
 int CEncryption::decrypt(char *dst, const char *src)
 {
-    int srclen = base64_decode(src, reinterpret_cast<unsigned char *>(dst));
+    int srclen = base64_decode(src, dst);
 
     for (int i = 0; i < srclen; i++)
         dst[i] ^= enc_strs[i % strlen(enc_strs)];
@@ -108,7 +108,7 @@ int CEncryption::encrypt(char *dst, const char *src)
     for (int i = 0; i < srclen; i++)
         dsrc[i] ^= enc_strs[i % strlen(enc_strs)];
 
-    base64_encode(reinterpret_cast<const unsigned char *>(dsrc), srclen, dst);
+    base64_encode(dsrc, srclen, dst);
     free(dsrc);
     dsrc = nullptr;
     return strlen(dst);

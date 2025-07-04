@@ -31,7 +31,7 @@ void CLogFile::GetTimeString(char *dst)
     }
 }
 
-void CLogFile::HexPrinter(const unsigned char *arr, unsigned len)
+void CLogFile::HexPrinter(const char *arr, unsigned len)
 {
     char *s = new char[len * 2];
 

@@ -28,7 +28,7 @@ extern bool GPostThreadMessage(
     unsigned long arg1,
     unsigned long arg2
 );
-extern bool post_command(unsigned char c);
+extern bool post_command(char c);
 extern void StopOcx();
 
 #endif // THREADUTIL_H_INCLUDED

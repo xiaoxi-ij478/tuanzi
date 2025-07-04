@@ -97,11 +97,11 @@ void CDirectTranSrv::OnTimer(int tflag) const
 }
 
 bool CDirectTranSrv::AnalyzePrivate_SAM(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 ) const
 {
-    unsigned char *logoff_buf = nullptr, *force_offline_buf = nullptr;
+    char *logoff_buf = nullptr, *force_offline_buf = nullptr;
     bool advance_pos = true;
     std::string notify_str, force_offline_str, svr_switch_result_str;
 
@@ -119,11 +119,7 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
                 if (buf[pos + 3] != 2)
                     break;
 
-                ConvertGBKToUtf8(
-                    notify_str,
-                    reinterpret_cast<char *>(&buf[pos + 5]),
-                    buf[pos + 4]
-                );
+                ConvertGBKToUtf8(notify_str, &buf[pos + 5]), buf[pos + 4]);
                 AddMsgItem(5, notify_str);
                 g_uilog.AppendText(
                     "AddMsgItem shownotify CDirectTranSrv::AnalyzePrivate_SAM,strInfo=%s",
@@ -133,68 +129,64 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
                 break;
 
             case 3:
-                if (buf[pos + 3] != 6)
-                    break;
+                    if (buf[pos + 3] != 6)
+                        break;
 
-                memcpy(
-                    logoff_buf = new unsigned char[buf[pos + 4]],
-                    &buf[pos + 5],
-                    buf[pos + 4]
-                );
-                SimulateSuLogoff(logoff_buf, buf[pos + 4]);
-                break;
+                        memcpy(
+                            logoff_buf = new char[buf[pos + 4]],
+                        &buf[pos + 5],
+                        buf[pos + 4]
+                        );
+                        SimulateSuLogoff(logoff_buf, buf[pos + 4]);
+                        break;
 
-            case 5:
-                if (buf[pos + 3] != 8)
-                    break;
+                    case 5:
+                            if (buf[pos + 3] != 8)
+                                break;
 
-                ConvertGBKToUtf8(
-                    force_offline_str,
-                    reinterpret_cast<char *>(&buf[pos + 5]),
-                    buf[pos + 4]
-                );
-                memcpy(
-                    force_offline_buf = new unsigned char[force_offline_str.length() + 1],
-                    force_offline_str.c_str(),
-                    force_offline_str.length()
-                );
-                logFile_debug.AppendText(
-                    "强制下线解析接口(%s)",
-                    force_offline_buf
-                );
-                CtrlThread->PostThreadMessage(
-                    FORCE_OFFLINE_MTYPE,
-                    force_offline_buf,
-                    force_offline_str.length() + 1
-                );
-                break;
+                                ConvertGBKToUtf8(force_offline_str, &buf[pos + 5]), buf[pos + 4]);
+                                memcpy(
+                                    force_offline_buf = new char[force_offline_str.length() + 1],
+                                force_offline_str.c_str(),
+                                force_offline_str.length()
+                                );
+                                logFile_debug.AppendText(
+                                    "强制下线解析接口(%s)",
+                                    force_offline_buf
+                                );
+                                CtrlThread->PostThreadMessage(
+                                    FORCE_OFFLINE_MTYPE,
+                                    force_offline_buf,
+                                    force_offline_str.length() + 1
+                                );
+                                break;
 
-            case 7:
-                if (buf[pos + 3] != 10)
-                    break;
+                            case 7:
+                                    if (buf[pos + 3] != 10)
+                                    break;
 
-                svr_switch_result_str = AsciiToStr(&buf[pos + 5], buf[pos + 4]);
-                RcvSvrSwitchResult();
-                // TODO
-                break;
+                                    svr_switch_result_str = AsciiToStr(&buf[pos + 5], buf[pos + 4]);
+                                    RcvSvrSwitchResult();
+                                    // TODO
+                                    break;
 
-            case 9:
-                ParseDHCPAuthResult_ForSAM(buf, buflen, pos);
-                advance_pos = false;
-                break;
-        }
-    }
+                                case 9:
+                                        ParseDHCPAuthResult_ForSAM(buf, buflen, pos);
+                                        advance_pos = false;
+                                        break;
+                                    }
+}
 
-    return true;
+return true;
 }
 
 bool CDirectTranSrv::AnalyzePrivate_SMP(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 )
 {
     unsigned short smp_datalen = 0;
-    unsigned char *smp_data = nullptr, *other_data = nullptr;
+    char *smp_data = nullptr, *other_data = nullptr;
 
     if (buf[0] != 1 || ntohs(*reinterpret_cast<unsigned short *>(&buf[1])) != 1)
         return true;
@@ -205,7 +197,7 @@ bool CDirectTranSrv::AnalyzePrivate_SMP(
                 break;
 
             smp_datalen = ntohs(*reinterpret_cast<unsigned short *>(&buf[5]));
-            smp_data = new unsigned char[smp_datalen + 1];
+            smp_data = new char[smp_datalen + 1];
             memcpy(smp_data, &buf[7], smp_datalen);
             ParseSMPData(smp_data, smp_datalen);
             break;
@@ -227,7 +219,7 @@ case (id): (func_name)(&buf[4], buflen - 4); break
 
 bool CDirectTranSrv::AskForSmpInitData()
 {
-    unsigned char ask_buf[1024] = {};
+    char ask_buf[1024] = {};
     unsigned cur_pos = 0;
     logFile_debug.AppendText("AskForSmpInitData called");
     assert(dir_thread);
@@ -453,7 +445,7 @@ std::string CDirectTranSrv::GetXmlChild_Node_STR(
 
 bool CDirectTranSrv::HandshakeToSAM()
 {
-    unsigned char handshake_buf[1024] = {};
+    char handshake_buf[1024] = {};
     unsigned cur_pos = 0;
 
     if (handshake_gsn_sender_id != -1)
@@ -501,7 +493,7 @@ bool CDirectTranSrv::HandshakeToSAM()
 
 bool CDirectTranSrv::HandshakeToSMP()
 {
-    unsigned char handshake_buf[1024] = {};
+    char handshake_buf[1024] = {};
     unsigned cur_pos = 0;
     logFile_debug.AppendText("HandshakeToSMP called");
     assert(dir_thread);
@@ -825,7 +817,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SAM, CDirectTranSrv)
     logFile_debug.AppendText(
         "UTC time：%s",
         HexToString(
-            reinterpret_cast<unsigned char *>(&dir_trans_srvpara.utc_time),
+            reinterpret_cast<char *>(&dir_trans_srvpara.utc_time),
             sizeof(dir_trans_srvpara.utc_time)
         ).c_str()
     );
@@ -953,7 +945,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SMP, CDirectTranSrv)
     logFile_debug.AppendText(
         "UTC time：%s",
         HexToString(
-            reinterpret_cast<unsigned char *>(&dir_smp_para.utc_time),
+            reinterpret_cast<char *>(&dir_smp_para.utc_time),
             sizeof(dir_smp_para.utc_time)
         ).c_str()
     );
@@ -1032,11 +1024,11 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPostNoResponse_SAM, CDirectTranSrv) const
                 dir_trans_srvpara.sam_ipaddr,
                 dir_trans_srvpara.sam_port
             ),
-            reinterpret_cast<unsigned char *>(arg1),
+            reinterpret_cast<char *>(arg1),
             arg2
         );
 
-    delete[] reinterpret_cast<unsigned char *>(arg1);
+    delete[] reinterpret_cast<char *>(arg1);
 }
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnPostNoResponse_SMP, CDirectTranSrv) const
@@ -1049,11 +1041,11 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPostNoResponse_SMP, CDirectTranSrv) const
                 dir_smp_para.smp_ipaddr,
                 dir_smp_para.smp_port
             ),
-            reinterpret_cast<unsigned char *>(arg1),
+            reinterpret_cast<char *>(arg1),
             arg2
         );
 
-    delete[] reinterpret_cast<unsigned char *>(arg1);
+    delete[] reinterpret_cast<char *>(arg1);
 }
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnPost_SAM, CDirectTranSrv) const
@@ -1069,10 +1061,10 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPost_SAM, CDirectTranSrv) const
             dir_trans_srvpara.sam_ipaddr,
             dir_trans_srvpara.sam_port
         ),
-        reinterpret_cast<unsigned char *>(arg1),
+        reinterpret_cast<char *>(arg1),
         arg2
     );
-    delete[] reinterpret_cast<unsigned char *>(arg1);
+    delete[] reinterpret_cast<char *>(arg1);
 }
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnPost_SMP, CDirectTranSrv) const
@@ -1088,15 +1080,15 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPost_SMP, CDirectTranSrv) const
             dir_smp_para.smp_ipaddr,
             dir_smp_para.smp_port
         ),
-        reinterpret_cast<unsigned char *>(arg1),
+        reinterpret_cast<char *>(arg1),
         arg2
     );
-    delete[] reinterpret_cast<unsigned char *>(arg1);
+    delete[] reinterpret_cast<char *>(arg1);
 }
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SAM, CDirectTranSrv) const
 {
-    unsigned char *buf = reinterpret_cast<unsigned char *>(arg1);
+    char *buf = reinterpret_cast<char *>(arg1);
     logFile_debug.HexPrinter(buf, arg2);
     AnalyzePrivate_SAM(buf, arg2);
     delete[] buf;
@@ -1104,7 +1096,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SAM, CDirectTranSrv) const
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SMP, CDirectTranSrv)
 {
-    unsigned char *buf = reinterpret_cast<unsigned char *>(arg1);
+    char *buf = reinterpret_cast<char *>(arg1);
     logFile_debug.HexPrinter(buf, arg2);
     AnalyzePrivate_SMP(buf, arg2);
     delete[] buf;
@@ -1169,29 +1161,25 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CDirectTranSrv)
     OnTimerLeave(arg1);
 }
 
-void CDirectTranSrv::ParseACLParam(unsigned char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseACLParam(char *buf, unsigned buflen) const
 {}
 
 void CDirectTranSrv::ParseDHCPAuthResult_ForSAM(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen,
     unsigned &pos
 ) const
 {
     std::string some_string;
-    unsigned char *some_string_buf = nullptr;
+    char *some_string_buf = nullptr;
     bool some_flag = false;
     assert(buf);
 
     for (; pos + buf[pos + 1] + 2 <= buflen; pos += buf[pos + 1] + 2)
         switch (buf[pos]) {
             case 2:
-                ConvertGBKToUtf8(
-                    some_string,
-                    reinterpret_cast<char *>(&buf[pos + 2]),
-                    buf[pos + 1]
-                );
-                some_string_buf = new unsigned char[buf[pos + 1] + 1];
+                ConvertGBKToUtf8(some_string, &buf[pos + 2], buf[pos + 1]);
+                some_string_buf = new char[buf[pos + 1] + 1];
                 memcpy(some_string_buf, some_string.c_str(), buf[pos + 1]);
                 break;
 
@@ -1212,12 +1200,12 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSAM(
 }
 
 void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 )
 {
     std::string some_string;
-    unsigned char *some_string_buf = nullptr;
+    char *some_string_buf = nullptr;
     bool some_flag = false;
     assert(buf);
 
@@ -1233,12 +1221,8 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(
                 break;
 
             case 207:
-                ConvertGBKToUtf8(
-                    some_string,
-                    reinterpret_cast<char *>(&buf[pos + 3]),
-                    datalen
-                );
-                some_string_buf = new unsigned char[datalen + 1];
+                ConvertGBKToUtf8(some_string, &buf[pos + 3], datalen);
+                some_string_buf = new char[datalen + 1];
                 memcpy(some_string_buf, some_string.c_str(), datalen);
                 break;
         }
@@ -1259,21 +1243,21 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(
 }
 
 void CDirectTranSrv::ParseGetHIStatusNow(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 ) const
 {}
 
 void CDirectTranSrv::ParseGetHostInfoNow(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 ) const
 {}
 
-void CDirectTranSrv::ParseLogoff(unsigned char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseLogoff(char *buf, unsigned buflen) const
 {
     std::string some_string;
-    unsigned char *some_string_buf = nullptr;
+    char *some_string_buf = nullptr;
 
     if (!buflen)
         return;
@@ -1287,12 +1271,8 @@ void CDirectTranSrv::ParseLogoff(unsigned char *buf, unsigned buflen) const
         switch (buf[pos]) {
             case 31:
                 if (datalen) {
-                    ConvertGBKToUtf8(
-                        some_string,
-                        reinterpret_cast<char *>(&buf[pos + 3]),
-                        datalen
-                    );
-                    some_string_buf = new unsigned char[datalen + 2];
+                    ConvertGBKToUtf8(some_string, &buf[pos + 3], datalen);
+                    some_string_buf = new char[datalen + 2];
                     memcpy(some_string_buf, some_string.c_str(), datalen);
                 }
 
@@ -1313,9 +1293,9 @@ void CDirectTranSrv::ParseLogoff(unsigned char *buf, unsigned buflen) const
         }
 }
 
-void CDirectTranSrv::ParseLogoffOhers(unsigned char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseLogoffOhers(char *buf, unsigned buflen) const
 {
-    unsigned char *some_string_buf = nullptr;
+    char *some_string_buf = nullptr;
 
     if (!buflen)
         return;
@@ -1328,7 +1308,7 @@ void CDirectTranSrv::ParseLogoffOhers(unsigned char *buf, unsigned buflen) const
     )
         switch (buf[pos]) {
             case 71:
-                some_string_buf = new unsigned char[datalen];
+                some_string_buf = new char[datalen];
                 memcpy(some_string_buf, &buf[pos + 3], datalen);
                 logFile_debug.AppendText("执行模拟其他用户下线命令");
                 SimulateSuLogoff(some_string_buf, datalen);
@@ -1337,11 +1317,11 @@ void CDirectTranSrv::ParseLogoffOhers(unsigned char *buf, unsigned buflen) const
 }
 
 void CDirectTranSrv::ParseModifyPWResult(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 ) const
 {
-    unsigned char *some_string_buf = nullptr;
+    char *some_string_buf = nullptr;
     bool some_flag = false;
     assert(buf && buflen);
 
@@ -1357,7 +1337,7 @@ void CDirectTranSrv::ParseModifyPWResult(
                 break;
 
             case 194:
-                some_string_buf = new unsigned char[datalen + 1];
+                some_string_buf = new char[datalen + 1];
                 memcpy(some_string_buf, &buf[pos + 3], datalen);
                 break;
         }
@@ -1365,7 +1345,7 @@ void CDirectTranSrv::ParseModifyPWResult(
     RcvModifyPasswordResult(some_flag, some_string_buf);
 }
 
-void CDirectTranSrv::ParseMsgAndPro(unsigned char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseMsgAndPro(char *buf, unsigned buflen) const
 {
     std::string message, url;
     bool has_message = false, has_url = false;
@@ -1379,19 +1359,11 @@ void CDirectTranSrv::ParseMsgAndPro(unsigned char *buf, unsigned buflen) const
         switch (buf[pos]) {
             case 21:
                 has_message = true;
-                ConvertGBKToUtf8(
-                    message,
-                    reinterpret_cast<char *>(&buf[pos + 3]),
-                    datalen
-                );
+                ConvertGBKToUtf8(message, &buf[pos + 3], datalen);
                 break;
 
             case 23:
-                ConvertGBKToUtf8(
-                    url,
-                    reinterpret_cast<char *>(&buf[pos + 3]),
-                    datalen
-                );
+                ConvertGBKToUtf8(url, &buf[pos + 3], datalen);
                 [[fallthrough]];
 
             case 22:
@@ -1527,16 +1499,16 @@ void CDirectTranSrv::ParsePasswordSecurity(TiXmlDocument &xml) const
     CPasswordModifier::SetPasswordSecurityInfo(secinfo);
 }
 
-void CDirectTranSrv::ParseRM_Assist(unsigned char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseRM_Assist(char *buf, unsigned buflen) const
 {}
 
-void CDirectTranSrv::ParseReAuth(unsigned char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseReAuth(char *buf, unsigned buflen) const
 {
     delete[] buf;
     CtrlThread->PostThreadMessage(REAUTH_MTYPE, 0, 0);
 }
 
-void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
+void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
 {
     TiXmlDocument xml_data;
     const TiXmlNode *bc_child = nullptr;
@@ -1550,7 +1522,7 @@ void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
     in_addr_t dcp_sip = 0;
     unsigned dcp_sp = 0;
     unsigned long dcp_ts = 0;
-    unsigned char net_src_param[2] = {};
+    char net_src_param[2] = {};
     struct tagSmpInitPacket_SendPacketCheck spc_struct = {};
     struct tagSmpInitPacket_ARPAttackDetection arpad_struct = {};
     char *sec_domain_start_tag_pos = nullptr;
@@ -1569,9 +1541,9 @@ void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
         uint8_t data[1481];
     } eap_pkg = {};
     unsigned eap_pkg_curpos = 0;
-    logFile_debug.WriteString(reinterpret_cast<char *>(buf));
+    logFile_debug.WriteString(buf);
     InitSmpInitPacket(smp_init_packet);
-    xml_data.Parse(reinterpret_cast<char *>(buf), nullptr, TIXML_ENCODING_UNKNOWN);
+    xml_data.Parse(buf, nullptr, TIXML_ENCODING_UNKNOWN);
 
     if (xml_data.Error()) {
         logFile_debug.AppendText(
@@ -1747,7 +1719,7 @@ void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
             if (
                 HexCharToAscii(
                     arpad_gw_child->ToElement()->Attribute("mac"),
-                    reinterpret_cast<unsigned char *>(&arpad_struct.gateway_mac),
+                    reinterpret_cast<char *>(&arpad_struct.gateway_mac),
                     sizeof(arpad_struct.gateway_mac)
                 ) != sizeof(arpad_struct.gateway_mac)
             )
@@ -1795,16 +1767,8 @@ void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
         smp_init_packet.illegal_network_detect.enabled = false;
 
     if (
-        (sec_domain_start_tag_pos =
-             strstr(
-                 reinterpret_cast<char *>(buf), "<security_domain>"
-             )
-        ) &&
-        (sec_domain_end_tag_pos =
-             strstr(
-                 reinterpret_cast<char *>(buf), "</security_domain>"
-             )
-        )
+        (sec_domain_start_tag_pos = strstr(buf, "<security_domain>")) &&
+        (sec_domain_end_tag_pos = strstr(buf, "</security_domain>"))
     ) {
         smp_init_packet.security_domain_xml =
             "<?xml version=\"1.0\" encoding=\"GBK\"?>"
@@ -1818,26 +1782,22 @@ void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
     }
 
     if (
-        (hi_start_tag_pos = strstr(reinterpret_cast<char *>(buf), "<hi>")) &&
-        (hi_end_tag_pos = strstr(reinterpret_cast<char *>(buf), "</hi>"))
+        (hi_start_tag_pos = strstr(buf, "<hi>")) &&
+        (hi_end_tag_pos = strstr(buf, "</hi>"))
     ) {
-        smp_init_packet.hi_xml =
-            "<?xml version=\"1.0\" encoding=\"GBK\"?>";
+        smp_init_packet.hi_xml = "<?xml version=\"1.0\" encoding=\"GBK\"?>";
         smp_init_packet.hi_xml.append(
             hi_start_tag_pos,
             hi_end_tag_pos + strlen("</hi>") - hi_start_tag_pos
         );
 
-    } else if (strstr(reinterpret_cast<char *>(buf), "<hi />")) {
-        smp_init_packet.hi_xml =
-            "<?xml version=\"1.0\" encoding=\"GBK\"?>\n"
-            "<hi />";
-    }
+    } else if (strstr(buf, "<hi />"))
+        smp_init_packet.hi_xml = "<?xml version=\"1.0\" encoding=\"GBK\"?>\n<hi />";
 
     CoUnInitialize();
     HIPacketUpdate(
-        reinterpret_cast<const unsigned char *>(smp_init_packet.hi_xml.c_str()),
-        strlen(smp_init_packet.hi_xml.c_str()) + 1
+        smp_init_packet.hi_xml.c_str(),
+        smp_init_packet.hi_xml.length() + 1
     );
     eap_pkg.etherheader.ether_type = htons(ETH_P_PAE);
     eap_pkg.eaphdr.code = 0x01; /* EAP_REQUEST */
@@ -1861,13 +1821,13 @@ void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
         memcpy(&eap_pkg.data[eap_pkg_curpos], &i, 4); \
         eap_pkg_curpos += 4; \
     } while (0)
-    unsigned char type_13_data[0x11 - 0x2] = {
+    char type_13_data[0x11 - 0x2] = {
         0x1C, 0x03, 0x0D, 0x26, 0x06, 0x00, 0x00, 0x00,
         0x01, 0x27, 0x06, 0x06, 0x00, 0x00, 0x00
     };
-    unsigned char type_30_data[0x6 - 0x2] = { 0xF0, 0xFF, 0xFF, 0x00 };
-    unsigned char type_32_data[0x12 - 0x2] = {};
-    unsigned char type_33_data[0x82 - 0x2] = {};
+    char type_30_data[0x6 - 0x2] = { 0xF0, 0xFF, 0xFF, 0x00 };
+    char type_32_data[0x12 - 0x2] = {};
+    char type_33_data[0x82 - 0x2] = {};
     struct ether_addr gateway_mac = {};
     PUT_TYPE(0x13);
     PUT_LENGTH(0x11);
@@ -1901,7 +1861,7 @@ void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
     PUT_LENGTH(0x08);
     StringToHex(
         smp_init_packet.arp.gateway_mac,
-        reinterpret_cast<unsigned char *>(&gateway_mac),
+        reinterpret_cast<char *>(&gateway_mac),
         sizeof(gateway_mac)
     );
     PUT_DATA(&gateway_mac, sizeof(gateway_mac));
@@ -1944,7 +1904,7 @@ void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
 #undef PUT_TYPE
 #undef PUT_DATA_IMMEDIATE_BYTE
 #undef PUT_DATA_IMMEDIATE_UINT32
-    GSNRecvPacket(reinterpret_cast<unsigned char *>(&eap_pkg), 0x19B);
+    GSNRecvPacket(reinterpret_cast<char *>(&eap_pkg), 0x19B);
 
     if (!smp_init_packet.security_domain_xml.empty())
         smp_init_packet.security_domain_xml.copy(
@@ -1958,16 +1918,16 @@ void CDirectTranSrv::ParseSMPData(unsigned char *buf, unsigned buflen)
         sec_domain_xml_buf
     );
     RecvSecdomainPacket(
-        reinterpret_cast<unsigned char *>(sec_domain_xml_buf),
+        sec_domain_xml_buf,
         smp_init_packet.security_domain_xml.length()
     );
     delete[] buf;
 }
 
-bool CDirectTranSrv::PostToSam(unsigned char *buf, unsigned buflen) const
+bool CDirectTranSrv::PostToSam(char *buf, unsigned buflen) const
 {
     bool ret = false;
-    unsigned char *newbuf = new unsigned char[buflen];
+    char *newbuf = new char[buflen];
 
     if (!newbuf)
         return ret;
@@ -1987,11 +1947,11 @@ bool CDirectTranSrv::PostToSam(unsigned char *buf, unsigned buflen) const
 }
 
 bool CDirectTranSrv::PostToSamWithNoResponse(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 ) const
 {
-    unsigned char *newbuf = new unsigned char[buflen];
+    char *newbuf = new char[buflen];
 
     if (!newbuf)
         return false;
@@ -2005,10 +1965,10 @@ bool CDirectTranSrv::PostToSamWithNoResponse(
            );
 }
 
-bool CDirectTranSrv::PostToSmp(unsigned char *buf, unsigned buflen) const
+bool CDirectTranSrv::PostToSmp(char *buf, unsigned buflen) const
 {
     bool ret = false;
-    unsigned char *newbuf = new unsigned char[buflen];
+    char *newbuf = new char[buflen];
 
     if (!newbuf)
         return ret;
@@ -2031,11 +1991,11 @@ bool CDirectTranSrv::PostToSmp(unsigned char *buf, unsigned buflen) const
 }
 
 bool CDirectTranSrv::PostToSmpWithNoResponse(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 ) const
 {
-    unsigned char *newbuf = new unsigned char[buflen];
+    char *newbuf = new char[buflen];
 
     if (!newbuf)
         return false;
@@ -2050,7 +2010,7 @@ bool CDirectTranSrv::PostToSmpWithNoResponse(
 }
 
 bool CDirectTranSrv::SendToSam(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen,
     unsigned timeout
 ) const
@@ -2073,7 +2033,7 @@ bool CDirectTranSrv::SendToSam(
 }
 
 bool CDirectTranSrv::SendToSamWithNoResponse(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen,
     unsigned timeout
 ) const
@@ -2095,7 +2055,7 @@ bool CDirectTranSrv::SendToSamWithNoResponse(
 }
 
 bool CDirectTranSrv::SendToSmp(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen,
     unsigned timeout
 ) const
@@ -2118,7 +2078,7 @@ bool CDirectTranSrv::SendToSmp(
 }
 
 bool CDirectTranSrv::SendToSmpWithNoResponse(
-    unsigned char *buf,
+    char *buf,
     unsigned buflen,
     unsigned timeout
 ) const

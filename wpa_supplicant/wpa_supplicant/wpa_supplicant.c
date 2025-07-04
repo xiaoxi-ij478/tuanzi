@@ -508,6 +508,78 @@ const char * wpa_supplicant_state_txt(enum wpa_states state)
 	}
 }
 
+// ADDED BY xiaoxi-ij478 for tuanzi
+enum SupfState {
+    SUPF_STOP,
+    SUPF_START,
+    SUPF_WLAN_NOFOUND,
+    SUPF_DISASSOC,
+    SUPF_ASSOCIATING,
+    SUPF_ASSOCIATED,
+    SUPF_CONNECTING,
+    SUPF_AUTHENTICATING,
+    SUPF_4WAY_HANDSHAKE,
+    SUPF_GROUP_HANDSHAKE,
+    SUPF_COMPLETE_SUCCESS,
+    SUPF_AUTH_TIMEOUT
+};
+
+static void wpa_supplicant_state_callback(
+        struct wpa_supplicant *wpa_s,
+        enum wpa_states state)
+{
+  enum SupfState newState;
+
+  switch ( state )
+  {
+    case WPA_DISCONNECTED:
+      if ( wpa_s->event_callback )
+      {
+        newState = SUPF_DISASSOC;
+        wpa_s->event_callback(SUPF_STATE, &newState);
+      }
+      break;
+    case WPA_AUTHENTICATING:
+    case WPA_ASSOCIATING:
+      if ( wpa_s->event_callback )
+      {
+        newState = SUPF_ASSOCIATING;
+        wpa_s->event_callback(SUPF_STATE, &newState);
+      }
+      break;
+    case WPA_ASSOCIATED:
+      if ( wpa_s->event_callback )
+      {
+        newState = SUPF_ASSOCIATED;
+        wpa_s->event_callback(SUPF_STATE, &newState);
+      }
+      break;
+    case WPA_4WAY_HANDSHAKE:
+      if ( wpa_s->event_callback )
+      {
+        newState = SUPF_4WAY_HANDSHAKE;
+        wpa_s->event_callback(SUPF_STATE, &newState);
+      }
+      break;
+    case WPA_GROUP_HANDSHAKE:
+      if ( wpa_s->event_callback )
+      {
+        newState = SUPF_GROUP_HANDSHAKE;
+        wpa_s->event_callback(SUPF_STATE, &newState);
+      }
+      break;
+    case WPA_COMPLETED:
+      if ( wpa_s->event_callback )
+      {
+        newState = SUPF_COMPLETE_SUCCESS;
+        wpa_s->event_callback(SUPF_STATE, &newState);
+      }
+      break;
+    default:
+      return;
+  }
+}
+// ADDED BY xiaoxi-ij478 for tuanzi END
 
 /**
  * wpa_supplicant_set_state - Set current connection state
@@ -525,6 +597,8 @@ void wpa_supplicant_set_state(struct wpa_supplicant *wpa_s,
 	wpa_printf(MSG_DEBUG, "State: %s -> %s",
 		   wpa_supplicant_state_txt(wpa_s->wpa_state),
 		   wpa_supplicant_state_txt(state));
+
+	wpa_supplicant_state_callback(wpa_s, state);
 
 	if (state != WPA_SCANNING)
 		wpa_supplicant_notify_scanning(wpa_s, 0);
@@ -617,15 +691,28 @@ int wpa_supplicant_reload_configuration(struct wpa_supplicant *wpa_s)
 	int reconf_ctrl;
 	int old_ap_scan;
 
-	if (wpa_s->confname == NULL)
-		return -1;
-	conf = wpa_config_read(wpa_s->confname);
-	if (conf == NULL) {
-		wpa_msg(wpa_s, MSG_ERROR, "Failed to parse the configuration "
-			"file '%s' - exiting", wpa_s->confname);
-		return -1;
+	// ADDED BY xiaoxi-ij478 for tuanzi
+//	if (wpa_s->confname == NULL)
+	if (wpa_s->confname) {
+		wpa_printf(
+			MSG_INFO,
+			"confname null,read from pipe=%d.",
+			wpa_s->conf_pipe_read
+		);
+		conf = wpa_config_read_pipe(wpa_s->conf_pipe_read);
+		if (!conf) {
+			wpa_printf(MSG_ERROR, "conf read from pipe is null");
+			return -1;
+		}
+	} else {
+	// ADDED BY xiaoxi-ij478 for tuanzi END
+		conf = wpa_config_read(wpa_s->confname);
+		if (conf == NULL) {
+			wpa_msg(wpa_s, MSG_ERROR, "Failed to parse the configuration "
+				"file '%s' - exiting", wpa_s->confname);
+			return -1;
+		}
 	}
-
 	reconf_ctrl = !!conf->ctrl_interface != !!wpa_s->conf->ctrl_interface
 		|| (conf->ctrl_interface && wpa_s->conf->ctrl_interface &&
 		    os_strcmp(conf->ctrl_interface,

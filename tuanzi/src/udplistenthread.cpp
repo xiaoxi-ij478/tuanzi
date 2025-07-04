@@ -140,7 +140,7 @@ bool CUDPListenThread::CloseGSNReceiver(int id)
 
 bool CUDPListenThread::DecryptPrivateData(
     const struct tagDirectCom_ProtocalParam &proto_param,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 ) const
 {
@@ -154,7 +154,7 @@ bool CUDPListenThread::DecryptPrivateData(
 
 bool CUDPListenThread::EncryptPrivateData(
     const struct tagDirectCom_ProtocalParam &proto_param,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 ) const
 {
@@ -243,7 +243,7 @@ bool CUDPListenThread::GetProtocalParam(
 }
 
 bool CUDPListenThread::HandlePrivateData(
-    const unsigned char *buf,
+    const char *buf,
     unsigned buflen
 )
 {
@@ -343,7 +343,7 @@ bool CUDPListenThread::IsGoodAsyUTC(
 }
 
 bool CUDPListenThread::IsIPHeadChecksumRight(
-    const unsigned char *buf,
+    const char *buf,
     unsigned buflen
 ) const
 {
@@ -355,7 +355,7 @@ bool CUDPListenThread::IsIPHeadChecksumRight(
 }
 
 bool CUDPListenThread::IsSuExpected(
-    const unsigned char *buf,
+    const char *buf,
     unsigned buflen
 ) const
 {
@@ -369,7 +369,7 @@ bool CUDPListenThread::IsSuExpected(
 }
 
 bool CUDPListenThread::IsUDPChecksumRight(
-    const unsigned char *buf,
+    const char *buf,
     unsigned buflen
 ) const
 {
@@ -395,13 +395,13 @@ bool CUDPListenThread::IsUDPChecksumRight(
         buflen - sizeof(struct etherudppkg)
     );
     return CheckSumForRecv(
-               reinterpret_cast<const unsigned char *>(&header),
+               reinterpret_cast<const char *>(&header),
                checksum_hdrlen
            ) == 0xFFFF;
 }
 
 bool CUDPListenThread::IsUDPPacket(
-    const unsigned char *buf,
+    const char *buf,
     unsigned buflen
 ) const
 {
@@ -418,9 +418,9 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnRecvPacketReturn, CUDPListenThread)
     assert(arg2);
 
     if (working_falg)
-        HandlePrivateData(reinterpret_cast<const unsigned char *>(arg2), arg1);
+        HandlePrivateData(reinterpret_cast<const char *>(arg2), arg1);
 
-    delete[] reinterpret_cast<const unsigned char *>(arg2);
+    delete[] reinterpret_cast<const char *>(arg2);
 }
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CUDPListenThread)
@@ -479,7 +479,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CUDPListenThread)
 }
 
 bool CUDPListenThread::ResponseSender(
-    const unsigned char *buf,
+    const char *buf,
     unsigned buflen
 )
 {
@@ -487,8 +487,8 @@ bool CUDPListenThread::ResponseSender(
             reinterpret_cast<const struct DirTransFullPkg *>(buf);
     struct tagDirectCom_ProtocalParam proto_param = {};
     struct tagDirPacketHead dir_head = {};
-    unsigned char *checksum_buf = nullptr;
-    unsigned char md5_checksum[16] = {};
+    char *checksum_buf = nullptr;
+    char md5_checksum[16] = {};
     char *md5_checksum_ascii = nullptr;
 
     if (buflen < sizeof(struct DirTransFullPkg) || !listen_res)
@@ -597,7 +597,7 @@ bool CUDPListenThread::ResponseSender(
         return false;
     }
 
-    checksum_buf = new unsigned char[dir_head.packet_len + sizeof(md5_checksum)];
+    checksum_buf = new char[dir_head.packet_len + sizeof(md5_checksum)];
     memcpy(
         checksum_buf,
         buf + sizeof(struct etherudppkg),
@@ -637,7 +637,7 @@ bool CUDPListenThread::ResponseSender(
 }
 
 bool CUDPListenThread::RevcDirectPack(
-    const unsigned char *buf,
+    const char *buf,
     unsigned buflen
 )
 {
@@ -646,12 +646,12 @@ bool CUDPListenThread::RevcDirectPack(
     struct tagDirectCom_ProtocalParam proto_param = {};
     struct tagDirPacketHead dir_head = {};
     struct tagRecvBind tmp_recvbind = {};
-    unsigned char *checksum_buf = nullptr;
-    unsigned char md5_checksum[16] = {};
+    char *checksum_buf = nullptr;
+    char md5_checksum[16] = {};
     char *md5_checksum_ascii = nullptr;
     bool found_session = false;
     struct tagRecvSessionBind session = {};
-    unsigned char *tmp_received_data = nullptr;
+    char *tmp_received_data = nullptr;
 
     if (buflen < sizeof(struct DirTransFullPkg))
         return false;
@@ -736,7 +736,7 @@ bool CUDPListenThread::RevcDirectPack(
     }
 
     logFile_debug.AppendText("报文各基本标识检查成功，开始authenticator MD5校验检查");
-    checksum_buf = new unsigned char[dir_head.packet_len +  sizeof(md5_checksum)];
+    checksum_buf = new char[dir_head.packet_len +  sizeof(md5_checksum)];
     memcpy(
         checksum_buf,
         buf + sizeof(struct etherudppkg),
@@ -821,7 +821,7 @@ bool CUDPListenThread::RevcDirectPack(
             "接收直通报文，第一个分片，总长度[%d]",
             dir_head.data_len
         );
-        session.data = new unsigned char[dir_head.data_len];
+        session.data = new char[dir_head.data_len];
         memcpy(
             session.data,
             buf + sizeof(struct DirTransFullPkg),
@@ -893,7 +893,7 @@ bool CUDPListenThread::RevcDirectPack(
     }
 
     if (session.received == dir_head.data_len) {
-        tmp_received_data = new unsigned char[session.received];
+        tmp_received_data = new char[session.received];
         memcpy(tmp_received_data, session.data, dir_head.data_len);
 
         if (DecryptPrivateData(proto_param, tmp_received_data, dir_head.data_len))
@@ -939,15 +939,15 @@ void CUDPListenThread::SendResponse(
     unsigned dstport,
     in_addr_t srcaddr,
     unsigned srcport,
-    const unsigned char *packet
+    const char *packet
 )
 {
     struct tagDirPacketHead new_packet_head = {};
     struct tagDirTranPara trans_para = {};
     struct mtagFinalDirPacket final_packet_head = {};
-    unsigned char md5_checksum[16] = {};
+    char md5_checksum[16] = {};
     char *md5_checksum_ascii = nullptr;
-    unsigned char checksum_buf[
+    char checksum_buf[
      sizeof(struct mtagFinalDirPacket) + sizeof(md5_checksum)
     ] = {};
     assert(packet);
@@ -1229,7 +1229,7 @@ void CUDPListenThread::freeMemory()
 }
 
 unsigned short CUDPListenThread::CheckSumForRecv(
-    const unsigned char *buf,
+    const char *buf,
     unsigned buflen
 )
 {

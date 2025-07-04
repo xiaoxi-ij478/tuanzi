@@ -42,7 +42,7 @@ enum ADAPTER_TYPE get_nic_type(const char *ifname)
 unsigned short ComputeTcpPseudoHeaderChecksum(
     const struct iphdr *ipheader,
     struct tcphdr *tcpheader,
-    const unsigned char *databuf,
+    const char *databuf,
     int length
 )
 {
@@ -65,7 +65,7 @@ unsigned short ComputeTcpPseudoHeaderChecksum(
 unsigned short ComputeUdpPseudoHeaderChecksumV4(
     const struct iphdr *ipheader,
     struct udphdr *udpheader,
-    const unsigned char *databuf,
+    const char *databuf,
     int length
 )
 {
@@ -95,7 +95,7 @@ unsigned short checksum(const unsigned short *data, unsigned len)
 
     // add the additional one padding to word if exists
     if (len & 1)
-        checksum += *reinterpret_cast<const unsigned char *>(data);
+        checksum += *reinterpret_cast<const char *>(data);
 
     // repeatedly take the high 16 bit and add to the low 16 bit
     // until the high 16 bit is 0
@@ -128,7 +128,7 @@ struct NICINFO *get_nics_info(const char *ifname)
 
     if (get_dns(&dns_addr)) {}
 
-//        swap32(static_cast<unsigned char *>(&dns_addr.s_addr));
+//        swap32(static_cast<char *>(&dns_addr.s_addr));
 
     for (struct ifaddrs *cur_if = ifap; cur_if; cur_if = cur_if->ifa_next) {
         interface_added = false;
@@ -208,12 +208,12 @@ struct NICINFO *get_nics_info(const char *ifname)
                 tmp_ipnode->ipaddr =
                     reinterpret_cast<struct sockaddr_in *>
                     (cur_if->ifa_addr)->sin_addr.s_addr;
-//                swap32(reinterpret_cast<unsigned char *>(&tmp_ipnode->ipaddr.s_addr));
+//                swap32(reinterpret_cast<char *>(&tmp_ipnode->ipaddr.s_addr));
                 tmp_ipnode->netmask =
                     reinterpret_cast<struct sockaddr_in *>
                     (cur_if->ifa_netmask)->sin_addr.s_addr;
 
-//                swap32(reinterpret_cast<unsigned char *>(&tmp_ipnode->netmask.s_addr));
+//                swap32(reinterpret_cast<char *>(&tmp_ipnode->netmask.s_addr));
                 if (!cur_info->ipaddrs) {
                     cur_info->ipaddrs = tmp_ipnode;
                     cur_info->use_dhcp =
@@ -243,12 +243,12 @@ struct NICINFO *get_nics_info(const char *ifname)
                 tmp_ip6node->ipaddr =
                     reinterpret_cast<struct sockaddr_in6 *>
                     (cur_if->ifa_addr)->sin6_addr;
-//                swap128(reinterpret_cast<unsigned char *>(tmp_ip6node->ipaddr));
+//                swap128(reinterpret_cast<char *>(tmp_ip6node->ipaddr));
                 tmp_ip6node->netmask =
                     reinterpret_cast<struct sockaddr_in6 *>
                     (cur_if->ifa_netmask)->sin6_addr;
 
-//                swap128(reinterpret_cast<unsigned char *>(tmp_ip6node->netmask));
+//                swap128(reinterpret_cast<char *>(tmp_ip6node->netmask));
 
                 if (!cur_info->ip6addrs)
                     cur_info->ip6addrs = tmp_ip6node;

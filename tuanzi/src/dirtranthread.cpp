@@ -151,7 +151,7 @@ void CDirTranThread::CloseGSNSender(int id)
 
 bool CDirTranThread::DecryptPrivateData(
     const struct tagDirectCom_ProtocalParam &proto_param,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 ) const
 {
@@ -436,7 +436,7 @@ bool CDirTranThread::DoSendPacket(
 
 bool CDirTranThread::EncryptPrivateData(
     const struct tagDirectCom_ProtocalParam &proto_param,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 ) const
 {
@@ -644,7 +644,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnTransPacket, CDirTranThread)
 
 bool CDirTranThread::PostPacketNoResponse(
     int id,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 )
 {
@@ -652,7 +652,7 @@ bool CDirTranThread::PostPacketNoResponse(
         0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
     };
     struct tagDataSendUnit send_unit = {};
-    unsigned char *msg = nullptr;
+    char *msg = nullptr;
     unsigned buflen_new = buflen;
 
     if (!GetProtocalParamFromSenderHand(proto_param, id)) {
@@ -664,7 +664,7 @@ bool CDirTranThread::PostPacketNoResponse(
         buflen_new = buflen_new + 8 - buflen_new % 8;
 
     send_unit.id = id;
-    send_unit.msg = new unsigned char[buflen_new];
+    send_unit.msg = new char[buflen_new];
     send_unit.eventret = nullptr;
     send_unit.ret = nullptr;
     send_unit.need_reply = false;
@@ -689,7 +689,7 @@ bool CDirTranThread::PostPacketNoResponse(
 
 bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
     int id,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 )
 {
@@ -747,7 +747,7 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
 
     send_unit.totallen = buflen_new;
 
-    if (!(send_unit.msg = new unsigned char[buflen_new]))
+    if (!(send_unit.msg = new char[buflen_new]))
         return false;
 
     memcpy(send_unit.msg, buf, buflen);
@@ -765,7 +765,7 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
 
 bool CDirTranThread::SendPacketNoResponse(
     int id,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen,
     unsigned timeout
 )
@@ -786,7 +786,7 @@ bool CDirTranThread::SendPacketNoResponse(
 
     send_unit.id = id;
     send_unit.totallen = buflen_new;
-    send_unit.msg = new unsigned char[buflen_new];
+    send_unit.msg = new char[buflen_new];
     send_unit.eventret = new WAIT_HANDLE;
     send_unit.ret = new unsigned;
     send_unit.need_reply = false;
@@ -960,7 +960,7 @@ bool CDirTranThread::WaitUDP_DirectThread_OK(WAIT_HANDLE &event_udp_ready) const
 
 bool CDirTranThread::postMessage(
     int id,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 )
 {
@@ -979,7 +979,7 @@ bool CDirTranThread::postMessage(
         buflen_new = buflen_new + 8 - buflen_new % 8;
 
     send_unit.id = id;
-    send_unit.msg = new unsigned char[buflen_new];
+    send_unit.msg = new char[buflen_new];
     send_unit.eventret = nullptr;
     send_unit.ret = nullptr;
     send_unit.need_reply = true;
@@ -1000,7 +1000,7 @@ bool CDirTranThread::postMessage(
 
 bool CDirTranThread::sendMessage(
     int id,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen
 )
 {
@@ -1020,7 +1020,7 @@ bool CDirTranThread::sendMessage(
 
     send_unit.id = id;
     send_unit.totallen = buflen_new;
-    send_unit.msg = new unsigned char[buflen_new];
+    send_unit.msg = new char[buflen_new];
     send_unit.eventret = new WAIT_HANDLE;
     send_unit.ret = new unsigned;
     send_unit.need_reply = false;
@@ -1055,7 +1055,7 @@ bool CDirTranThread::sendMessage(
 
 bool CDirTranThread::sendMessageWithTimeout(
     int id,
-    unsigned char *buf,
+    char *buf,
     unsigned buflen,
     unsigned timeout
 )
@@ -1076,7 +1076,7 @@ bool CDirTranThread::sendMessageWithTimeout(
 
     send_unit.id = id;
     send_unit.totallen = buflen_new;
-    send_unit.msg = new unsigned char[buflen_new];
+    send_unit.msg = new char[buflen_new];
     send_unit.eventret = new WAIT_HANDLE;
     send_unit.ret = new unsigned;
     send_unit.need_reply = false;

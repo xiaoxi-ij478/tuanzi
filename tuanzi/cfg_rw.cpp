@@ -56,18 +56,18 @@ int main(int argc, char **argv)
         ifs.seekg(0, std::ios::end);
         unsigned orig_size = ifs.tellg();
         ifs.seekg(0, std::ios::beg);
-        unsigned char *ibuf = new unsigned char[orig_size + 1];
+        char *ibuf = new char[orig_size + 1];
 
         for (unsigned i = 0; !ifs.eof(); i++)
             ibuf[i] = ~ifs.get();
 
         ifs.close();
-        unsigned char *obuf = nullptr;
+        char *obuf = nullptr;
         unsigned decompress_size = Decompress(ibuf, obuf, orig_size, 0);
-        obuf = new unsigned char[decompress_size];
+        obuf = new char[decompress_size];
         Decompress(ibuf, obuf, orig_size, decompress_size);
 
-        if (!ofs.write(reinterpret_cast<const char *>(obuf), decompress_size)) {
+        if (!ofs.write(obuf, decompress_size)) {
             std::cerr << "ERROR: write file " << write_filename << " failed."
                       << std::endl;
             delete[] ibuf;
@@ -85,18 +85,18 @@ int main(int argc, char **argv)
     ifs.seekg(0, std::ios::end);
     unsigned orig_size = ifs.tellg();
     ifs.seekg(0, std::ios::beg);
-    unsigned char *ibuf = new unsigned char[orig_size + 1];
-    ifs.read(reinterpret_cast<char *>(ibuf), orig_size);
+    char *ibuf = new char[orig_size + 1];
+    ifs.read(ibuf, orig_size);
     ifs.close();
-    unsigned char *obuf = nullptr;
+    char *obuf = nullptr;
     unsigned comp_size = Compress(ibuf, obuf, orig_size, 0);
-    obuf = new unsigned char[comp_size];
+    obuf = new char[comp_size];
     Compress(ibuf, obuf, orig_size, comp_size);
     // *INDENT-OFF*
-    std::for_each(obuf, obuf + comp_size + 1, [](unsigned char &i) { i = ~i; });
+    std::for_each(obuf, obuf + comp_size + 1, [](char &i) { i = ~i; });
     // *INDENT-ON*
 
-    if (!ofs.write(reinterpret_cast<const char *>(obuf), comp_size)) {
+    if (!ofs.write(obuf, comp_size)) {
         std::cerr << "ERROR: write file " << write_filename << " failed."
                   << std::endl;
         delete[] ibuf;

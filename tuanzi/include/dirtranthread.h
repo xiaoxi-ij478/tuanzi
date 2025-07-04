@@ -28,17 +28,17 @@ class CDirTranThread : public CLnxThread
         );
         bool PostPacketNoResponse(
             int id,
-            unsigned char *buf,
+            char *buf,
             unsigned buflen
         );
         bool PostPacketSAMHeartbeatNoResponse(
             int id,
-            unsigned char *buf,
+            char *buf,
             unsigned buflen
         );
         bool SendPacketNoResponse(
             int id,
-            unsigned char *buf,
+            char *buf,
             unsigned buflen,
             unsigned timeout
         );
@@ -61,17 +61,17 @@ class CDirTranThread : public CLnxThread
         void StopRun();
         bool postMessage(
             int id,
-            unsigned char *buf,
+            char *buf,
             unsigned buflen
         );
         bool sendMessage(
             int id,
-            unsigned char *buf,
+            char *buf,
             unsigned buflen
         );
         bool sendMessageWithTimeout(
             int id,
-            unsigned char *buf,
+            char *buf,
             unsigned buflen,
             unsigned timeout
         );
@@ -84,7 +84,7 @@ class CDirTranThread : public CLnxThread
         void CloseAllGSNSender();
         bool DecryptPrivateData(
             const struct tagDirectCom_ProtocalParam &proto_param,
-            unsigned char *buf,
+            char *buf,
             unsigned buflen
         ) const;
         bool DoSendPacket(
@@ -93,7 +93,7 @@ class CDirTranThread : public CLnxThread
         );
         bool EncryptPrivateData(
             const struct tagDirectCom_ProtocalParam &proto_param,
-            unsigned char *buf,
+            char *buf,
             unsigned buflen
         ) const;
         bool GetProtocalParam(

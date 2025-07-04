@@ -97,7 +97,6 @@ bool CTcp::GetFtpReqAddr_Port(const struct TCPIP &pkg)
     int space_pos = 0;
     int at_pos = 0;
     int copy_len = 0;
-    const char *content = reinterpret_cast<const char *>(pkg.content);
 
     if (
         pkg.content_length <= 7 ||
@@ -106,7 +105,7 @@ bool CTcp::GetFtpReqAddr_Port(const struct TCPIP &pkg)
     )
         return false;
 
-    if ((space_pos = FindChar(' ', content, 0, pkg.content_length - 1)) <= 0)
+    if ((space_pos = FindChar(' ', pkg.content, 0, pkg.content_length - 1)) <= 0)
         return false;
 
     if (
@@ -118,7 +117,7 @@ bool CTcp::GetFtpReqAddr_Port(const struct TCPIP &pkg)
 
     if (
         (at_pos =
-             FindChar('@', content, space_pos + 1, pkg.content_length - 1)
+             FindChar('@', pkg.content, space_pos + 1, pkg.content_length - 1)
         ) < space_pos + 1
     )
         return false;
@@ -144,9 +143,8 @@ bool CTcp::GetHttpReqAddr_Port(const struct TCPIP &pkg)
     int port_begin = 0;
     int end = 0;
     int domain_len = 0;
-    const char *content = reinterpret_cast<const char *>(pkg.content);
 
-    if ((space_pos = FindChar(' ', content, 0, pkg.content_length - 1)) <= 2)
+    if ((space_pos = FindChar(' ', pkg.content, 0, pkg.content_length - 1)) <= 2)
         return false;
 
     if (
@@ -159,7 +157,7 @@ bool CTcp::GetHttpReqAddr_Port(const struct TCPIP &pkg)
         (space_pos2 =
              FindChar(
                  ' ',
-                 content,
+                 pkg.content,
                  space_pos + 1,
                  pkg.content_length - 1
              )
@@ -204,16 +202,16 @@ bool CTcp::GetHttpReqAddr_Port(const struct TCPIP &pkg)
     if (url_begin > end)
         return false;
 
-    if ((path_begin = FindChar('/', content, url_begin, end)) > 0)
+    if ((path_begin = FindChar('/', pkg.content, url_begin, end)) > 0)
         if ((end = path_begin - 1) <= url_begin)
             return false;
 
-    if ((port_begin = FindChar(':', content, url_begin, end)) >= 0) {
+    if ((port_begin = FindChar(':', pkg.content, url_begin, end)) >= 0) {
         if (end - port_begin >= 5)
             return false;
 
         end = port_begin - 1;
-        reqport = strtol(&content[port_begin], nullptr, 10);
+        reqport = strtol(&pkg.content[port_begin], nullptr, 10);
 
     } else
         reqport = 80;
@@ -241,13 +239,12 @@ bool CTcp::GetNntpReqAddr_Port(const struct TCPIP &pkg)
 {
     int hash_pos = 0;
     int some_len = 0;
-    const char *content = reinterpret_cast<const char *>(pkg.content);
 
     if (
         pkg.content_length <= 17 ||
         pkg.content[pkg.content_length - 2] != '\r' ||
         pkg.content[pkg.content_length - 1] != '\n' ||
-        strncasecmp(content, "AUTHINFO USER ", strlen("AUTHINFO USER "))
+        strncasecmp(pkg.content, "AUTHINFO USER ", strlen("AUTHINFO USER "))
     )
         return false;
 
@@ -427,9 +424,8 @@ bool CTcp::IsHttpType(const struct TCPIP &pkg)
 {
     int space_pos = 0;
     int space_pos2 = 0;
-    const char *content = reinterpret_cast<const char *>(pkg.content);
 
-    if ((space_pos = FindChar(' ', content, 0, pkg.content_length - 1) <= 2))
+    if ((space_pos = FindChar(' ', pkg.content, 0, pkg.content_length - 1) <= 2))
         return false;
 
     if (
@@ -442,7 +438,7 @@ bool CTcp::IsHttpType(const struct TCPIP &pkg)
         (space_pos2 =
              FindChar(
                  ' ',
-                 content,
+                 pkg.content,
                  space_pos + 1,
                  pkg.content_length - 1
              )
@@ -486,7 +482,7 @@ bool CTcp::IsMmsType(const struct TCPIP &pkg)
 {
     wchar_t *wchar_buf = nullptr;
     char *char_buf = nullptr;
-    unsigned char_buflen = 0;
+    char_buflen = 0;
     int host_pos = 0;
     const struct MMSTcpMessage *message =
             reinterpret_cast<const struct MMSTcpMessage *>(pkg.content);

@@ -58,7 +58,7 @@ void CSendPacketThread::DispathMessage(struct LNXMSG *msg)
         case SEND_MESSAGE_MTYPE:
             if (!started) {
                 g_logSystem.AppendText("Send Packet before open nic");
-                delete[] reinterpret_cast<unsigned char *>(msg->arg2);
+                delete[] reinterpret_cast<char *>(msg->arg2);
                 break;
             }
 
@@ -107,7 +107,7 @@ int CSendPacketThread::DoSendPacket(unsigned long arg1, unsigned long arg2)
             ret =
                 pcap_sendpacket(
                     pcap_handle,
-                    reinterpret_cast<const unsigned char *>(arg2),
+                    reinterpret_cast<const char *>(arg2),
                     arg1
                 )
         )

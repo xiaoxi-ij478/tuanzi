@@ -6,42 +6,30 @@
 
 void CUserConfig::DecryptPassword(std::string &password)
 {
-    unsigned char buf[32] = {};
-    CEncryption::decrypt(
-        buf,
-        reinterpret_cast<const unsigned char *>(password.c_str())
-    );
-    password = reinterpret_cast<char *>(buf);
+    char buf[32] = {};
+    CEncryption::decrypt(buf,password.c_str());
+    password = buf;
 }
 
 void CUserConfig::DecryptUserName(std::string &username)
 {
-    unsigned char buf[32] = {};
-    CEncryption::decrypt(
-        buf,
-        reinterpret_cast<const unsigned char *>(username.c_str())
-    );
-    username = reinterpret_cast<char *>(buf);
+    char buf[32] = {};
+    CEncryption::decrypt(buf,username.c_str());
+    username = buf;
 }
 
 void CUserConfig::EncryptPassword(std::string &password)
 {
-    unsigned char buf[32] = {};
-    CEncryption::encrypt(
-        buf,
-        reinterpret_cast<const unsigned char *>(password.c_str())
-    );
-    password = reinterpret_cast<char *>(buf);
+    char buf[32] = {};
+    CEncryption::encrypt(buf,password.c_str());
+    password = buf;
 }
 
 void CUserConfig::EncryptUserName(std::string &username)
 {
-    unsigned char buf[32] = {};
-    CEncryption::encrypt(
-        buf,
-        reinterpret_cast<const unsigned char *>(username.c_str())
-    );
-    username = reinterpret_cast<char *>(buf);
+    char buf[32] = {};
+    CEncryption::encrypt(buf,username.c_str());
+    username = buf;
 }
 
 bool CUserConfig::ParseWirelessConf(
@@ -69,7 +57,7 @@ bool CUserConfig::ParseWirelessConf(
     if (
         StringToHex(
             fields[4],
-            reinterpret_cast<unsigned char *>(&conf->macaddr),
+            reinterpret_cast<char *>(&conf->macaddr),
             sizeof(conf->macaddr)
         ) != sizeof(conf->macaddr)
     )
@@ -369,7 +357,7 @@ void CUserConfig::SaveConfigParam()
             );
         std::string macaddr_converted =
             HexToString(
-                reinterpret_cast<unsigned char *>(&it->macaddr),
+                reinterpret_cast<char *>(&it->macaddr),
                 sizeof(it->macaddr)
             );
         std::string wireless_conf_val;

@@ -5,14 +5,14 @@
 
 int get_sata_serial(int fd, char *dst)
 {
-    static unsigned char args[0x200] = {};
+    static char args[0x200] = {};
     unsigned short pos = 0;
     struct sg_io_hdr hdr = {};
-    unsigned char cmd_blk[] = {
+    char cmd_blk[] = {
         0x85, 0x08, 0x2E, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0xEC, 0x00
     };
-    unsigned char sense_blk[32] = {};
+    char sense_blk[32] = {};
     hdr.interface_id = 'S';
     hdr.cmd_len = sizeof(cmd_blk);
     hdr.mx_sb_len = sizeof(sense_blk);

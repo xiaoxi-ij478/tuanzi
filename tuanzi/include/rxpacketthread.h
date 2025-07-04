@@ -33,9 +33,9 @@ class CRxPacketThread : public CLnxThread
         int StopRxPacketThread();
 
         static void RecvPacketCallBack(
-            unsigned char *user,
+            char *user,
             const struct pcap_pkthdr *h,
-            const unsigned char *bytes
+            const char *bytes
         );
 
         struct CRxPacketThread_msgids msgids;

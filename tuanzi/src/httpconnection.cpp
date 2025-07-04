@@ -76,7 +76,7 @@ int CHttpConnection::httpConnect(const char *url)
     return sendRequest(domain.c_str(), port, request.str().c_str());
 }
 
-int CHttpConnection::httpRead(unsigned char *buf, int buflen)
+int CHttpConnection::httpRead(char *buf, int buflen)
 {
     fd_set listen_fd;
     struct timeval timeout = { connect_timeout, 0 };
@@ -245,7 +245,7 @@ bool CHttpConnection::readHttpHeader(int fd)
 {
     fd_set listen_fd;
     struct timeval timeout = { connect_timeout, 0 };
-    unsigned char newline = 0;
+    char newline = 0;
     unsigned pos = 0;
 
     while (pos <= sizeof(reply_header)) {

@@ -307,7 +307,7 @@ bool GPostThreadMessage(
     return ret != -1;
 }
 
-bool post_command(unsigned char c)
+bool post_command(char c)
 {
     for (int i = 0; i < 3; i++) {
         if (write(g_rwpipe[1], &c, 1) != -1)

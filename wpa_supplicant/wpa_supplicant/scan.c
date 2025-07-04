@@ -87,7 +87,7 @@ int wpa_supplicant_enabled_networks(struct wpa_config *conf)
 
 
 static void wpa_supplicant_assoc_try(struct wpa_supplicant *wpa_s,
-				     struct wpa_ssid *ssid)
+					 struct wpa_ssid *ssid)
 {
 	while (ssid) {
 		if (!ssid->disabled)
@@ -257,14 +257,14 @@ static void wpa_supplicant_scan(void *eloop_ctx, void *timeout_ctx)
 	}
 
 	if (!wpa_supplicant_enabled_networks(wpa_s->conf) &&
-	    !wpa_s->scan_req) {
+		!wpa_s->scan_req) {
 		wpa_printf(MSG_DEBUG, "No enabled networks - do not scan");
 		wpa_supplicant_set_state(wpa_s, WPA_INACTIVE);
 		return;
 	}
 
 	if (wpa_s->conf->ap_scan != 0 &&
-	    (wpa_s->drv_flags & WPA_DRIVER_FLAGS_WIRED)) {
+		(wpa_s->drv_flags & WPA_DRIVER_FLAGS_WIRED)) {
 		wpa_printf(MSG_DEBUG, "Using wired authentication - "
 			   "overriding ap_scan configuration");
 		wpa_s->conf->ap_scan = 0;
@@ -277,7 +277,7 @@ static void wpa_supplicant_scan(void *eloop_ctx, void *timeout_ctx)
 	}
 
 	if ((wpa_s->drv_flags & WPA_DRIVER_FLAGS_USER_SPACE_MLME) ||
-	    wpa_s->conf->ap_scan == 2)
+		wpa_s->conf->ap_scan == 2)
 		max_ssids = 1;
 	else {
 		max_ssids = wpa_s->max_scan_ssids;
@@ -296,7 +296,7 @@ static void wpa_supplicant_scan(void *eloop_ctx, void *timeout_ctx)
 
 	prev_state = wpa_s->wpa_state;
 	if (wpa_s->wpa_state == WPA_DISCONNECTED ||
-	    wpa_s->wpa_state == WPA_INACTIVE)
+		wpa_s->wpa_state == WPA_INACTIVE)
 		wpa_supplicant_set_state(wpa_s, WPA_SCANNING);
 
 	/* Find the starting point from which to continue scanning */
@@ -312,7 +312,7 @@ static void wpa_supplicant_scan(void *eloop_ctx, void *timeout_ctx)
 	}
 
 	if (scan_req != 2 && (wpa_s->conf->ap_scan == 2 ||
-			      wpa_s->connect_without_scan)) {
+				  wpa_s->connect_without_scan)) {
 		wpa_s->connect_without_scan = 0;
 		wpa_supplicant_assoc_try(wpa_s, ssid);
 		return;
@@ -343,7 +343,7 @@ static void wpa_supplicant_scan(void *eloop_ctx, void *timeout_ctx)
 			if (ssid == start)
 				break;
 			if (ssid == NULL && max_ssids > 1 &&
-			    start != wpa_s->conf->ssid)
+				start != wpa_s->conf->ssid)
 				ssid = wpa_s->conf->ssid;
 		}
 
@@ -436,7 +436,7 @@ void wpa_supplicant_req_scan(struct wpa_supplicant *wpa_s, int sec, int usec)
 	 * never happen, which causes hidden APs to never get probe-scanned.
 	 */
 	if (eloop_is_timeout_registered(wpa_supplicant_scan, wpa_s, NULL) &&
-	    wpa_s->conf->ap_scan == 1) {
+		wpa_s->conf->ap_scan == 1) {
 		struct wpa_ssid *ssid = wpa_s->conf->ssid;
 
 		while (ssid) {
@@ -446,7 +446,7 @@ void wpa_supplicant_req_scan(struct wpa_supplicant *wpa_s, int sec, int usec)
 		}
 		if (ssid) {
 			wpa_msg(wpa_s, MSG_DEBUG, "Not rescheduling scan to "
-			        "ensure that specific SSID scans occur");
+					"ensure that specific SSID scans occur");
 			return;
 		}
 	}
@@ -473,7 +473,7 @@ void wpa_supplicant_cancel_scan(struct wpa_supplicant *wpa_s)
 
 
 void wpa_supplicant_notify_scanning(struct wpa_supplicant *wpa_s,
-				    int scanning)
+					int scanning)
 {
 	if (wpa_s->scanning != scanning) {
 		wpa_s->scanning = scanning;
@@ -535,7 +535,7 @@ const u8 * wpa_scan_get_vendor_ie(const struct wpa_scan_res *res,
 		if (pos + 2 + pos[1] > end)
 			break;
 		if (pos[0] == WLAN_EID_VENDOR_SPECIFIC && pos[1] >= 4 &&
-		    vendor_type == WPA_GET_BE32(&pos[2]))
+			vendor_type == WPA_GET_BE32(&pos[2]))
 			return pos;
 		pos += 2 + pos[1];
 	}
@@ -545,7 +545,7 @@ const u8 * wpa_scan_get_vendor_ie(const struct wpa_scan_res *res,
 
 
 struct wpabuf * wpa_scan_get_vendor_ie_multi(const struct wpa_scan_res *res,
-					     u32 vendor_type)
+						 u32 vendor_type)
 {
 	struct wpabuf *buf;
 	const u8 *end, *pos;
@@ -561,7 +561,7 @@ struct wpabuf * wpa_scan_get_vendor_ie_multi(const struct wpa_scan_res *res,
 		if (pos + 2 + pos[1] > end)
 			break;
 		if (pos[0] == WLAN_EID_VENDOR_SPECIFIC && pos[1] >= 4 &&
-		    vendor_type == WPA_GET_BE32(&pos[2]))
+			vendor_type == WPA_GET_BE32(&pos[2]))
 			wpabuf_put_data(buf, pos + 2 + 4, pos[1] - 4);
 		pos += 2 + pos[1];
 	}
@@ -598,15 +598,15 @@ static int wpa_scan_result_compar(const void *a, const void *b)
 
 	/* privacy support preferred */
 	if ((wa->caps & IEEE80211_CAP_PRIVACY) == 0 &&
-	    (wb->caps & IEEE80211_CAP_PRIVACY))
+		(wb->caps & IEEE80211_CAP_PRIVACY))
 		return 1;
 	if ((wa->caps & IEEE80211_CAP_PRIVACY) &&
-	    (wb->caps & IEEE80211_CAP_PRIVACY) == 0)
+		(wb->caps & IEEE80211_CAP_PRIVACY) == 0)
 		return -1;
 
 	/* best/max rate preferred if signal level close enough XXX */
 	if ((wa->level && wb->level && abs(wb->level - wa->level) < 5) ||
-	    (wa->qual && wb->qual && abs(wb->qual - wa->qual) < 10)) {
+		(wa->qual && wb->qual && abs(wb->qual - wa->qual) < 10)) {
 		maxrate_a = wpa_scan_get_max_rate(wa);
 		maxrate_b = wpa_scan_get_max_rate(wb);
 		if (maxrate_a != maxrate_b)
@@ -652,7 +652,7 @@ wpa_supplicant_get_scan_results(struct wpa_supplicant *wpa_s,
 	}
 
 	qsort(scan_res->res, scan_res->num, sizeof(struct wpa_scan_res *),
-	      wpa_scan_result_compar);
+		  wpa_scan_result_compar);
 
 	wpa_bss_update_start(wpa_s);
 	for (i = 0; i < scan_res->num; i++)
@@ -687,3 +687,46 @@ void wpa_scan_results_free(struct wpa_scan_results *res)
 	os_free(res->res);
 	os_free(res);
 }
+
+// ADDED BY xiaoxi-ij478 for tuanzi
+void wpa_printf_scan_info(struct wpa_scan_results *scan_res)
+{
+	const u8 *ssid;
+	unsigned ssid_len;
+	const u8 *name;
+
+	if (!scan_res) {
+		wpa_printf(MSG_DEBUG, "Scan result is null");
+		return;
+	}
+	wpa_printf(MSG_DEBUG, "Scan result(%u)", scan_res->num);
+	if (!scan_res->num)
+		return;
+
+	for (size_t i = 0; i < scan_res->num; i++) {
+		if (!scan_res->res[i])
+			continue;
+		ssid = wpa_scan_get_ie(scan_res->res[i], 0);
+		if (!ssid) {
+			ssid_len = 0;
+			name = "";
+		} else {
+			if (ssid[1] > 32) {
+				wpa_printf(MSG_DEBUG, "BSS: Too long SSID IE included for "
+					   MACSTR, MAC2STR(scan_res->res[i]->bssid));
+				continue;
+			}
+			ssid_len = ssid[1];
+			name = ssid + 2;
+		}
+		wpa_printf(
+			MSG_DEBUG,
+			"ssid(len=%d):%s;bssid:" MACSTR ";signal:%d",
+			ssid_len,
+			wpa_ssid_txt(name, ssid_len),
+			MAC2STR(scan_res->res[i]->bssid),
+			scan_res->res[i]->qual
+		);
+	}
+}
+// ADDED BY xiaoxi-ij478 for tuanzi END
