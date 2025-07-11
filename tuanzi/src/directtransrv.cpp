@@ -12,6 +12,17 @@
 #include "global.h"
 #include "directtransrv.h"
 
+/* SMP's data format:
+ * 1 byte for type
+ * 2 bytes for length
+ * <length> bytes for data
+ *
+ * SAM's data format:
+ * 1 byte for type
+ * 1 byte for length
+ * <length> bytes for data
+ */
+
 CDirectTranSrv::CDirectTranSrv() :
     sam_or_smp_inited(),
     destroy_mutex(),
@@ -119,7 +130,7 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
                 if (buf[pos + 3] != 2)
                     break;
 
-                ConvertGBKToUtf8(notify_str, &buf[pos + 5]), buf[pos + 4]);
+                ConvertGBKToUtf8(notify_str, &buf[pos + 5], buf[pos + 4]);
                 AddMsgItem(5, notify_str);
                 g_uilog.AppendText(
                     "AddMsgItem shownotify CDirectTranSrv::AnalyzePrivate_SAM,strInfo=%s",
@@ -129,61 +140,58 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
                 break;
 
             case 3:
-                    if (buf[pos + 3] != 6)
+                if (buf[pos + 3] != 6)
+                    break;
+
+                memcpy(
+                    logoff_buf = new char[buf[pos + 4]],
+                    &buf[pos + 5],
+                    buf[pos + 4]
+                );
+                SimulateSuLogoff(logoff_buf, buf[pos + 4]);
+                break;
+
+            case 5:
+                if (buf[pos + 3] != 8)
+                    break;
+
+                ConvertGBKToUtf8(force_offline_str, &buf[pos + 5]), buf[pos + 4]);
+                memcpy(
+                    force_offline_buf = new char[force_offline_str.length() + 1],
+                force_offline_str.c_str(),
+                force_offline_str.length()
+                );
+                logFile_debug.AppendText(
+                    "强制下线解析接口(%s)",
+                    force_offline_buf
+                );
+                CtrlThread->PostThreadMessage(
+                    FORCE_OFFLINE_MTYPE,
+                    force_offline_buf,
+                    force_offline_str.length() + 1
+                );
+                break;
+
+            case 7:
+                    if (buf[pos + 3] != 10)
                         break;
 
-                        memcpy(
-                            logoff_buf = new char[buf[pos + 4]],
-                        &buf[pos + 5],
-                        buf[pos + 4]
-                        );
-                        SimulateSuLogoff(logoff_buf, buf[pos + 4]);
+                        svr_switch_result_str = AsciiToStr(&buf[pos + 5], buf[pos + 4]);
+                        RcvSvrSwitchResult();
+                        // TODO
                         break;
 
-                    case 5:
-                            if (buf[pos + 3] != 8)
-                                break;
+                    case 9:
+                            ParseDHCPAuthResult_ForSAM(buf, buflen, pos);
+                            advance_pos = false;
+                            break;
+                        }
+    }
 
-                                ConvertGBKToUtf8(force_offline_str, &buf[pos + 5]), buf[pos + 4]);
-                                memcpy(
-                                    force_offline_buf = new char[force_offline_str.length() + 1],
-                                force_offline_str.c_str(),
-                                force_offline_str.length()
-                                );
-                                logFile_debug.AppendText(
-                                    "强制下线解析接口(%s)",
-                                    force_offline_buf
-                                );
-                                CtrlThread->PostThreadMessage(
-                                    FORCE_OFFLINE_MTYPE,
-                                    force_offline_buf,
-                                    force_offline_str.length() + 1
-                                );
-                                break;
-
-                            case 7:
-                                    if (buf[pos + 3] != 10)
-                                    break;
-
-                                    svr_switch_result_str = AsciiToStr(&buf[pos + 5], buf[pos + 4]);
-                                    RcvSvrSwitchResult();
-                                    // TODO
-                                    break;
-
-                                case 9:
-                                        ParseDHCPAuthResult_ForSAM(buf, buflen, pos);
-                                        advance_pos = false;
-                                        break;
-                                    }
+    return true;
 }
 
-return true;
-}
-
-bool CDirectTranSrv::AnalyzePrivate_SMP(
-    char *buf,
-    unsigned buflen
-)
+bool CDirectTranSrv::AnalyzePrivate_SMP(char *buf, unsigned buflen)
 {
     unsigned short smp_datalen = 0;
     char *smp_data = nullptr, *other_data = nullptr;

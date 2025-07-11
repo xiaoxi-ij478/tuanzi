@@ -48,8 +48,8 @@ struct SaveConfigureInfo {
     unsigned authparam_startnumber;
     bool reauth_custom;
     bool reauth_modify;
-    bool field_FE;
-    unsigned field_100;
+    bool is_autoreconnect;
+    unsigned autoreconnect;
     bool server_enablesvrswitch;
     bool server_custom;
     bool server_modify;

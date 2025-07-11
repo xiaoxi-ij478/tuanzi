@@ -193,6 +193,10 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="include/eapolutil.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="include/encodeutil.h">
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -277,6 +281,7 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="include/rgprivateproc.h" />
 		<Unit filename="include/rxpacketthread.h">
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -438,6 +443,10 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="src/eapolutil.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="src/encodeutil.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -521,6 +530,9 @@
 		<Unit filename="src/psutil.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/rgprivateproc.c">
+			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/rxpacketthread.cpp">
 			<Option target="Debug" />

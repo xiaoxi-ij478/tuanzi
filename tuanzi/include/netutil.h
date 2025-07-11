@@ -2,6 +2,7 @@
 #define NETUTIL_H_INCLUDED
 
 #include "global.h"
+#include "stdpkgs.h"
 
 enum ADAPTER_STATUS {
     ADAPTER_INVALID = -1,

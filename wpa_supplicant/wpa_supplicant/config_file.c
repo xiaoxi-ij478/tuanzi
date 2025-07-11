@@ -945,7 +945,7 @@ int wpa_config_write(const char *name, struct wpa_config *config)
 }
 
 // ADDED BY xiaoxi-ij478 for tuanzi
-struct wpa_config * wpa_config_read_pipe(int file_pipe)
+struct wpa_config *wpa_config_read_pipe(int file_pipe)
 {
 	FILE *f;
 	char buf[256], *pos;

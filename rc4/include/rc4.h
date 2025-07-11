@@ -5,8 +5,6 @@
 extern "C" {
 #endif // __cplusplus
 
-#include "rc4.h"
-
 void re_S(unsigned char *S);
 void re_T(unsigned char *T, const unsigned char *key);
 void re_Sbox(unsigned char *S, unsigned char *T);

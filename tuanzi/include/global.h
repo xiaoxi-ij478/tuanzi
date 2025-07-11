@@ -26,12 +26,11 @@ extern int g_supf_cmd_read_pipe;
 extern int g_supf_cmd_write_pipe;
 extern int g_supf_cb_read_pipe;
 extern int g_supf_cb_write_pipe;
-// originally used by su_platform_init() for exec'ing wpa_supplicant
-// but since we use a different approach (fork + exec)
-// we do not use it
-//extern pthread_t g_supf_thread;
+extern int g_conf_pipe_read;
+extern pthread_t g_supf_thread;
 // used for receiving callback datas from wpa_supplicant
 extern pthread_t g_supf_callback_thread;
+extern bool g_supf_exited;
 extern char e_pMd5Chanllenge[16];
 extern unsigned e_pHelloID[16];
 extern const char g_pAppData[1820];

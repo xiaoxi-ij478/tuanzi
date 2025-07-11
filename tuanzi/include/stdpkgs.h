@@ -194,7 +194,7 @@ struct [[gnu::packed]] udp_checksum_hdr {
 
 struct [[gnu::packed]] icmppkg {
     struct icmphdr hdr;
-    char data[20];
+    uint8_t data[20];
 };
 
 struct [[gnu::packed]] ethertcppkg {
@@ -207,6 +207,72 @@ struct [[gnu::packed]] etherudppkg {
     struct ether_header etherheader;
     struct iphdr ipheader;
     struct udphdr udpheader;
+};
+
+enum EAP_CODES : uint8_t {
+    EAP_REQUEST = 1,
+    EAP_RESPONSE,
+    EAP_SUCCESS,
+    EAP_FAILURE
+};
+
+enum EAP_TYPES : uint8_t {
+    EAP_TYPE_IDENTITY = 1,
+    EAP_TYPE_NOTIFICATION,
+    EAP_TYPE_NAK,
+    EAP_TYPE_MD5,
+    EAP_TYPE_OTP,
+    EAP_TYPE_GTC,
+    EAP_TYPE_RUIJIE_PRIVATE,
+    EAP_TYPE_EXPANDED = 254
+};
+
+enum IEEE8021X_PACKET_TYPE : uint8_t {
+    IEEE8021X_EAP_PACKET,
+    IEEE8021X_EAPOL_START,
+    IEEE8021X_EAPOL_LOGOFF,
+    IEEE8021X_EAPOL_KEY,
+    IEEE8021X_EAPOL_ENCAPSULATED_ASF_ALERT
+};
+
+enum IEEE8021X_KEY_DESC_TYPE : uint8_t {
+    IEEE8021X_KEY_RC4 = 1
+};
+
+struct [[gnu::packed]] eapolpkg {
+    struct ether_header etherheader;
+    uint8_t ieee8021x_version;
+    enum IEEE8021X_PACKET_TYPE ieee8021x_packet_type;
+    uint16_t ieee8021x_packet_length;
+    union {
+        struct [[gnu::packed]] {
+            enum EAP_CODES code;
+            uint8_t id;
+            uint16_t length;
+            enum EAP_TYPES type;
+            union {
+                struct [[gnu::packed]] {
+                    uint8_t message[];
+                } identity, notification;
+                struct [[gnu::packed]] {
+                    enum EAP_TYPES expected_eap_types[];
+                } nak;
+                struct [[gnu::packed]] {
+                    uint8_t value_size;
+                    uint8_t value_name[];
+                } md5;
+            } data;
+        } eap_packet;
+        struct [[gnu::packed]] {
+            enum IEEE8021X_KEY_DESC_TYPE desc_type;
+            uint16_t key_length;
+            uint64_t replay_counter;
+            uint8_t key_iv[16];
+            uint8_t key_index;
+            uint8_t key_signature[16];
+            uint8_t key[];
+        } key_desc;
+    };
 };
 
 #endif // STDPKGS_H_INCLUDED

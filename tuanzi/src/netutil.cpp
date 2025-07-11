@@ -1190,7 +1190,7 @@ bool IsEqualDhcpInfo(
 )
 {
     return
-        info1.field_0 == info2.field_0 &&
+        info1.dhcp == info2.dhcp &&
         info1.ip4_ipaddr == info2.ip4_ipaddr &&
         info1.ip4_netmask == info2.ip4_netmask;
 }
@@ -1308,7 +1308,7 @@ void repair_ip_gateway(
 
 void swapipv6(struct in6_addr *addr)
 {
-    swap128(addr->s6_addr);
+    swap128(static_cast<char *>(addr->s6_addr));
 }
 
 void del_default_gateway()

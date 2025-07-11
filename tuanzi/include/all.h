@@ -63,6 +63,7 @@
 #include <sys/sysinfo.h>
 #include <sys/time.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 
 #ifdef __GLIBC__
 #include <gnu/libc-version.h>

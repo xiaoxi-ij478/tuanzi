@@ -37,61 +37,61 @@ static void usage(void)
 {
 	int i;
 	printf("%s\n\n%s\n"
-	       "usage:\n"
-	       "  wpa_supplicant [-BddhKLqqstuvW] [-P<pid file>] "
-	       "[-g<global ctrl>] \\\n"
-	       "        -i<ifname> -c<config file> [-C<ctrl>] [-D<driver>] "
-	       "[-p<driver_param>] \\\n"
-	       "        [-b<br_ifname>] [-f<debug file>] \\\n"
-	       "        [-o<override driver>] [-O<override ctrl>] \\\n"
-	       "        [-N -i<ifname> -c<conf> [-C<ctrl>] "
-	       "[-D<driver>] \\\n"
-	       "        [-p<driver_param>] [-b<br_ifname>] ...]\n"
-	       "\n"
-	       "drivers:\n",
-	       wpa_supplicant_version, wpa_supplicant_license);
+		   "usage:\n"
+		   "  wpa_supplicant [-BddhKLqqstuvW] [-P<pid file>] "
+		   "[-g<global ctrl>] \\\n"
+		   "        -i<ifname> -c<config file> [-C<ctrl>] [-D<driver>] "
+		   "[-p<driver_param>] \\\n"
+		   "        [-b<br_ifname>] [-f<debug file>] \\\n"
+		   "        [-o<override driver>] [-O<override ctrl>] \\\n"
+		   "        [-N -i<ifname> -c<conf> [-C<ctrl>] "
+		   "[-D<driver>] \\\n"
+		   "        [-p<driver_param>] [-b<br_ifname>] ...]\n"
+		   "\n"
+		   "drivers:\n",
+		   wpa_supplicant_version, wpa_supplicant_license);
 
 	for (i = 0; wpa_drivers[i]; i++) {
 		printf("  %s = %s\n",
-		       wpa_drivers[i]->name,
-		       wpa_drivers[i]->desc);
+			   wpa_drivers[i]->name,
+			   wpa_drivers[i]->desc);
 	}
 
 #ifndef CONFIG_NO_STDOUT_DEBUG
 	printf("options:\n"
-	       "  -b = optional bridge interface name\n"
-	       "  -B = run daemon in the background\n"
-	       "  -c = Configuration file\n"
-	       "  -C = ctrl_interface parameter (only used if -c is not)\n"
-	       "  -i = interface name\n"
-	       "  -d = increase debugging verbosity (-dd even more)\n"
-	       "  -D = driver name (can be multiple drivers: nl80211,wext)\n");
+		   "  -b = optional bridge interface name\n"
+		   "  -B = run daemon in the background\n"
+		   "  -c = Configuration file\n"
+		   "  -C = ctrl_interface parameter (only used if -c is not)\n"
+		   "  -i = interface name\n"
+		   "  -d = increase debugging verbosity (-dd even more)\n"
+		   "  -D = driver name (can be multiple drivers: nl80211,wext)\n");
 #ifdef CONFIG_DEBUG_FILE
 	printf("  -f = log output to debug file instead of stdout\n");
 #endif /* CONFIG_DEBUG_FILE */
 	printf("  -g = global ctrl_interface\n"
-	       "  -K = include keys (passwords, etc.) in debug output\n");
+		   "  -K = include keys (passwords, etc.) in debug output\n");
 #ifdef CONFIG_DEBUG_SYSLOG
 	printf("  -s = log output to syslog instead of stdout\n");
 #endif /* CONFIG_DEBUG_SYSLOG */
 	printf("  -t = include timestamp in debug messages\n"
-	       "  -h = show this help text\n"
-	       "  -L = show license (GPL and BSD)\n"
-	       "  -o = override driver parameter for new interfaces\n"
-	       "  -O = override ctrl_interface parameter for new interfaces\n"
-	       "  -p = driver parameters\n"
-	       "  -P = PID file\n"
-	       "  -q = decrease debugging verbosity (-qq even less)\n");
+		   "  -h = show this help text\n"
+		   "  -L = show license (GPL and BSD)\n"
+		   "  -o = override driver parameter for new interfaces\n"
+		   "  -O = override ctrl_interface parameter for new interfaces\n"
+		   "  -p = driver parameters\n"
+		   "  -P = PID file\n"
+		   "  -q = decrease debugging verbosity (-qq even less)\n");
 #ifdef CONFIG_DBUS
 	printf("  -u = enable DBus control interface\n");
 #endif /* CONFIG_DBUS */
 	printf("  -v = show version\n"
-	       "  -W = wait for a control interface monitor before starting\n"
-	       "  -N = start describing new interface\n");
+		   "  -W = wait for a control interface monitor before starting\n"
+		   "  -N = start describing new interface\n");
 
 	printf("example:\n"
-	       "  wpa_supplicant -D%s -iwlan0 -c/etc/wpa_supplicant.conf\n",
-	       wpa_drivers[i] ? wpa_drivers[i]->name : "wext");
+		   "  wpa_supplicant -D%s -iwlan0 -c/etc/wpa_supplicant.conf\n",
+		   wpa_drivers[i] ? wpa_drivers[i]->name : "wext");
 #endif /* CONFIG_NO_STDOUT_DEBUG */
 }
 
@@ -100,12 +100,12 @@ static void license(void)
 {
 #ifndef CONFIG_NO_STDOUT_DEBUG
 	printf("%s\n\n%s%s%s%s%s\n",
-	       wpa_supplicant_version,
-	       wpa_supplicant_full_license1,
-	       wpa_supplicant_full_license2,
-	       wpa_supplicant_full_license3,
-	       wpa_supplicant_full_license4,
-	       wpa_supplicant_full_license5);
+		   wpa_supplicant_version,
+		   wpa_supplicant_full_license1,
+		   wpa_supplicant_full_license2,
+		   wpa_supplicant_full_license3,
+		   wpa_supplicant_full_license4,
+		   wpa_supplicant_full_license5);
 #endif /* CONFIG_NO_STDOUT_DEBUG */
 }
 
@@ -130,57 +130,58 @@ static void wpa_supplicant_fd_workaround(void)
 }
 
 // ADDED BY xiaoxi-ij478 for tuanzi
-enum SupfState : unsigned {
-    SUPF_STOP,
-    SUPF_START,
-    SUPF_WLAN_NOFOUND,
-    SUPF_DISASSOC,
-    SUPF_ASSOCIATING,
-    SUPF_ASSOCIATED,
-    SUPF_CONNECTING,
-    SUPF_AUTHENTICATING,
-    SUPF_4WAY_HANDSHAKE,
-    SUPF_GROUP_HANDSHAKE,
-    SUPF_COMPLETE_SUCCESS,
-    SUPF_AUTH_TIMEOUT
+enum SupfState {
+	SUPF_STOP,
+	SUPF_START,
+	SUPF_WLAN_NOFOUND,
+	SUPF_DISASSOC,
+	SUPF_ASSOCIATING,
+	SUPF_ASSOCIATED,
+	SUPF_CONNECTING,
+	SUPF_AUTHENTICATING,
+	SUPF_4WAY_HANDSHAKE,
+	SUPF_GROUP_HANDSHAKE,
+	SUPF_COMPLETE_SUCCESS,
+	SUPF_AUTH_TIMEOUT
 };
 
 enum SupfPipeCmdType : u8 {
-    SUPF_PIPE_STOP_CMD,
-    SUPF_PIPE_START_CMD,
-    SUPF_PIPE_SCAN_CMD,
-    SUPF_PIPE_EXIT_CMD
+	SUPF_PIPE_STOP_CMD,
+	SUPF_PIPE_START_CMD,
+	SUPF_PIPE_SCAN_CMD,
+	SUPF_PIPE_EXIT_CMD
 };
 
 enum SupfMsg {
-    SUPF_MSG_SCAN_RES,
-    SUPF_MSG_EAP_ERR,
-    SUPF_MSG_EAP_SUC
+	SUPF_MSG_SCAN_RES,
+	SUPF_MSG_EAP_ERR,
+	SUPF_MSG_EAP_SUC
 };
 
 struct SupfMsgData {
-    enum SupfMsg msg;
-    const void *buf;
-    unsigned len;
+	enum SupfMsg msg;
+	const void *buf;
+	unsigned len;
 };
 
 struct SupfPipeStateMsgData {
-    enum SUPF_EVENT_TYPE type;
-    union {
-        enum SupfState msg; // type == SUPF_STATE
-        struct { // type == SUPF_MSG
-            unsigned len; // data's length
-            unsigned char data[]; // exact data
-        };
-    };
+	enum SUPF_EVENT_TYPE type;
+	union {
+		enum SupfState state; // type == SUPF_STATE
+		struct { // type == SUPF_MSG
+			enum SupfMsg msg;
+			unsigned len; // data's length
+			u8 data[]; // exact data
+		};
+	};
 };
 
 struct SupfPipeCmdMsgData {
-    enum SupfPipeCmdType cmd;
-    struct { // used only when cmd == SUPF_PIPE_START_CMD
-        unsigned data_len;
-        u8 private_data[];
-    };
+	enum SupfPipeCmdType cmd;
+	struct { // used only when cmd == SUPF_PIPE_START_CMD
+		unsigned data_len;
+		u8 private_data[];
+	};
 };
 
 static void wpa_supplicant_stop_auth(struct wpa_supplicant *wpa_s)
@@ -197,9 +198,9 @@ static void wpa_supplicant_stop_auth(struct wpa_supplicant *wpa_s)
 }
 
 static void wpa_supplicant_start_auth(
-        struct wpa_supplicant *wpa_s,
-        u8 *private_data,
-        int data_len)
+		struct wpa_supplicant *wpa_s,
+		u8 *private_data,
+		int data_len)
 {
 	enum SupfState newState;
 
@@ -227,14 +228,14 @@ static void wpa_supplicant_manual_req_scan(
 }
 
 static void wpa_supplicant_ctrl_handler(
-        int sock,
-        void *eloop_ctx,
-        void *sock_ctx)
+		int sock,
+		void *eloop_ctx,
+		void *sock_ctx)
 {
 	int readlen;
-	// allocate 100 bytes first
-	struct SupfPipeCmdMsgData *buffer = malloc(
-			sizeof(struct SupfPipeCmdMsgData) + 100);
+	// allocate 128 bytes first
+	struct SupfPipeCmdMsgData *buffer =
+		malloc(sizeof(struct SupfPipeCmdMsgData) + 128);
 
 	readlen = read(sock, (u8 *)buffer, sizeof(buffer));
 	if ( readlen <= 0 ) {
@@ -242,7 +243,7 @@ static void wpa_supplicant_ctrl_handler(
 		return;
 	}
 
-	if ( !eloop_ctx ) {
+	if (!eloop_ctx) {
 		wpa_printf(MSG_ERROR, "wpa_s is null");
 		return;
 	}
@@ -266,9 +267,15 @@ static void wpa_supplicant_ctrl_handler(
 					wpa_printf(MSG_ERROR, "%s START ERROR PARA\n", __func__);
 					break;
 				}
-				if(buffer->data_len > 100)
+				if(buffer->data_len > 128) {
 					// buffer too small, reallocate
-					buffer = realloc(buffer, readlen);
+					buffer = realloc(buffer, buffer->data_len + sizeof(struct SupfPipeCmdMsgData));
+					read(
+						sock,
+						 ((u8 *)buffer) + readlen,
+						buffer->data_len + sizeof(struct SupfPipeCmdMsgData) - readlen
+					);
+				}
 				wpa_printf(MSG_DEBUG, "%s data_len=%d", __func__, buffer->data_len);
 				wpa_supplicant_start_auth(
 					(struct wpa_supplicant *)eloop_ctx,
@@ -300,12 +307,17 @@ static void supf_event_cb(
 	const void *msg_data
 )
 {
-	struct SupfPipeStateMsgData *write_data = malloc(sizeof(struct SupfPipeStateMsgData));
+	struct SupfPipeStateMsgData *write_data =
+		malloc(sizeof(enum SUPF_EVENT_TYPE) + sizeof(enum SupfState));
 
 	switch (event_type) {
 		case SUPF_STATE:
-			write_data->msg = *(enum SupfState *)msg_data;
-			write(g_supf_cb_write_pipe, write_data, sizeof(struct SupfPipeStateMsgData));
+			write_data->state = *(enum SupfState *)msg_data;
+			write(
+				g_supf_cb_write_pipe,
+				write_data,
+				sizeof(enum SUPF_EVENT_TYPE) + sizeof(enum SupfState)
+			);
 			break;
 
 		case SUPF_MSG:
@@ -313,6 +325,7 @@ static void supf_event_cb(
 				write_data,
 				sizeof(struct SupfPipeStateMsgData) + ((struct SupfMsgData *)msg_data)->len
 			);
+			write_data->msg = ((struct SupfMsgData *)msg_data)->msg;
 			write_data->len = ((struct SupfMsgData *)msg_data)->len;
 			memcpy(
 				write_data->data,
@@ -320,7 +333,11 @@ static void supf_event_cb(
 				((struct SupfMsgData *)msg_data)->len
 			);
 
-			write(g_supf_cb_write_pipe, write_data, sizeof(struct SupfPipeStateMsgData) + write_data->len);
+			write(
+				g_supf_cb_write_pipe,
+				write_data,
+				sizeof(struct SupfPipeStateMsgData) + write_data->len
+			);
 			break;
 	}
 	free(write_data);
@@ -350,26 +367,29 @@ int main(int argc, char *argv[])
 
 	// ADDED BY xiaoxi-ij478 for tuanzi
 	// as a special case, if the supplicant was started with argv[0][0] == '-'
-	// then the first three arguments are:
+	// then the first two arguments are:
 	// - command read pipe fd
 	// - callback write pipe fd
-	// - configuration read pipe fd, respectively
 	// I know I should use argument switch to cleanly implement this
 
 	if (argv[0][0] == '-') {
 		g_supf_cmd_read_pipe = strtol(argv[1], NULL, 10);
 		g_supf_cb_write_pipe = strtol(argv[2], NULL, 10);
-		g_conf_pipe_read = strtol(argv[3], NULL, 10);
-		argv += 3;
-		argc -= 3;
+		argv += 2;
+		argc -= 2;
 	}
 	// ADDED BY xiaoxi-ij478 for tuanzi END
 
 	for (;;) {
-		c = getopt(argc, argv, "b:Bc:C:D:df:g:hi:KLNo:O:p:P:qstuvW");
+		// ADDED BY xiaoxi-ij478 for tuanzi
+		c = getopt(argc, argv, "a:b:Bc:C:D:df:g:hi:KLNo:O:p:P:qstuvW");
 		if (c < 0)
 			break;
 		switch (c) {
+		case 'a':
+			g_conf_pipe_read = strtol(optarg, NULL, 10);
+			break;
+		// ADDED BY xiaoxi-ij478 for tuanzi END
 		case 'b':
 			iface->bridge_ifname = optarg;
 			break;
@@ -388,8 +408,8 @@ int main(int argc, char *argv[])
 		case 'd':
 #ifdef CONFIG_NO_STDOUT_DEBUG
 			printf("Debugging disabled with "
-			       "CONFIG_NO_STDOUT_DEBUG=y build time "
-			       "option.\n");
+				   "CONFIG_NO_STDOUT_DEBUG=y build time "
+				   "option.\n");
 			goto out;
 #else /* CONFIG_NO_STDOUT_DEBUG */
 			params.wpa_debug_level--;
@@ -493,8 +513,8 @@ int main(int argc, char *argv[])
 			ifaces[i].conf_pipe_read,
 			ifaces[i].ifname ?: "NULL");
 		if ((ifaces[i].confname == NULL &&
-		     ifaces[i].ctrl_interface == NULL) ||
-		    ifaces[i].ifname == NULL) {
+			 ifaces[i].ctrl_interface == NULL) ||
+			ifaces[i].ifname == NULL) {
 			wpa_printf(
 				MSG_INFO,
 				"iface_count=%d; params.ctrl_interface=%s; params.dbus_ctrl_interface=%s",
@@ -521,7 +541,7 @@ int main(int argc, char *argv[])
 	);
 	if (exitcode == 0)
 		exitcode = wpa_supplicant_run(global);
-    wpa_printf(MSG_DEBUG, "wpa_supplicant_run - end.");
+	wpa_printf(MSG_DEBUG, "wpa_supplicant_run - end.");
 	eloop_unregister_read_sock(g_supf_cmd_read_pipe);
 	wpa_printf(MSG_DEBUG, "wpa_supplicant_deinit.");
 	wpa_supplicant_deinit(global);

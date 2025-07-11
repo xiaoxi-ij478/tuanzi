@@ -869,6 +869,50 @@ static int wpa_supplicant_need_to_roam(struct wpa_supplicant *wpa_s,
 	return 1;
 }
 
+// ADDED BY xiaoxi-ij478 for tuanzi
+struct su_wpa_ie {
+    int wpa_ie_set;
+    int proto;
+    int pairwise_cipher;
+    int group_cipher;
+    int key_mgmt;
+    int capabilities;
+    int mgmt_group_cipher;
+};
+
+struct SupfWlanScanRes {
+    unsigned flags;
+    char ssid[33];
+    size_t ssid_len;
+    char bssid[6];
+    int freq;
+    unsigned short beacon_int;
+    unsigned short caps;
+    int qual;
+    int noise;
+    int level;
+    struct su_wpa_ie wpa_ie;
+};
+
+struct ScanCmdCtx {
+//    struct SupfWlanScanRes *res;
+//    int num;
+    int num;
+    struct SupfWlanScanRes res[];
+};
+
+enum SupfMsg {
+    SUPF_MSG_SCAN_RES,
+    SUPF_MSG_EAP_ERR,
+    SUPF_MSG_EAP_SUC
+};
+
+struct SupfMsgData {
+    enum SupfMsg msg;
+    const void *buf;
+    unsigned len;
+};
+// ADDED BY xiaoxi-ij478 for tuanzi END
 
 static void wpa_supplicant_event_scan_results(struct wpa_supplicant *wpa_s,
 					      union wpa_event_data *data)
@@ -888,7 +932,75 @@ static void wpa_supplicant_event_scan_results(struct wpa_supplicant *wpa_s,
 	scan_res = wpa_supplicant_get_scan_results(wpa_s,
 						   data ? &data->scan_info :
 						   NULL, 1);
+	// ADDED BY xiaoxi-ij478 for tuanzi
+	struct ScanCmdCtx *pipe_scanres = NULL;
+	const u8 *ssid_ie=NULL;
+	unsigned ssid_len=0;
+	const u8 *name=NULL;
+	struct wpa_ie_data ie_data;
+	const u8 *vendor_ie=NULL;
 	wpa_printf_scan_info(scan_res);
+	if(scan_res) {
+		pipe_scanres = malloc(sizeof(int) + sizeof(struct SupfWlanScanRes) * scan_res->num);
+		if(pipe_scanres) {
+			for (size_t i = 0; i < scan_res->num; i++) {
+				if (!scan_res->res[i])
+					continue;
+				ssid_ie = wpa_scan_get_ie(scan_res->res[i], 0);
+				if (!ssid_ie) {
+					ssid_len = 0;
+					name = "";
+				} else {
+					if (ssid_ie[1] > 32) {
+						wpa_printf(MSG_DEBUG, "BSS: Too long SSID IE included for "
+							   MACSTR, MAC2STR(scan_res->res[i]->bssid));
+						continue;
+					}
+					ssid_len = ssid_ie[1];
+					name = ssid_ie + 2;
+				}
+				pipe_scanres->res[i].flags=scan_res->res[i]->flags;
+				memcpy(pipe_scanres->res[i].ssid,name,ssid_len);
+				pipe_scanres->res[i].ssid_len=ssid_len;
+				strcpy(pipe_scanres->res[i].bssid,scan_res->res[i]->bssid);
+				pipe_scanres->res[i].freq=scan_res->res[i]->freq;
+				pipe_scanres->res[i].beacon_int=scan_res->res[i]->beacon_int;
+				pipe_scanres->res[i].caps=scan_res->res[i]->caps;
+				pipe_scanres->res[i].qual=scan_res->res[i]->qual;
+				pipe_scanres->res[i].noise=scan_res->res[i]->noise;
+				pipe_scanres->res[i].level=scan_res->res[i]->level;
+				pipe_scanres->res[i].wpa_ie.wpa_ie_set=0;
+				vendor_ie=
+					wpa_scan_get_ie(scan_res->res[i],WLAN_EID_RSN)?:
+					wpa_scan_get_vendor_ie(scan_res->res[i], WPA_IE_VENDOR_TYPE);
+				if(!vendor_ie)
+					wpa_printf(MSG_INFO, "IE: NULL");
+				else{
+					if(wpa_parse_wpa_ie(vendor_ie,vendor_ie[1]+2,&ie_data))
+						wpa_printf(MSG_ERROR, "IE: parse failed\n");
+					else {
+						pipe_scanres->res[i].wpa_ie.wpa_ie_set = 1;
+						pipe_scanres->res[i].wpa_ie.proto = ie_data.proto;
+						pipe_scanres->res[i].wpa_ie.pairwise_cipher = ie_data.pairwise_cipher;
+						pipe_scanres->res[i].wpa_ie.group_cipher = ie_data.group_cipher;
+						pipe_scanres->res[i].wpa_ie.key_mgmt = ie_data.key_mgmt;
+						pipe_scanres->res[i].wpa_ie.capabilities = ie_data.capabilities;
+						pipe_scanres->res[i].wpa_ie.mgmt_group_cipher = ie_data.mgmt_group_cipher;
+					}
+				}
+			}
+		}
+	}
+	struct SupfMsgData msg_data;
+	if ( wpa_s->event_callback ) {
+		msg_data.msg = SUPF_MSG_SCAN_RES;
+		msg_data.len = sizeof(int) + sizeof(struct SupfWlanScanRes) * scan_res->num;
+		msg_data.buf = pipe_scanres;
+		wpa_s->event_callback(SUPF_MSG, &msg_data);
+	}
+	free(pipe_scanres);
+	pipe_scanres=NULL;
+	// ADDED BY xiaoxi-ij478 for tuanzi END
 	if (scan_res == NULL) {
 		if (wpa_s->conf->ap_scan == 2 || ap)
 			return;

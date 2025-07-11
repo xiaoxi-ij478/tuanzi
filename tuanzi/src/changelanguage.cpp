@@ -95,7 +95,7 @@ const std::string &CChangeLanguage::LoadString(unsigned str_id) const
     if (!lang_inited)
         return none;
 
-    for (const tagSectionUnit &trans_str : trans_strings)
+    for (const struct tagSectionUnit &trans_str : trans_strings)
         if (trans_str.id == str_id)
             return trans_str.str;
 

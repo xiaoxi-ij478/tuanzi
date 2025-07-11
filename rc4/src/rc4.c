@@ -41,16 +41,22 @@ void re_Sbox(unsigned char *S, unsigned char *T)
 void RC4(unsigned char *text, const unsigned char *key, int txtlen)
 {
     unsigned char S[256] = { 0 };
-    int i, k;
+    int i, k, l;
     unsigned char T[256] = { 0 };
     re_S(S);
     re_T(T, key);
     re_Sbox(S, T);
-    i = k = 0;
+    i = k = l = 0;
 
     while (k < txtlen) {
-        text[k] = text[k] ^ S[i];
         i = (i + 1) % 256;
+        l += S[i];
+        l &= 255;
+        swap(&S[i], &S[l]);
+        text[k] = text[k] ^ S[(S[i] + S[l]) & 255];
         k++;
+//        text[k] = text[k] ^ S[i];
+//        i = (i + 1) % 256;
+//        k++;
     }
 }
