@@ -309,34 +309,33 @@ bool get_dns(in_addr_t *dst)
     return true;
 }
 
-bool get_alternate_dns(char *dest, unsigned &counts)
+bool get_alternate_dns(char *dest, unsigned &length)
 {
     // cat /etc/resolv.conf 2>&- |awk '{if ($1==\"nameserver\") {print $2}}' |awk 'NR>1'
     std::ifstream ifs("/etc/resolv.conf");
     std::string line;
     std::vector<std::string> val;
     unsigned c = 0;
+    unsigned real_length = 0;
 
     if (!ifs) {
-        counts = 0;
+        length = 0;
         return false;
     }
 
-    while (std::getline(ifs, line)) {
+    while (real_length <= length && std::getline(ifs, line)) {
         ParseString(line, ' ', val);
 
-        if (val[0] != "nameserver")
+        if (val[0] != "nameserver" || !c++)
             continue;
 
-        if (!c++)
-            continue;
-
-        val[1].copy(dest + strlen(dest), val[1].length());
+        strcat(dest, val[1].c_str());
         strcat(dest, ";");
-        counts++;
+        real_length += val[1].length();
     }
 
-    dest[strlen(dest) - 1] = 0;
+    length = real_length;
+    dest[length - 1] = 0;
     return true;
 }
 
@@ -1190,7 +1189,7 @@ bool IsEqualDhcpInfo(
 )
 {
     return
-        info1.dhcp == info2.dhcp &&
+        info1.dhcp_enabled == info2.dhcp_enabled &&
         info1.ip4_ipaddr == info2.ip4_ipaddr &&
         info1.ip4_netmask == info2.ip4_netmask;
 }
@@ -1201,7 +1200,7 @@ void InitDHCPIPInfo(struct DHCPIPInfo &info)
     info.gateway = 0;
     info.ip4_ipaddr = 0;
     info.ip4_netmask = 0;
-    info.dhcp = true;
+    info.dhcp_enabled = true;
 }
 
 void InitDhcpIpInfo(struct DHCPIPInfo &info)
@@ -1210,10 +1209,10 @@ void InitDhcpIpInfo(struct DHCPIPInfo &info)
     info.gateway = 0;
     info.ip4_ipaddr = 0;
     info.ip4_netmask = 0;
-    info.field_24 = {};
+    info.ip6_my_ipaddr = {};
     info.ip6_link_local_ipaddr = {};
     info.ip6_ipaddr = {};
-    info.dhcp = true;
+    info.dhcp_enabled = true;
     info.ipaddr6_count = 0;
     info.adapter_mac = {};
 }
@@ -1228,7 +1227,7 @@ bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool)
     if (!nic_info)
         return false;
 
-    info.dhcp = CtrlThread->field_240.field_54;
+    info.dhcp_enabled = CtrlThread->field_240.field_54;
     info.adapter_mac = nic_info->hwaddr;
     info.dns = htonl(nic_info->dns);
     info.gateway = htonl(nic_info->gateway);

@@ -210,14 +210,16 @@ struct [[gnu::packed]] etherudppkg {
 };
 
 enum EAP_CODES : uint8_t {
-    EAP_REQUEST = 1,
+    EAP_CODE_INVALID,
+    EAP_REQUEST,
     EAP_RESPONSE,
     EAP_SUCCESS,
     EAP_FAILURE
 };
 
 enum EAP_TYPES : uint8_t {
-    EAP_TYPE_IDENTITY = 1,
+    EAP_TYPE_INVALID,
+    EAP_TYPE_IDENTITY,
     EAP_TYPE_NOTIFICATION,
     EAP_TYPE_NAK,
     EAP_TYPE_MD5,

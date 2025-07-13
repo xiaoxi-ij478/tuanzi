@@ -48,7 +48,7 @@ struct DHClientThreadStruct {
 };
 
 struct DHCPIPInfo {
-    bool dhcp;
+    bool dhcp_enabled;
     in_addr_t ip4_ipaddr;
     in_addr_t ip4_netmask;
     in_addr_t gateway;
@@ -56,7 +56,7 @@ struct DHCPIPInfo {
     struct ether_addr adapter_mac;
     struct ether_addr gateway_mac;
     unsigned ipaddr6_count;
-    struct in6_addr field_24;
+    struct in6_addr ip6_my_ipaddr;
     struct in6_addr ip6_link_local_ipaddr;
     struct in6_addr ip6_ipaddr;
     struct in6_addr ip6_netmask;
@@ -88,7 +88,7 @@ extern unsigned short checksum(const unsigned short *data, unsigned len);
 extern struct NICINFO *get_nics_info(const char *ifname);
 extern void free_nics_info(struct NICINFO *info);
 extern bool get_dns(in_addr_t *dst);
-extern bool get_alternate_dns(char *dst, unsigned &counts);
+extern bool get_alternate_dns(char *dst, unsigned &length);
 extern bool get_gateway(in_addr_t *result, const char *ifname);
 extern unsigned short get_speed_wl(int fd, char *ifname);
 extern unsigned short get_speed(int fd, char *ifname);

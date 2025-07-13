@@ -56,10 +56,11 @@ class CSupplicantApp
         void GUI_update_connectdlg_by_states(enum APPSTATUS new_status) const;
         bool IsOnline() const;
 
-    private:
         key_t thread_key;
-        unsigned field_8;
         std::string version;
+
+    private:
+        unsigned field_8;
         CRITICAL_SECTION field_18;
         CRITICAL_SECTION field_48;
         enum APPSTATUS status;

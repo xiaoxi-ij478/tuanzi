@@ -44,7 +44,7 @@ int CEncryption::base64_decode(const char *src, char *dst)
     return written;
 }
 
-int CEncryption::base64_encode(const char *src, int len, char *dst)
+int CEncryption::base64_encode(const char *src, unsigned len, char *dst)
 {
     // this was written by myself too
     int written = 0;
@@ -64,6 +64,9 @@ int CEncryption::base64_encode(const char *src, int len, char *dst)
 
     // process the remain data and fill with '='
     switch (len % 3) {
+        case 0:
+            break;
+
         case 1:
             tmp[0] = *src++;
             *dst++ = base64_chars[tmp[0] >> 2];
@@ -81,9 +84,6 @@ int CEncryption::base64_encode(const char *src, int len, char *dst)
             *dst++ = base64_chars[(tmp[1] & 0xf) << 2];
             *dst++ = '=';
             written += 4;
-            break;
-
-        default:
             break;
     }
 

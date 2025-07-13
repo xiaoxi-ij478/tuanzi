@@ -531,7 +531,7 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="src/rgprivateproc.c">
+		<Unit filename="src/rgprivateproc.cpp">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/rxpacketthread.cpp">
@@ -567,10 +567,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="src/supplicantapp.cpp">
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
-		<Unit filename="src/suradiusprivate.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>

@@ -71,13 +71,15 @@ int main(int argc, char **argv)
     cinstance.SetLanguage(GetSysLanguage());
     InitLogFiles();
 
-    while ((option = getopt_long(
-                         argc,
-                         argv,
-                         "qlh?wa:d:u:p:s:n:S:I:",
-                         longopt,
-                         &longind
-                     )) != -1) {
+    while (
+        (option = getopt_long(
+                      argc,
+                      argv,
+                      "qlh?wa:d:u:p:s:n:S:I:",
+                      longopt,
+                      &longind
+                  )) != -1
+    ) {
         switch (option) {
             case ':':
                 fprintf(stderr, cinstance.LoadString(2029).c_str(), optopt);

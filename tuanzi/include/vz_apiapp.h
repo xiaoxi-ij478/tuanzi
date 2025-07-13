@@ -27,9 +27,9 @@ class CVz_APIApp
         );
 
     private:
-        void *GetAppData(unsigned &size) const;
-        void *GetDllData(unsigned &size) const;
-        void *GetFileData(unsigned &size, const char *filename) const;
+        char *GetAppData(unsigned &size) const;
+        char *GetDllData(unsigned &size) const;
+        char *GetFileData(unsigned &size, const char *filename) const;
         void PrepareData(
             char *result,
             enum HASH_TYPE hash_type,

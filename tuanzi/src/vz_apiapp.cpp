@@ -10,6 +10,7 @@
 // <data2[:first_len]>
 // <data3>
 // <data2[first_len:first_len + second_len]>
+// They must be all arrays to make sizeof work
 #define COPY_4_PARTED_DATA(to, data1, data2, data3, data2_first_len, data2_second_len) \
     do { \
         memcpy((to), (data1), sizeof(data1)); \
@@ -100,129 +101,200 @@ void CVz_APIApp::V3HeartbeatAPI(
 //                lower_data_md5,
 //                strlen(lower_data_md5)
 //            );
-            strcpy(whirlpool_tmpbuf1), upper_data_md5);
+            strcpy(whirlpool_tmpbuf1, upper_data_md5);
             strcpy(whirlpool_tmpbuf1 + strlen(upper_data_md5), lower_data_md5);
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
                 &whirlpool_context,
-                whirlpool_tmpbuf1,
+                reinterpret_cast<unsigned char *>(whirlpool_tmpbuf1),
                 strlen(upper_data_md5) + strlen(lower_data_md5) + 16 * 2
             );
-            rhash_whirlpool_final_Vz(&whirlpool_context, whirlpool_dstbuf);
+            rhash_whirlpool_final_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_dstbuf)
+            );
             break;
 
         case HASH_SHA1_SHA1:
-                rhash_sha1_init_Vz(&sha1_context);
-                rhash_sha1_update_Vz(&sha1_context, lower_data, lower_data_len);
-                rhash_sha1_final_Vz(&sha1_context, lower_data_sha1);
-                rhash_sha1_init_Vz(&sha1_context);
-                rhash_sha1_update_Vz(&sha1_context, upper_data, upper_data_len);
-                rhash_sha1_final_Vz(&sha1_context, upper_data_sha1);
-                // first add all lower_data_sha1
-                // then 6 bytes of md5_challenge
-                // then add all upper_data_sha1
-                // finally add 10 bytes of md5_challenge
-                COPY_4_PARTED_DATA(
-                    whirlpool_tmpbuf2,
-                    lower_data_sha1,
-                    md5_challenge,
-                    upper_data_sha1,
-                    6,
-                    10
-                );
-                rhash_whirlpool_init_Vz(&whirlpool_context);
-                rhash_whirlpool_update_Vz(
-                    &whirlpool_context,
-                    whirlpool_tmpbuf2,
-                    sizeof(lower_data_sha1) + sizeof(upper_data_sha1) + 16
-                );
-                rhash_whirlpool_final_Vz(&whirlpool_context, whirlpool_dstbuf);
-                break;
+            rhash_sha1_init_Vz(&sha1_context);
+            rhash_sha1_update_Vz(
+                &sha1_context,
+                reinterpret_cast<const unsigned char *>(lower_data),
+                lower_data_len
+            );
+            rhash_sha1_final_Vz(
+                &sha1_context,
+                reinterpret_cast<unsigned char *>(lower_data_sha1)
+            );
+            rhash_sha1_init_Vz(&sha1_context);
+            rhash_sha1_update_Vz(
+                &sha1_context,
+                reinterpret_cast<const unsigned char *>(upper_data),
+                upper_data_len
+            );
+            rhash_sha1_final_Vz(
+                &sha1_context,
+                reinterpret_cast<unsigned char *>(upper_data_sha1)
+            );
+            // first add all lower_data_sha1
+            // then 6 bytes of md5_challenge
+            // then add all upper_data_sha1
+            // finally add 10 bytes of md5_challenge
+            COPY_4_PARTED_DATA(
+                whirlpool_tmpbuf2,
+                lower_data_sha1,
+                md5_challenge,
+                upper_data_sha1,
+                6,
+                10
+            );
+            rhash_whirlpool_init_Vz(&whirlpool_context);
+            rhash_whirlpool_update_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_tmpbuf2),
+                sizeof(lower_data_sha1) + sizeof(upper_data_sha1) + 16
+            );
+            rhash_whirlpool_final_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_dstbuf)
+            );
+            break;
 
-            case HASH_RIPEMD128_SHA1:
-                    ampheck_ripemd128_init_Vz(&ripemd128_context);
-                    ampheck_ripemd128_update_Vz(&ripemd128_context, upper_data, upper_data_len);
-                    ampheck_ripemd128_finish_Vz(&ripemd128_context, upper_data_ripemd128);
-                    rhash_sha1_init_Vz(&sha1_context);
-                    rhash_sha1_update_Vz(&sha1_context, lower_data, lower_data_len);
-                    rhash_sha1_final_Vz(&sha1_context, lower_data_sha1);
-                    // first add all lower_data_sha1
-                    // then 6 bytes of md5_challenge
-                    // then add all upper_data_ripemd128
-                    // finally add 10 bytes of md5_challenge
-                    COPY_4_PARTED_DATA(
-                        whirlpool_tmpbuf3,
-                        lower_data_sha1,
-                        md5_challenge,
-                        upper_data_ripemd128,
-                        6,
-                        10
-                    );
-                    rhash_whirlpool_init_Vz(&whirlpool_context);
-                    rhash_whirlpool_update_Vz(
-                        &whirlpool_context,
-                        whirlpool_tmpbuf3,
-                        sizeof(lower_data_sha1) + sizeof(upper_data_ripemd128) + 16
-                    );
-                    rhash_whirlpool_final_Vz(&whirlpool_context, whirlpool_dstbuf);
-                    break;
+        case HASH_RIPEMD128_SHA1:
+            ampheck_ripemd128_init_Vz(&ripemd128_context);
+            ampheck_ripemd128_update_Vz(
+                &ripemd128_context,
+                reinterpret_cast<const unsigned char *>(upper_data),
+                upper_data_len
+            );
+            ampheck_ripemd128_finish_Vz(
+                &ripemd128_context,
+                reinterpret_cast<unsigned char *>(upper_data_ripemd128)
+            );
+            rhash_sha1_init_Vz(&sha1_context);
+            rhash_sha1_update_Vz(
+                &sha1_context,
+                reinterpret_cast<const unsigned char *>(lower_data),
+                lower_data_len
+            );
+            rhash_sha1_final_Vz(
+                &sha1_context,
+                reinterpret_cast<unsigned char *>(lower_data_sha1)
+            );
+            // first add all lower_data_sha1
+            // then 6 bytes of md5_challenge
+            // then add all upper_data_ripemd128
+            // finally add 10 bytes of md5_challenge
+            COPY_4_PARTED_DATA(
+                whirlpool_tmpbuf3,
+                lower_data_sha1,
+                md5_challenge,
+                upper_data_ripemd128,
+                6,
+                10
+            );
+            rhash_whirlpool_init_Vz(&whirlpool_context);
+            rhash_whirlpool_update_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_tmpbuf3),
+                sizeof(lower_data_sha1) + sizeof(upper_data_ripemd128) + 16
+            );
+            rhash_whirlpool_final_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_dstbuf)
+            );
+            break;
 
-                case HASH_TIGER_RIPEMD128:
-                        rhash_tiger_init_Vz(&tiger_context);
-                        rhash_tiger_update_Vz(&tiger_context, upper_data, upper_data_len);
-                        rhash_tiger_final_Vz(&tiger_context, upper_data_tiger);
-                        ampheck_ripemd128_init_Vz(&ripemd128_context);
-                        ampheck_ripemd128_update_Vz(&ripemd128_context, lower_data, lower_data_len);
-                        ampheck_ripemd128_finish_Vz(&ripemd128_context, lower_data_ripemd128);
-                        // first add all upper_data_tiger
-                        // then add 10 bytes of md5_challenge !!!!!
-                        // then add all lower_data_ripemd128
-                        // finally add 6 bytes of md5_challenge
-                        COPY_4_PARTED_DATA(
-                            whirlpool_tmpbuf2,
-                            upper_data_tiger,
-                            md5_challenge,
-                            lower_data_ripemd128,
-                            10,
-                            6
-                        );
-                        rhash_whirlpool_init_Vz(&whirlpool_context);
-                        rhash_whirlpool_update_Vz(
-                            &whirlpool_context,
-                            whirlpool_tmpbuf2,
-                            sizeof(upper_data_tiger) + sizeof(lower_data_ripemd128) + 16
-                        );
-                        rhash_whirlpool_final_Vz(&whirlpool_context, whirlpool_dstbuf);
-                        break;
+        case HASH_TIGER_RIPEMD128:
+            rhash_tiger_init_Vz(&tiger_context);
+            rhash_tiger_update_Vz(
+                &tiger_context,
+                reinterpret_cast<const unsigned char *>(upper_data),
+                upper_data_len
+            );
+            rhash_tiger_final_Vz(
+                &tiger_context,
+                reinterpret_cast<unsigned char *>(upper_data_tiger)
+            );
+            ampheck_ripemd128_init_Vz(&ripemd128_context);
+            ampheck_ripemd128_update_Vz(
+                &ripemd128_context,
+                reinterpret_cast<const unsigned char *>(lower_data),
+                lower_data_len
+            );
+            ampheck_ripemd128_finish_Vz(
+                &ripemd128_context,
+                reinterpret_cast<unsigned char *>(lower_data_ripemd128)
+            );
+            // first add all upper_data_tiger
+            // then add 10 bytes of md5_challenge !!!!!
+            // then add all lower_data_ripemd128
+            // finally add 6 bytes of md5_challenge
+            COPY_4_PARTED_DATA(
+                whirlpool_tmpbuf2,
+                upper_data_tiger,
+                md5_challenge,
+                lower_data_ripemd128,
+                10,
+                6
+            );
+            rhash_whirlpool_init_Vz(&whirlpool_context);
+            rhash_whirlpool_update_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_tmpbuf2),
+                sizeof(upper_data_tiger) + sizeof(lower_data_ripemd128) + 16
+            );
+            rhash_whirlpool_final_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_dstbuf)
+            );
+            break;
 
-                    case HASH_TIGER_SHA1:
-                            rhash_tiger_init_Vz(&tiger_context);
-                            rhash_tiger_update_Vz(&tiger_context, upper_data, upper_data_len);
-                            rhash_tiger_final_Vz(&tiger_context, upper_data_tiger);
-                            rhash_sha1_init_Vz(&sha1_context);
-                            rhash_sha1_update_Vz(&sha1_context, lower_data, lower_data_len);
-                            rhash_sha1_final_Vz(&sha1_context, lower_data_sha1);
-                            // first add all upper_data_tiger
-                            // then add 8 bytes of md5_challenge !!!!!
-                            // then add all lower_data_sha1
-                            // finally add 8 bytes of md5_challenge
-                            COPY_4_PARTED_DATA(
-                                whirlpool_tmpbuf4,
-                                upper_data_tiger,
-                                md5_challenge,
-                                lower_data_sha1,
-                                8,
-                                8
-                            );
-                            rhash_whirlpool_init_Vz(&whirlpool_context);
-                            rhash_whirlpool_update_Vz(
-                                &whirlpool_context,
-                                whirlpool_tmpbuf4,
-                                sizeof(upper_data_tiger) + sizeof(lower_data_sha1) + 16
-                            );
-                            rhash_whirlpool_final_Vz(&whirlpool_context, whirlpool_dstbuf);
-                            break;
-                        }
+        case HASH_TIGER_SHA1:
+            rhash_tiger_init_Vz(&tiger_context);
+            rhash_tiger_update_Vz(
+                &tiger_context,
+                reinterpret_cast<const unsigned char *>(upper_data),
+                upper_data_len
+            );
+            rhash_tiger_final_Vz(
+                &tiger_context,
+                reinterpret_cast<unsigned char *>(upper_data_tiger)
+            );
+            rhash_sha1_init_Vz(&sha1_context);
+            rhash_sha1_update_Vz(
+                &sha1_context,
+                reinterpret_cast<const unsigned char *>(lower_data),
+                lower_data_len
+            );
+            rhash_sha1_final_Vz(
+                &sha1_context,
+                reinterpret_cast<unsigned char *>(lower_data_sha1)
+            );
+            // first add all upper_data_tiger
+            // then add 8 bytes of md5_challenge !!!!!
+            // then add all lower_data_sha1
+            // finally add 8 bytes of md5_challenge
+            COPY_4_PARTED_DATA(
+                whirlpool_tmpbuf4,
+                upper_data_tiger,
+                md5_challenge,
+                lower_data_sha1,
+                8,
+                8
+            );
+            rhash_whirlpool_init_Vz(&whirlpool_context);
+            rhash_whirlpool_update_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_tmpbuf4),
+                sizeof(upper_data_tiger) + sizeof(lower_data_sha1) + 16
+            );
+            rhash_whirlpool_final_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_dstbuf)
+            );
+            break;
+    }
 
     for (unsigned i = 0; i < 64; i++)
         sprintf(result + 2 * i, "%02x", whirlpool_dstbuf[i]);
@@ -256,27 +328,27 @@ void CVz_APIApp::Vz_API(
     );
 }
 
-void *CVz_APIApp::GetAppData(unsigned &size) const
+char *CVz_APIApp::GetAppData(unsigned &size) const
 {
     return
-        memcpy(
-            new char[sizeof(g_pAppData)],
-            g_pAppData,
-            size = sizeof(g_pAppData)
-        );
+        static_cast<char *>(memcpy(
+                                new char[sizeof(g_pAppData)],
+                                g_pAppData,
+                                size = sizeof(g_pAppData)
+                            ));
 }
 
-void *CVz_APIApp::GetDllData(unsigned &size) const
+char *CVz_APIApp::GetDllData(unsigned &size) const
 {
     return
-        memcpy(
-            new char[sizeof(g_pDllData)],
-            g_pDllData,
-            size = sizeof(g_pDllData)
-        );
+        static_cast<char *>(memcpy(
+                                new char[sizeof(g_pDllData)],
+                                g_pDllData,
+                                size = sizeof(g_pDllData)
+                            ));
 }
 
-void *CVz_APIApp::GetFileData(unsigned &size, const char *filename) const
+char *CVz_APIApp::GetFileData(unsigned &size, const char *filename) const
 {
     std::ifstream ifs;
     char *ret = nullptr;
@@ -329,10 +401,10 @@ void CVz_APIApp::PrepareData(
     struct ampheck_ripemd128 ripemd128_context = {};
     struct tiger_ctx tiger_context = {};
 
-    if (!(appdata = static_cast<char *>(GetAppData(appdata_len))))
+    if (!(appdata = GetAppData(appdata_len)))
         return;
 
-    if (!(dlldata = static_cast<char *>(GetDllData(dlldata_len))))
+    if (!(dlldata = GetDllData(dlldata_len)))
         return;
 
     switch (hash_type) {
@@ -367,19 +439,36 @@ void CVz_APIApp::PrepareData(
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
                 &whirlpool_context,
-                whirlpool_tmpbuf1,
+                reinterpret_cast<unsigned char *>(whirlpool_tmpbuf1),
                 strlen(appdata_md5) + strlen(dlldata_md5) + 16 * 2
             );
-            rhash_whirlpool_final_Vz(&whirlpool_context, whirlpool_dstbuf);
+            rhash_whirlpool_final_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_dstbuf)
+            );
             break;
 
         case HASH_SHA1_SHA1:
             rhash_sha1_init_Vz(&sha1_context);
-            rhash_sha1_update_Vz(&sha1_context, appdata, appdata_len);
-            rhash_sha1_final_Vz(&sha1_context, appdata_sha1);
+            rhash_sha1_update_Vz(
+                &sha1_context,
+                reinterpret_cast<unsigned char *>(appdata),
+                appdata_len
+            );
+            rhash_sha1_final_Vz(
+                &sha1_context,
+                reinterpret_cast<unsigned char *>(appdata_sha1)
+            );
             rhash_sha1_init_Vz(&sha1_context);
-            rhash_sha1_update_Vz(&sha1_context, dlldata, dlldata_len);
-            rhash_sha1_final_Vz(&sha1_context, dlldata_sha1);
+            rhash_sha1_update_Vz(
+                &sha1_context,
+                reinterpret_cast<unsigned char *>(dlldata),
+                dlldata_len
+            );
+            rhash_sha1_final_Vz(
+                &sha1_context,
+                reinterpret_cast<unsigned char *>(dlldata_sha1)
+            );
             // first add all dlldata_sha1
             // then 6 bytes of md5_challenge
             // then add all appdata_sha1
@@ -395,19 +484,36 @@ void CVz_APIApp::PrepareData(
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
                 &whirlpool_context,
-                whirlpool_tmpbuf2,
+                reinterpret_cast<unsigned char *>(whirlpool_tmpbuf2),
                 sizeof(appdata_sha1) + sizeof(dlldata_sha1) + 16
             );
-            rhash_whirlpool_final_Vz(&whirlpool_context, whirlpool_dstbuf);
+            rhash_whirlpool_final_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_dstbuf)
+            );
             break;
 
         case HASH_RIPEMD128_SHA1:
             ampheck_ripemd128_init_Vz(&ripemd128_context);
-            ampheck_ripemd128_update_Vz(&ripemd128_context, appdata, appdata_len);
-            ampheck_ripemd128_finish_Vz(&ripemd128_context, appdata_ripemd128);
+            ampheck_ripemd128_update_Vz(
+                &ripemd128_context,
+                reinterpret_cast<unsigned char *>(appdata),
+                appdata_len
+            );
+            ampheck_ripemd128_finish_Vz(
+                &ripemd128_context,
+                reinterpret_cast<unsigned char *>(appdata_ripemd128)
+            );
             rhash_sha1_init_Vz(&sha1_context);
-            rhash_sha1_update_Vz(&sha1_context, dlldata, dlldata_len);
-            rhash_sha1_final_Vz(&sha1_context, dlldata_sha1);
+            rhash_sha1_update_Vz(
+                &sha1_context,
+                reinterpret_cast<unsigned char *>(dlldata),
+                dlldata_len
+            );
+            rhash_sha1_final_Vz(
+                &sha1_context,
+                reinterpret_cast<unsigned char *>(dlldata_sha1)
+            );
             // first add all dlldata_sha1
             // then 6 bytes of md5_challenge
             // then add all appdata_ripemd128
@@ -423,19 +529,36 @@ void CVz_APIApp::PrepareData(
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
                 &whirlpool_context,
-                whirlpool_tmpbuf3,
+                reinterpret_cast<unsigned char *>(whirlpool_tmpbuf3),
                 sizeof(dlldata_sha1) + sizeof(appdata_ripemd128) + 16
             );
-            rhash_whirlpool_final_Vz(&whirlpool_context, whirlpool_dstbuf);
+            rhash_whirlpool_final_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_dstbuf)
+            );
             break;
 
         case HASH_TIGER_RIPEMD128:
             rhash_tiger_init_Vz(&tiger_context);
-            rhash_tiger_update_Vz(&tiger_context, appdata, appdata_len);
-            rhash_tiger_final_Vz(&tiger_context, appdata_tiger);
+            rhash_tiger_update_Vz(
+                &tiger_context,
+                reinterpret_cast<unsigned char *>(appdata),
+                appdata_len
+            );
+            rhash_tiger_final_Vz(
+                &tiger_context,
+                reinterpret_cast<unsigned char *>(appdata_tiger)
+            );
             ampheck_ripemd128_init_Vz(&ripemd128_context);
-            ampheck_ripemd128_update_Vz(&ripemd128_context, dlldata, dlldata_len);
-            ampheck_ripemd128_finish_Vz(&ripemd128_context, dlldata_ripemd128);
+            ampheck_ripemd128_update_Vz(
+                &ripemd128_context,
+                reinterpret_cast<unsigned char *>(dlldata),
+                dlldata_len
+            );
+            ampheck_ripemd128_finish_Vz(
+                &ripemd128_context,
+                reinterpret_cast<unsigned char *>(dlldata_ripemd128)
+            );
             // first add all appdata_tiger
             // then add 10 bytes of md5_challenge !!!!!
             // then add all dlldata_ripemd128
@@ -451,19 +574,36 @@ void CVz_APIApp::PrepareData(
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
                 &whirlpool_context,
-                whirlpool_tmpbuf2,
+                reinterpret_cast<unsigned char *>(whirlpool_tmpbuf2),
                 sizeof(appdata_tiger) + sizeof(dlldata_ripemd128) + 16
             );
-            rhash_whirlpool_final_Vz(&whirlpool_context, whirlpool_dstbuf);
+            rhash_whirlpool_final_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_dstbuf)
+            );
             break;
 
         case HASH_TIGER_SHA1:
             rhash_tiger_init_Vz(&tiger_context);
-            rhash_tiger_update_Vz(&tiger_context, appdata, appdata_len);
-            rhash_tiger_final_Vz(&tiger_context, appdata_tiger);
+            rhash_tiger_update_Vz(
+                &tiger_context,
+                reinterpret_cast<unsigned char *>(appdata),
+                appdata_len
+            );
+            rhash_tiger_final_Vz(
+                &tiger_context,
+                reinterpret_cast<unsigned char *>(appdata_tiger)
+            );
             rhash_sha1_init_Vz(&sha1_context);
-            rhash_sha1_update_Vz(&sha1_context, dlldata, dlldata_len);
-            rhash_sha1_final_Vz(&sha1_context, dlldata_sha1);
+            rhash_sha1_update_Vz(
+                &sha1_context,
+                reinterpret_cast<unsigned char *>(dlldata),
+                dlldata_len
+            );
+            rhash_sha1_final_Vz(
+                &sha1_context,
+                reinterpret_cast<unsigned char *>(dlldata_sha1)
+            );
             // first add all appdata_tiger
             // then add 8 bytes of md5_challenge !!!!!
             // then add all dlldata_sha1
@@ -479,10 +619,13 @@ void CVz_APIApp::PrepareData(
             rhash_whirlpool_init_Vz(&whirlpool_context);
             rhash_whirlpool_update_Vz(
                 &whirlpool_context,
-                whirlpool_tmpbuf4,
+                reinterpret_cast<unsigned char *>(whirlpool_tmpbuf4),
                 sizeof(appdata_tiger) + sizeof(dlldata_sha1) + 16
             );
-            rhash_whirlpool_final_Vz(&whirlpool_context, whirlpool_dstbuf);
+            rhash_whirlpool_final_Vz(
+                &whirlpool_context,
+                reinterpret_cast<unsigned char *>(whirlpool_dstbuf)
+            );
             break;
 
         default:

@@ -1945,7 +1945,10 @@ bool CDirectTranSrv::PostToSam(char *buf, unsigned buflen) const
     if (
         !(
             ret = ::PostThreadMessage(
-                      thread_id, ON_POST_SAM, reinterpret_cast<unsigned long>(newbuf), buflen
+                      thread_id,
+                      ON_POST_SAM,
+                      reinterpret_cast<unsigned long>(newbuf),
+                      buflen
                   )
         )
     )

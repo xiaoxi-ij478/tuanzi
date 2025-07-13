@@ -6,11 +6,12 @@
 #include "global.h"
 #include "dirtranstags.h"
 
-struct UserInfo {
-    unsigned unl2t1;
-    unsigned dcd2x;
-    std::string ed2e1;
-    std::string gr2a1;
+struct SPUpGradeInfo {
+    unsigned magic;
+    unsigned type;
+    unsigned length;
+    unsigned su_newest_ver;
+    std::string su_upgrade_url;
 };
 
 extern void setAppEnvironment();
@@ -74,21 +75,20 @@ extern std::string HexToString(const char *buf, int buflen);
 extern int ASCIIStrtoChar(const std::string &str, char *buf);
 extern std::string AsciiToStr(
     const char *buf,
-    const unsigned &len
+    unsigned len
 );
 extern bool SuCreateDirectory(const std::string &dirname);
 extern std::string IntToString(int num);
-extern bool Is64BIT();
 //extern void KillRunModeCheckTimer();
 //extern void *OnRunModeCheckTimer(union sigval arg);
 //extern void SetRunModeCheckTimer();
 extern unsigned MD5StrtoUChar(const std::string &str, char *buf);
 extern int do_quit();
 extern int MemCmpare(
-    const void *buf1,
+    const char *buf1,
     int begin,
     int end,
-    const void *buf2,
+    const char *buf2,
     int len
 );
 extern void RcvACLParam(const void *arg);
@@ -101,8 +101,8 @@ extern void RcvOpenUtrustUrlCmd(const std::string &arg);
 extern void RcvStartAuthNotification();
 extern void StrToLower(char *str);
 extern bool convertInt(const char *str, int &result);
-extern void decode(char *buf, int buflen);
-extern void encode(char *buf, int buflen);
+extern void decode(char *buf, unsigned buflen);
+extern void encode(char *buf, unsigned buflen);
 extern std::string makeLower(const std::string &str);
 extern std::string makeUpper(const std::string &str);
 extern int StringToHex(
@@ -115,6 +115,19 @@ extern void ReadRegUserInfo(struct UserInfo &info);
 extern void SimulateSuLogoff(char *buf, unsigned buflen);
 extern bool SetLanFlag(unsigned flag);
 extern void RecvSecdomainPacket(char *buf, unsigned buflen);
+extern void CopyGradeInfo(
+    struct SPUpGradeInfo &dst,
+    const struct SPUpGradeInfo &src
+);
+extern void GetSuInternalVersion(unsigned &major, unsigned &minor);
+extern void RadiusEncrpytPwd(
+    const char *md5_challenge,
+    unsigned md5_challenge_len,
+    const char *password,
+    unsigned password_len,
+    char *outbuf
+);
+extern char GetHIRusultByLocal();
 
 static inline void swap128(char *val)
 {

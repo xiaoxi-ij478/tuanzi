@@ -108,3 +108,26 @@ enum OS_TYPE get_os_type()
 
     return OS_INVALID;
 }
+
+// hey, would you see rjsupplicant.sh?
+// this implementation is the same as the C version
+//function is64BIT()
+//{
+//  os=$(getconf LONG_BIT);
+//  if [ $os == "32" ];  then
+//      return 1;
+//  fi
+//  return 0;
+//}
+bool Is64BIT()
+{
+    // we'll use statically calculated value
+    // maybe we'll support arm64 one day, so include it
+#if defined(__x86_64__) || defined(__aarch64__)
+    return true;
+#elif defined(__i386__) || defined(__arm__)
+    return false;
+#else
+#error Your platform is not supported
+#endif
+}

@@ -11,7 +11,7 @@ CMD5Checksum::~CMD5Checksum()
 
 void CMD5Checksum::Update(const char *buf, unsigned buflen)
 {
-    MD5Update(&ctx, buf, buflen);
+    MD5Update(&ctx, reinterpret_cast<const unsigned char *>(buf), buflen);
 }
 
 char *CMD5Checksum::Final()

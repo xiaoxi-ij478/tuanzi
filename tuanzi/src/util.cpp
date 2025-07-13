@@ -4,7 +4,10 @@
 #include "timeutil.h"
 #include "directtransfer.h"
 #include "dirtranstags.h"
+#include "encodeutil.h"
 #include "mtypes.h"
+#include "threadutil.h"
+#include "userconfig.h"
 #include "util.h"
 
 void setAppEnvironment()
@@ -537,7 +540,7 @@ int ASCIIStrtoChar(const std::string &str, char *buf)
     return str.length() > 254 ? 255 : str.length();
 }
 
-std::string AsciiToStr(const char *buf, const unsigned &len)
+std::string AsciiToStr(const char *buf, unsigned len)
 {
     return std::string(buf, len);
 }
@@ -606,29 +609,6 @@ std::string IntToString(int num)
     return std::to_string(num);
 }
 
-// hey, would you see rjsupplicant.sh?
-// this implementation is the same as the C version
-//function is64BIT()
-//{
-//  os=$(getconf LONG_BIT);
-//  if [ $os == "32" ];  then
-//      return 1;
-//  fi
-//  return 0;
-//}
-bool Is64BIT()
-{
-    // we'll use statically calculated value
-    // maybe we'll support arm64 one day, so include it
-#if defined(__x86_64__) || defined(__aarch64__)
-    return true;
-#elif defined(__i386__) || defined(__arm__)
-    return false;
-#else
-#error Your platform is not supported
-#endif
-}
-
 //void KillRunModeCheckTimer()
 //{
 //    if (g_runModetimer) {
@@ -663,12 +643,12 @@ bool Is64BIT()
 //        g_uilog.AppendText("SetRunModeCheckTimer my_timer_settime error");
 //}
 
-int MemCmpare(const void *buf1, int begin, int end, const void *buf2, int len)
+int MemCmpare(const char *buf1, int begin, int end, const char *buf2, int len)
 {
     if (!buf1 || !buf2 || end - begin + 1 < len)
         return -2;
 
-    return memcmp(static_cast<const char *>(buf1) + begin, buf2, len);
+    return memcmp(buf1 + begin, buf2, len);
 }
 
 void RcvACLParam(void *arg)
@@ -729,7 +709,7 @@ bool convertInt(const char *str, int &result)
     return true;
 }
 
-void decode(char *buf, int buflen)
+void decode(char *buf, unsigned buflen)
 {
     if (buflen <= 0)
         return;
@@ -747,7 +727,7 @@ void decode(char *buf, int buflen)
     }
 }
 
-void encode(char *buf, int buflen)
+void encode(char *buf, unsigned buflen)
 {
     return decode(buf, buflen);
 }
@@ -755,20 +735,16 @@ void encode(char *buf, int buflen)
 std::string makeLower(const std::string &str)
 {
     std::string ret;
-
-    for (const char i : str)
-        ret.push_back(tolower(i));
-
+    ret.resize(str.length());
+    std::transform(str.cbegin(), str.cend(), ret.begin(), tolower);
     return ret;
 }
 
 std::string makeUpper(const std::string &str)
 {
     std::string ret;
-
-    for (const char i : str)
-        ret.push_back(toupper(i));
-
+    ret.resize(str.length());
+    std::transform(str.cbegin(), str.cend(), ret.begin(), toupper);
     return ret;
 }
 
@@ -903,5 +879,80 @@ bool SetLanFlag(unsigned flag)
 void RecvSecdomainPacket(char *buf, unsigned buflen)
 {
     logFile.AppendText("receive secdomain update command!");
-    PostThreadMessage(theApp, RECEIVE_SEC_DOMAIN_MTYPE, buflen, buf);
+    PostThreadMessage(theApp.thread_key, RECEIVE_SEC_DOMAIN_MTYPE, buflen, buf);
+}
+
+void CopyGradeInfo(struct SPUpGradeInfo &dst, const struct SPUpGradeInfo &src)
+{
+    dst = src;
+}
+
+void GetSuInternalVersion(unsigned &major, unsigned &minor)
+{
+    if (
+        CtrlThread &&
+        CtrlThread->configure_info.softproduct_internalver_major &&
+        CtrlThread->configure_info.softproduct_internalver_minor
+    ) {
+        major = CtrlThread->configure_info.softproduct_internalver_major;
+        minor = CtrlThread->configure_info.softproduct_internalver_minor;
+        g_log_Wireless.AppendText(
+            "GetSuInternalVersion: majorVer=%d minorVer=%d.",
+            major,
+            minor
+        );
+
+    } else {
+        major = 1;
+        minor = 30;
+        g_log_Wireless.AppendText("GetSuInternalVersion: use default version.");
+    }
+}
+
+void RadiusEncrpytPwd(
+    const char *md5_challenge,
+    unsigned md5_challenge_len,
+    const char *password,
+    unsigned password_len,
+    char *outbuf
+)
+{
+    char tmpbuf[528] = {};
+    char md5buf[16] = {};
+    unsigned username_len = 0;
+    MD5_CTX md5ctx;
+    ConvertUtf8ToGBK(
+        tmpbuf,
+        512,
+        CtrlThread->configure_info.last_auth_username.c_str(),
+        CtrlThread->configure_info.last_auth_username.length()
+    );
+    username_len = strlen(tmpbuf);
+
+    if (
+        !md5_challenge ||
+        md5_challenge_len != 16 ||
+        !password ||
+        password_len & 0xF ||
+        !password_len ||
+        !outbuf
+    )
+        return;
+
+    for (unsigned i = 0; i < password_len >> 4; i++) {
+        memcpy(&tmpbuf[username_len], i ? md5buf : md5_challenge, 16);
+        MD5Init(&md5ctx);
+        MD5Update(&md5ctx, tmpbuf, username_len + 16);
+        MD5Final(md5buf, &md5ctx);
+
+        for (unsigned j = 0; j < 16; j++)
+            md5buf[j] ^= password[(i << 4) + j];
+
+        memcpy(&outbuf[i << 4], md5buf, 16);
+    }
+}
+
+char GetHIRusultByLocal()
+{
+    return 0;
 }

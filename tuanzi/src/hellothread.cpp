@@ -74,7 +74,7 @@ struct HelloPacket *CHelloThread::CreateHelloPacket(unsigned &packet_len)
     ret->field_28 = 0x3011113;
     ret->field_14.field_4 = htonl(hello_para + (cur_crcid = GetCurCRCID()));
     ret->field_1E.field_4 = htonl(cur_crcid + 0x74 - e_pHelloID[hello_id_offset++]);
-    hello_id_offset %= 16;
+    hello_id_offset &= 15;
     encode(
         &ret->type,
         sizeof(struct HelloPacket) - offsetof(struct HelloPacket, type)

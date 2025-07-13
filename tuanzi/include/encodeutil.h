@@ -21,6 +21,13 @@ extern int u2g(
     char *outbuf,
     size_t outbytesleft
 );
+// the original implementation does not include this function
+extern int ConvertGBKToUtf8(
+    char *outbuf,
+    int outbytesleft,
+    const char *inbuf,
+    int inbytesleft
+);
 extern int ConvertGBKToUtf8(
     std::string &outbuf,
     const char *inbuf,

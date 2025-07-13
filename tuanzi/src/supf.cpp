@@ -157,7 +157,7 @@ unsigned generate_cmd_arguments(
 )
 {
     int argc = param->debug_file ? 10 : 8;
-    int next_argc = 0;
+    unsigned next_argc = 0;
     char **real_arguments = nullptr;
 
     if (!param->driver_name[0] || !param->ifname[0])

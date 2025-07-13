@@ -103,7 +103,7 @@ bool CDirectTransfer::DescryptForSAM(char *buf, unsigned buflen)
     unsigned char tmpibuf[8] = {}, tmpobuf[8] = {};
     char xorkey[8] = INIT_XORKEY;
 
-    if (buflen & 0x7)
+    if (buflen & 7)
         return false;
 
     deskey(DESKEY, DE1);
@@ -132,7 +132,7 @@ bool CDirectTransfer::EncryptForSAM(char *buf, unsigned buflen)
     unsigned char tmpibuf[8] = {}, tmpobuf[8] = {};
     char xorkey[8] = INIT_XORKEY;
 
-    if (buflen & 0x7)
+    if (buflen & 7)
         return false;
 
     deskey(DESKEY, EN0);

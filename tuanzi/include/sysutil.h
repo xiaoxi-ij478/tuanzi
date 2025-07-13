@@ -17,5 +17,6 @@ extern bool service_start2(const char *service_name);
 extern bool service_stop(const char *service_name);
 extern bool service_stop2(const char *service_name);
 extern enum OS_TYPE get_os_type();
+extern bool Is64BIT();
 
 #endif // SYSUTIL_H_INCLUDED

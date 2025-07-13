@@ -660,9 +660,7 @@ bool CDirTranThread::PostPacketNoResponse(
         return false;
     }
 
-    if (buflen_new & 7)
-        buflen_new = buflen_new + 8 - buflen_new % 8;
-
+    buflen_new = ((buflen_new >> 3) + !!(buflen_new & 7)) << 3;
     send_unit.id = id;
     send_unit.msg = new char[buflen_new];
     send_unit.eventret = nullptr;
@@ -742,8 +740,7 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
         buflen_new += buf[buflen_new + 1] + 2;
     }
 
-    if (buflen_new & 7)
-        buflen_new = buflen_new + 8 - buflen_new % 8;
+    buflen_new = ((buflen_new >> 3) + !!(buflen_new & 7)) << 3;
 
     send_unit.totallen = buflen_new;
 
@@ -781,8 +778,7 @@ bool CDirTranThread::SendPacketNoResponse(
         return false;
     }
 
-    if (buflen_new & 7)
-        buflen_new = buflen_new + 8 - buflen_new % 8;
+    buflen_new = ((buflen_new >> 3) + !!(buflen_new & 7)) << 3;
 
     send_unit.id = id;
     send_unit.totallen = buflen_new;
@@ -975,9 +971,7 @@ bool CDirTranThread::postMessage(
         return false;
     }
 
-    if (buflen_new & 7)
-        buflen_new = buflen_new + 8 - buflen_new % 8;
-
+    buflen_new = ((buflen_new >> 3) + !!(buflen_new & 7)) << 3;
     send_unit.id = id;
     send_unit.msg = new char[buflen_new];
     send_unit.eventret = nullptr;
@@ -1015,9 +1009,7 @@ bool CDirTranThread::sendMessage(
         return false;
     }
 
-    if (buflen_new & 7)
-        buflen_new = buflen_new + 8 - buflen_new % 8;
-
+    buflen_new = ((buflen_new >> 3) + !!(buflen_new & 7)) << 3;
     send_unit.id = id;
     send_unit.totallen = buflen_new;
     send_unit.msg = new char[buflen_new];
@@ -1071,9 +1063,7 @@ bool CDirTranThread::sendMessageWithTimeout(
         return false;
     }
 
-    if (buflen_new & 7)
-        buflen_new = buflen_new + 8 - buflen_new % 8;
-
+    buflen_new = ((buflen_new >> 3) + !!(buflen_new & 7)) << 3;
     send_unit.id = id;
     send_unit.totallen = buflen_new;
     send_unit.msg = new char[buflen_new];

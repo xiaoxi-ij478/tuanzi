@@ -49,7 +49,8 @@ void RC4(unsigned char *text, const unsigned char *key, int txtlen)
     i = k = l = 0;
 
     while (k < txtlen) {
-        i = (i + 1) % 256;
+        i++;
+        i &= 255;
         l += S[i];
         l &= 255;
         swap(&S[i], &S[l]);

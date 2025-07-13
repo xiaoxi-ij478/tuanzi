@@ -11,7 +11,7 @@ CMD5ForVz::~CMD5ForVz()
 
 void CMD5ForVz::Update(const char *buf, unsigned buflen)
 {
-    MD5Update_Vz(&ctx, buf, buflen);
+    MD5Update_Vz(&ctx, reinterpret_cast<const unsigned char *>(buf), buflen);
 }
 
 char *CMD5ForVz::Final()

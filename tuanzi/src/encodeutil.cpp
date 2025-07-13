@@ -51,6 +51,17 @@ int u2g(
 }
 
 int ConvertGBKToUtf8(
+    char *outbuf,
+    int outbytesleft,
+    const char *inbuf,
+    int inbytesleft
+)
+{
+    g2u(inbuf, inbytesleft, outbuf, outbytesleft);
+    return outbytesleft;
+}
+
+int ConvertGBKToUtf8(
     std::string &outbuf,
     const char *inbuf,
     int inbytesleft
