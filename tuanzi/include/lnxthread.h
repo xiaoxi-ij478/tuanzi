@@ -3,8 +3,6 @@
 
 #include "waithandle.h"
 
-class CLnxThread;
-
 struct LNXMSG {
     unsigned long mtype;
     unsigned long arg1;
@@ -69,7 +67,7 @@ class CLnxThread
         virtual bool ExitInstance();
         virtual bool KillTimer(timer_t &timerid);
 
-        bool dont_know_always_false;
+        bool doing_upgrade;
         pthread_t thread_id;
 
     private:

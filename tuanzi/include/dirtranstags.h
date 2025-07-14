@@ -274,11 +274,11 @@ struct tagDirTranPara {
 };
 
 struct tagSmpParaDir {
-    char field_0[128];
+    char username[128];
     in_addr_t su_ipaddr;
-    struct ether_addr field_84;
-    char field_8A[128];
-    unsigned field_8A_len;
+    struct ether_addr adapter_mac;
+    char diskid[128];
+    unsigned diskid_len;
     in_addr_t smp_ipaddr;
     in_addr_t gateway_ipaddr;
     unsigned smp_port;
@@ -298,9 +298,9 @@ struct tagDirectTranSrvPara {
     bool field_0;
     bool use_handshake_to_sam;
     unsigned timer_to_sam;
-    char field_8[128];
+    char username[128];
     in_addr_t su_ipaddr;
-    struct ether_addr field_8C;
+    struct ether_addr adapter_mac;
     in_addr_t sam_ipaddr;
     in_addr_t gateway_ipaddr;
     unsigned sam_port;
@@ -311,7 +311,7 @@ struct tagDirectTranSrvPara {
     unsigned timeout;
     unsigned retry_count;
     char version;
-    bool field_C5;
+    bool server_and_us_in_the_same_subnet;
 };
 
 struct tagPasSecurityInfo {

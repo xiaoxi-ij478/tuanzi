@@ -3,9 +3,10 @@
 #include "netutil.h"
 #include "sysutil.h"
 #include "cmdutil.h"
+#include "util.h"
+#include "encodeutil.h"
 #include "vz_apiapp.h"
 #include "changelanguage.h"
-#include "util.h"
 #include "rgprivateproc.h"
 
 void CRGPrivateProc::EncapRGVerdorSeg(char *buf, unsigned &len)
@@ -367,7 +368,10 @@ void CRGPrivateProc::GetHardDiskSN(char *buf, unsigned &len)
     len += buf[1];
 }
 
-void CRGPrivateProc::GetIPDClientRunResult(char *buf, unsigned &len)
+void CRGPrivateProc::GetIPDClientRunResult(
+    [[maybe_unused]] char *buf,
+    unsigned &len
+)
 {
     len = 0;
 }
@@ -438,28 +442,28 @@ void CRGPrivateProc::GetIPv6Info(char *buf, unsigned &len)
     buf[len++] = dhcp_ipinfo.ipaddr6_count;
 
     if (
-        dhcp_ipinfo.ip6_link_local_ipaddr[0] &&
-        dhcp_ipinfo.ip6_link_local_ipaddr[1]
+        dhcp_ipinfo.ip6_link_local_ipaddr.s6_addr[0] &&
+        dhcp_ipinfo.ip6_link_local_ipaddr.s6_addr[1]
     ) {
         g_dhcpDug.AppendText("上传的本地链路单播地址:");
         g_dhcpDug.HexPrinter(
-            dhcp_ipinfo.ip6_link_local_ipaddr.s6_ipaddr,
+            reinterpret_cast<char *>(dhcp_ipinfo.ip6_link_local_ipaddr.s6_addr),
             sizeof(dhcp_ipinfo.ip6_link_local_ipaddr)
         );
         buf[len++] = 0x38;
         buf[len++] = 0x10;
         memcpy(
             &buf[len],
-            dhcp_ipinfo.ip6_link_local_ipaddr.s6_addr,
+            reinterpret_cast<char *>(dhcp_ipinfo.ip6_link_local_ipaddr.s6_addr),
             sizeof(dhcp_ipinfo.ip6_link_local_ipaddr)
         );
         len += 16;
     }
 
-    if (dhcp_ipinfo.ip6_ipaddr[0] && dhcp_ipinfo.ip6_ipaddr[1]) {
+    if (dhcp_ipinfo.ip6_ipaddr.s6_addr[0] && dhcp_ipinfo.ip6_ipaddr.s6_addr[1]) {
         g_dhcpDug.AppendText("上传的可集聚全球单播地址:");
         g_dhcpDug.HexPrinter(
-            dhcp_ipinfo.ip6_ipaddr.s6_ipaddr,
+            reinterpret_cast<char *>(dhcp_ipinfo.ip6_ipaddr.s6_addr),
             sizeof(dhcp_ipinfo.ip6_ipaddr)
         );
         buf[len++] = 0x4E;
@@ -807,7 +811,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                 }
 
                 CtrlThread->private_properties.su_newest_ver =
-                    ntohl(*reinterpret_cast<uint32_t *>(&buf[cur_pos]));
+                    ntohl(*reinterpret_cast<const uint32_t *>(&buf[cur_pos]));
                 g_dhcpDug.AppendText(
                     "CRGPrivateProc::ReadRGVendorSeg()----->SU_NEWEST_VER = 0x%X",
                     CtrlThread->private_properties.su_newest_ver
@@ -821,7 +825,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                 }
 
                 CtrlThread->private_properties.proxy_avoid =
-                    ntohl(*reinterpret_cast<uint32_t *>(&buf[cur_pos]));
+                    ntohl(*reinterpret_cast<const uint32_t *>(&buf[cur_pos]));
                 g_dhcpDug.AppendText(
                     "CRGPrivateProc::ReadRGVendorSeg()----->PROXY_AVOID = %d",
                     CtrlThread->private_properties.proxy_avoid
@@ -835,7 +839,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                 }
 
                 CtrlThread->private_properties.dialup_avoid =
-                    ntohl(*reinterpret_cast<uint32_t *>(&buf[cur_pos]));
+                    ntohl(*reinterpret_cast<const uint32_t *>(&buf[cur_pos]));
                 g_dhcpDug.AppendText(
                     "CRGPrivateProc::ReadRGVendorSeg()----->DIALUP_AVOID = %d",
                     CtrlThread->private_properties.dialup_avoid
@@ -921,7 +925,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                 }
 
                 CtrlThread->private_properties.su_reauth_interv =
-                    ntohl(*reinterpret_cast<uint32_t *>(&buf[cur_pos]));
+                    ntohl(*reinterpret_cast<const uint32_t *>(&buf[cur_pos]));
                 g_dhcpDug.AppendText(
                     "CRGPrivateProc::ReadRGVendorSeg()----->SU_REAUTH_INTERV = %d",
                     CtrlThread->private_properties.su_reauth_interv
@@ -935,7 +939,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                 }
 
                 CtrlThread->private_properties.hello_interv =
-                    ntohl(*reinterpret_cast<uint32_t *>(&buf[cur_pos]));
+                    ntohl(*reinterpret_cast<const uint32_t *>(&buf[cur_pos]));
                 g_dhcpDug.AppendText(
                     "CRGPrivateProc::ReadRGVendorSeg()----->HELLO_INTERV = %d",
                     CtrlThread->private_properties.hello_interv
@@ -949,7 +953,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                 }
 
                 CtrlThread->private_properties.indicate_port =
-                    ntohl(*reinterpret_cast<uint32_t *>(&buf[cur_pos]));
+                    ntohl(*reinterpret_cast<const uint32_t *>(&buf[cur_pos]));
                 g_dhcpDug.AppendText(
                     "CRGPrivateProc::ReadRGVendorSeg()----->INDICATE_PORT = %d",
                     CtrlThread->private_properties.indicate_port
@@ -963,7 +967,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                 }
 
                 CtrlThread->private_properties.indicate_serv_ip =
-                    ntohl(*reinterpret_cast<uint32_t *>(&buf[cur_pos]));
+                    ntohl(*reinterpret_cast<const uint32_t *>(&buf[cur_pos]));
                 g_dhcpDug.AppendText(
                     "CRGPrivateProc::ReadRGVendorSeg()----->INDICATE_SERV_IP = 0x%0.8x",
                     CtrlThread->private_properties.indicate_serv_ip
@@ -1086,7 +1090,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                 }
 
                 CtrlThread->private_properties.msg_client_port =
-                    ntohl(*reinterpret_cast<uint32_t *>(&buf[cur_pos]));
+                    ntohl(*reinterpret_cast<const uint32_t *>(&buf[cur_pos]));
                 g_dhcpDug.AppendText(
                     "CRGPrivateProc::ReadRGVendorSeg()----->MSG_CLIENT_PORT = %d",
                     CtrlThread->private_properties.msg_client_port
@@ -1114,7 +1118,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                 }
 
                 CtrlThread->private_properties.proxy_dectect_kinds =
-                    ntohl(*reinterpret_cast<uint32_t *>(&buf[cur_pos]));
+                    ntohl(*reinterpret_cast<const uint32_t *>(&buf[cur_pos]));
                 g_dhcpDug.AppendText(
                     "%s proxy type:%08x",
                     "ReadRGVendorSeg",
@@ -1133,7 +1137,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
 
                 CtrlThread->private_properties.is_show_utrust_url = buf[cur_pos];
                 CtrlThread->private_properties.delay_second_show_utrust_url =
-                    ntohs(*reinterpret_cast<uint16_t *>(&buf[cur_pos + 1]));
+                    ntohs(*reinterpret_cast<const uint16_t *>(&buf[cur_pos + 1]));
                 g_dhcpDug.AppendText(
                     "CRGPrivateProc::ReadRGVendorSeg()----->IS_SHOW_UTRUST_URL = %d,"
                     "delaySecondShowUtrustUrl=%d",
@@ -1153,8 +1157,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                 }
 
                 if (len < cur_pos + 1) {
-                    CLogFile::AppendText(
-                        (CLogFile *)&g_dhcpDug,
+                    g_dhcpDug.AppendText(
                         "When parsing the property"
                         "(direct-communication-highest-version-supported), "
                         "the private property packet length is too short."
@@ -1191,7 +1194,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                 }
 
                 CtrlThread->private_properties.direct_comm_heartbeat_flags =
-                    ntohl(*reinterpret_cast<uint32_t *>(&buf[cur_pos]));
+                    ntohl(*reinterpret_cast<const uint32_t *>(&buf[cur_pos]));
                 g_dhcpDug.AppendText(
                     "direct-communication-heartbeat-flags is %u.",
                     CtrlThread->private_properties.direct_comm_heartbeat_flags
@@ -1206,7 +1209,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
         }
 
     // check if it's error break
-    if (!should_exit)
+    if (!should_exit) {
         if (!cur_type) {
             g_dhcpDug.AppendText(
                 "CRGPrivateProc::ReadRGVendorSeg()----->byteType为0，不合要求!!"
@@ -1217,6 +1220,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                 "CRGPrivateProc::ReadRGVendorSeg()----->byteDataLen不符合要求!!"
             );
         }
+    }
 
     // normal break or manual break
     g_dhcpDug.AppendText("CRGPrivateProc::ReadRGVendorSeg(END)");

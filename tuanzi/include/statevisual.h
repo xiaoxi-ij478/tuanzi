@@ -11,13 +11,13 @@ class CStateVisual
 
         virtual void Initlize() const;
         virtual void MoveState() const;
-        void SetStateData(CStateData *data);
+
+        void SetStateData(const CStateData *data);
 
     private:
-        unsigned long field_8;
+        pthread_t thread_id;
         unsigned long field_10;
         CStateData *data;
-
 };
 
 #endif // STATEVISUAL_H_INCLUDED

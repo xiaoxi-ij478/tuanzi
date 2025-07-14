@@ -40,7 +40,6 @@
 				<Option projectLibDirsRelation="1" />
 				<Compiler>
 					<Add option="-ggdb3" />
-					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Configure Reader / Writer Release">
@@ -53,7 +52,6 @@
 				<Option projectLibDirsRelation="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -265,6 +263,10 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="include/passwordmodifier.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="include/proxyclienttcp.h">
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -299,6 +301,14 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="include/statedata.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/statemachinethread.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/states.h">
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
@@ -515,6 +525,10 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="src/passwordmodifier.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="src/proxyclienttcp.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -547,6 +561,14 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="src/statedata.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/statemachinethread.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="src/states.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>

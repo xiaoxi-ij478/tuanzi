@@ -3,10 +3,9 @@
 #include "util.h"
 #include "changelanguage.h"
 
-std::string CChangeLanguage::translate_filename;
-
 CChangeLanguage::CChangeLanguage() :
     lang_inited(),
+    translate_filename(),
     language_id(LANG_INVALID),
     trans_strings()
 {}
@@ -104,7 +103,7 @@ const std::string &CChangeLanguage::LoadString(unsigned str_id) const
 
 bool CChangeLanguage::SetLanguage(enum LANG lang_id)
 {
-    bool result;
+    bool result = false;
 
     if (language_id == lang_id && lang_inited)
         return true;

@@ -14,10 +14,15 @@ struct SPUpGradeInfo {
     std::string su_upgrade_url;
 };
 
+struct HIFailInfo {
+    unsigned long field_0;
+    unsigned long field_8;
+    unsigned field_10;
+};
+
 extern void setAppEnvironment();
 extern int TakeAppPath(std::string &dst);
 extern void get_exe_name(std::string &dst);
-extern enum LANG GetSysLanguage();
 extern void InitLogFiles();
 extern void replace_all_distinct(
     std::string &str,
@@ -34,7 +39,6 @@ extern bool DecryptSuConfig(); // this is not working
 extern bool EncryptSuConfig(); // this is not working
 // it would not be used anyway...
 extern void exec_cmd(const char *cmd, char *buf, int buflen);
-extern float get_fedora_lib_version(const char *pkgname);
 extern unsigned addStringOnLineHead(
     const char *in_filename,
     const char *out_filename,
@@ -63,8 +67,8 @@ extern void ParseString(
     char delim,
     std::vector<std::string> &dest
 );
-extern void TrimLeft(std::string &str, std::string chars);
-extern void TrimRight(std::string &str, std::string chars);
+extern void TrimLeft(std::string &str, const std::string &chars);
+extern void TrimRight(std::string &str, const std::string &chars);
 extern void HIPacketUpdate(const char *, int);
 extern unsigned HexCharToAscii(
     const std::string &str,
@@ -77,7 +81,6 @@ extern std::string AsciiToStr(
     const char *buf,
     unsigned len
 );
-extern bool SuCreateDirectory(const std::string &dirname);
 extern std::string IntToString(int num);
 //extern void KillRunModeCheckTimer();
 //extern void *OnRunModeCheckTimer(union sigval arg);
@@ -128,6 +131,13 @@ extern void RadiusEncrpytPwd(
     char *outbuf
 );
 extern char GetHIRusultByLocal();
+extern void RcvSvrList(const std::vector<std::string> &service_list);
+extern bool IsUpgrade(unsigned ver);
+extern bool GetHIResult(
+    const std::vector<struct HIFailInfo> &a1,
+    unsigned long a2,
+    unsigned a3
+);
 
 static inline void swap128(char *val)
 {

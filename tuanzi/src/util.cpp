@@ -8,6 +8,9 @@
 #include "mtypes.h"
 #include "threadutil.h"
 #include "userconfig.h"
+#include "suconfigfile.h"
+#include "msgutil.h"
+#include "changelanguage.h"
 #include "util.h"
 
 void setAppEnvironment()
@@ -52,11 +55,6 @@ void get_exe_name(std::string &dst)
     char s[1024] = {};
     int r = readlink("/proc/self/exe", s, sizeof(s));
     dst = r == -1 ? "" : s;
-}
-
-enum LANG GetSysLanguage()
-{
-    return strncmp(getenv("LANG"), "zh_", 3) ? LANG_ENGLISH : LANG_CHINESE;
 }
 
 void InitLogFiles()
@@ -235,14 +233,6 @@ void exec_cmd(const char *cmd, char *buf, int buflen)
     pclose(fp);
 }
 
-float get_fedora_lib_version([[maybe_unused]] const char *pkgname)
-{
-    // I'm a Debian fan, so I don't know how to use yum
-    // yum list installed |grep $pkgname |awk 'NR==1 {print $2}'
-    // printf "%s version=%s\n" "get_fedora_lib_version" $version
-    return 0.0;
-}
-
 unsigned addStringOnLineHead(
     const char *in_filename,
     const char *out_filename,
@@ -368,7 +358,7 @@ void GetMD5File(const char *filename, char *result)
 {
     std::ifstream ifs(filename);
     char digest[16] = {};
-    char buf[0x200] = {};
+    char buf[512] = {};
     MD5_CTX ctx;
 
     if (!ifs)
@@ -412,7 +402,7 @@ void ParseString(
     }
 }
 
-void TrimLeft(std::string &str, std::string chars)
+void TrimLeft(std::string &str, const std::string &chars)
 {
     std::string::size_type p = 0;
 
@@ -422,7 +412,7 @@ void TrimLeft(std::string &str, std::string chars)
     str.erase(0, p - 1);
 }
 
-void TrimRight(std::string &str, std::string chars)
+void TrimRight(std::string &str, const std::string &chars)
 {
     std::string::size_type p = 0;
 
@@ -575,33 +565,6 @@ unsigned MD5StrtoUChar(const std::string &str, char *buf)
 
     *buf = 0;
     return str.length() >> 1;
-}
-
-bool SuCreateDirectory(const std::string &dirname)
-{
-    // "mkdir -p -m 666 $dirname"
-    std::vector<std::string> pathnames;
-    std::string tmp;
-
-    if (mkdir(dirname.c_str(), 0666) != -1)
-        return true;
-
-    if (errno != ENOENT)
-        return true;
-
-    ParseString(dirname, '/', pathnames);
-
-    for (const std::string &path : pathnames) {
-        if (!path.empty())
-            tmp.append("/");
-
-        tmp.append(path);
-
-        if (mkdir(tmp.c_str(), 0666) == -1)
-            return true;
-    }
-
-    return true;
 }
 
 std::string IntToString(int num)
@@ -955,4 +918,116 @@ void RadiusEncrpytPwd(
 char GetHIRusultByLocal()
 {
     return 0;
+}
+
+extern void RcvSvrList(const std::vector<std::string> &service_list)
+{
+    CSuConfigFile conffile;
+    std::for_each(
+        service_list.cbegin(),
+        service_list.cend(),
+        // *INDENT-OFF*
+        [](const std::string &service) {
+            logFile.AppendText(service.c_str());
+        }
+        // *INDENT-ON*
+    );
+
+    if (!CtrlThread->IsServerlistUpdate(service_list)) {
+        CtrlThread->service_list_updated = false;
+        return;
+    }
+
+    CtrlThread->service_list_updated = true;
+
+    if (CtrlThread->private_properties.services.empty())
+        return;
+
+    conffile.Lock();
+
+    if (conffile.Open()) {
+        conffile.WritePrivateProfileString("SERVER", "Custom", "1");
+        conffile.WritePrivateProfileString("SERVER", "Modify", "0");
+        conffile.WritePrivateProfileString(
+            "SERVER",
+            "Number",
+            IntToString(CtrlThread->private_properties.services.length()).c_str()
+        );
+
+        for (
+            auto it = CtrlThread->private_properties.services.cbegin();
+            it != CtrlThread->private_properties.services.cend();
+            it++
+        )
+            conffile.WritePrivateProfileString(
+                "SERVER",
+                std::string("Name")
+                .append(
+                    IntToString(
+                        std::distance(
+                            CtrlThread->private_properties.services.cbegin(),
+                            it
+                        )
+                    )
+                ).c_str(),
+                *it + '>' + *it
+            );
+    }
+
+    conffile.Close();
+    conffile.Unlock();
+    CtrlThread->configure_info.server_custom = 1;
+    CtrlThread->configure_info.server_modify = 1;
+    CtrlThread->configure_info.server_names.clear();
+    CtrlThread->configure_info.server_alt_names.clear();
+    CtrlThread->configure_info.server_names =
+        CtrlThread->configure_info.server_alt_names =
+            CtrlThread->private_properties.services;
+    g_uilog.AppendText("RcvSvrList(WM_UPDATA_MAIN_WINDOW)");
+    shownotify(
+        CChangeLanguage::Instance().LoadString(200),
+        CChangeLanguage::Instance().LoadString(96),
+        10000
+    );
+}
+
+bool IsUpgrade(unsigned ver)
+{
+    unsigned major = 0, minor = 0;
+    GetSuInternalVersion(major, minor);
+    g_log_Wireless.AppendText(
+        "GetSuInternalVersion majorVer=%d, minorVer=%d",
+        major,
+        minor
+    );
+    g_log_Wireless.AppendText(
+        "IsUpgrade newHI=%d, oldHI=%d",
+        ver >> 16 & 0xffff,
+        (minor & 0xff) | (major << 8 & 0xff)
+    );
+    return (ver >> 16 & 0xffff) > ((minor & 0xff) | (major << 8 & 0xff));
+}
+
+bool GetHIResult(
+    const std::vector<struct HIFailInfo> &a1,
+    unsigned long a2,
+    unsigned a3
+)
+{
+    struct HIFailInfo *info = new struct HIFailInfo;
+
+    if (!info) {
+        rj_printf_debug("Memory allocation error\n");
+        return false;
+    }
+
+    info->field_0 = 0;
+    info->field_8 = a2;
+    info->field_10 = a3;
+    return PostThreadMessage(
+               theApp.thread_key,
+               GET_HI_RESULT_MTYPE,
+               reinterpret_cast<unsigned long>(&a1),
+               reinterpret_cast<unsigned long>(info)
+           );
 }

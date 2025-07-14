@@ -4,10 +4,10 @@
 #include "compressor.h"
 #include "suconfigfile.h"
 
-CRITICAL_SECTION CSuConfigFile::CSuConfigFileLock;
-
 CSuConfigFile::CSuConfigFile() : config_dirty(), is_open(), cfg_filename()
-{}
+{
+    Lock();
+}
 
 CSuConfigFile::~CSuConfigFile()
 {
@@ -16,12 +16,12 @@ CSuConfigFile::~CSuConfigFile()
 
 void CSuConfigFile::Lock()
 {
-    EnterCriticalSection(&CSuConfigFileLock);
+    EnterCriticalSection(&theApp.su_config_file_lock);
 }
 
 void CSuConfigFile::Unlock()
 {
-    LeaveCriticalSection(&CSuConfigFileLock);
+    LeaveCriticalSection(&theApp.su_config_file_lock);
 }
 
 void CSuConfigFile::Close()

@@ -27,7 +27,7 @@ bool CClientCenterPeerManager::Start(key_t thread_key_l)
         return false;
 
     instance = new CClientCenterPeerManager;
-    instance->dont_know_always_false = false;
+    instance->doing_upgrade = false;
     instance->thread_key = thread_key_l;
 
     if (instance->CreateThread(nullptr, false)) {

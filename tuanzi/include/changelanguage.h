@@ -29,10 +29,9 @@ class CChangeLanguage
         CChangeLanguage();
 
         bool lang_inited;
+        std::string translate_filename;
         enum LANG language_id;
         std::vector<tagSectionUnit> trans_strings;
-
-        static std::string translate_filename;
 };
 
 #endif // CHANGELANGUAGE_H_INCLUDED

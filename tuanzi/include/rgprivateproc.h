@@ -6,7 +6,7 @@
 
 class CRGPrivateProc
 {
-    public:
+    private:
         static void EncapRGVerdorSeg(char *buf, unsigned &len);
         static void EncapRGVerdorSegForEapHost(char *buf, unsigned &len, std::string);
         static void EncapRGVerdorSegForPeap(char *buf, unsigned &len, char *);

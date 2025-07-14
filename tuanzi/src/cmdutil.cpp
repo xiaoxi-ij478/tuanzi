@@ -255,7 +255,11 @@ int set_termios(bool set_echo_icanon)
     return 0;
 }
 
-void shownotify(const std::string &content, const std::string &header, int)
+void shownotify(
+    const std::string &content,
+    const std::string &header,
+    [[maybe_unused]] unsigned timeout
+)
 {
     char cur_date[64] = {};
 

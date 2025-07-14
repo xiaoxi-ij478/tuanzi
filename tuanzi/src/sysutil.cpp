@@ -131,3 +131,16 @@ bool Is64BIT()
 #error Your platform is not supported
 #endif
 }
+
+enum LANG GetSysLanguage()
+{
+    return strncmp(getenv("LANG"), "zh_", 3) ? LANG_ENGLISH : LANG_CHINESE;
+}
+
+float get_fedora_lib_version([[maybe_unused]] const char *pkgname)
+{
+    // I'm a Debian fan, so I don't know how to use yum
+    // yum list installed |grep $pkgname |awk 'NR==1 {print $2}'
+    // printf "%s version=%s\n" "get_fedora_lib_version" $version
+    return 0.0;
+}

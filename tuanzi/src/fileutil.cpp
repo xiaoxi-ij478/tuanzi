@@ -103,3 +103,30 @@ bool isFileExist(const char *filename)
 {
     return !access(filename, F_OK);
 }
+
+bool SuCreateDirectory(const std::string &dirname)
+{
+    // "mkdir -p -m 666 $dirname"
+    std::vector<std::string> pathnames;
+    std::string tmp;
+
+    if (mkdir(dirname.c_str(), 0666) != -1)
+        return true;
+
+    if (errno != ENOENT)
+        return true;
+
+    ParseString(dirname, '/', pathnames);
+
+    for (const std::string &path : pathnames) {
+        if (!path.empty())
+            tmp.append("/");
+
+        tmp.append(path);
+
+        if (mkdir(tmp.c_str(), 0666) == -1)
+            return true;
+    }
+
+    return true;
+}

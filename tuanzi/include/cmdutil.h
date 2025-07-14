@@ -26,7 +26,7 @@ extern int set_termios(bool set_echo_icanon);
 extern void shownotify(
     const std::string &content,
     const std::string &header,
-    int
+    unsigned timeout
 );
 extern void show_url(
     const std::string &content,

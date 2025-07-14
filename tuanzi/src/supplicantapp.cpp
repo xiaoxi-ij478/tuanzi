@@ -15,13 +15,13 @@ CSupplicantApp::CSupplicantApp() :
     field_7C(),
     success_time()
 {
-    InitializeCriticalSection(&field_18);
+    InitializeCriticalSection(&su_config_file_lock);
     InitializeCriticalSection(&field_48);
 }
 
 CSupplicantApp::~CSupplicantApp()
 {
-    DeleteCriticalSection(&field_18);
+    DeleteCriticalSection(&su_config_file_lock);
     DeleteCriticalSection(&field_48);
 }
 

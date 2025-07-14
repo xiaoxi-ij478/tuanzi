@@ -58,10 +58,10 @@ class CSupplicantApp
 
         key_t thread_key;
         std::string version;
+        CRITICAL_SECTION su_config_file_lock;
 
     private:
         unsigned field_8;
-        CRITICAL_SECTION field_18;
         CRITICAL_SECTION field_48;
         enum APPSTATUS status;
         unsigned field_7C;

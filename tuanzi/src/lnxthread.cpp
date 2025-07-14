@@ -6,7 +6,7 @@
 #include "lnxthread.h"
 
 CLnxThread::CLnxThread(void *(*thread_func)(void *), void *thread_func_arg) :
-    dont_know_always_false(),
+    doing_upgrade(),
     thread_running(),
     me(),
     wait_handle1(),
@@ -53,7 +53,7 @@ int CLnxThread::CreateThread(
         (retval = pthread_create(
                       &thread_id,
                       pthread_attr,
-                      CLnxThread::_LnxThreadEntry,
+                      _LnxThreadEntry,
                       &wait_handle
                   ))
     ) {
@@ -137,7 +137,7 @@ int CLnxThread::StopThread()
 
 // void CLnxThread::CommonConstruct()
 // {
-//    dont_know_always_false = false;
+//    doing_upgrade = false;
 //    me = nullptr;
 //    pthread = nullptr;
 //    msgid = -1;
@@ -433,7 +433,7 @@ void CLnxThread::LnxEndThread()
     );
     SetEvent(&wait_handle1, 1);
 
-    if (dont_know_always_false)
+    if (doing_upgrade)
         delete this;
 }
 
@@ -450,7 +450,7 @@ void CLnxThread::SafeExitThread(unsigned off_msec)
         if (!TerminateThread(thread_id))
             delete this;
 
-    } else if (!dont_know_always_false) { // == if (1)
+    } else if (!doing_upgrade) {
         if (!(retval = WaitForSingleObject(&wait_handle1, off_msec)))
             delete this;
 

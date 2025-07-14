@@ -47,7 +47,6 @@ class CSuConfigFile
         bool config_dirty;
         bool is_open;
         std::string cfg_filename;
-        static CRITICAL_SECTION CSuConfigFileLock;
 };
 
 #endif // SUCONFIGFILE_H_INCLUDED

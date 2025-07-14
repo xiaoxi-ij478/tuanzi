@@ -258,11 +258,11 @@ bool CDirectTranSrv::AskForSmpInitData()
     PUT_LENGTH(1);
     PUT_DATA_IMMEDIATE_BYTE(41);
     PUT_TYPE(2);
-    PUT_LENGTH(strlen(dir_smp_para.field_0));
-    PUT_DATA(dir_smp_para.field_0, strlen(dir_smp_para.field_0));
+    PUT_LENGTH(strlen(dir_smp_para.username));
+    PUT_DATA(dir_smp_para.username, strlen(dir_smp_para.username));
     PUT_TYPE(3);
-    PUT_LENGTH(dir_smp_para.field_8A_len);
-    PUT_DATA(dir_smp_para.field_8A, dir_smp_para.field_8A_len);
+    PUT_LENGTH(dir_smp_para.diskid_len);
+    PUT_DATA(dir_smp_para.diskid, dir_smp_para.diskid_len);
 #undef PUT_TYPE
 #undef PUT_LENGTH
 #undef PUT_DATA
@@ -478,14 +478,14 @@ bool CDirectTranSrv::HandshakeToSAM()
     PUT_LENGTH(1);
     PUT_DATA_IMMEDIATE_BYTE(2);
     PUT_TYPE(3);
-    PUT_LENGTH(strlen(dir_trans_srvpara.field_8));
-    PUT_DATA(dir_trans_srvpara.field_8, strlen(dir_trans_srvpara.field_8));
+    PUT_LENGTH(strlen(dir_trans_srvpara.username));
+    PUT_DATA(dir_trans_srvpara.username, strlen(dir_trans_srvpara.username));
     PUT_TYPE(4);
     PUT_LENGTH(4);
     PUT_DATA(&dir_trans_srvpara.su_ipaddr, 4);
     PUT_TYPE(5);
     PUT_LENGTH(6);
-    PUT_DATA(&dir_trans_srvpara.field_8C, 6);
+    PUT_DATA(&dir_trans_srvpara.adapter_mac, 6);
 #undef PUT_TYPE
 #undef PUT_LENGTH
 #undef PUT_DATA
@@ -532,11 +532,11 @@ bool CDirectTranSrv::HandshakeToSMP()
     PUT_LENGTH(1);
     PUT_DATA_IMMEDIATE_BYTE(35);
     PUT_TYPE(2);
-    PUT_LENGTH(strlen(dir_smp_para.field_0));
-    PUT_DATA(dir_smp_para.field_0, strlen(dir_smp_para.field_0));
+    PUT_LENGTH(strlen(dir_smp_para.username));
+    PUT_DATA(dir_smp_para.username, strlen(dir_smp_para.username));
     PUT_TYPE(3);
-    PUT_LENGTH(dir_smp_para.field_8A_len);
-    PUT_DATA(dir_smp_para.field_8A, dir_smp_para.field_8A_len);
+    PUT_LENGTH(dir_smp_para.diskid);
+    PUT_DATA(dir_smp_para.diskid, dir_smp_para.diskid_len);
 #undef PUT_TYPE
 #undef PUT_LENGTH
 #undef PUT_DATA
