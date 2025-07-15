@@ -22,6 +22,7 @@ class CIsProSer
 
         int Detect(const char *pkg, unsigned pkglen);
         bool GetFakeMacInfo(in_addr_t *ipaddr, struct ether_addr *macaddr) const;
+        void OnTimer(int, int);
         bool Start(
             const char *adapter_name_l,
             const struct ether_addr *hostmac_l,
@@ -42,7 +43,6 @@ class CIsProSer
             const struct iphdr *iphdr
         );
         bool IsIPInLocalIPTable(in_addr_t ipaddr);
-        void OnTimer(int, int);
         void UpdateLocalIPTable();
 
         unsigned kind;

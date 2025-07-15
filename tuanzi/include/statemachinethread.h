@@ -9,28 +9,25 @@ class CStateMachineThread : public CLnxThread
 {
     public:
         CStateMachineThread();
-        ~CStateMachineThread() override;
 
     protected:
-        bool InitInstance() override;
         void DispathMessage(struct LNXMSG *msg) override;
         void OnTimer(int tflag) const override;
-        bool ExitInstance() override;
 
     private:
-        CStateVisual *CreateState(enum STATES state) const;
+        CStateVisual *CreateState(enum STATES state);
         struct EAPOLFrame *EncapsulateFrame(
             enum IEEE8021X_PACKET_TYPE packet_type,
             enum EAP_TYPES eap_type,
             unsigned short buflen,
             char *buf
         ) const;
-        void FailNotification(struct EAPOLFrame *eapol_frame) const;
+        void FailNotification(struct EAPOLFrame *eapol_frame);
         void InitState() const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnPacketNotify) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnSayHello) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnSendLogoff) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnStartMachine) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnStartMachine);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnStateMove) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer) const;
         void SendNAKFrame() const;

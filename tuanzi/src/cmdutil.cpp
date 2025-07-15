@@ -300,3 +300,14 @@ void show_message_info()
     print_msg_item_header();
     std::for_each(msgs.cbegin(), msgs.cend(), print_msg_item);
 }
+
+void show_login_url()
+{
+    if (!theApp.IsOnline())
+        return;
+
+    show_url(
+        CChangeLanguage::Instance().LoadString(2062),
+        CtrlThread->private_properties.user_login_url
+    );
+}

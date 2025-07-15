@@ -923,15 +923,9 @@ char GetHIRusultByLocal()
 extern void RcvSvrList(const std::vector<std::string> &service_list)
 {
     CSuConfigFile conffile;
-    std::for_each(
-        service_list.cbegin(),
-        service_list.cend(),
-        // *INDENT-OFF*
-        [](const std::string &service) {
-            logFile.AppendText(service.c_str());
-        }
-        // *INDENT-ON*
-    );
+
+    for (const std::string &service : service_list)
+        logFile.AppendText(service.c_str());
 
     if (!CtrlThread->IsServerlistUpdate(service_list)) {
         CtrlThread->service_list_updated = false;
@@ -1030,4 +1024,26 @@ bool GetHIResult(
                reinterpret_cast<unsigned long>(&a1),
                reinterpret_cast<unsigned long>(info)
            );
+}
+
+void RcvSvrSwitchResult(const std::string &notify)
+{
+    if (notify.empty())
+        return;
+
+    shownotify(notify, CChangeLanguage::Instance().LoadString(95), 0);
+
+    if (notify != "切换成功!")
+        return;
+
+    CtrlThread->configure_info.public_service = CtrlThread->service_name;
+    CUserConfig::SuWriteConfigString(
+        "PUBLIC",
+        "Service",
+        CtrlThread->configure_info.public_service.c_str()
+    );
+    AddMsgItem(5, notify);
+    g_uilog.AppendText("RcvSvrSwitchResult(WM_UPDATA_MAIN_WINDOW)");
+    CtrlThread->private_properties.svr_switch_result.clear();
+    CtrlThread->field_1139 = 0;
 }

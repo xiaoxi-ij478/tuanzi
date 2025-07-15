@@ -30,7 +30,7 @@ class CProxyDetectThread : public CLnxThread
         CIsProSer isproser;
         char adapter_name[512];
         struct ether_addr hostmac;
-        unsigned field_568;
+        in_addr_t ipaddr;
         key_t thread_key;
         unsigned mtype;
         unsigned kind;

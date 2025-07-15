@@ -138,6 +138,7 @@ extern bool GetHIResult(
     unsigned long a2,
     unsigned a3
 );
+extern void RcvSvrSwitchResult(const std::string &notify);
 
 static inline void swap128(char *val)
 {

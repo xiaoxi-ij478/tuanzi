@@ -261,27 +261,30 @@ struct eapolpkg *CreateEapolPacket(
 void DeleteFrameMemory(struct EAPOLFrame *eapol_frame)
 {
     if (
-        eapol_frame->eap_code == EAP_REQUEST ||
-        eapol_frame->eap_code == EAP_RESPONSE
+        eapol_frame->eap_code != EAP_REQUEST &&
+        eapol_frame->eap_code != EAP_RESPONSE
     ) {
-        if (
-            (
-                eapol_frame->eap_type == EAP_TYPE_IDENTITY ||
-                eapol_frame->eap_type == EAP_TYPE_NOTIFICATION ||
-                eapol_frame->eap_type == EAP_TYPE_NAK ||
-                eapol_frame->eap_type == EAP_TYPE_OTP ||
-                eapol_frame->eap_type == EAP_TYPE_GTC
-            ) &&
-            eapol_frame->ieee8021x_packet_length > 5
-        )
-            delete[] eapol_frame->eap_type_notif_data;
-
-        else if (
-            eapol_frame->eap_type == EAP_TYPE_MD5 &&
-            eapol_frame->ieee8021x_packet_length > 6
-        )
-            delete[] eapol_frame->eap_type_md5_data;
+        delete eapol_frame;
+        return;
     }
+
+    if (
+        (
+            eapol_frame->eap_type == EAP_TYPE_IDENTITY ||
+            eapol_frame->eap_type == EAP_TYPE_NOTIFICATION ||
+            eapol_frame->eap_type == EAP_TYPE_NAK ||
+            eapol_frame->eap_type == EAP_TYPE_OTP ||
+            eapol_frame->eap_type == EAP_TYPE_GTC
+        ) &&
+        eapol_frame->ieee8021x_packet_length > 5
+    )
+        delete[] eapol_frame->eap_type_notif_data;
+
+    else if (
+        eapol_frame->eap_type == EAP_TYPE_MD5 &&
+        eapol_frame->ieee8021x_packet_length > 6
+    )
+        delete[] eapol_frame->eap_type_md5_data;
 
     delete eapol_frame;
 }

@@ -34,5 +34,6 @@ extern void show_url(
 );
 extern void show_version();
 extern void show_message_info();
+extern void show_login_url();
 
 #endif // CMDUTIL_H_INCLUDED

@@ -258,7 +258,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStartDetect, CAdapterDetectThread)
     control_thread_msgid = info->msgid;
     status = ADAPTER_UP;
     proxy_detect_timerid =
-        SetTimer(nullptr, PROXY_DETECT_TIMER_MTYPE, 60000, nullptr);
+        SetTimer(nullptr, ADAPTER_PROXY_DETECT_TIMER_MTYPE, 60000, nullptr);
     nic_state_detect_timerid =
         SetTimer(nullptr, NIC_STATE_DETECT_TIMER_MTYPE, 1000, nullptr);
     g_log_Wireless.AppendText(
@@ -285,7 +285,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStopDetect, CAdapterDetectThread)
 DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CAdapterDetectThread)
 {
     switch (arg1) {
-        case PROXY_DETECT_TIMER_MTYPE:
+        case ADAPTER_PROXY_DETECT_TIMER_MTYPE:
             if (proxy_detect_timerid)
                 MultipleAdaptesOrIPCheck();
 

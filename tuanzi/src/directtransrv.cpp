@@ -10,6 +10,7 @@
 #include "mtypes.h"
 #include "changelanguage.h"
 #include "global.h"
+#include "eapolutil.h"
 #include "directtransrv.h"
 
 /* SMP's data format:
@@ -114,7 +115,7 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
 {
     char *logoff_buf = nullptr, *force_offline_buf = nullptr;
     bool advance_pos = true;
-    std::string notify_str, force_offline_str, svr_switch_result_str;
+    std::string notify_str, force_offline_str;
 
     // the format is TLV
     for (
@@ -155,7 +156,7 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
                 if (buf[pos + 3] != 8)
                     break;
 
-                ConvertGBKToUtf8(force_offline_str, &buf[pos + 5]), buf[pos + 4]);
+                ConvertGBKToUtf8(force_offline_str, &buf[pos + 5], buf[pos + 4]);
                 memcpy(
                     force_offline_buf = new char[force_offline_str.length() + 1],
                 force_offline_str.c_str(),
@@ -176,9 +177,7 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
                     if (buf[pos + 3] != 10)
                         break;
 
-                        svr_switch_result_str = AsciiToStr(&buf[pos + 5], buf[pos + 4]);
-                        RcvSvrSwitchResult();
-                        // TODO
+                        RcvSvrSwitchResult(AsciiToStr(&buf[pos + 5], buf[pos + 4]));
                         break;
 
                     case 9:
@@ -535,7 +534,7 @@ bool CDirectTranSrv::HandshakeToSMP()
     PUT_LENGTH(strlen(dir_smp_para.username));
     PUT_DATA(dir_smp_para.username, strlen(dir_smp_para.username));
     PUT_TYPE(3);
-    PUT_LENGTH(dir_smp_para.diskid);
+    PUT_LENGTH(dir_smp_para.diskid_len);
     PUT_DATA(dir_smp_para.diskid, dir_smp_para.diskid_len);
 #undef PUT_TYPE
 #undef PUT_LENGTH
@@ -780,7 +779,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SAM, CDirectTranSrv)
         true,
         htonLONGLONG(dir_trans_srvpara.utc_time),
         GetTickCount(),
-        dir_trans_srvpara.field_C5,
+        dir_trans_srvpara.server_and_us_in_the_same_subnet,
         dir_trans_srvpara.version
     };
     memcpy(
@@ -1617,10 +1616,10 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
     if (smp_init_packet.basic_config.retry_times)
         dir_smp_para.retry_count = smp_init_packet.basic_config.retry_times;
 
-    if (
-        (dcp_child =
-             xml_data.FirstChildElement()->FirstChild("direct_communication_param"))
-    ) {
+    dcp_child =
+        xml_data.FirstChildElement()->FirstChild("direct_communication_param");
+
+    if (dcp_child) {
         dcp_sip_s = GetXmlChild_Node_STR(
                         dcp_child,
                         "server_ip",
@@ -1688,11 +1687,9 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
     net_src_param[0] = smp_init_packet.basic_config.disable_arpbam == "true";
     net_src_param[1] = smp_init_packet.basic_config.disable_dhcpbam == "true";
     RcvNetSecParam(net_src_param);
+    spc_child = xml_data.FirstChildElement()->FirstChild("send_packet_check");
 
-    if (
-        (spc_child =
-             xml_data.FirstChildElement()->FirstChild("send_packet_check"))
-    ) {
+    if (spc_child) {
         spc_struct.cycle =
             GetXmlChild_Node_INT(spc_child, "cycle", "send_packet_check");
         spc_struct.threshold =
@@ -1706,10 +1703,9 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
         RcvFlowMonitorParam(&spc_struct);
     }
 
-    if (
-        (arpad_child =
-             xml_data.FirstChildElement()->FirstChild("arp_attack_detection"))
-    ) {
+    arpad_child = xml_data.FirstChildElement()->FirstChild("arp_attack_detection");
+
+    if (arpad_child) {
         arpad_struct.is_detection =
             GetXmlChild_Node_STR(
                 spc_child,
@@ -1755,10 +1751,9 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
     } else
         smp_init_packet.arp.enabled = false;
 
-    if (
-        (ind_child =
-             xml_data.FirstChildElement()->FirstChild("illegal_network_detect"))
-    ) {
+    ind_child = xml_data.FirstChildElement()->FirstChild("illegal_network_detect");
+
+    if (ind_child) {
         smp_init_packet.illegal_network_detect.enabled = true;
         smp_init_packet.illegal_network_detect.syslog_ip =
             GetXmlChild_Node_STR(arp_child, "syslog_ip", "illegal_network_detect");
@@ -1808,7 +1803,7 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
         smp_init_packet.hi_xml.length() + 1
     );
     eap_pkg.etherheader.ether_type = htons(ETH_P_PAE);
-    eap_pkg.eaphdr.code = 0x01; /* EAP_REQUEST */
+    eap_pkg.eaphdr.code = EAP_REQUEST;
     eap_pkg.eaphdr.identifier = 0xC0;
     eap_pkg.eaphdr.length = htons(0x189);
     eap_pkg.eaptype = 0x00;

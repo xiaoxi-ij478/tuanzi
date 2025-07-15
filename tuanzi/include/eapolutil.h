@@ -59,7 +59,10 @@ extern struct eapolpkg *CreateEapolPacket(
 );
 extern void DeleteFrameMemory(struct EAPOLFrame *eapol_frame);
 extern void DhcpIpInfoToUChar(char *buf, const struct EAPOLFrame *eapol_frame);
-extern void EncapUCharDhcpIpInfo(char *buf, const struct EAPOLFrame *eapol_frame);
+extern void EncapUCharDhcpIpInfo(
+    char *buf,
+    const struct EAPOLFrame *eapol_frame
+);
 extern void InitEAPOLFrame(struct EAPOLFrame *eapol_frame);
 extern void AppendPrivateProperty(
     char *buf,

@@ -1,7 +1,7 @@
 #ifndef STATEVISUAL_H_INCLUDED
 #define STATEVISUAL_H_INCLUDED
 
-#include "statedata.h"
+class CStateData;
 
 class CStateVisual
 {
@@ -9,15 +9,14 @@ class CStateVisual
         CStateVisual();
         virtual ~CStateVisual();
 
-        virtual void Initlize() const;
-        virtual void MoveState() const;
+        virtual void Initlize();
+        virtual void MoveState();
 
-        void SetStateData(const CStateData *data);
+        void SetStateData(const CStateData *new_data);
 
-    private:
         pthread_t thread_id;
         unsigned long field_10;
-        CStateData *data;
+        CStateData *state_data;
 };
 
 #endif // STATEVISUAL_H_INCLUDED

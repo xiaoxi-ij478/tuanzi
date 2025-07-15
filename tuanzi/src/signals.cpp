@@ -1,6 +1,4 @@
 #include "all.h"
-#include "changelanguage.h"
-#include "logfile.h"
 #include "util.h"
 #include "signals.h"
 
