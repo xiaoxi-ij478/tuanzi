@@ -159,8 +159,8 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
                 ConvertGBKToUtf8(force_offline_str, &buf[pos + 5], buf[pos + 4]);
                 memcpy(
                     force_offline_buf = new char[force_offline_str.length() + 1],
-                force_offline_str.c_str(),
-                force_offline_str.length()
+                    force_offline_str.c_str(),
+                    force_offline_str.length()
                 );
                 logFile_debug.AppendText(
                     "强制下线解析接口(%s)",
@@ -174,17 +174,17 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
                 break;
 
             case 7:
-                    if (buf[pos + 3] != 10)
-                        break;
+                if (buf[pos + 3] != 10)
+                    break;
 
-                        RcvSvrSwitchResult(AsciiToStr(&buf[pos + 5], buf[pos + 4]));
-                        break;
+                RcvSvrSwitchResult(AsciiToStr(&buf[pos + 5], buf[pos + 4]));
+                break;
 
-                    case 9:
-                            ParseDHCPAuthResult_ForSAM(buf, buflen, pos);
-                            advance_pos = false;
-                            break;
-                        }
+            case 9:
+                ParseDHCPAuthResult_ForSAM(buf, buflen, pos);
+                advance_pos = false;
+                break;
+        }
     }
 
     return true;
@@ -575,7 +575,7 @@ bool CDirectTranSrv::HandshakeToSMP()
 
                 if (!field_361) {
                     g_log_Wireless.AppendText("直通心跳超时重认证");
-                    CtrlThread->PostThreadMessage(ASK_SMP_INIT_DATA_MTYPE, 2, nullptr);
+                    CtrlThread->PostThreadMessage(ASK_SMP_INIT_DATA_MTYPE, 2, 0);
                 }
             }
         }
@@ -1184,13 +1184,13 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSAM(
 
     for (; pos + buf[pos + 1] + 2 <= buflen; pos += buf[pos + 1] + 2)
         switch (buf[pos]) {
-            case 2:
+            case 0x02:
                 ConvertGBKToUtf8(some_string, &buf[pos + 2], buf[pos + 1]);
                 some_string_buf = new char[buf[pos + 1] + 1];
                 memcpy(some_string_buf, some_string.c_str(), buf[pos + 1]);
                 break;
 
-            case 19:
+            case 0x13:
                 some_flag = buf[pos + 2];
                 break;
         }
@@ -1206,10 +1206,7 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSAM(
         delete[] some_string_buf;
 }
 
-void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(
-    char *buf,
-    unsigned buflen
-)
+void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(char *buf, unsigned buflen)
 {
     std::string some_string;
     char *some_string_buf = nullptr;
@@ -1223,11 +1220,11 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(
         pos += datalen + 3
     )
         switch (buf[pos]) {
-            case 206:
+            case 0xCE:
                 some_flag = buf[pos + 3];
                 break;
 
-            case 207:
+            case 0xCF:
                 ConvertGBKToUtf8(some_string, &buf[pos + 3], datalen);
                 some_string_buf = new char[datalen + 1];
                 memcpy(some_string_buf, some_string.c_str(), datalen);
@@ -1249,10 +1246,7 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(
     DoWithAuthResult(some_flag);
 }
 
-void CDirectTranSrv::ParseGetHIStatusNow(
-    char *buf,
-    unsigned buflen
-) const
+void CDirectTranSrv::ParseGetHIStatusNow(char *buf, unsigned buflen) const
 {}
 
 void CDirectTranSrv::ParseGetHostInfoNow(
@@ -1276,7 +1270,7 @@ void CDirectTranSrv::ParseLogoff(char *buf, unsigned buflen) const
         pos += datalen + 3
     )
         switch (buf[pos]) {
-            case 31:
+            case 0x1F:
                 if (datalen) {
                     ConvertGBKToUtf8(some_string, &buf[pos + 3], datalen);
                     some_string_buf = new char[datalen + 2];
@@ -1314,7 +1308,7 @@ void CDirectTranSrv::ParseLogoffOhers(char *buf, unsigned buflen) const
         pos += datalen + 3
     )
         switch (buf[pos]) {
-            case 71:
+            case 0x47:
                 some_string_buf = new char[datalen];
                 memcpy(some_string_buf, &buf[pos + 3], datalen);
                 logFile_debug.AppendText("执行模拟其他用户下线命令");
@@ -1323,13 +1317,10 @@ void CDirectTranSrv::ParseLogoffOhers(char *buf, unsigned buflen) const
         }
 }
 
-void CDirectTranSrv::ParseModifyPWResult(
-    char *buf,
-    unsigned buflen
-) const
+void CDirectTranSrv::ParseModifyPWResult(char *buf, unsigned buflen) const
 {
-    char *some_string_buf = nullptr;
-    bool some_flag = false;
+    char *fail_msg = nullptr;
+    bool change_success = false;
     assert(buf && buflen);
 
     for (
@@ -1339,17 +1330,17 @@ void CDirectTranSrv::ParseModifyPWResult(
         pos += datalen + 3
     )
         switch (buf[pos]) {
-            case 193:
-                some_flag = buf[pos + 3];
+            case 0xC1:
+                change_success = buf[pos + 3];
                 break;
 
-            case 194:
-                some_string_buf = new char[datalen + 1];
-                memcpy(some_string_buf, &buf[pos + 3], datalen);
+            case 0xC2:
+                fail_msg = new char[datalen + 1];
+                memcpy(fail_msg, &buf[pos + 3], datalen);
                 break;
         }
 
-    RcvModifyPasswordResult(some_flag, some_string_buf);
+    RcvModifyPasswordResult(change_success, fail_msg);
 }
 
 void CDirectTranSrv::ParseMsgAndPro(char *buf, unsigned buflen) const
@@ -1364,16 +1355,16 @@ void CDirectTranSrv::ParseMsgAndPro(char *buf, unsigned buflen) const
         pos += datalen + 3
     )
         switch (buf[pos]) {
-            case 21:
+            case 0x15:
                 has_message = true;
                 ConvertGBKToUtf8(message, &buf[pos + 3], datalen);
                 break;
 
-            case 23:
+            case 0x17:
                 ConvertGBKToUtf8(url, &buf[pos + 3], datalen);
                 [[fallthrough]];
 
-            case 22:
+            case 0x16:
                 has_url = true;
                 break;
         }
@@ -1952,10 +1943,7 @@ bool CDirectTranSrv::PostToSam(char *buf, unsigned buflen) const
     return ret;
 }
 
-bool CDirectTranSrv::PostToSamWithNoResponse(
-    char *buf,
-    unsigned buflen
-) const
+bool CDirectTranSrv::PostToSamWithNoResponse(char *buf, unsigned buflen) const
 {
     char *newbuf = new char[buflen];
 
@@ -1996,10 +1984,7 @@ bool CDirectTranSrv::PostToSmp(char *buf, unsigned buflen) const
     return ret;
 }
 
-bool CDirectTranSrv::PostToSmpWithNoResponse(
-    char *buf,
-    unsigned buflen
-) const
+bool CDirectTranSrv::PostToSmpWithNoResponse(char *buf, unsigned buflen) const
 {
     char *newbuf = new char[buflen];
 

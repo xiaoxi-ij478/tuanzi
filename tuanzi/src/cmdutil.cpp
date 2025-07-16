@@ -153,9 +153,9 @@ void print_string_list(
 bool check_quit()
 {
     char c = 0;
-    std::cout << CChangeLanguage::Instance().LoadString(2039);
+    message_info(CChangeLanguage::Instance().LoadString(2039));
     c = std::cin.get();
-    std::cout << std::endl;
+    message_info("\n");
     return c == '\n';
 }
 
@@ -309,5 +309,197 @@ void show_login_url()
     show_url(
         CChangeLanguage::Instance().LoadString(2062),
         CtrlThread->private_properties.user_login_url
+    );
+}
+
+void do_modify_password()
+{
+    std::string old_password, new_password_first, new_password_second;
+
+    if (
+        !CPasswordModifier::GetPasswordSecurityInfo()->enable_modify_pw ||
+        !theApp.IsOnline()
+    )
+        return;
+
+    message_info(CChangeLanguage::Instance().LoadString(2053) + '\n');
+
+    while (true) {
+        message_info(CChangeLanguage::Instance().LoadString(2054) + ':');
+
+        if (!std::getline(std::cin, old_password) || old_password.empty())
+            continue;
+
+        message_info(
+            std::string("\n") + CChangeLanguage::Instance().LoadString(2055) + ':'
+        );
+
+        if (!std::getline(std::cin, new_password_first) || new_password_first.empty())
+            continue;
+
+        message_info(
+            std::string("\n") + CChangeLanguage::Instance().LoadString(2056) + ':'
+        );
+
+        if (!std::getline(std::cin, new_password_second) || new_password_second.empty())
+            continue;
+
+        if (new_password_first == new_password_second)
+            break;
+
+        message_info(CChangeLanguage::Instance().LoadString(272) + ':');
+    }
+
+    g_strNotify.clear();
+    CPasswordModifier::SetSubmitedNewPassword(new_password_first);
+
+    if (!CPasswordModifier::SendModifyPWRequest(old_password, new_password_first))
+        g_uilog.AppendText(
+            "%s>SendModifyPWRequest fail.",
+            // something undefined???
+            // we assume it's the function's name
+            "do_modify_password"
+        );
+
+    g_llmodifypwdstart = GetTickCount();
+    g_bmodifypwdstart = true;
+    message_info("\n");
+}
+
+void dispatch_cmd(char cmd)
+{
+    switch (cmd) {
+        case '?':
+        case 'h':
+            display_help();
+            break;
+
+        case 'a':
+            show_all_info();
+            break;
+
+        case 'm':
+            show_message_info();
+            break;
+
+        case 'n':
+            show_connect_net_info();
+            break;
+
+        case 'o':
+            show_sso_url();
+            break;
+
+        case 'p':
+            do_modify_password();
+            break;
+
+        case 'q':
+            check_quit();
+            break;
+
+        case 's':
+            do_switch_service();
+            break;
+
+        case 't':
+            show_connect_time();
+            break;
+
+        case 'u':
+            show_connect_user_info();
+            break;
+
+        case 'v':
+            show_version();
+            break;
+
+        default:
+            break;
+    }
+}
+
+void display_help()
+{
+    message_info(CChangeLanguage::Instance().LoadString(2016) + '\n');
+
+    if (
+        theApp.IsOnline() &&
+        !CtrlThread->configure_info.server_names.empty() &&
+        CtrlThread->GetRadiusServer() == 9
+    ) {
+        message_info("\ts\t");
+        format_tc_string(
+            get_tc_width(),
+            24,
+            CChangeLanguage::Instance().LoadString(2017) + '\n'
+        );
+    }
+
+    if (
+        theApp.IsOnline() &&
+        CPasswordModifier::GetPasswordSecurityInfo()->enable_modify_pw
+    ) {
+        message_info("\ts\t");
+        format_tc_string(
+            get_tc_width(),
+            24,
+            CChangeLanguage::Instance().LoadString(2053) + '\n'
+        );
+    }
+
+    if (
+        theApp.IsOnline() &&
+        !CtrlThread->private_properties.utrust_url.empty()
+    ) {
+        message_info("\to\t");
+        format_tc_string(
+            get_tc_width(),
+            24,
+            CChangeLanguage::Instance().LoadString(2057) + '\n'
+        );
+    }
+
+    message_info("\ta\t");
+    format_tc_string(
+        get_tc_width(),
+        24,
+        CChangeLanguage::Instance().LoadString(2018) + '\n'
+    );
+    message_info("\tt\t");
+    format_tc_string(
+        get_tc_width(),
+        24,
+        CChangeLanguage::Instance().LoadString(2019) + '\n'
+    );
+    message_info("\tu\t");
+    format_tc_string(
+        get_tc_width(),
+        24,
+        CChangeLanguage::Instance().LoadString(2020) + '\n'
+    );
+    message_info("\tn\t");
+    format_tc_string(
+        get_tc_width(),
+        24,
+        CChangeLanguage::Instance().LoadString(2021) + '\n'
+    );
+    message_info("\tv\t");
+    format_tc_string(
+        get_tc_width(),
+        24,
+        CChangeLanguage::Instance().LoadString(2022) + '\n'
+    );
+    message_info("\tq\t");
+    format_tc_string(
+        get_tc_width(),
+        24,
+        CChangeLanguage::Instance().LoadString(2023) + '\n'
+    );
+    message_info("\th,?\t");
+    format_tc_string(
+        get_tc_width(),
+        24,
+        CChangeLanguage::Instance().LoadString(2024) + '\n'
     );
 }

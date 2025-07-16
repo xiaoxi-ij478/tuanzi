@@ -139,10 +139,7 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="include/compressor.h">
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
+		<Unit filename="include/compressor.h" />
 		<Unit filename="include/confupdateutilinstance.h">
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -283,7 +280,10 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="include/rgprivateproc.h" />
+		<Unit filename="include/rgprivateproc.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
 		<Unit filename="include/rxpacketthread.h">
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -547,6 +547,8 @@
 		</Unit>
 		<Unit filename="src/rgprivateproc.cpp">
 			<Option compilerVar="CC" />
+			<Option target="Debug" />
+			<Option target="Release" />
 		</Unit>
 		<Unit filename="src/rxpacketthread.cpp">
 			<Option target="Debug" />

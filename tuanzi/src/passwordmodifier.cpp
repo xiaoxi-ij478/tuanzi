@@ -42,8 +42,8 @@ void CPasswordModifier::LogoffForPasswordInsecurity()
 }
 
 bool CPasswordModifier::SendModifyPWRequest(
-    const std::string &new_password,
-    const std::string &repeat_new_password
+    const std::string &old_password,
+    const std::string &new_password
 )
 {
     char buf[300] = {};
@@ -73,15 +73,15 @@ bool CPasswordModifier::SendModifyPWRequest(
     );
     len += CtrlThread->configure_info.diskid.length();
     buf[len++] = 0xBF;
+    *reinterpret_cast<uint16_t *>(&buf[len]) = old_password.length();
+    len += 2;
+    strcpy(&buf[len], old_password.c_str());
+    len += old_password.length();
+    buf[len++] = 0xC0;
     *reinterpret_cast<uint16_t *>(&buf[len]) = new_password.length();
     len += 2;
-    memcpy(&buf[len], new_password.c_str(), new_password.length());
+    strcpy(&buf[len], new_password.c_str());
     len += new_password.length();
-    buf[len++] = 0xC0;
-    *reinterpret_cast<uint16_t *>(&buf[len]) = repeat_new_password.length();
-    len += 2;
-    memcpy(&buf[len], repeat_new_password.c_str(), repeat_new_password.length());
-    len += repeat_new_password.length();
     assert(len <= 300);
     return CtrlThread->dir_tran_srv ?
            CtrlThread->dir_tran_srv->PostToSmp(buf, len) :

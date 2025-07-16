@@ -21,16 +21,6 @@ class CStateData
         void SetStartWhen();
         void SetUserLogOff();
 
-        unsigned hold_count;
-        CStateAcquired state_acquired;
-        CStateAuthenticated state_authenticated;
-        CStateAuthenticating state_authenticating;
-        CStateConnecting state_connecting;
-        CStateDisconnected state_disconnected;
-        CStateHold state_hold;
-        CStateLogOff state_logoff;
-
-    private:
         bool logoff;
         bool logoff_init;
         bool disconnected;
@@ -53,6 +43,14 @@ class CStateData
         timer_t connect_timer;
         timer_t hold_timer;
         timer_t auth_timer;
+        unsigned hold_count;
+        CStateAcquired state_acquired;
+        CStateAuthenticated state_authenticated;
+        CStateAuthenticating state_authenticating;
+        CStateConnecting state_connecting;
+        CStateDisconnected state_disconnected;
+        CStateHold state_hold;
+        CStateLogOff state_logoff;
 };
 
 #endif // STATEDATA_H_INCLUDED

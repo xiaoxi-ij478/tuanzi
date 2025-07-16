@@ -1,11 +1,6 @@
 #ifndef UTIL_H_INCLUDED
 #define UTIL_H_INCLUDED
 
-#include "waithandle.h"
-#include "changelanguage.h"
-#include "global.h"
-#include "dirtranstags.h"
-
 struct SPUpGradeInfo {
     unsigned magic;
     unsigned type;
@@ -139,6 +134,8 @@ extern bool GetHIResult(
     unsigned a3
 );
 extern void RcvSvrSwitchResult(const std::string &notify);
+extern void RcvModifyPasswordResult(bool change_success, const char *fail_msg);
+extern int modify_password_timeout(bool reset);
 
 static inline void swap128(char *val)
 {

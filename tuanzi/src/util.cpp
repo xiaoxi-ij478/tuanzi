@@ -11,6 +11,8 @@
 #include "suconfigfile.h"
 #include "msgutil.h"
 #include "changelanguage.h"
+#include "passwordmodifier.h"
+#include "global.h"
 #include "util.h"
 
 void setAppEnvironment()
@@ -368,11 +370,11 @@ void GetMD5File(const char *filename, char *result)
 
     while (!ifs.eof()) {
         ifs.read(buf, sizeof(buf));
-        MD5Update(&ctx, buf, sizeof(buf));
+        MD5Update(&ctx, reinterpret_cast<unsigned char *>(buf), sizeof(buf));
     }
 
     ifs.close();
-    MD5Final(digest, &ctx);
+    MD5Final(reinterpret_cast<unsigned char *>(digest), &ctx);
 
     for (unsigned i = 0; i < sizeof(digest); i++) {
         *result++ = (digest[i] >> 4) + '0';
@@ -842,7 +844,12 @@ bool SetLanFlag(unsigned flag)
 void RecvSecdomainPacket(char *buf, unsigned buflen)
 {
     logFile.AppendText("receive secdomain update command!");
-    PostThreadMessage(theApp.thread_key, RECEIVE_SEC_DOMAIN_MTYPE, buflen, buf);
+    PostThreadMessage(
+        theApp.thread_key,
+        RECEIVE_SEC_DOMAIN_MTYPE,
+        buflen,
+        reinterpret_cast<unsigned long>(buf)
+    );
 }
 
 void CopyGradeInfo(struct SPUpGradeInfo &dst, const struct SPUpGradeInfo &src)
@@ -905,8 +912,12 @@ void RadiusEncrpytPwd(
     for (unsigned i = 0; i < password_len >> 4; i++) {
         memcpy(&tmpbuf[username_len], i ? md5buf : md5_challenge, 16);
         MD5Init(&md5ctx);
-        MD5Update(&md5ctx, tmpbuf, username_len + 16);
-        MD5Final(md5buf, &md5ctx);
+        MD5Update(
+            &md5ctx,
+            reinterpret_cast<unsigned char *>(tmpbuf),
+            username_len + 16
+        );
+        MD5Final(reinterpret_cast<unsigned char *>(md5buf), &md5ctx);
 
         for (unsigned j = 0; j < 16; j++)
             md5buf[j] ^= password[(i << 4) + j];
@@ -1046,4 +1057,23 @@ void RcvSvrSwitchResult(const std::string &notify)
     g_uilog.AppendText("RcvSvrSwitchResult(WM_UPDATA_MAIN_WINDOW)");
     CtrlThread->private_properties.svr_switch_result.clear();
     CtrlThread->field_1139 = 0;
+}
+
+void RcvModifyPasswordResult(bool change_success, const char *fail_msg)
+{
+}
+
+int modify_password_timeout(bool reset)
+{
+    if (!g_bmodifypwdstart)
+        return -1;
+
+    if (reset)
+        g_bmodifypwdstart = false;
+
+    return
+        reset ?
+        0 :
+        (GetTickCount() - g_llmodifypwdstart) >
+        (1000 * CPasswordModifier::GetPasswordSecurityInfo()->timeout);
 }

@@ -2,6 +2,11 @@
 #include "cmdutil.h"
 #include "global.h"
 #include "changelanguage.h"
+#include "eapolutil.h"
+#include "msgutil.h"
+#include "mtypes.h"
+#include "encodeutil.h"
+#include "md5checksum.h"
 #include "statemachinethread.h"
 
 CStateMachineThread::CStateMachineThread() :
@@ -49,7 +54,7 @@ CStateVisual *CStateMachineThread::CreateState(enum STATES state)
 case (state_enum): \
     state_data.state_var.SetStateData(&state_data); \
     state_data.state_var.thread_id = pthread_self(); \
-    return state_data.state_var
+    return &state_data.state_var
             RETURN_STATE(STATE_DISCONNECTED, state_disconnected);
             RETURN_STATE(STATE_CONNECTING, state_connecting);
             RETURN_STATE(STATE_ACQUIRED, state_acquired);
@@ -67,7 +72,7 @@ struct EAPOLFrame *CStateMachineThread::EncapsulateFrame(
     enum EAP_TYPES eap_type,
     // *INDENT-ON*
     unsigned short buflen,
-    char *buf
+    const char *buf
 ) const
 {
     struct EAPOLFrame *eapol_frame = nullptr;
@@ -149,7 +154,7 @@ struct EAPOLFrame *CStateMachineThread::EncapsulateFrame(
 
             if (buflen)
                 memcpy(
-                    eapol_frame->eap_type_non_md5_data = new char[buflen],
+                    eapol_frame->eap_type_notif_data = new char[buflen],
                     buf,
                     buflen
                 );
@@ -163,7 +168,7 @@ void CStateMachineThread::FailNotification(struct EAPOLFrame *eapol_frame)
     std::string fail_reason;
 
     if (eapol_frame)
-        rj_printf_debug("strFailReason=%s\n", eapol_frame.fail_reason);
+        rj_printf_debug("strFailReason=%s\n", eapol_frame->fail_reason);
 
     g_log_Wireless.WriteString("进入CStateMachineThread::FailNotification函数");
 
@@ -202,7 +207,7 @@ void CStateMachineThread::FailNotification(struct EAPOLFrame *eapol_frame)
 void CStateMachineThread::InitState() const
 {}
 
-DEFINE_DISPATH_MESSAGE_HANDLER(OnPacketNotify, CStateMachineThread) const
+DEFINE_DISPATH_MESSAGE_HANDLER(OnPacketNotify, CStateMachineThread)
 {
     if (!state_visual)
         return;
@@ -237,65 +242,489 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnSendLogoff, CStateMachineThread) const
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnStartMachine, CStateMachineThread)
 {
-    CtrlThread->has_auth_success = 0;
+    CtrlThread->has_auth_success = false;
 
-    if (state_visual && state_visual->state_data) {
-        state_visual->state_data->state = 0;
-        state_visual->state_data->prev_state = 0;
-    }
+    if (state_visual && state_visual->state_data)
+        state_visual->state_data->state =
+            state_visual->state_data->prev_state = STATE_INVALID;
 
-    CtrlThread->connecting = 0;
-    CtrlThread->field_53A = 0;
-    state_data.logoff = 0;
+    CtrlThread->connecting = false;
+    CtrlThread->field_53A = false;
     state_visual = CreateState(STATE_DISCONNECTED);
+    state_data.logoff = false;
     state_data.hold_count = 0;
-    state_data.logoff_init = 0;
-    state_data.disconnected = 1;
-    state_data.state = 0;
-    state_data.prev_state = 0;
+    state_data.logoff_init = false;
+    state_data.disconnected = true;
+    state_data.state = state_data.prev_state = STATE_INVALID;
     OnStateMove(-1, 0);
 }
 
-DEFINE_DISPATH_MESSAGE_HANDLER(OnStateMove, CStateMachineThread) const
+DEFINE_DISPATH_MESSAGE_HANDLER(OnStateMove, CStateMachineThread)
 {
+    enum STATES new_state = static_cast<enum STATES>(arg1);
+
+    if (state_visual->state_data->state == STATE_LOGOFF)
+        return;
+
+    if (state_visual->state_data->IsAuthenticated()) {
+        new_state = STATE_AUTHENTICATED;
+        CtrlThread->connecting = CtrlThread->field_53A = false;
+
+    } else if (state_visual->state_data->IsDisconnected())
+        new_state = STATE_DISCONNECTED;
+
+    else if (state_visual->state_data->IsHeld())
+        new_state = STATE_HOLD;
+
+    else if (state_visual->state_data->IsLogOff())
+        new_state = STATE_LOGOFF;
+
+    else if ((new_state = static_cast<enum STATES>(arg1)) == -1) {
+        g_log_Wireless.AppendText(
+            "CStateMachineThread::OnStateMove pi=%d RETURN",
+            -1
+        );
+        state_visual->MoveState();
+        return;
+    }
+
+    g_log_Wireless.AppendText(" before m_state = CreateState(p1)=%d", arg1);
+    state_visual = CreateState(new_state);
+    state_visual->Initlize();
+
+    if (
+        CtrlThread->IsRuijieNas() ||
+        state_visual->state_data->prev_state != STATE_AUTHENTICATED
+    )
+        CtrlThread->PostThreadMessage(HANDSHAKE_TO_SAM_MTYPE, arg1);
+
+    state_visual->MoveState();
+
+    if (CtrlThread->connecting)
+        state_visual->state_data->state = STATE_LOGOFF;
 }
 
-DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CStateMachineThread) const
+DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CStateMachineThread)
 {
+    switch (arg1) {
+        case AUTH_WHILE_MTYPE:
+            state_visual->state_data->SetAuthWhile();
+
+            if (!KillTimer(state_visual->state_data->auth_timer))
+                rj_printf_debug("%d定时器未被杀死\n", arg1);
+
+            state_visual->state_data->auth_timer = 0;
+            break;
+
+        case START_WHILE_MTYPE:
+            g_log_Wireless.AppendText("CStateMachineThread::OnTimer TIMEID_STATWHEN");
+            state_visual->state_data->SetStartWhen();
+
+            if (!KillTimer(state_visual->state_data->connect_timer))
+                rj_printf_debug("%d定时器未被杀死\n", arg1);
+
+            state_visual->state_data->connect_timer = 0;
+            break;
+
+        case HOLD_WHILE_MTYPE:
+            state_visual->state_data->SetHeldWhile();
+
+            if (!KillTimer(state_visual->state_data->hold_timer))
+                rj_printf_debug("%d定时器未被杀死\n", arg1);
+
+            state_visual->state_data->hold_timer = 0;
+            break;
+
+        default:
+            g_logSystem.AppendText("unknow timer flag = %d", arg1);
+            OnTimerLeave(arg1);
+            return;
+    }
+
+    OnStateMove(-1, 0);
+    OnTimerLeave(arg1);
 }
 
 void CStateMachineThread::SendNAKFrame() const
 {
+    struct EAPOLFrame *eapol_frame = nullptr;
+    struct eapolpkg *eapol_pkg = nullptr;
+    unsigned length = 0;
+    eapol_frame = EncapsulateFrame(IEEE8021X_EAP_PACKET, EAP_TYPE_NAK, 0, nullptr);
+
+    if (!eapol_frame)
+        return;
+
+    eapol_pkg = CreateEapolPacket(eapol_frame, &length);
+    DeleteFrameMemory(eapol_frame);
+    eapol_frame = nullptr;
+
+    if (CtrlThread->send_packet_thread)
+        CtrlThread->send_packet_thread->PostThreadMessage(
+            SEND_MESSAGE_MTYPE,
+            length,
+            reinterpret_cast<unsigned long>(eapol_pkg)
+        );
 }
 
 void CStateMachineThread::SendNotificationFrame() const
 {
+    struct EAPOLFrame *eapol_frame = nullptr;
+    struct eapolpkg *eapol_pkg = nullptr;
+    unsigned length = 0;
+    eapol_frame = EncapsulateFrame(IEEE8021X_EAP_PACKET, EAP_TYPE_NAK, 0, nullptr);
+
+    if (!eapol_frame)
+        return;
+
+    eapol_pkg = CreateEapolPacket(eapol_frame, &length);
+    DeleteFrameMemory(eapol_frame);
+    eapol_frame = nullptr;
+
+    if (CtrlThread->send_packet_thread)
+        CtrlThread->send_packet_thread->PostThreadMessage(
+            SEND_MESSAGE_MTYPE,
+            length,
+            reinterpret_cast<unsigned long>(eapol_pkg)
+        );
 }
 
-int CStateMachineThread::parseFrame(struct EAPOLFrame *eapol_frame) const
+int CStateMachineThread::parseFrame(struct EAPOLFrame *eapol_frame)
 {
+    int ret = 0;
+    rj_printf_debug("状态机模块，收到一个报文了。");
+
+    if (
+        ntohs(eapol_frame->ether_type) == ETH_P_PAE &&
+        eapol_frame->ieee8021x_packet_type == IEEE8021X_EAP_PACKET
+    ) {
+        DeleteFrameMemory(eapol_frame);
+        return -1;
+    }
+
+    g_log_Wireless.AppendText(
+        "CStateMachineThread::parseFrame EAPCODE=%d,REQTYPE(pFrame)=%d____",
+        eapol_frame->eap_code,
+        eapol_frame->eap_type
+    );
+
+    switch (eapol_frame->eap_code) {
+        case EAP_SUCCESS:
+            CtrlThread->has_auth_success = 1;
+            state_visual->state_data->eap_success = true;
+
+            if (CtrlThread->GetDHCPAuthStep() != 1)
+                CtrlThread->SaveRadiusPrivate(eapol_frame);
+
+            ret = 1;
+            break;
+
+        case EAP_FAILURE:
+            state_visual->state_data->eap_failure = true;
+            FailNotification(eapol_frame);
+            CtrlThread->PostThreadMessage(EAP_FAILURE_MTYPE, 0, 0);
+            ret = 0;
+            break;
+
+        case EAP_REQUEST:
+            state_visual->state_data->recv_id = eapol_frame->eap_id;
+            CtrlThread->dstaddr = eapol_frame->srcaddr;
+
+            if (!CtrlThread->IsRuijieNas()) {
+                CtrlThread->dstaddr.ether_addr_octet[0] = 0x01;
+                CtrlThread->dstaddr.ether_addr_octet[1] = 0x80;
+                CtrlThread->dstaddr.ether_addr_octet[2] = 0xC2;
+                CtrlThread->dstaddr.ether_addr_octet[3] = 0x00;
+                CtrlThread->dstaddr.ether_addr_octet[4] = 0x00;
+                CtrlThread->dstaddr.ether_addr_octet[5] = 0x03;
+            }
+
+            switch (eapol_frame->eap_type) {
+                case EAP_TYPE_IDENTITY:
+                    ret = 1;
+                    state_visual->state_data->req_id = true;
+                    break;
+
+                case EAP_TYPE_NOTIFICATION:
+                    if (eapol_frame->eap_length > 4) {
+                        g_uilog.AppendText(
+                            "CStateMachineThread::parseFrame RSP_TYPE_NOTIFICATION=%s",
+                            eapol_frame->eap_type_notif_data
+                        );
+                        ShowLocalMsg(eapol_frame->eap_type_notif_data, "");
+                    }
+
+                    ret = 1;
+                    SendNotificationFrame();
+                    break;
+
+                case EAP_TYPE_NAK:
+                case EAP_TYPE_OTP:
+                case EAP_TYPE_GTC:
+                    ret = 1;
+                    SendNAKFrame();
+                    break;
+
+                case EAP_TYPE_MD5:
+                    ret = -1;
+
+                    if (!eapol_frame->eap_type_md5_length)
+                        break;
+
+                    ret = 1;
+                    state_visual->state_data->req_auth = true;
+                    state_visual->state_data->eap_md5_datalen =
+                        eapol_frame->eap_type_md5_length;
+                    memset(
+                        state_visual->state_data->eap_md5_data,
+                        0,
+                        sizeof(state_visual->state_data->eap_md5_data)
+                    );
+                    memcpy(
+                        state_visual->state_data->eap_md5_data,
+                        eapol_frame->eap_type_md5_data,
+                        state_visual->state_data->eap_md5_datalen
+                    );
+                    break;
+
+                case EAP_TYPE_RUIJIE_PRIVATE:
+                    ret = 1;
+                    state_visual->state_data->req_auth = true;
+                    state_visual->state_data->eap_md5_datalen = 0;
+                    break;
+
+                default:
+                    ret = -1;
+                    break;
+            }
+
+            break;
+
+        default:
+            ret = -1;
+            break;
+    }
+
+    DeleteFrameMemory(eapol_frame);
+    return ret;
 }
 
 void CStateMachineThread::txLogOff(char a1) const
 {
+    struct EAPOLFrame *eapol_frame = nullptr;
+    struct eapolpkg *eapol_pkg = nullptr;
+    unsigned length = 0;
+    g_log_Wireless.AppendText("CStateMachineThread::txLogOff");
+
+    if (!state_visual || !state_visual->state_data)
+        return;
+
+    state_visual->state_data->state = STATE_LOGOFF;
+    eapol_frame =
+        EncapsulateFrame(
+            IEEE8021X_EAPOL_LOGOFF,
+            EAP_TYPE_INVALID,
+            0,
+            nullptr
+        );
+
+    if (!eapol_frame)
+        return;
+
+    eapol_frame->field_6C0 = a1;
+    eapol_frame->dhcp_ipinfo = CtrlThread->configure_info.dhcp_ipinfo;
+    eapol_pkg = CreateEapolPacket(eapol_frame, &length);
+    DeleteFrameMemory(eapol_frame);
+
+    if (CtrlThread->send_packet_thread)
+        send_packet_thread->PostThreadMessage(
+            SEND_MESSAGE_MTYPE,
+            length,
+            eapol_pkg
+        );
+
+    rj_printf_debug("Send : LogOff\r\n");
 }
 
 void CStateMachineThread::txRspAuth() const
 {
+    struct EAPOLFrame *eapol_frame = nullptr;
+    struct eapolpkg *eapol_pkg = nullptr;
+    char username_buf[512] = {};
+    char *checksum_buf = nullptr;
+    char *md5_buf = nullptr;
+    char *final_buf = nullptr;
+    unsigned username_buflen = 0;
+    unsigned checksum_buflen = 0;
+    unsigned final_buflen = 0;
+    unsigned eapol_pkglen = 0;
+    ConvertUtf8ToGBK(
+        username_buf,
+        sizeof(username_buf),
+        CtrlThread->configure_info.last_auth_password.c_str(),
+        CtrlThread->configure_info.last_auth_password.length()
+    );
+    username_buflen = strlen(username_buf);
+    checksum_buflen =
+        username_buflen + state_visual->state_data->eap_md5_datalen + 1;
+    checksum_buf = new char[checksum_buflen];
+    checksum_buf[0] = state_visual->state_data->recv_id;
+    memcpy(&checksum_buf[1], username_buf, username_buflen);
+    memcpy(
+        &checksum_buf[1 + username_buflen],
+        state_visual->state_data->eap_md5_data,
+        state_visual->state_data->eap_md5_datalen
+    );
+    md5_buf = CMD5Checksum::GetMD5(checksum_buf, checksum_buflen);
+    delete[] checksum_buf;
+    checksum_buf = nullptr;
+    final_buflen =
+        (strlen(checksum_buf) >> 1) +
+        CtrlThread->configure_info.last_auth_username.length();
+    final_buf = new char[final_buflen];
+    MD5StrtoUChar(md5_buf, final_buf);
+    delete[] md5_buf;
+    md5_buf = nullptr;
+    strcpy(
+        &final_buf[strlen(checksum_buf) >> 1],
+        CtrlThread->configure_info.last_auth_username.c_str()
+    );
+    eapol_frame =
+        EncapsulateFrame(
+            IEEE8021X_EAP_PACKET,
+            EAP_TYPE_MD5,
+            final_buflen,
+            final_buf
+        );
+    delete[] final_buf;
+    final_buf = nullptr;
+
+    if (!eapol_frame)
+        return;
+
+    eapol_frame->dhcp_ipinfo = CtrlThread->configure_info.dhcp_ipinfo;
+    eapol_pkg = CreateEapolPacket(eapol_frame, &eapol_pkglen);
+    DeleteFrameMemory(eapol_frame);
+
+    if (CtrlThread->send_packet_thread)
+        CtrlThread->send_packet_thread->PostThreadMessage(
+            SEND_MESSAGE_MTYPE,
+            eapol_pkglen,
+            eapol_pkg
+        );
 }
 
 void CStateMachineThread::txRspAuthPAP() const
 {
+    struct EAPOLFrame *eapol_frame = nullptr;
+    struct eapolpkg *eapol_pkg = nullptr;
+    char *buf = nullptr;
+    unsigned eapol_pkglen = 0;
+    unsigned buflen =
+        CtrlThread->configure_info.last_auth_password.length() +
+        CtrlThread->configure_info.last_auth_username.length() +
+        1;
+    buf = new char[buflen];
+    buf[0] = CtrlThread->configure_info.last_auth_password.length();
+    strcpy(&buf[1], CtrlThread->configure_info.last_auth_password.c_str());
+    strcpy(
+        &buf[1 + CtrlThread->configure_info.last_auth_password.length()],
+        CtrlThread->configure_info.last_auth_username.c_str()
+    );
+    eapol_frame =
+        EncapsulateFrame(
+            IEEE8021X_EAP_PACKET,
+            EAP_TYPE_RUIJIE_PRIVATE,
+            buflen,
+            buf
+        );
+    delete[] buf;
+    buf = nullptr;
+
+    if (!eapol_frame)
+        return;
+
+    eapol_frame->dhcp_ipinfo = CtrlThread->configure_info.dhcp_ipinfo;
+    eapol_pkg = CreateEapolPacket(eapol_frame, &eapol_pkglen);
+    DeleteFrameMemory(eapol_frame);
+
+    if (CtrlThread->send_packet_thread)
+        CtrlThread->send_packet_thread->PostThreadMessage(
+            SEND_MESSAGE_MTYPE,
+            eapol_pkglen,
+            eapol_pkg
+        );
 }
 
 void CStateMachineThread::txRspID() const
 {
+    struct EAPOLFrame *eapol_frame = nullptr;
+    struct eapolpkg *eapol_pkg = nullptr;
+    unsigned length = 0;
+    eapol_frame =
+        EncapsulateFrame(
+            this,
+            IEEE8021X_EAP_PACKET,
+            EAP_TYPE_IDENTITY,
+            CtrlThread->configure_info.last_auth_username.length(),
+            CtrlThread->configure_info.last_auth_username.c_str()
+        );
+    eapol_frame->dhcp_ipinfo = CtrlThread->configure_info.dhcp_ipinfo;
+    eapol_pkg = CreateEapolPacket(eapol_frame, &length);
+    DeleteFrameMemory(eapol_frame);
+
+    if (CtrlThread->send_packet_thread)
+        send_packet_thread->PostThreadMessage(
+            SEND_MESSAGE_MTYPE,
+            length,
+            eapol_pkg
+        );
+
+    rj_printf_debug("Send : RspID\r\n");
 }
 
-void CStateMachineThread::txSetLogOff_CompThird() const
+void CStateMachineThread::txSetLogOff_CompThird()
 {
+    if (state_visual && state_visual->state_data)
+        state_visual->state_data->state = STATE_LOGOFF;
 }
 
 void CStateMachineThread::txStart() const
 {
+    struct EAPOLFrame *eapol_frame = nullptr;
+    struct eapolpkg *eapol_pkg = nullptr;
+    unsigned length = 0;
+    eapol_frame =
+        EncapsulateFrame(
+            IEEE8021X_EAPOL_START,
+            EAP_TYPE_INVALID,
+            0,
+            nullptr
+        );
+
+    if (!eapol_frame)
+        return;
+
+    g_log_Wireless.AppendText(
+        "CStateMachineThread::txStart start addr %02x:%02x:%02x:%02x:%02x:%02x",
+        CtrlThread->start_dst_addr.ether_addr_octet[0],
+        CtrlThread->start_dst_addr.ether_addr_octet[1],
+        CtrlThread->start_dst_addr.ether_addr_octet[2],
+        CtrlThread->start_dst_addr.ether_addr_octet[3],
+        CtrlThread->start_dst_addr.ether_addr_octet[4],
+        CtrlThread->start_dst_addr.ether_addr_octet[5]
+    );
+    eapol_frame->dstaddr = CtrlThread->start_dst_addr;
+    eapol_frame->dhcp_ipinfo = CtrlThread->configure_info.dhcp_ipinfo;
+    eapol_pkg = CreateEapolPacket(eapol_frame, &length);
+    DeleteFrameMemory(eapol_frame);
+
+    if (CtrlThread->send_packet_thread)
+        send_packet_thread->PostThreadMessage(
+            SEND_MESSAGE_MTYPE,
+            length,
+            eapol_pkg
+        );
+
+    rj_printf_debug("Send : Start\r\n");
 }

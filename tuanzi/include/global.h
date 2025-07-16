@@ -31,6 +31,8 @@ extern pthread_t g_supf_thread;
 // used for receiving callback datas from wpa_supplicant
 extern pthread_t g_supf_callback_thread;
 extern bool g_supf_exited;
+extern bool g_bmodifypwdstart;
+extern unsigned long g_llmodifypwdstart;
 extern char e_pMd5Chanllenge[16];
 extern unsigned e_pHelloID[16];
 extern const char g_pAppData[1820];
