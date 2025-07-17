@@ -302,6 +302,9 @@ static void wpa_supplicant_ctrl_handler(
 	}
 }
 
+// we use a different approach to implement callback:
+// use the struct "SupfPipeStateMsgData" to pass callback data
+
 static void supf_event_cb(
 	enum SUPF_EVENT_TYPE event_type,
 	const void *msg_data

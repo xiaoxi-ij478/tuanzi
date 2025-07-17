@@ -56,20 +56,18 @@ bool CPasswordModifier::SendModifyPWRequest(
     *reinterpret_cast<uint16_t *>(&buf[len]) =
         CtrlThread->configure_info.last_auth_username.length();
     len += 2;
-    memcpy(
+    strcpy(
         &buf[len],
-        CtrlThread->configure_info.last_auth_username.c_str(),
-        CtrlThread->configure_info.last_auth_username.length()
+        CtrlThread->configure_info.last_auth_username.c_str()
     );
     len += CtrlThread->configure_info.last_auth_username.length();
     buf[len++] = 0x03;
     *reinterpret_cast<uint16_t *>(&buf[len]) =
         CtrlThread->configure_info.diskid.length();
     len += 2;
-    memcpy(
+    strcpy(
         &buf[len],
-        CtrlThread->configure_info.diskid.c_str(),
-        CtrlThread->configure_info.diskid.length()
+        CtrlThread->configure_info.diskid.c_str()
     );
     len += CtrlThread->configure_info.diskid.length();
     buf[len++] = 0xBF;

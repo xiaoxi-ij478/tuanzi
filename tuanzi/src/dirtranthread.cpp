@@ -711,7 +711,7 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
     send_unit.session_id = next_session_id++;
     send_unit.need_reply = false;
 
-    if (CtrlThread->direct_comm_heartbeat_flags == 1) {
+    if (CtrlThread->private_properties.direct_comm_heartbeat_flags == 1) {
         logFile_debug.AppendText(
             "PostPacketSAMHeartbeatNoResponse, "
             "direct-communication-heartbeat-flags is %u.",
@@ -729,8 +729,8 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
                 e_pMd5Chanllenge + sizeof(e_pMd5Chanllenge),
                 0
             );
-        buf[buflen_new] = 20;
-        buf[buflen_new + 1] = 128; // buffer len
+        buf[buflen_new] = 0x14;
+        buf[buflen_new + 1] = 0x80; // buffer len
         CVz_APIApp::V3HeartbeatAPI(
             &cHeartBeatArray[(0x2D7 * heartbeat_checksum_sum % 0x35) << 7],
             buf[buflen_new + 1],

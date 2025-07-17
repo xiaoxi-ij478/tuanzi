@@ -67,9 +67,6 @@ class CLnxThread
         virtual bool ExitInstance();
         virtual bool KillTimer(timer_t &timerid);
 
-        bool doing_upgrade;
-        pthread_t thread_id;
-
     private:
         void KillAllTimer();
         // the original implementation set it as a static method with
@@ -81,9 +78,18 @@ class CLnxThread
         static void *_LnxThreadEntry(void * /* WAIT_HANDLE2 * */ arg);
         static void _OnTimerEntry(union sigval /* TIMERPARAM @ sival_ptr */ arg);
 
+    protected:
+        bool doing_upgrade;
+
+    private:
         bool thread_running;
         CLnxThread *me;
         WAIT_HANDLE wait_handle1;
+
+    public:
+        pthread_t thread_id;
+
+    private:
         char classname[128];
         int msgid; // or msqid... ?
         bool no_need_send_msg;

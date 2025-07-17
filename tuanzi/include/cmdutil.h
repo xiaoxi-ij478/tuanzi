@@ -1,6 +1,7 @@
 #ifndef CMDUTIL_H_INCLUDED
 #define CMDUTIL_H_INCLUDED
 
+extern void exec_cmd(const char *cmd, char *buf, unsigned buflen);
 [[gnu::format(printf, 1, 2)]]
 extern void message_info(const char *format, ...);
 extern void message_info(const std::string &str);
@@ -13,8 +14,8 @@ extern void format_tc_string(
     unsigned indent_len,
     const std::string &str
 );
-extern void fill_tc_left_char(int len, char c);
-extern void print_separator(const char *s, int len, bool print_crlf);
+extern void fill_tc_left_char(unsigned len, char c);
+extern void print_separator(const char *s, unsigned len, bool print_crlf);
 extern void print_string_list(
     const char *prefix,
     const std::vector<std::string> &slist
@@ -38,5 +39,7 @@ extern void show_login_url();
 extern void do_modify_password();
 extern void dispatch_cmd(char cmd);
 extern void display_help();
+extern int modify_password_timeout(bool reset);
+extern void show_sso_url();
 
 #endif // CMDUTIL_H_INCLUDED

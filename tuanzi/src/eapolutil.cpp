@@ -560,8 +560,8 @@ void AppendPrivateProperty(
     ConvertUtf8ToGBK(
         dontknow_buf,
         sizeof(dontknow_buf),
-        CtrlThread->field_518.c_str(),
-        CtrlThread->field_518.length()
+        CtrlThread->sec_domain_name.c_str(),
+        CtrlThread->sec_domain_name.length()
     );
     dontknow_buflen = strlen(dontknow_buf);
     buf[len++] = dontknow_buflen + 8;
@@ -570,7 +570,7 @@ void AppendPrivateProperty(
     buf[len++] = 0x13;
     buf[len++] = 0x11;
     buf[len++] = 0x55;
-    memcpy(&buf[len], CtrlThread->field_518.c_str(), dontknow_buflen);
+    memcpy(&buf[len], CtrlThread->sec_domain_name.c_str(), dontknow_buflen);
     len += dontknow_buflen;
     buf[len++] = 0x1A;
     buf[len++] = 0x09;

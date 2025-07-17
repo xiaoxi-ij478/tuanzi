@@ -32,8 +32,6 @@ extern void CoUnInitialize();
 extern std::string DWordToString(unsigned a);
 extern bool DecryptSuConfig(); // this is not working
 extern bool EncryptSuConfig(); // this is not working
-// it would not be used anyway...
-extern void exec_cmd(const char *cmd, char *buf, int buflen);
 extern unsigned addStringOnLineHead(
     const char *in_filename,
     const char *out_filename,
@@ -135,7 +133,6 @@ extern bool GetHIResult(
 );
 extern void RcvSvrSwitchResult(const std::string &notify);
 extern void RcvModifyPasswordResult(bool change_success, const char *fail_msg);
-extern int modify_password_timeout(bool reset);
 
 static inline void swap128(char *val)
 {

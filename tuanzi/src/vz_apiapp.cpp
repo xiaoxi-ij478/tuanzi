@@ -331,21 +331,25 @@ void CVz_APIApp::Vz_API(
 char *CVz_APIApp::GetAppData(unsigned &size) const
 {
     return
-        static_cast<char *>(memcpy(
-                                new char[sizeof(g_pAppData)],
-                                g_pAppData,
-                                size = sizeof(g_pAppData)
-                            ));
+        static_cast<char *>(
+            memcpy(
+                new char[sizeof(g_pAppData)],
+                g_pAppData,
+                size = sizeof(g_pAppData)
+            )
+        );
 }
 
 char *CVz_APIApp::GetDllData(unsigned &size) const
 {
     return
-        static_cast<char *>(memcpy(
-                                new char[sizeof(g_pDllData)],
-                                g_pDllData,
-                                size = sizeof(g_pDllData)
-                            ));
+        static_cast<char *>(
+            memcpy(
+                new char[sizeof(g_pDllData)],
+                g_pDllData,
+                size = sizeof(g_pDllData)
+            )
+        );
 }
 
 char *CVz_APIApp::GetFileData(unsigned &size, const char *filename) const

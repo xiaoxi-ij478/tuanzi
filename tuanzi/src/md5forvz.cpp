@@ -41,7 +41,7 @@ char *CMD5ForVz::Final()
     return digest_txt;
 }
 
-void CMD5ForVz::Final2CharBuff(char *buf, int buflen)
+void CMD5ForVz::Final2CharBuff(char *buf, unsigned buflen)
 {
     if (buflen < 16) // buffer size is not enough
         return;
@@ -59,8 +59,8 @@ char *CMD5ForVz::GetMD5(const char *buf, unsigned buflen)
 void CMD5ForVz::GetCharMd5(
     char *dst,
     const char *src,
-    int srclen,
-    int dstlen
+    unsigned srclen,
+    unsigned dstlen
 )
 {
     CMD5ForVz cksum;

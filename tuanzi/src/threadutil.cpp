@@ -29,15 +29,14 @@ int WaitForSingleObject(
 
     if (off_msec) {
         GetAbsTime(&ts, off_msec);
+        ret = 1;
 
-        while (
-            !wait_handle->signal &&
-            (ret = pthread_cond_timedwait(
-                       &wait_handle->pthread_cond,
-                       &wait_handle->pthread_mutex,
-                       &ts
-                   ))
-        );
+        while (!wait_handle->signal && ret)
+            ret = pthread_cond_timedwait(
+                      &wait_handle->pthread_cond,
+                      &wait_handle->pthread_mutex,
+                      &ts
+                  );
 
     } else
         while (!wait_handle->signal)

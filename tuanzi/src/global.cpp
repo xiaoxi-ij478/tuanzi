@@ -20,6 +20,7 @@ int g_supf_cb_read_pipe = -1;
 int g_supf_cb_write_pipe = -1;
 int g_conf_pipe_read = -1;
 bool g_supf_exited = false;
+pthread_t g_supf_thread;
 pthread_t g_supf_callback_thread;
 char e_pMd5Chanllenge[16] = {};
 unsigned e_pHelloID[16] = {};
@@ -1137,5 +1138,5 @@ CLogFile g_logFile_dns;
 CSupplicantApp theApp;
 
 CCheckRunThread chkRunThread;
-// TODO
-//CContextControlThread *CtrlThread = nullptr;
+
+CContextControlThread *CtrlThread = nullptr;

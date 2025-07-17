@@ -5,6 +5,28 @@
 #include "changelanguage.h"
 #include "cmdutil.h"
 
+void exec_cmd(const char *cmd, char *buf, unsigned buflen)
+{
+    FILE *fp = popen(cmd, "r");
+    unsigned read_len = 0;
+
+    if (!fp) {
+        rj_printf_debug("exec_cmd popen null:%s\n", strerror(errno));
+        return;
+    }
+
+    if ((read_len = fread(buf, 1, buflen - 1, fp)) <= 0) {
+        rj_printf_debug("exec_cmd fread size <= 0\n");
+
+        if (buflen)
+            *buf = 0;
+
+    } else
+        buf[read_len] = 0;
+
+    pclose(fp);
+}
+
 void message_info(const char *format, ...)
 {
     va_list arg;
@@ -105,18 +127,18 @@ void format_tc_string(
     spaces = nullptr;
 }
 
-void fill_tc_left_char(int len, char c)
+void fill_tc_left_char(unsigned len, char c)
 {
     if (len <= 0)
         return;
 
-    for (int i = 0; i < len; i++)
+    for (unsigned i = 0; i < len; i++)
         std::cout << c;
 
     std::cout.flush();
 }
 
-void print_separator(const char *s, int len, bool print_crlf)
+void print_separator(const char *s, unsigned len, bool print_crlf)
 {
     if (len < 0) {
         if (print_crlf)
@@ -128,7 +150,7 @@ void print_separator(const char *s, int len, bool print_crlf)
     if (!len)
         len = 10;
 
-    for (int i = 0; i < len; i++)
+    for (unsigned i = 0; i < len; i++)
         std::cout << s;
 
     if (print_crlf)
@@ -501,5 +523,31 @@ void display_help()
         get_tc_width(),
         24,
         CChangeLanguage::Instance().LoadString(2024) + '\n'
+    );
+}
+
+int modify_password_timeout(bool reset)
+{
+    if (!g_bmodifypwdstart)
+        return -1;
+
+    if (reset)
+        g_bmodifypwdstart = false;
+
+    return
+        reset ?
+        0 :
+        (GetTickCount() - g_llmodifypwdstart) >
+        (1000 * CPasswordModifier::GetPasswordSecurityInfo()->timeout);
+}
+
+void show_sso_url()
+{
+    if (!theApp.IsOnline())
+        return;
+
+    show_url(
+        CChangeLanguage::Instance().LoadString(2058),
+        CtrlThread->private_properties.utrust_url
     );
 }

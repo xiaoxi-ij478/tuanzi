@@ -63,10 +63,11 @@ struct DHCPIPInfo {
 };
 
 struct NICsStatus {
+    NICsStatus() = default;
     NICsStatus(const char *nic_name_l, bool is_up) : is_up(is_up) {
         strncpy(nic_name, nic_name_l, sizeof(nic_name));
     }
-    char nic_name[16];
+    char nic_name[IFNAMSIZ];
     bool is_up;
 };
 
@@ -101,7 +102,7 @@ extern bool check_manualip_infile(const char *ipaddr, const char *file);
 extern bool check_dhcp(const char *ifname, const char *ipaddr);
 extern bool get_ip_mac(in_addr_t ipaddr, struct ether_addr *macaddr);
 extern bool check_nic_isok(char *ifname);
-extern int check_nic_status(const char *ifname);
+extern enum ADAPTER_STATUS check_nic_status(const char *ifname);
 extern bool get_nic_in_use(
     std::vector<std::string> &nic_list,
     bool wireless_only

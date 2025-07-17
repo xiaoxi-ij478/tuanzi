@@ -8,15 +8,15 @@ class CMD5Checksum
         virtual ~CMD5Checksum();
 
         void Update(const char *buf, unsigned buflen);
-        void Final2CharBuff(char *buf, int buflen);
+        void Final2CharBuff(char *buf, unsigned buflen);
         char *Final();
 
         static char *GetMD5(const char *buf, unsigned buflen);
         static void GetCharMd5(
             char *dst,
             const char *src,
-            int srclen,
-            int dstlen
+            unsigned srclen,
+            unsigned dstlen
         );
 
     private:

@@ -133,7 +133,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnHelloTimer, CHelloThread)
         return;
     }
 
-    if (CtrlThread->field_210 && CtrlThread->send_packet_thread) {
+    if (CtrlThread->machine_thread && CtrlThread->send_packet_thread) {
         if (
             !CtrlThread->send_packet_thread->PostThreadMessage(
                 SEND_MESSAGE_MTYPE,

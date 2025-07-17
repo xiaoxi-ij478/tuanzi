@@ -128,12 +128,12 @@ void DelMsgItem(int type, const std::string &msg)
     LeaveCriticalSection(&msg_write_lock);
 }
 
-int GetMsgArray(std::vector<struct tagMsgItem> &msgarr)
+unsigned GetMsgArray(std::vector<struct tagMsgItem> &msgarr)
 {
     return GetMsgArray_Ex(msgarr, true);
 }
 
-int GetMsgArray_Ex(std::vector<struct tagMsgItem> &msgarr, bool replace_crlf)
+unsigned GetMsgArray_Ex(std::vector<struct tagMsgItem> &msgarr, bool replace_crlf)
 {
     std::string &&inipath = g_strAppPath + "systemmsg.ini";
     int ntype;

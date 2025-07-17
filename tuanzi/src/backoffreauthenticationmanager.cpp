@@ -2,7 +2,8 @@
 #include "backoffreauthenticationmanager.h"
 
 CBackoffReAuthenticationManager::CBackoffReAuthenticationManager() :
-    reauth_count(), reauth_timer()
+    reauth_count(),
+    reauth_timer()
 {}
 
 CBackoffReAuthenticationManager &CBackoffReAuthenticationManager::Instance()

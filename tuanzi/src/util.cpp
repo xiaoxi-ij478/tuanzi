@@ -213,28 +213,6 @@ bool EncryptSuConfig()
     return true;
 }
 
-void exec_cmd(const char *cmd, char *buf, int buflen)
-{
-    FILE *fp = popen(cmd, "r");
-    unsigned read_len = 0;
-
-    if (!fp) {
-        rj_printf_debug("exec_cmd popen null:%s\n", strerror(errno));
-        return;
-    }
-
-    if ((read_len = fread(buf, 1, buflen - 1, fp)) <= 0) {
-        rj_printf_debug("exec_cmd fread size <= 0\n");
-
-        if (buflen)
-            *buf = 0;
-
-    } else
-        buf[read_len] = 0;
-
-    pclose(fp);
-}
-
 unsigned addStringOnLineHead(
     const char *in_filename,
     const char *out_filename,
@@ -468,11 +446,9 @@ unsigned HexCharToAscii(
 std::string HexToString(const char *buf, int buflen)
 {
     std::string ret;
-    char upper = 0, lower = 0;
 
     for (; buflen; buflen--, buf++) {
-        upper = *buf >> 4;
-        lower = *buf & 0xF;
+        char upper = *buf >> 4, lower = *buf & 0xF;
 
         if (/* upper >= 0 && */ upper <= 9)
             ret.push_back(upper + '0');
@@ -1007,10 +983,10 @@ bool IsUpgrade(unsigned ver)
     );
     g_log_Wireless.AppendText(
         "IsUpgrade newHI=%d, oldHI=%d",
-        ver >> 16 & 0xffff,
-        (minor & 0xff) | (major << 8 & 0xff)
+        ver >> 16,
+        (minor & 0xff) | ((major & 0xff) << 8)
     );
-    return (ver >> 16 & 0xffff) > ((minor & 0xff) | (major << 8 & 0xff));
+    return (ver >> 16) > ((minor & 0xff) | ((major & 0xff) << 8));
 }
 
 bool GetHIResult(
@@ -1060,20 +1036,4 @@ void RcvSvrSwitchResult(const std::string &notify)
 }
 
 void RcvModifyPasswordResult(bool change_success, const char *fail_msg)
-{
-}
-
-int modify_password_timeout(bool reset)
-{
-    if (!g_bmodifypwdstart)
-        return -1;
-
-    if (reset)
-        g_bmodifypwdstart = false;
-
-    return
-        reset ?
-        0 :
-        (GetTickCount() - g_llmodifypwdstart) >
-        (1000 * CPasswordModifier::GetPasswordSecurityInfo()->timeout);
-}
+{}

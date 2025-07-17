@@ -647,7 +647,7 @@ bool get_ip_mac(in_addr_t ipaddr, struct ether_addr *macaddr)
     return false;
 }
 
-int check_nic_status(const char *ifname)
+enum ADAPTER_STATUS check_nic_status(const char *ifname)
 {
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     struct ifreq ifr = {};
@@ -1156,10 +1156,10 @@ void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname)
                 (&route.rt_gateway)->sin_addr.s_addr = *gatewayd =
                         inet_addr(gateway.c_str());
                 std::cout << "get_gateway_from_file GATEWAY:"
-                          << reinterpret_cast<char *>(gatewayd)[0]
-                          << ':' << reinterpret_cast<char *>(gatewayd)[1]
-                          << ':' << reinterpret_cast<char *>(gatewayd)[2]
-                          << ':' << reinterpret_cast<char *>(gatewayd)[3]
+                          << (gatewayd & 0xff)
+                          << ':' << (gatewayd >> 8 & 0xff)
+                          << ':' << (gatewayd >> 16 & 0xff)
+                          << ':' << (gatewayd >> 24)
                           << ';' << std::endl;
                 ioctl(fd, SIOCADDRT, &route);
                 exit_ok = true;
@@ -1221,13 +1221,16 @@ bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool)
 {
     struct NICINFO *nic_info = nullptr;
     InitDhcpIpInfo(info);
-    g_dhcpDug.AppendText("Adapter name:%s", CtrlThread->field_240.field_38);
-    nic_info = get_nics_info(CtrlThread->field_240.field_38);
+    g_dhcpDug.AppendText(
+        "Adapter name:%s",
+        CtrlThread->configure_info.public_adapter.c_str()
+    );
+    nic_info = get_nics_info(CtrlThread->configure_info.field_38.c_str());
 
     if (!nic_info)
         return false;
 
-    info.dhcp_enabled = CtrlThread->field_240.field_54;
+    info.dhcp_enabled = CtrlThread->configure_info.public_dhcp;
     info.adapter_mac = nic_info->hwaddr;
     info.dns = htonl(nic_info->dns);
     info.gateway = htonl(nic_info->gateway);

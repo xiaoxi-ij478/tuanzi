@@ -10,11 +10,11 @@ class CBackoffReAuthenticationManager
 
         static CBackoffReAuthenticationManager &Instance();
 
-    private:
-        CBackoffReAuthenticationManager();
-
         unsigned reauth_count;
         timer_t reauth_timer;
+
+    private:
+        CBackoffReAuthenticationManager();
 };
 
 #endif // BACKOFFREAUTHENTICATIONMANAGER_H_INCLUDED

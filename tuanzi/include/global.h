@@ -87,7 +87,7 @@ extern CLogFile g_logFile_dns;
 extern CSupplicantApp theApp;
 
 extern CCheckRunThread chkRunThread;
-// TODO
-//extern CContextControlThread *CtrlThread;
+
+extern CContextControlThread *CtrlThread;
 
 #endif // GLOBAL_H_INCLUDED

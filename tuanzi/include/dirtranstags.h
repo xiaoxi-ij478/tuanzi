@@ -335,4 +335,14 @@ struct tagWirelessConf {
     unsigned field_50;
 };
 
+struct tagWirelessSignal {
+    unsigned long field_0;
+    unsigned long field_8;
+    unsigned long field_10;
+    unsigned long field_18;
+    char field_20;
+    unsigned field_24;
+    unsigned field_28;
+};
+
 #endif // DIRTRANSTAGS_H_INCLUDED

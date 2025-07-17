@@ -169,12 +169,12 @@ bool CSuConfigFile::Open(const char *rfilename)
     ifs.seekg(0, std::ios::end);
     orig_size = ifs.tellg();
     ifs.seekg(0, std::ios::beg);
-    ibuf = new char[orig_size + 1];
-
-    for (unsigned i = 0; !ifs.eof(); i++)
-        ibuf[i] = ~ifs.get();
-
+    ibuf = new char[orig_size];
+    ifs.read(ibuf, orig_size);
     ifs.close();
+    std::for_each(ibuf, ibuf + orig_size, [](char &i) {
+        i = ~i;
+    });
     decompress_size = Decompress(ibuf, obuf, orig_size, 0);
     obuf = new char[decompress_size];
     Decompress(ibuf, obuf, orig_size, decompress_size);
@@ -234,15 +234,15 @@ bool CSuConfigFile::UpdateConfig()
     ifs.seekg(0, std::ios::end);
     orig_size = ifs.tellg();
     ifs.seekg(0, std::ios::beg);
-    ibuf = new char[orig_size + 1];
+    ibuf = new char[orig_size];
     ifs.read(ibuf, orig_size);
     ifs.close();
     comp_size = Compress(ibuf, obuf, orig_size, 0);
     obuf = new char[comp_size];
     Compress(ibuf, obuf, orig_size, comp_size);
-    // *INDENT-OFF*
-    std::for_each(obuf, obuf + comp_size + 1, [](char &i) { i = ~i; });
-    // *INDENT-ON*
+    std::for_each(obuf, obuf + comp_size, [](char &i) {
+        i = ~i;
+    });
 
     if (!ofs.write(obuf, comp_size)) {
         g_logSystem.AppendText("ERROR: write file %s failed.\n", cfg_filename.c_str());

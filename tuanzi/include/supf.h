@@ -142,7 +142,6 @@ struct SupfPipeStateMsgData {
     };
 };
 
-
 struct SupfPipeCmdMsgData {
     enum SupfPipeCmdType cmd;
     struct { // used only when cmd == SUPF_PIPE_START_CMD

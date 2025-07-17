@@ -1,77 +1,118 @@
 #include "all.h"
 #include "util.h"
+#include "cmdutil.h"
+#include "global.h"
 #include "sysutil.h"
 
 void check_run_ibus()
 {
-    // whereis ibus-daemon|awk '{print $2}'
-    // if the above output is null then
-    // rj_printf_debug("%s buf==NULL\n", __func__);
-    // return
-    // fi
-    // ps -C ibus-daemon -f|grep root
-    // if the above output is not null then
-    // rj_printf_debug("%s ibus alread run by root\n", __func__);
-    // return
-    // fi
-    // rj_printf_debug("%s not run ibus by root,and run it\n", __func__);
-    // ibus-daemon -d
-    // g_bDoRunIbus = 1;
+    char cmdbuf[1024] = {};
+    char cmdretbuf[1024] = {};
+    strcpy(cmdbuf, "whereis ibus-daemon|awk '{print $2}'");
+    exec_cmd(cmdbuf, cmdretbuf, sizeof(cmdretbuf));
+
+    if (!cmdretbuf[0] || cmdretbuf[0] == '\n') {
+        rj_printf_debug("%s buf==NULL\n", "check_run_ibus");
+        return;
+    }
+
+    strcpy(cmdbuf, "ps -C ibus-daemon -f|grep root");
+    exec_cmd(cmdbuf, cmdretbuf, sizeof(cmdretbuf));
+
+    if (!cmdretbuf[0] || cmdretbuf[0] == '\n') {
+        rj_printf_debug("%s not run ibus by root,and run it\n", "check_run_ibus");
+        system("ibus-daemon -d");
+
+    } else
+        rj_printf_debug("%s ibus alread run by root\n", "check_run_ibus");
+
+    g_bDoRunIbus = true;
 }
 
 void check_stop_ibus()
 {
-    // if not g_bDoRunIbus return;
-    // ps -C ibus-daemon -f|grep root | awk '{print $2}'
-    // if the above output is null then
-    // rj_printf_debug("%s not run ibus by root\n", __func__);
-    // g_bDoRunIbus = 0;
-    // return
-    // fi
-    // kill -9 $(pidof ibus-daemon)
-    // rj_printf_debug("%s kill ibus by exit,cmd=%s\n", __func__, $(pidof ibus-daemon));
+    char cmdbuf[1024] = {};
+    char cmdretbuf[1024] = {};
+
+    if (!g_bDoRunIbus)
+        return;
+
+    strcpy(cmdbuf, "ps -C ibus-daemon -f|grep root | awk '{print $2}'");
+    exec_cmd(cmdbuf, cmdretbuf, sizeof(cmdretbuf));
+
+    if (!cmdretbuf[0] || cmdretbuf[0] == '\n')
+        rj_printf_debug("%s not run ibus by root\n", "check_stop_ibus");
+
+    else {
+        sprintf(cmdbuf, "kill -9 %s", cmdretbuf);
+        system(cmdbuf);
+        rj_printf_debug("%s kill ibus by exit,cmd=%s\n", "check_stop_ibus", cmdretbuf);
+    }
+
+    g_bDoRunIbus = false;
 }
 
-bool check_service_status([[maybe_unused]] const char *service_name)
+bool check_service_status(const char *service_name)
 {
-    // this function is used to check and kill services,
-    // so we deliberately don't implement it
-    // service $service_name status 2>&- | grep pid
-    // || check_service_status2 $service_name
     return false;
+    char cmdbuf[512] = {};
+    char cmdretbuf[512] = {};
+    sprintf(cmdbuf, "service %s status 2>&-", service_name);
+    exec_cmd(cmdbuf, cmdretbuf, sizeof(cmdretbuf));
+    return !cmdbuf[0] || !strcasestr(cmdretbuf, "pid") ?
+           check_service_status2(service_name) :
+           true;
 }
 
-bool check_service_status2([[maybe_unused]] const char *service_name)
+bool check_service_status2(const char *service_name)
 {
-    // same as above
-    // systemctl status $service_name.service 2>&- | awk '{if($1~/Active/) print $2}' |
-    // grep active
     return false;
+    char cmdbuf[512] = {};
+    char cmdretbuf[512] = {};
+    sprintf(
+        cmdbuf,
+        "systemctl status %s.service 2>&- | awk '{if($1~/Active/) print $2}'",
+        service_name
+    );
+    exec_cmd(cmdbuf, cmdretbuf, sizeof(cmdretbuf));
+    return !strcmp(cmdretbuf, "active");
 }
 
-bool service_start([[maybe_unused]] const char *service_name)
+bool service_start(const char *service_name)
 {
-    // service $service_name start 2>&-
-    // check_service_status $service_name || service_start2 $service_name
     return true;
+    char cmdbuf[512] = {};
+    char cmdretbuf[512] = {};
+    sprintf(cmdbuf, "service %s start 2>&-", service_name);
+    exec_cmd(cmdbuf, cmdretbuf, sizeof(cmdretbuf));
+    return !check_service_status(service_name) || service_start2(service_name);
 }
 
-bool service_start2([[maybe_unused]] const char *service_name)
+bool service_start2(const char *service_name)
 {
-    // systemctl start $service_name.service 2>&-
     return true;
+    char cmdbuf[512] = {};
+    char cmdretbuf[512] = {};
+    sprintf(cmdbuf, "systemctl start %s.service 2>&-", service_name);
+    exec_cmd(cmdbuf, cmdretbuf, sizeof(cmdretbuf));
+    return !check_service_status(service_name);
 }
 
-bool service_stop([[maybe_unused]] const char *service_name)
+void service_stop(const char *service_name)
 {
-    // service $service_name stop 2>&-
-    return true;
+    return;
+    char cmdbuf[512] = {};
+    sprintf(cmdbuf, "service %s stop 2>&-", service_name);
+    system(cmdbuf);
+    service_stop2(cmdbuf);
 }
 
-bool service_stop2([[maybe_unused]] const char *service_name)
+void service_stop2(const char *service_name)
 {
-    // systemctl stop $service_name.service 2>&-
-    return true;
+    return;
+    char cmdbuf[512] = {};
+    sprintf(cmdbuf, "systemctl stop %s.service 2>&-", service_name);
+    system(cmdbuf);
 }
 
 enum OS_TYPE get_os_type()
@@ -121,7 +162,7 @@ enum OS_TYPE get_os_type()
 //}
 bool Is64BIT()
 {
-    // we'll use statically calculated value
+    // but we'll use statically calculated value
     // maybe we'll support arm64 one day, so include it
 #if defined(__x86_64__) || defined(__aarch64__)
     return true;
@@ -137,10 +178,15 @@ enum LANG GetSysLanguage()
     return strncmp(getenv("LANG"), "zh_", 3) ? LANG_ENGLISH : LANG_CHINESE;
 }
 
-float get_fedora_lib_version([[maybe_unused]] const char *pkgname)
+float get_fedora_lib_version(const char *pkgname)
 {
     // I'm a Debian fan, so I don't know how to use yum
     // yum list installed |grep $pkgname |awk 'NR==1 {print $2}'
     // printf "%s version=%s\n" "get_fedora_lib_version" $version
-    return 0.0;
+    char cmdbuf[1024] = {}; // [rsp+0h] [rbp-818h] BYREF
+    char cmdretbuf[1024] = {}; // [rsp+400h] [rbp-418h] BYREF
+    sprintf(cmdbuf, "yum list installed |grep %s |awk 'NR==1 {print $2}'", pkgname);
+    exec_cmd(cmdbuf, cmdretbuf, sizeof(cmdretbuf));
+    rj_printf_debug("%s version=%s\n", "get_fedora_lib_version", cmdretbuf);
+    return strtof(cmdretbuf, nullptr);
 }

@@ -2,9 +2,10 @@
 #include "global.h"
 #include "mtypes.h"
 #include "changelanguage.h"
+#include "rgprivateproc.h"
 #include "supf.h"
 
-// some of the  functions were once integrated into wpa_supplicant,
+// some of the functions were once integrated into wpa_supplicant,
 // but we peel them off to maintain the independence of tuanzi and wpa_supplicant
 // so some of the function such as wpa_printf() will be replaced with
 // more general version like std::cout
@@ -129,12 +130,12 @@ unsigned generate_network_config(
 
     if (ssid && identity && password)
         oss << "network={" << std::endl
-            << "     ssid=\"%s\"" << std::endl
+            << "     ssid=\"" << ssid << '"' << std::endl
             << "     scan_ssid=1" << std::endl
             << "     key_mgmt=WPA-EAP" << std::endl
             << "     eap=PEAP" << std::endl
-            << "     identity=\"%s\"" << std::endl
-            << "     password=\"%s\"" << std::endl
+            << "     identity=\"" << identity << '"' << std::endl
+            << "     password=\"" << password << '"' << std::endl
             << "     phase2=\"auth=MSCHAPV2\"" << std::endl
             << "     priority=10" << std::endl
             << "}";
@@ -244,14 +245,13 @@ unsigned su_platform_cmd(struct SupfCmd *cmd)
                 return 6;
 
             std::cout << "SUPF: Recv stop cmd" << std::endl;
+            exact_write =
+                write(g_supf_cmd_write_pipe, &data, sizeof(enum SupfPipeCmdType));
 
-            if (
-                (exact_write =
-                     write(g_supf_cmd_write_pipe, &data, sizeof(enum SupfPipeCmdType))
-                ) != sizeof(enum SupfPipeCmdType)
-            ) {
+            if (exact_write != sizeof(enum SupfPipeCmdType)) {
                 std::cerr << "Write cmd error - bytes=" << exact_write
-                          << " data len=" << sizeof(enum SupfPipeCmdType) << std::endl;
+                          << " data len=" << sizeof(enum SupfPipeCmdType)
+                          << std::endl;
                 return 5;
             }
 
@@ -275,14 +275,15 @@ unsigned supf_start(struct StartCmdCtx *start_ctx)
     if (g_supf_cmd_write_pipe == -1)
         return 6;
 
-    if (
-        (gen_network_cfg_ret =
-             generate_network_config(
-                 conf_pipe_read,
-                 start_ctx->ssid,
-                 start_ctx->identity,
-                 start_ctx->password))
-    )
+    gen_network_cfg_ret =
+        generate_network_config(
+            conf_pipe_read,
+            start_ctx->ssid,
+            start_ctx->identity,
+            start_ctx->password
+        );
+
+    if (gen_network_cfg_ret)
         return gen_network_cfg_ret;
 
     msg_data = reinterpret_cast<struct SupfPipeCmdMsgData *>
@@ -294,16 +295,14 @@ unsigned supf_start(struct StartCmdCtx *start_ctx)
     msg_data->cmd = SUPF_PIPE_START_CMD;
     msg_data->data_len = start_ctx->private_len;
     memcpy(msg_data->private_data, start_ctx->private_data, start_ctx->private_len);
+    exact_write =
+        write(
+            g_supf_cmd_write_pipe,
+            msg_data,
+            sizeof(struct SupfPipeCmdMsgData) + start_ctx->private_len
+        );
 
-    if (
-        (exact_write =
-             write(
-                 g_supf_cmd_write_pipe,
-                 msg_data,
-                 sizeof(struct SupfPipeCmdMsgData) + start_ctx->private_len
-             )
-        ) != sizeof(struct SupfPipeCmdMsgData) + start_ctx->private_len
-    ) {
+    if (exact_write != sizeof(struct SupfPipeCmdMsgData) + start_ctx->private_len) {
         std::cerr << "Write cmd error - bytes=" << exact_write
                   << " data len=" << sizeof(enum SupfPipeCmdType) << std::endl;
         return 5;
@@ -312,6 +311,7 @@ unsigned supf_start(struct StartCmdCtx *start_ctx)
     return 0;
 }
 
+// we use a different approach to do callback
 void supf_msg_handle(const struct SupfMsgData *msg_data)
 {
     CRGPrivateProc priproc;
@@ -482,11 +482,10 @@ unsigned supf_wlan_scan()
     if (g_supf_cmd_write_pipe == -1)
         return 6;
 
-    if (
-        (exact_write =
-             write(g_supf_cmd_write_pipe, &data, sizeof(enum SupfPipeCmdType))
-        ) != sizeof(enum SupfPipeCmdType)
-    ) {
+    exact_write =
+        write(g_supf_cmd_write_pipe, &data, sizeof(enum SupfPipeCmdType));
+
+    if (exact_write != sizeof(enum SupfPipeCmdType)) {
         std::cerr << "Write cmd error - bytes=" << exact_write
                   << " data len=" << sizeof(enum SupfPipeCmdType) << std::endl;
         return 5;
@@ -514,14 +513,9 @@ int supf_write_config_to_pipe(const char *config_buf, int *pipe_read)
     left_to_write = strlen(config_buf) + 1;
 
     while (left_to_write) {
-        if (
-            (this_written =
-                 write(
-                     file_pipes[1],
-                     config_buf + written,
-                     left_to_write
-                 )) == -1
-        ) {
+        this_written = write(file_pipes[1], config_buf + written, left_to_write);
+
+        if (this_written == -1) {
             std::cerr << "Write error on pipe" << std::endl;
             close(file_pipes[0]);
             close(file_pipes[1]);
@@ -579,11 +573,10 @@ unsigned su_platform_deinit()
     if (g_supf_cmd_write_pipe == -1)
         return 0;
 
-    if (
-        (exact_write =
-             write(g_supf_cmd_write_pipe, &data, sizeof(enum SupfPipeCmdType))
-        ) != sizeof(enum SupfPipeCmdType)
-    ) {
+    exact_write =
+        write(g_supf_cmd_write_pipe, &data, sizeof(enum SupfPipeCmdType));
+
+    if (exact_write != sizeof(enum SupfPipeCmdType)) {
         std::cerr << "Write cmd error - bytes=" << exact_write
                   << " data len=" << sizeof(enum SupfPipeCmdType) << std::endl;
         return 0;

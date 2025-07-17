@@ -41,7 +41,7 @@ char *CMD5Checksum::Final()
     return digest_txt;
 }
 
-void CMD5Checksum::Final2CharBuff(char *buf, int buflen)
+void CMD5Checksum::Final2CharBuff(char *buf, unsigned buflen)
 {
     if (buflen < 16) // buffer size is not enough
         return;
@@ -59,8 +59,8 @@ char *CMD5Checksum::GetMD5(const char *buf, unsigned buflen)
 void CMD5Checksum::GetCharMd5(
     char *dst,
     const char *src,
-    int srclen,
-    int dstlen
+    unsigned srclen,
+    unsigned dstlen
 )
 {
     CMD5Checksum cksum;

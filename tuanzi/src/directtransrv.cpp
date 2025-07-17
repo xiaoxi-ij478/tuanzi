@@ -29,7 +29,7 @@ CDirectTranSrv::CDirectTranSrv() :
     destroy_mutex(),
     dir_thread(),
     dir_smp_para(),
-    field_360(),
+    server_and_us_in_the_same_subnet(),
     field_361(),
     request_init_data_now(true),
     dir_trans_srvpara(),
@@ -157,10 +157,9 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
                     break;
 
                 ConvertGBKToUtf8(force_offline_str, &buf[pos + 5], buf[pos + 4]);
-                memcpy(
+                strcpy(
                     force_offline_buf = new char[force_offline_str.length() + 1],
-                    force_offline_str.c_str(),
-                    force_offline_str.length()
+                    force_offline_str.c_str()
                 );
                 logFile_debug.AppendText(
                     "强制下线解析接口(%s)",
@@ -915,7 +914,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SMP, CDirectTranSrv)
         dir_smp_para.utc_time,
         htonLONGLONG(dir_smp_para.utc_time),
         GetTickCount(),
-        field_360,
+        server_and_us_in_the_same_subnet,
         dir_smp_para.version
     };
     memcpy(&proto_param.keybuf, dir_smp_para.keybuf, sizeof(proto_param.keybuf));
@@ -1399,19 +1398,21 @@ void CDirectTranSrv::ParsePasswordSecurity(TiXmlDocument &xml) const
         false, 30, true, "", 0xFFFFFFFF, false, 0xFFFFFFFF
     };
 
-    if ((ss_child = xml.FirstChildElement()->FirstChild("self_service")))
-        if ((ssp_child = ss_child->FirstChild("password"))) {
-            secinfo.enable_modify_pw =
-                GetXmlChild_Node_STR(
-                    ssp_child,
-                    "is_modify",
-                    "password"
-                ) == "true";
+    if (
+        (ss_child = xml.FirstChildElement()->FirstChild("self_service")) &&
+        (ssp_child = ss_child->FirstChild("password"))
+    ) {
+        secinfo.enable_modify_pw =
+            GetXmlChild_Node_STR(
+                ssp_child,
+                "is_modify",
+                "password"
+            ) == "true";
 
-            if (secinfo.enable_modify_pw)
-                secinfo.timeout =
-                    GetXmlChild_Node_INT(ssp_child, "wait_time", "password");
-        }
+        if (secinfo.enable_modify_pw)
+            secinfo.timeout =
+                GetXmlChild_Node_INT(ssp_child, "wait_time", "password");
+    }
 
     if ((psd_child = xml.FirstChildElement()->FirstChild("psw_security_detect"))) {
         secinfo.result =
@@ -1432,57 +1433,59 @@ void CDirectTranSrv::ParsePasswordSecurity(TiXmlDocument &xml) const
             );
     }
 
-    if ((ss_child = xml.FirstChildElement()->FirstChild("self_service")))
-        if ((ssp_child = ss_child->FirstChild("password"))) {
-            secinfo.enable_modify_pw =
-                GetXmlChild_Node_STR(ssp_child, "is_modify", "password") == "true";
-            secinfo.timeout =
-                GetXmlChild_Node_INT(ssp_child, "wait_time", "password");
+    if (
+        (ss_child = xml.FirstChildElement()->FirstChild("self_service")) &&
+        (ssp_child = ss_child->FirstChild("password"))
+    ) {
+        secinfo.enable_modify_pw =
+            GetXmlChild_Node_STR(ssp_child, "is_modify", "password") == "true";
+        secinfo.timeout =
+            GetXmlChild_Node_INT(ssp_child, "wait_time", "password");
 
-            if (ssp_child->FirstChildElement("modify_at_once")) {
-                logFile_debug.AppendText(
-                    "ParsePasswordSecurity modify_at_once element exist."
-                );
-                secinfo.result =
-                    GetXmlChild_Node_STR(
-                        ssp_child,
-                        "modify_at_once",
-                        "password"
-                    ) != "true";
-            }
-
-            std::string &&password_modify_message =
-                GetXmlChild_Node_STR(ssp_child, "modify_message", "password");
-            ConvertGBKToUtf8(
-                secinfo.password_modify_message,
-                password_modify_message.c_str(),
-                password_modify_message.length()
+        if (ssp_child->FirstChildElement("modify_at_once")) {
+            logFile_debug.AppendText(
+                "ParsePasswordSecurity modify_at_once element exist."
             );
-
-            if (ssp_child->FirstChildElement("force_offline")) {
-                logFile_debug.AppendText(
-                    "ParsePasswordSecurity force_offline element exist."
-                );
-                secinfo.force_offline =
-                    GetXmlChild_Node_STR(
-                        ssp_child,
-                        "force_offline",
-                        "password"
-                    ) == "true";
-            }
-
-            if (ssp_child->FirstChildElement("offline_wait_time")) {
-                logFile_debug.AppendText(
-                    "ParsePasswordSecurity offline_wait_time element exist."
-                );
-                secinfo.offline_wait_time =
-                    GetXmlChild_Node_INT(
-                        ssp_child,
-                        "offline_wait_time",
-                        "password"
-                    );
-            }
+            secinfo.result =
+                GetXmlChild_Node_STR(
+                    ssp_child,
+                    "modify_at_once",
+                    "password"
+                ) != "true";
         }
+
+        std::string &&password_modify_message =
+            GetXmlChild_Node_STR(ssp_child, "modify_message", "password");
+        ConvertGBKToUtf8(
+            secinfo.password_modify_message,
+            password_modify_message.c_str(),
+            password_modify_message.length()
+        );
+
+        if (ssp_child->FirstChildElement("force_offline")) {
+            logFile_debug.AppendText(
+                "ParsePasswordSecurity force_offline element exist."
+            );
+            secinfo.force_offline =
+                GetXmlChild_Node_STR(
+                    ssp_child,
+                    "force_offline",
+                    "password"
+                ) == "true";
+        }
+
+        if (ssp_child->FirstChildElement("offline_wait_time")) {
+            logFile_debug.AppendText(
+                "ParsePasswordSecurity offline_wait_time element exist."
+            );
+            secinfo.offline_wait_time =
+                GetXmlChild_Node_INT(
+                    ssp_child,
+                    "offline_wait_time",
+                    "password"
+                );
+        }
+    }
 
     logFile_debug.AppendText(
         "ParsePasswordSecurity bEnableModifyPW=%d,timeOut=%d,result=%d,"
@@ -1497,10 +1500,16 @@ void CDirectTranSrv::ParsePasswordSecurity(TiXmlDocument &xml) const
     CPasswordModifier::SetPasswordSecurityInfo(secinfo);
 }
 
-void CDirectTranSrv::ParseRM_Assist(char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseRM_Assist(
+    [[maybe_unused]] char *buf,
+    [[maybe_unused]] unsigned buflen
+) const
 {}
 
-void CDirectTranSrv::ParseReAuth(char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseReAuth(
+    char *buf,
+    [[maybe_unused]] unsigned buflen
+) const
 {
     delete[] buf;
     CtrlThread->PostThreadMessage(REAUTH_MTYPE, 0, 0);
@@ -1671,7 +1680,8 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
     }
 
     if (!smp_init_packet.basic_config.login_url.empty()) {
-        CtrlThread->field_490 = smp_init_packet.basic_config.login_url;
+        CtrlThread->private_properties.user_login_url =
+            smp_init_packet.basic_config.login_url;
         show_login_url();
     }
 

@@ -296,7 +296,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStateMove, CStateMachineThread)
         CtrlThread->IsRuijieNas() ||
         state_visual->state_data->prev_state != STATE_AUTHENTICATED
     )
-        CtrlThread->PostThreadMessage(HANDSHAKE_TO_SAM_MTYPE, arg1);
+        CtrlThread->PostThreadMessage(STATE_MACHINE_RETURN_MTYPE, arg1);
 
     state_visual->MoveState();
 
@@ -569,7 +569,7 @@ void CStateMachineThread::txRspAuth() const
         username_buflen + state_visual->state_data->eap_md5_datalen + 1;
     checksum_buf = new char[checksum_buflen];
     checksum_buf[0] = state_visual->state_data->recv_id;
-    memcpy(&checksum_buf[1], username_buf, username_buflen);
+    strcpy(&checksum_buf[1], username_buf);
     memcpy(
         &checksum_buf[1 + username_buflen],
         state_visual->state_data->eap_md5_data,

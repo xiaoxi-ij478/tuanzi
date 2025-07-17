@@ -2,6 +2,7 @@
 #define DOWNLOADTHREAD_H_INCLUDED
 
 #include "lnxthread.h"
+#include "cmdutil.h"
 
 struct len_and_sockaddr {
     int len;
@@ -60,7 +61,7 @@ class CDownLoadThread : public CLnxThread
             const char *save_path,
             const char *save_filename,
             bool create_progress_dialog
-        )
+        );
         int ftp_download(
             const char *url,
             const char *save_path,
