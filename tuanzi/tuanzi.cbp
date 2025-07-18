@@ -23,6 +23,7 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -50,6 +51,7 @@
 				<Option projectLibDirsRelation="1" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -64,7 +66,6 @@
 			<Add option="-Winvalid-pch" />
 			<Add option="-funsigned-char" />
 			<Add option="-pthread" />
-			<Add option="-DPROTOTYPES" />
 			<Add option="-DTIXML_USE_STL" />
 			<Add option="-D_GNU_SOURCE" />
 			<Add directory="../iniparser/include" />
@@ -243,6 +244,10 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="include/md5forvz.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+		</Unit>
+		<Unit filename="include/miscdefs.h">
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>

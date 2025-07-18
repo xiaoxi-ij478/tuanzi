@@ -53,10 +53,10 @@ void CSuConfigFile::AppendComma(std::string &str)
     if (slen <= 1)
         return;
 
-    if (str[0] == '\'' && str[slen - 1] == '\'')
+    if (str.front() == '\'' && str.back() == '\'')
         sym = "'";
 
-    else if (str[0] == '"' && str[slen - 1] == '"')
+    else if (str.front() == '"' && str.back() == '"')
         sym = "\"";
 
     else

@@ -1,7 +1,7 @@
 #ifndef THREADUTIL_H_INCLUDED
 #define THREADUTIL_H_INCLUDED
 
-#include "waithandle.h"
+class WAIT_HANDLE;
 
 extern int WaitForSingleObject(
     WAIT_HANDLE *event,

@@ -1,47 +1,6 @@
 #ifndef TCP_H_INCLUDED
 #define TCP_H_INCLUDED
 
-#include "netutil.h"
-#include "dnsquery.h"
-#include "stdpkgs.h"
-
-enum REQUEST_TYPE {
-    REQUEST_UNKNOWN_N1 = -1,
-    REQUEST_UNKNOWN_0,
-    REQUEST_HTTP,
-    REQUEST_SOCK4,
-    REQUEST_SOCK4A,
-    REQUEST_SOCK5,
-    REQUEST_FTP,
-    REQUEST_POP3,
-    REQUEST_NNTP = 8,
-    REQUEST_MMS,
-    REQUEST_TELNET = 11
-};
-
-enum TRANS_DIRECTION {
-    TRANS_RECV = -1,
-    TRANS_MINE,
-    TRANS_SEND
-};
-
-struct TcpInfo {
-    in_addr_t dstaddr;
-    in_addr_t srcaddr;
-    unsigned short dstport;
-    unsigned short srcport;
-    unsigned seq;
-    unsigned ack_seq;
-};
-
-struct TCPIP {
-    const struct ether_header *etherheader;
-    const struct iphdr *ipheader;
-    const struct tcphdr *tcpheader;
-    const char *content;
-    unsigned content_length;
-};
-
 class CTcp
 {
     public:

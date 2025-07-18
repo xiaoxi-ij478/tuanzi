@@ -2,7 +2,6 @@
 #define DOWNLOADTHREAD_H_INCLUDED
 
 #include "lnxthread.h"
-#include "cmdutil.h"
 
 struct len_and_sockaddr {
     int len;
@@ -33,15 +32,6 @@ enum DOWNLOAD_STATUS {
     DOWNLOAD_ERROR_7,
     DOWNLOAD_ERROR_8,
     DOWNLOAD_ERROR_9,
-};
-
-struct tagDownLoadPara {
-    pthread_t thread_id; // pThread
-    unsigned mtype;
-    std::string url;
-    std::string save_path;
-    std::string save_filename;
-    bool create_progress_dialog;
 };
 
 class CDownLoadThread : public CLnxThread

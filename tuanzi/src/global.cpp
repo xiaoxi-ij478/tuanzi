@@ -1,4 +1,9 @@
 #include "all.h"
+#include "logfile.h"
+#include "checkrunthread.h"
+#include "contextcontrolthread.h"
+#include "supplicantapp.h"
+#include "supf.h"
 #include "global.h"
 
 std::string g_strAppPath;

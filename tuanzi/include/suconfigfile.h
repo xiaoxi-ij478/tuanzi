@@ -1,8 +1,6 @@
 #ifndef SUCONFIGFILE_H_INCLUDED
 #define SUCONFIGFILE_H_INCLUDED
 
-#include "criticalsection.h"
-
 class CSuConfigFile
 {
     public:

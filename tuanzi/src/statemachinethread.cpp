@@ -248,8 +248,8 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStartMachine, CStateMachineThread)
         state_visual->state_data->state =
             state_visual->state_data->prev_state = STATE_INVALID;
 
-    CtrlThread->connecting = false;
-    CtrlThread->field_53A = false;
+    CtrlThread->reconnect_fail = false;
+    CtrlThread->connect_fail = false;
     state_visual = CreateState(STATE_DISCONNECTED);
     state_data.logoff = false;
     state_data.hold_count = 0;
@@ -268,7 +268,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStateMove, CStateMachineThread)
 
     if (state_visual->state_data->IsAuthenticated()) {
         new_state = STATE_AUTHENTICATED;
-        CtrlThread->connecting = CtrlThread->field_53A = false;
+        CtrlThread->reconnect_fail = CtrlThread->connect_fail = false;
 
     } else if (state_visual->state_data->IsDisconnected())
         new_state = STATE_DISCONNECTED;
@@ -300,7 +300,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStateMove, CStateMachineThread)
 
     state_visual->MoveState();
 
-    if (CtrlThread->connecting)
+    if (CtrlThread->reconnect_fail)
         state_visual->state_data->state = STATE_LOGOFF;
 }
 

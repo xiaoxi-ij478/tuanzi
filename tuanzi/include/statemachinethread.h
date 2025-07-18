@@ -2,9 +2,8 @@
 #define STATEMACHINETHREAD_H_INCLUDED
 
 #include "lnxthread.h"
-#include "states.h"
 #include "statedata.h"
-#include "eapolutil.h"
+#include "miscdefs.h"
 
 class CStateMachineThread : public CLnxThread
 {

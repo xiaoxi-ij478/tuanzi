@@ -1,14 +1,18 @@
 #ifndef RGPRIVATEPROC_H_INCLUDED
 #define RGPRIVATEPROC_H_INCLUDED
 
-#include "suradiusprivate.h"
-#include "eapolutil.h"
+struct SuRadiusPrivate;
+struct EAPOLFrame;
 
 class CRGPrivateProc
 {
     private:
         static void EncapRGVerdorSeg(char *buf, unsigned &len);
-        static void EncapRGVerdorSegForEapHost(char *buf, unsigned &len, std::string);
+        static void EncapRGVerdorSegForEapHost(
+            char *buf,
+            unsigned &len,
+            const std::string &
+        );
         static void EncapRGVerdorSegForPeap(char *buf, unsigned &len, char *);
         static void GetAlternateDNS(char *buf, unsigned &len);
         static void GetClientOSBits(char *buf, unsigned &len);

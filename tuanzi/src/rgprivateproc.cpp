@@ -42,7 +42,7 @@ void CRGPrivateProc::EncapRGVerdorSeg(char *buf, unsigned &len)
 void CRGPrivateProc::EncapRGVerdorSegForEapHost(
     char *buf,
     unsigned &len,
-    std::string
+    const std::string &
 )
 {
     unsigned field_len = 0;
@@ -758,7 +758,7 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
     CtrlThread->private_properties.dialup_avoid = 0;
     CtrlThread->private_properties.indicate_serv_ip = 0;
     CtrlThread->private_properties.indicate_port = 0;
-    CtrlThread->private_properties.field_A4 = 0;
+    CtrlThread->private_properties.smp_ipaddr = 0;
     CtrlThread->private_properties.proxy_dectect_kinds = 0;
     CtrlThread->private_properties.hello_interv = 0;
     memset(

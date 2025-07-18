@@ -21,7 +21,7 @@ extern void print_string_list(
     const std::vector<std::string> &slist
 );
 extern bool check_quit();
-extern void check_safe_exit(bool create_file);
+extern bool check_safe_exit(bool create_file);
 extern bool is_run_background();
 extern int set_termios(bool set_echo_icanon);
 extern void shownotify(

@@ -1,12 +1,6 @@
 #ifndef CHANGELANGUAGE_H_INCLUDED
 #define CHANGELANGUAGE_H_INCLUDED
 
-enum LANG {
-    LANG_INVALID,
-    LANG_ENGLISH,
-    LANG_CHINESE
-};
-
 struct tagSectionUnit {
     tagSectionUnit(unsigned id, const std::string &str) : id(id), str(str)
     {}

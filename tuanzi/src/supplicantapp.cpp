@@ -45,7 +45,7 @@ void CSupplicantApp::GUI_ShowMainWindow(const std::string &msg) const
 void CSupplicantApp::GUI_update_LOGOFF(
     // *INDENT-OFF*
     enum LOGOFF_REASON reason,
-    enum APPSTATUS new_status
+    enum STATES new_state
     // *INDENT-ON*
 ) const
 {
@@ -123,7 +123,7 @@ case (reason): \
 #undef SET_MSG_AND_EXIT_FLAG
 #undef SET_CUSTOM_MSG_AND_EXIT_FLAG
     AddMsgItem(5, notify_msg);
-    GUI_update_connectdlg_by_states(new_status);
+    GUI_update_connectdlg_by_states(new_state);
 
     if (!should_not_exit) {
         GetCurDataAndTime(cur_date);
@@ -141,12 +141,12 @@ case (reason): \
 }
 
 void CSupplicantApp::GUI_update_connect_states_and_text(
-    enum APPSTATUS new_status,
+    enum STATES new_state,
     const std::string &msg
 ) const
 {
     GUI_update_connect_text(msg);
-    GUI_update_connectdlg_by_states(new_status);
+    GUI_update_connectdlg_by_states(new_state);
 }
 
 void CSupplicantApp::GUI_update_connect_text(const std::string &msg) const
@@ -156,14 +156,14 @@ void CSupplicantApp::GUI_update_connect_text(const std::string &msg) const
 
 void CSupplicantApp::GUI_update_connectdlg_by_states(
     // *INDENT-OFF*
-    enum APPSTATUS new_status
+    enum STATES new_state
     // *INDENT-ON*
 ) const
 {
     char date_buf[64] = {};
 
-    switch (status = new_status) {
-        case APPSTATUS_SUCCESS:
+    switch (status = new_state) {
+        case STATE_AUTHENTICATED:
             rj_printf_debug(
                 "CMiniWindow::update_connectdlg_by_states connect success\n"
             );
@@ -181,10 +181,10 @@ void CSupplicantApp::GUI_update_connectdlg_by_states(
             );
             break;
 
-        case APPSTATUS_1:
-        case APPSTATUS_STARTING:
-        case APPSTATUS_3:
-        case APPSTATUS_4:
+        case STATE_DISCONNECTED:
+        case STATE_CONNECTING:
+        case STATE_ACQUIRED:
+        case STATE_AUTHENTICATING:
             success_time = 0;
             break;
     }
@@ -192,5 +192,5 @@ void CSupplicantApp::GUI_update_connectdlg_by_states(
 
 bool CSupplicantApp::IsOnline() const
 {
-    return status == APPSTATUS_SUCCESS;
+    return status == STATE_AUTHENTICATED;
 }

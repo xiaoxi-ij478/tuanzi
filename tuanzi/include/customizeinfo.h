@@ -1,7 +1,7 @@
 #ifndef CUSTOMIZEINFO_H_INCLUDED
 #define CUSTOMIZEINFO_H_INCLUDED
 
-#include "xmlparser.h"
+class XML_PARSER;
 
 class CCustomizeInfo
 {

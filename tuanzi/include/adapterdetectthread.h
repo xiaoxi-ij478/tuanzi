@@ -1,19 +1,7 @@
 #ifndef ADAPTERDETECTTHREAD_H_INCLUDED
 #define ADAPTERDETECTTHREAD_H_INCLUDED
 
-#include "global.h"
 #include "lnxthread.h"
-
-#define MAX_NIC_NAME_LEN 0x200
-
-struct DetectNICInfo {
-    char nic_name[MAX_NIC_NAME_LEN];
-    in_addr_t ipaddr;
-    struct ether_addr macaddr;
-    key_t thread_key;
-    int msgid;
-    bool disallow_multi_nic_ip;
-};
 
 class CAdapterDetectThread : public CLnxThread
 {
@@ -42,7 +30,7 @@ class CAdapterDetectThread : public CLnxThread
         void MultipleAdaptesOrIPCheck() const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnStartDetect);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnStopDetect);
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer); // called by DispathMessage
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer);
         void adapter_state_check();
 
         char nic_name[MAX_NIC_NAME_LEN];

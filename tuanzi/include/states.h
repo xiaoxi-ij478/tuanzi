@@ -3,17 +3,6 @@
 
 #include "statevisual.h"
 
-enum STATES {
-    STATE_INVALID,
-    STATE_DISCONNECTED,
-    STATE_CONNECTING,
-    STATE_ACQUIRED,
-    STATE_AUTHENTICATING,
-    STATE_AUTHENTICATED,
-    STATE_HOLD,
-    STATE_LOGOFF
-};
-
 class CStateDisconnected : public CStateVisual
 {
     public:

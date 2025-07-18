@@ -70,7 +70,7 @@ void CStateConnecting::MoveState()
         CtrlThread->machine_thread->OnStateMove(STATE_CONNECTING, 0);
 
     else {
-        CtrlThread->connecting = true;
+        CtrlThread->reconnect_fail = true;
 
         if (CtrlThread->machine_thread)
             CtrlThread->machine_thread->OnStateMove(STATE_AUTHENTICATED, 0);
@@ -268,7 +268,7 @@ void CStateHold::MoveState()
 
     if (hold_count > 2) {
         state_data->SetUserLogOff();
-        CtrlThread->field_53A = true;
+        CtrlThread->connect_fail = true;
     }
 
     if (state_data->hold_timeout) {

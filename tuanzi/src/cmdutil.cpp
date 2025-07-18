@@ -181,7 +181,7 @@ bool check_quit()
     return c == '\n';
 }
 
-void check_safe_exit(bool create_file)
+bool check_safe_exit(bool create_file)
 {
     std::string lockfile(g_strAppPath);
     std::ofstream ofs;
@@ -189,26 +189,26 @@ void check_safe_exit(bool create_file)
     rj_printf_debug("%s strFile=%s\n", "check_safe_exit", lockfile.c_str());
 
     if (!create_file) {
-        if (unlink(lockfile.c_str()) == -1)
+        if (unlink(lockfile.c_str()) == -1) {
             rj_printf_debug(
                 "%s strFile=%s exist and unlink failed \n",
                 "check_safe_exit",
                 lockfile.c_str()
             );
+            return false;
+        }
 
-        else
-            rj_printf_debug(
-                "%s strFile=%s exist and unlink ok \n",
-                "check_safe_exit",
-                lockfile.c_str()
-            );
-
-        return;
+        rj_printf_debug(
+            "%s strFile=%s exist and unlink ok \n",
+            "check_safe_exit",
+            lockfile.c_str()
+        );
+        return true;
     }
 
     if (!access(lockfile.c_str(), F_OK)) {
         rj_printf_debug("%s strFile=%s exist\n", "check_safe_exit", lockfile.c_str());
-        return;
+        return false;
     }
 
     ofs.open(lockfile.c_str());
@@ -219,7 +219,7 @@ void check_safe_exit(bool create_file)
             "check_safe_exit",
             lockfile.c_str()
         );
-        return;
+        return false;
     }
 
     ofs.close();
@@ -228,6 +228,7 @@ void check_safe_exit(bool create_file)
         "check_safe_exit",
         lockfile.c_str()
     );
+    return true;
 }
 
 bool is_run_background()

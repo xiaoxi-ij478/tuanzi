@@ -2,10 +2,11 @@
 #define GLOBAL_H_INCLUDED
 
 #include "logfile.h"
-#include "checkrunthread.h"
-#include "contextcontrolthread.h"
 #include "supplicantapp.h"
-#include "supf.h"
+#include "checkrunthread.h"
+
+class CContextControlThread;
+struct SuPlatformParam;
 
 extern std::string g_strAppPath;
 extern std::string g_runLogFile;

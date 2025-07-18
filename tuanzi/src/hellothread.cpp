@@ -58,9 +58,9 @@ struct HelloPacket *CHelloThread::CreateHelloPacket(unsigned &packet_len)
     }
 
     CtrlThread->GetAdapterMac(
-        reinterpret_cast<struct ether_addr *>(&ret->ether_header.ether_shost)
+        reinterpret_cast<struct ether_addr *>(ret->ether_header.ether_shost)
     );
-    *reinterpret_cast<struct ether_addr *>(&ret->ether_header.ether_dhost) =
+    *reinterpret_cast<struct ether_addr *>(ret->ether_header.ether_dhost) =
         CtrlThread->field_550;
     ret->ether_header.ether_type = htons(ETH_P_PAE);
     ret->code = 1;

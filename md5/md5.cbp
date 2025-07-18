@@ -15,8 +15,6 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-ggdb3" />
-					<Add option="-DPROTOTYPES" />
-					<Add directory="include" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -28,8 +26,6 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-DPROTOTYPES" />
-					<Add directory="include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -40,6 +36,7 @@
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add option="-fPIC" />
+			<Add directory="include" />
 		</Compiler>
 		<Unit filename="include/mglobal.h" />
 		<Unit filename="include/mmd5.h" />

@@ -180,7 +180,7 @@ void CPasswordModifier::SetPasswordSecurityInfo(
         password_scurity = *new_info;
 
     SetForceOfflineWaitTimer();
-    std::string &&warning_info = GetPasswordSecurityWarningInfo();
+    std::string warning_info = GetPasswordSecurityWarningInfo();
 
     if (!warning_info.empty())
         shownotify(warning_info, CChangeLanguage::Instance().LoadString(95), 0);

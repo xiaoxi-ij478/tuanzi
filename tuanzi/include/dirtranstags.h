@@ -2,7 +2,7 @@
 #define DIRTRANSTAGS_H_INCLUDED
 
 #include "stdpkgs.h"
-#include "waithandle.h"
+class WAIT_HANDLE;
 
 #define MAX_MTU 1400u
 
@@ -292,6 +292,10 @@ struct tagSmpParaDir {
     unsigned hello_interval;
     bool hello_response;
     unsigned hello_fail_time;
+    bool server_and_us_in_the_same_subnet;
+    bool success;
+    bool request_init_data_now;
+    bool some_unknown_flag;
 };
 
 struct tagDirectTranSrvPara {
@@ -333,16 +337,6 @@ struct tagWirelessConf {
     std::string field_40;
     struct ether_addr macaddr;
     unsigned field_50;
-};
-
-struct tagWirelessSignal {
-    unsigned long field_0;
-    unsigned long field_8;
-    unsigned long field_10;
-    unsigned long field_18;
-    char field_20;
-    unsigned field_24;
-    unsigned field_28;
 };
 
 #endif // DIRTRANSTAGS_H_INCLUDED

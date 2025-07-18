@@ -63,9 +63,9 @@ bool CDirectTransfer::sendudp(
     } tmpbuf;
     unsigned ipv4_len = 0, udp_len = 0;
     *reinterpret_cast<struct ether_addr *>
-    (&tmpbuf.header.etherheader.ether_shost) = dir_tran_para.srcmacaddr;
+    (tmpbuf.header.etherheader.ether_shost) = dir_tran_para.srcmacaddr;
     *reinterpret_cast<struct ether_addr *>
-    (&tmpbuf.header.etherheader.ether_dhost) = dir_tran_para.dstmacaddr;
+    (tmpbuf.header.etherheader.ether_dhost) = dir_tran_para.dstmacaddr;
     tmpbuf.header.etherheader.ether_type = htons(ETHERTYPE_IP);
     ipv4_len = InitIpv4Header(&tmpbuf.header.ipheader, srcaddr, dstaddr, buflen);
     udp_len = InitUdpHeader(&tmpbuf.header.udpheader, srcport, dstport, buflen);
@@ -109,19 +109,15 @@ bool CDirectTransfer::DescryptForSAM(char *buf, unsigned buflen)
     deskey(DESKEY, DE1);
 
     for (unsigned i = 0; i < buflen >> 3; i++) {
-        for (unsigned j = 0; j < 8; j++)
-            tmpibuf[j] = buf[j];
-
+        memcpy(tmpibuf, buf, 8);
         des(tmpibuf, tmpobuf);
 
         for (unsigned j = 0; j < 8; j++)
             tmpobuf[j] ^= xorkey[j];
 
-        for (unsigned j = 0; j < 8; j++)
-            *buf++ = tmpobuf[j];
-
-        for (unsigned j = 0; j < 8; j++)
-            xorkey[j] = tmpibuf[j];
+        memcpy(buf, tmpobuf, 8);
+        buf += 8;
+        memcpy(xorkey, tmpibuf, 8);
     }
 
     return true;
@@ -138,19 +134,15 @@ bool CDirectTransfer::EncryptForSAM(char *buf, unsigned buflen)
     deskey(DESKEY, EN0);
 
     for (unsigned i = 0; i < buflen >> 3; i++) {
-        for (unsigned j = 0; j < 8; j++)
-            tmpibuf[j] = buf[j];
+        memcpy(tmpibuf, buf, 8);
 
         for (unsigned j = 0; j < 8; j++)
             tmpibuf[j] ^= xorkey[j];
 
         des(tmpibuf, tmpobuf);
-
-        for (unsigned j = 0; j < 8; j++)
-            *buf++ = tmpobuf[j];
-
-        for (unsigned j = 0; j < 8; j++)
-            xorkey[j] = tmpobuf[j];
+        memcpy(buf, tmpobuf, 8);
+        buf += 8;
+        memcpy(xorkey, tmpobuf, 8);
     }
 
     return true;

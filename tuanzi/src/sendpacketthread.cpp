@@ -83,15 +83,15 @@ void CSendPacketThread::DispathMessage(struct LNXMSG *msg)
     }
 }
 
-int CSendPacketThread::DoSendPacket(unsigned long arg1, unsigned long arg2)
+int CSendPacketThread::DoSendPacket(unsigned buflen, char *buf)
 {
     int ret = 0;
 
-    if (!pcap_handle || arg1 <= 0) {
+    if (!pcap_handle || buflen <= 0) {
         g_logSystem.AppendText(
             "CSendPacketThread :: DoSendPacket error.m_pAdapter=%x buflen=%d",
             pcap_handle,
-            arg1
+            buflen
         );
         return -2;
     }
@@ -102,16 +102,7 @@ int CSendPacketThread::DoSendPacket(unsigned long arg1, unsigned long arg2)
         rj_printf_debug("after pthread_mutex_lock\n");
     }
 
-    if (
-        !(
-            ret =
-                pcap_sendpacket(
-                    pcap_handle,
-                    reinterpret_cast<const char *>(arg2),
-                    arg1
-                )
-        )
-    ) {
+    if (!(ret = pcap_sendpacket(pcap_handle, buf, buflen))) {
         pthread_mutex_unlock(&pthread_mutex2);
         return 0;
     }
@@ -143,7 +134,7 @@ bool CSendPacketThread::StopSendPacketThread() const
     return PostThreadMessage(CLOSE_ADAPTER_MTYPE, 0, 0);
 }
 
-int CSendPacketThread::SendPacket(unsigned long arg1, unsigned long arg2)
+int CSendPacketThread::SendPacket(unsigned buflen, char *buf)
 {
-    return DoSendPacket(arg1, arg2);
+    return DoSendPacket(buflen, buf);
 }

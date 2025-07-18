@@ -1,6 +1,8 @@
 #ifndef SUPF_H_INCLUDED
 #define SUPF_H_INCLUDED
 
+#define WPA_KEY_MGMT_IEEE8021X 1
+
 enum SUPF_EVENT_TYPE {
     SUPF_STATE,
     SUPF_MSG

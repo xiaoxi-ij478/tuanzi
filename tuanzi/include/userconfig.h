@@ -1,15 +1,8 @@
 #ifndef USERCONFIG_H_INCLUDED
 #define USERCONFIG_H_INCLUDED
 
-#include "saveconfigureinfo.h"
 #include "dirtranstags.h"
-
-struct UserInfo {
-    unsigned unl2t1;
-    unsigned dcd2x;
-    std::string ed2e1;
-    std::string gr2a1;
-};
+struct SaveConfigureInfo;
 
 class CUserConfig
 {

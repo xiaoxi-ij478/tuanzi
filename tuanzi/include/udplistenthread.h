@@ -5,13 +5,6 @@
 #include "criticalsection.h"
 #include "directtransfer.h"
 
-struct UdpListenParam {
-    key_t mainthread;
-    in_addr_t su_ipaddr;
-    char ndisname[512];
-    WAIT_HANDLE event_udp_ready;
-};
-
 class CUDPListenThread : public CLnxThread
 {
     public:

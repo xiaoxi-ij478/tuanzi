@@ -1,6 +1,7 @@
 #include "all.h"
 #include "mtypes.h"
 #include "global.h"
+#include "hellothread.h"
 #include "helloprocessor.h"
 
 CHelloProcessor::CHelloProcessor() : hello_thread()

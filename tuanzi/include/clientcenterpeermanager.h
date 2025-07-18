@@ -3,18 +3,6 @@
 
 #include "lnxthread.h"
 
-struct _START_CENTERCONTROL_START_ {
-    in_addr_t ipv4;
-    unsigned ipv6[4];
-    unsigned product;
-    unsigned major_ver;
-    unsigned minor_ver;
-    std::string domain;
-    unsigned port;
-    char mac[12];
-    bool field_38; // field_218 @ CClientCenterPeerManager
-};
-
 class CClientCenterPeerManager : public CLnxThread
 {
     public:

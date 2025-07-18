@@ -15,10 +15,6 @@ class CRxPacketThread : public CLnxThread
         CRxPacketThread();
         ~CRxPacketThread() override;
 
-    protected:
-        void DispathMessage(struct LNXMSG *msg) override;
-
-    private:
         void CloseAdapter();
         void ExitRxPacketThread();
         bool InitAdapter();
@@ -28,9 +24,14 @@ class CRxPacketThread : public CLnxThread
         void SetPacketFilter(const char *filter_expr);
         void SetProxyMsgID(int proxy_msgid);
         void SetRxPacketAdapter(const char *adapter_name_l);
-        DECLARE_DISPATH_MESSAGE_HANDLER(StartRecvPacket);
         int StartRecvPacketThread();
         int StopRxPacketThread();
+
+    protected:
+        void DispathMessage(struct LNXMSG *msg) override;
+
+    private:
+        DECLARE_DISPATH_MESSAGE_HANDLER(StartRecvPacket);
 
         static void RecvPacketCallBack(
             char *user,

@@ -1287,9 +1287,9 @@ void repair_ip_gateway(
     // ifconfig $adapter_name $info.ip4_ipaddr netmask $info.ip4_netmask
     // route add default gw info.gateway 2>&-
     struct ifreq ifr = {};
-    strncpy(ifr.ifr_name, adapter_name.c_str(), IFNAMSIZ);
     struct rtentry route = {};
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
+    strncpy(ifr.ifr_name, adapter_name.c_str(), IFNAMSIZ);
 
     if (fd == -1)
         return;

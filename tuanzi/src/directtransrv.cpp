@@ -29,9 +29,6 @@ CDirectTranSrv::CDirectTranSrv() :
     destroy_mutex(),
     dir_thread(),
     dir_smp_para(),
-    server_and_us_in_the_same_subnet(),
-    field_361(),
-    request_init_data_now(true),
     dir_trans_srvpara(),
     sam_init_timerid(),
     sam_gsn_receiver_id(-1),
@@ -51,6 +48,7 @@ CDirectTranSrv::CDirectTranSrv() :
     dir_smp_para.retry_count = 3;
     dir_smp_para.su_port = 80;
     dir_smp_para.version = 1;
+    dir_smp_para.request_init_data_now = true;
     dir_trans_srvpara.version = 1;
     dir_trans_srvpara.timeout = 3000;
     dir_trans_srvpara.retry_count = 3;
@@ -517,7 +515,8 @@ bool CDirectTranSrv::HandshakeToSMP()
 #define PUT_TYPE(type) handshake_buf[cur_pos++] = (type)
 #define PUT_LENGTH(length) \
     do { \
-        *reinterpret_cast<unsigned short *>(&handshake_buf[cur_pos]) = htons(length); \
+        *reinterpret_cast<unsigned short *>(&handshake_buf[cur_pos]) = \
+                htons(length); \
         cur_pos += 2; \
     } while (0)
 #define PUT_DATA(buf, buflen) \
@@ -572,7 +571,7 @@ bool CDirectTranSrv::HandshakeToSMP()
 
                 g_log_Wireless.AppendText("send hello to authsvr failed");
 
-                if (!field_361) {
+                if (!dir_smp_para.success) {
                     g_log_Wireless.AppendText("直通心跳超时重认证");
                     CtrlThread->PostThreadMessage(ASK_SMP_INIT_DATA_MTYPE, 2, 0);
                 }
@@ -914,7 +913,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SMP, CDirectTranSrv)
         dir_smp_para.utc_time,
         htonLONGLONG(dir_smp_para.utc_time),
         GetTickCount(),
-        server_and_us_in_the_same_subnet,
+        dir_smp_para.server_and_us_in_the_same_subnet,
         dir_smp_para.version
     };
     memcpy(&proto_param.keybuf, dir_smp_para.keybuf, sizeof(proto_param.keybuf));
@@ -1005,7 +1004,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SMP, CDirectTranSrv)
         );
     timer_ask = 0;
 
-    if (request_init_data_now) {
+    if (dir_smp_para.request_init_data_now) {
         logFile_debug.AppendText(
             "m_nTimerSMP_Init=%d",
             smp_init_timerid = SetTimer(ASK_SMP_INIT_DATA_MTYPE, 30000)
@@ -1142,7 +1141,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CDirectTranSrv)
                 smp_init_timerid = 0;
             }
 
-            if (field_361)
+            if (dir_smp_para.success)
                 break;
 
             logFile_debug.AppendText(
@@ -1454,7 +1453,7 @@ void CDirectTranSrv::ParsePasswordSecurity(TiXmlDocument &xml) const
                 ) != "true";
         }
 
-        std::string &&password_modify_message =
+        std::string password_modify_message =
             GetXmlChild_Node_STR(ssp_child, "modify_message", "password");
         ConvertGBKToUtf8(
             secinfo.password_modify_message,
@@ -1821,8 +1820,8 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
 #define PUT_DATA_IMMEDIATE_BYTE(byte) eap_pkg.data[eap_pkg_curpos++] = (byte)
 #define PUT_DATA_IMMEDIATE_UINT32(value) \
     do { \
-        uint32_t i = htonl(value); \
-        memcpy(&eap_pkg.data[eap_pkg_curpos], &i, 4); \
+        reinterpret_cast<uint32_t *>(&eap_pkg.data[eap_pkg_curpos]) = \
+                htonl(value); \
         eap_pkg_curpos += 4; \
     } while (0)
     char type_13_data[0x11 - 0x2] = {

@@ -1,20 +1,6 @@
 #ifndef UTIL_H_INCLUDED
 #define UTIL_H_INCLUDED
 
-struct SPUpGradeInfo {
-    unsigned magic;
-    unsigned type;
-    unsigned length;
-    unsigned su_newest_ver;
-    std::string su_upgrade_url;
-};
-
-struct HIFailInfo {
-    unsigned long field_0;
-    unsigned long field_8;
-    unsigned field_10;
-};
-
 extern void setAppEnvironment();
 extern int TakeAppPath(std::string &dst);
 extern void get_exe_name(std::string &dst);

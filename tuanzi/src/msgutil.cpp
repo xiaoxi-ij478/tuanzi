@@ -12,7 +12,7 @@ static CRITICAL_SECTION msg_write_lock;
 
 void CreateNewMsgFile()
 {
-    std::string &&filename = g_strAppPath + "systemmsg.ini";
+    std::string filename = g_strAppPath + "systemmsg.ini";
     std::ofstream ofs(filename, std::ios::trunc);
 
     if (!ofs)
@@ -26,8 +26,8 @@ void CreateNewMsgFile()
 
 void AddMsgItem(int type, const std::string &msg)
 {
-    std::string msgcopy(msg);
-    std::string inifile(g_strAppPath + "systemmsg.ini");
+    std::string msgcopy=msg;
+    std::string inifile=g_strAppPath + "systemmsg.ini";
     std::vector<struct tagMsgItem> msgarr;
     dictionary *ini = nullptr;
     char time[512] = {};
@@ -56,7 +56,7 @@ void AddMsgItem(int type, const std::string &msg)
     msgarr.emplace_back(type, time, msg);
 
     for (int i = 0; i < msgarr.size(); i++) {
-        std::string &&inikey = "msg_" + std::to_string(i);
+        std::string inikey = "msg_" + std::to_string(i);
         iniparser_set(
             ini,
             (inikey + ":ntype").c_str(),
@@ -80,8 +80,8 @@ void AddMsgItem(int type, const std::string &msg)
 
 void DelMsgItem(int type, const std::string &msg)
 {
-    std::string msgcopy(msg);
-    std::string &&inifile = g_strAppPath + "systemmsg.ini";
+    std::string msgcopy=msg;
+    std::string inifile = g_strAppPath + "systemmsg.ini";
     std::vector<struct tagMsgItem> msgarr;
     dictionary *ini = nullptr;
 
@@ -106,7 +106,7 @@ void DelMsgItem(int type, const std::string &msg)
         }
 
     for (int i = 0; i < msgarr.size(); i++) {
-        std::string &&inikey = "msg_" + std::to_string(i);
+        std::string inikey = "msg_" + std::to_string(i);
         iniparser_set(
             ini,
             (inikey + ":ntype").c_str(),
@@ -135,11 +135,11 @@ unsigned GetMsgArray(std::vector<struct tagMsgItem> &msgarr)
 
 unsigned GetMsgArray_Ex(std::vector<struct tagMsgItem> &msgarr, bool replace_crlf)
 {
-    std::string &&inipath = g_strAppPath + "systemmsg.ini";
-    int ntype;
+    std::string inipath = g_strAppPath + "systemmsg.ini";
     std::string msgtime, msg;
-    dictionary *ini = nullptr;
+    int ntype;
     int msgcnt = 0;
+    dictionary *ini = nullptr;
 
     if (!msgarr.empty())
         msgarr.clear();
@@ -155,7 +155,7 @@ unsigned GetMsgArray_Ex(std::vector<struct tagMsgItem> &msgarr, bool replace_crl
     }
 
     while (msgcnt--) {
-        std::string &&msgid = "msg_" + std::to_string(msgcnt);
+        std::string msgid = "msg_" + std::to_string(msgcnt);
 
         if (replace_crlf)
             replace_all_distinct(msg, "\r\n", "{$\\r\\n$}");

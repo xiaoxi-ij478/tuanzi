@@ -3,7 +3,7 @@
 #include "checkrunthread.h"
 
 bool CCheckRunThread::started = 0;
-int CCheckRunThread::sem_id = 0;
+int CCheckRunThread::sem_id = -1;
 pthread_t CCheckRunThread::thread_id;
 void (*CCheckRunThread::callback)(int) = nullptr;
 

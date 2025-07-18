@@ -1,8 +1,8 @@
 #ifndef CONFUPDATEUTILINSTANCE_H_INCLUDED
 #define CONFUPDATEUTILINSTANCE_H_INCLUDED
 
-#include "customizeinfo.h"
-#include "suconfigfile.h"
+class CCustomizeInfo;
+class CSuConfigFile;
 
 #define UPDATED 0x2000
 

@@ -1,7 +1,7 @@
 #ifndef SAVECONFIGUREINFO_H_INCLUDED
 #define SAVECONFIGUREINFO_H_INCLUDED
 
-#include "netutil.h"
+#include "miscdefs.h"
 
 struct SaveConfigureInfo {
     std::string last_auth_username;

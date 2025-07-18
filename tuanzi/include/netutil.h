@@ -1,75 +1,7 @@
 #ifndef NETUTIL_H_INCLUDED
 #define NETUTIL_H_INCLUDED
 
-#include "global.h"
-#include "stdpkgs.h"
-
-enum ADAPTER_STATUS {
-    ADAPTER_INVALID = -1,
-    ADAPTER_UP = 1,
-    ADAPTER_DOWN,
-    ADAPTER_DISABLE,
-    ADAPTER_ENABLE,
-    ADAPTER_ERROR
-};
-
-enum ADAPTER_TYPE {
-    ADAPTER_WIRELESS,
-    ADAPTER_WIRED
-};
-
-struct NICINFO {
-    char ifname[IFNAMSIZ];
-    struct ether_addr hwaddr;
-    bool use_dhcp;
-    bool is_wireless;
-    unsigned short speed;
-    in_addr_t dns;
-    in_addr_t gateway;
-    struct ether_addr gateway_mac;
-    unsigned ipaddr_count;
-    struct IPAddrNode {
-        in_addr_t ipaddr;
-        in_addr_t netmask;
-        struct IPAddrNode *next;
-    } *ipaddrs;
-    unsigned ipaddr6_count;
-    struct IP6AddrNode {
-        struct in6_addr ipaddr;
-        struct in6_addr netmask;
-        struct IP6AddrNode *next;
-    } *ip6addrs;
-    struct NICINFO *next;
-};
-
-struct DHClientThreadStruct {
-    char ipaddr[512];
-    sem_t *semaphore;
-};
-
-struct DHCPIPInfo {
-    bool dhcp_enabled;
-    in_addr_t ip4_ipaddr;
-    in_addr_t ip4_netmask;
-    in_addr_t gateway;
-    in_addr_t dns;
-    struct ether_addr adapter_mac;
-    struct ether_addr gateway_mac;
-    unsigned ipaddr6_count;
-    struct in6_addr ip6_my_ipaddr;
-    struct in6_addr ip6_link_local_ipaddr;
-    struct in6_addr ip6_ipaddr;
-    struct in6_addr ip6_netmask;
-};
-
-struct NICsStatus {
-    NICsStatus() = default;
-    NICsStatus(const char *nic_name_l, bool is_up) : is_up(is_up) {
-        strncpy(nic_name, nic_name_l, sizeof(nic_name));
-    }
-    char nic_name[IFNAMSIZ];
-    bool is_up;
-};
+#include "miscdefs.h"
 
 extern int sockets_open();
 extern enum ADAPTER_TYPE get_nic_type(const char *ifname);

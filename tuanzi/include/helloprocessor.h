@@ -1,7 +1,7 @@
 #ifndef HELLOPROCESSOR_H_INCLUDED
 #define HELLOPROCESSOR_H_INCLUDED
 
-#include "hellothread.h"
+class CHelloThread;
 
 class CHelloProcessor
 {

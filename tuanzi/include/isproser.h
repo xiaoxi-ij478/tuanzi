@@ -2,8 +2,8 @@
 #define ISPROSER_H_INCLUDED
 
 #include "stdpkgs.h"
-#include "proxyclienttcp.h"
-#include "proxysertcp.h"
+class ProxyClientTcp;
+class ProxySerTcp;
 
 struct tagLocalIP {
     tagLocalIP(in_addr_t local_ip, unsigned long creation_time) :

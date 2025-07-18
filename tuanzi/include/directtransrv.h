@@ -90,9 +90,6 @@ class CDirectTranSrv : public CLnxThread
         CRITICAL_SECTION destroy_mutex;
         CDirTranThread *dir_thread;
         struct tagSmpParaDir dir_smp_para;
-        bool server_and_us_in_the_same_subnet;
-        bool field_361;
-        bool request_init_data_now;
         struct tagDirectTranSrvPara dir_trans_srvpara;
         timer_t sam_init_timerid;
         int sam_gsn_receiver_id;

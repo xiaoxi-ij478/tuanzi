@@ -12,8 +12,9 @@ The following makes PROTOTYPES default to 0 if it has not already
 extern "C" {
 #endif // __cplusplus
 
+/* useful only if your live in the 1990s */
 #ifndef PROTOTYPES
-#define PROTOTYPES 0
+#define PROTOTYPES 1
 #endif
 
 /* POINTER defines a generic pointer type */

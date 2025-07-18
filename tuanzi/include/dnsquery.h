@@ -1,11 +1,7 @@
 #ifndef DNSQUERY_H_INCLUDED
 #define DNSQUERY_H_INCLUDED
 
-struct CHostEnt {
-    struct hostent hostent_entry;
-    struct CHostEnt *hostent_next;
-    unsigned long last_update_time;
-};
+struct CHostEnt;
 
 struct DNSQueryStruct {
     unsigned long mtype;
