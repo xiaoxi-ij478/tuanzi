@@ -7,28 +7,28 @@
 void CUserConfig::DecryptPassword(std::string &password)
 {
     char buf[32] = {};
-    CEncryption::decrypt(buf,password.c_str());
+    CEncryption::decrypt(buf, password.c_str());
     password = buf;
 }
 
 void CUserConfig::DecryptUserName(std::string &username)
 {
     char buf[32] = {};
-    CEncryption::decrypt(buf,username.c_str());
+    CEncryption::decrypt(buf, username.c_str());
     username = buf;
 }
 
 void CUserConfig::EncryptPassword(std::string &password)
 {
     char buf[32] = {};
-    CEncryption::encrypt(buf,password.c_str());
+    CEncryption::encrypt(buf, password.c_str());
     password = buf;
 }
 
 void CUserConfig::EncryptUserName(std::string &username)
 {
     char buf[32] = {};
-    CEncryption::encrypt(buf,username.c_str());
+    CEncryption::encrypt(buf, username.c_str());
     username = buf;
 }
 

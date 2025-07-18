@@ -17,7 +17,8 @@ CPasswordModifier::~CPasswordModifier()
     KillForceOfflineWaitTimer();
 }
 
-struct tagPasSecurityInfo *CPasswordModifier::GetPasswordSecurityInfo() {
+struct tagPasSecurityInfo *CPasswordModifier::GetPasswordSecurityInfo()
+{
     return &password_scurity;
 }
 

@@ -26,8 +26,8 @@ void CreateNewMsgFile()
 
 void AddMsgItem(int type, const std::string &msg)
 {
-    std::string msgcopy=msg;
-    std::string inifile=g_strAppPath + "systemmsg.ini";
+    std::string msgcopy = msg;
+    std::string inifile = g_strAppPath + "systemmsg.ini";
     std::vector<struct tagMsgItem> msgarr;
     dictionary *ini = nullptr;
     char time[512] = {};
@@ -80,7 +80,7 @@ void AddMsgItem(int type, const std::string &msg)
 
 void DelMsgItem(int type, const std::string &msg)
 {
-    std::string msgcopy=msg;
+    std::string msgcopy = msg;
     std::string inifile = g_strAppPath + "systemmsg.ini";
     std::vector<struct tagMsgItem> msgarr;
     dictionary *ini = nullptr;
@@ -133,7 +133,10 @@ unsigned GetMsgArray(std::vector<struct tagMsgItem> &msgarr)
     return GetMsgArray_Ex(msgarr, true);
 }
 
-unsigned GetMsgArray_Ex(std::vector<struct tagMsgItem> &msgarr, bool replace_crlf)
+unsigned GetMsgArray_Ex(
+    std::vector<struct tagMsgItem> &msgarr,
+    bool replace_crlf
+)
 {
     std::string inipath = g_strAppPath + "systemmsg.ini";
     std::string msgtime, msg;

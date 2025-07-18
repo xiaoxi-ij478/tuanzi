@@ -639,7 +639,6 @@ bool CTcp::IsSocks4Type(const struct TCPIP &pkg)
         strlen(request->id) + sizeof(struct Socks4ConnReq) + 1
     )
         return false;
-
     strcpy(reqaddr_char, ipaddr);
     reqport = ntohs(request->port);
     reqaddr_int = request->ip;

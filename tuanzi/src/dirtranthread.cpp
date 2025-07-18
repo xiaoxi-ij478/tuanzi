@@ -741,7 +741,6 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
     }
 
     buflen_new = ((buflen_new >> 3) + !!(buflen_new & 7)) << 3;
-
     send_unit.totallen = buflen_new;
 
     if (!(send_unit.msg = new char[buflen_new]))
@@ -779,7 +778,6 @@ bool CDirTranThread::SendPacketNoResponse(
     }
 
     buflen_new = ((buflen_new >> 3) + !!(buflen_new & 7)) << 3;
-
     send_unit.id = id;
     send_unit.totallen = buflen_new;
     send_unit.msg = new char[buflen_new];
