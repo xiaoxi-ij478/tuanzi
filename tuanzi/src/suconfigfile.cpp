@@ -16,12 +16,18 @@ CSuConfigFile::~CSuConfigFile()
 
 void CSuConfigFile::Lock()
 {
+#ifndef BUILDING_UPDATER
     EnterCriticalSection(&theApp.su_config_file_lock);
+#endif // BUILDING_UPDATER
+    LogToFile("lock success");
 }
 
 void CSuConfigFile::Unlock()
 {
+#ifndef BUILDING_UPDATER
     LeaveCriticalSection(&theApp.su_config_file_lock);
+#endif // BUILDING_UPDATER
+    LogToFile("unlock success");
 }
 
 void CSuConfigFile::Close()
@@ -34,6 +40,7 @@ void CSuConfigFile::Close()
 
     DeleteTempConfig();
     is_open = false;
+    LogToFile("close suconfig success");
 }
 
 bool CSuConfigFile::Open()
@@ -79,9 +86,13 @@ void CSuConfigFile::DeleteTempConfig()
     TakeAppPath(path);
     path.append("SuTempConfig.dat");
     DeleteFile(path);
+    LogToFile("delete sutempconfig.dat success");
 }
 
-void CSuConfigFile::EnablePrivilege(const char *, bool)
+void CSuConfigFile::EnablePrivilege(
+    [[maybe_unused]] const char *lpszPrivilegeName,
+    [[maybe_unused]] bool bEnable
+)
 {}
 
 unsigned CSuConfigFile::GetPrivateProfileInt(
@@ -133,7 +144,10 @@ void CSuConfigFile::GetPrivateProfileString(
     ProfileStringToString(dst);
 }
 
-void CSuConfigFile::GetSysUPTime(unsigned &, unsigned &)
+void CSuConfigFile::GetSysUPTime(
+    [[maybe_unused]] unsigned &highDataTime,
+    [[maybe_unused]] unsigned &lowDataTime
+)
 {}
 
 void CSuConfigFile::LogToFile([[maybe_unused]] const char *str)
@@ -190,6 +204,7 @@ bool CSuConfigFile::Open(const char *rfilename)
     delete[] ibuf;
     delete[] obuf;
     ibuf = obuf = nullptr;
+    LogToFile("open suconfig success");
     return true;
 }
 

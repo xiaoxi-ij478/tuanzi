@@ -3,6 +3,7 @@
 #include "mtypes.h"
 #include "changelanguage.h"
 #include "rgprivateproc.h"
+#include "contextcontrolthread.h"
 #include "supf.h"
 
 // some of the functions were once integrated into wpa_supplicant,
@@ -339,8 +340,12 @@ void supf_msg_handle(const struct SupfMsgData *msg_data)
 
         case SUPF_MSG_EAP_ERR:
             if (msg_data->buf && msg_data->len) {
-                priproc.ReadRGVendorSeg(msg_data->buf, msg_data->len);
-                CtrlThread->logoff_message = CtrlThread->private_properties.field_50;
+                priproc.ReadRGVendorSeg(
+                    static_cast<const char *>(msg_data->buf),
+                    msg_data->len
+                );
+                CtrlThread->logoff_message =
+                    CtrlThread->private_properties.fail_reason;
 
             } else
                 CtrlThread->logoff_message.clear();
@@ -350,7 +355,10 @@ void supf_msg_handle(const struct SupfMsgData *msg_data)
 
         case SUPF_MSG_EAP_SUC:
             if (msg_data->buf && msg_data->len)
-                priproc.ReadRGVendorSeg(msg_data->buf, msg_data->len);
+                priproc.ReadRGVendorSeg(
+                    static_cast<const char *>(msg_data->buf),
+                    msg_data->len
+                );
 
             break;
     }

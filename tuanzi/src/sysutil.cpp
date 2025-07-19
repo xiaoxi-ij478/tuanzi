@@ -31,7 +31,7 @@ void check_run_ibus()
 
 void check_stop_ibus()
 {
-    char cmdbuf[1024] = {};
+    char cmdbuf[1032] = {};
     char cmdretbuf[1024] = {};
 
     if (!g_bDoRunIbus)

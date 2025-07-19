@@ -2,6 +2,10 @@
 #include "cmdutil.h"
 #include "timeutil.h"
 #include "util.h"
+#include "waithandle.h"
+#include "global.h"
+#include "miscdefs.h"
+#include "mtypes.h"
 #include "threadutil.h"
 
 int WaitForSingleObject(
@@ -258,7 +262,13 @@ bool TerminateThread(pthread_t thread_id)
         return retval;
     }
 
-    if ((msqid = msgget(thread_id, 0666)) == -1)
+    msqid =
+        msgget(
+            thread_id,
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
+        );
+
+    if (msqid == -1)
         return retval;
 
     if (msgctl(msqid, IPC_RMID, nullptr))
@@ -269,12 +279,16 @@ bool TerminateThread(pthread_t thread_id)
 
 bool PostThreadMessage(
     key_t thread_key,
-    unsigned mtype,
+    long mtype,
     unsigned long arg1,
     unsigned long arg2
 )
 {
-    int msqid = msgget(thread_key, 0666);
+    int msqid =
+        msgget(
+            thread_key,
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
+        );
     g_logFile_start.AppendText(
         "::PostThreadMessage idThread = %d,Msg=%d",
         thread_key,
@@ -285,7 +299,7 @@ bool PostThreadMessage(
 
 bool GPostThreadMessage(
     int msqid,
-    unsigned mtype,
+    long mtype,
     unsigned long arg1,
     unsigned long arg2
 )
@@ -306,19 +320,7 @@ bool GPostThreadMessage(
     return ret != -1;
 }
 
-bool post_command(char c)
-{
-    for (int i = 0; i < 3; i++) {
-        if (write(g_rwpipe[1], &c, 1) != -1)
-            return true;
-
-        perror("post_command write pipe");
-    }
-
-    return false;
-}
-
 void StopOcx()
 {
-    PostThreadMessage(theApp, STOP_OCX_MTYPE, 0, 0);
+    PostThreadMessage(theApp.thread_key, STOP_OCX_MTYPE, 0, 0);
 }

@@ -34,7 +34,7 @@ class CHelloThread : public CLnxThread
     protected:
         void DispathMessage(struct LNXMSG *msg) override;
         bool InitInstance() override;
-        void OnTimer(int tflag) const override;
+        void OnTimer(int tflag) override;
 
     private:
         struct HelloPacket *CreateHelloPacket(unsigned &packet_len);

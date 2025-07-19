@@ -2,6 +2,10 @@
 #include "encryption.h"
 #include "util.h"
 #include "suconfigfile.h"
+#include "saveconfigureinfo.h"
+#include "global.h"
+#include "contextcontrolthread.h"
+#include "changelanguage.h"
 #include "userconfig.h"
 
 void CUserConfig::DecryptPassword(std::string &password)
@@ -90,8 +94,7 @@ bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo &info)
     GET_INT(public_runboot, "PUBLIC", "RunBoot", 0);
     GET_INT(public_runconnect, "PUBLIC", "RunConnect", 0);
     GET_INT(public_servicerun, "PUBLIC", "ServiceRun", 0);
-    // we have nowhere to put this
-//    GET_STRING(, "PUBLIC", "Language", "CHS");
+    GET_STRING(public_language, "PUBLIC", "Language", "CHS");
     GET_STRING(public_adapter, "PUBLIC", "Adapter", "");
     GET_STRING(public_wirelessconf, "PUBLIC", "WirelessConf", "");
     GET_STRING(public_title, "PUBLIC", "Title", "Ruijie Supplicant");
@@ -267,14 +270,14 @@ void CUserConfig::ReadUsernameAndPW(
     struct UserInfo userinfo = {};
     ReadRegUserInfo(userinfo);
 
-    if (userinfo.unl2t1) {
-        DecryptUserName(userinfo.ed2e1);
-        username = userinfo.ed2e1;
+    if (userinfo.username_len) {
+        DecryptUserName(userinfo.username);
+        username = userinfo.username;
     }
 
-    if (userinfo.dcd2x) {
-        DecryptPassword(userinfo.gr2a1);
-        password = userinfo.gr2a1;
+    if (userinfo.password_len) {
+        DecryptPassword(userinfo.password);
+        password = userinfo.password;
     }
 }
 
@@ -309,7 +312,7 @@ void CUserConfig::SaveConfigParam()
     WRITE_DIRECT_FIELD(domain, key, CONF_INFO.name)
     // *INDENT-ON*
     if (CONF_INFO.public_savecheck) {
-        WRITE_FIELD("PUBLIC", "Name", last_auth_username);
+        WRITE_FIELD("PUBLIC", "Name", last_auth_username.c_str());
         WRITE_INT("PUBLIC", "EncryptCount", last_auth_username.length());
 
     } else {
@@ -332,17 +335,17 @@ void CUserConfig::SaveConfigParam()
     WRITE_INT("PUBLIC", "RunBoot", public_runboot);
     WRITE_INT("PUBLIC", "RunConnect", public_runconnect);
     WRITE_INT("PUBLIC", "ServiceRun", public_servicerun);
-    WRITE_FIELD("PUBLIC", "Adapter", public_adapter);
-    WRITE_FIELD("PUBLIC", "WirelessConf", public_wirelessconf);
-    WRITE_FIELD("PUBLIC", "Service", public_service);
-    WRITE_FIELD("PUBLIC", "SecDomain", public_secdomain);
-    WRITE_FIELD("PUBLIC", "AuthMode", public_authmode);
+    WRITE_FIELD("PUBLIC", "Adapter", public_adapter.c_str());
+    WRITE_FIELD("PUBLIC", "WirelessConf", public_wirelessconf.c_str());
+    WRITE_FIELD("PUBLIC", "Service", public_service.c_str());
+    WRITE_FIELD("PUBLIC", "SecDomain", public_secdomain.c_str());
+    WRITE_FIELD("PUBLIC", "AuthMode", public_authmode.c_str());
     WRITE_INT("DOMAIN", "Value", domain_value);
     WRITE_INT("DHCPMODE", "Value", dhcpmode_value);
     WRITE_INT("DHCPMODE", "TimeOut", dhcpmode_timeout);
-    WRITE_FIELD("DHCPMODE", "DhcpWayName", dhcpmode_dhcpwayname);
+    WRITE_FIELD("DHCPMODE", "DhcpWayName", dhcpmode_dhcpwayname.c_str());
     WRITE_INT("MACMODE", "Value", macmode_value);
-    WRITE_INT("WIRELESS", "Number", wireless_confs.length());
+    WRITE_INT("WIRELESS", "Number", wireless_confs.size());
 
     for (
         auto it = CONF_INFO.wireless_confs.cbegin();
@@ -357,7 +360,7 @@ void CUserConfig::SaveConfigParam()
             );
         std::string macaddr_converted =
             HexToString(
-                reinterpret_cast<char *>(&it->macaddr),
+                reinterpret_cast<const char *>(&it->macaddr),
                 sizeof(it->macaddr)
             );
         std::string wireless_conf_val;
@@ -371,13 +374,13 @@ void CUserConfig::SaveConfigParam()
         );
         wireless_conf_val
         .append(it->field_8)
-        .append('\x01')
+        .append("\x01")
         .append(field_10_converted)
-        .append('\x01')
+        .append("\x01")
         .append(it->field_38)
-        .append('\x01')
+        .append("\x01")
         .append(it->field_40)
-        .append('\x01')
+        .append("\x01")
         .append(macaddr_converted)
         .append("\x01end");
         WRITE_DIRECT_FIELD(
@@ -387,6 +390,11 @@ void CUserConfig::SaveConfigParam()
         );
     }
 
+#undef CONF_INFO
+#undef WRITE_DIRECT_INT
+#undef WRITE_DIRECT_FIELD
+#undef WRITE_INT
+#undef WRITE_FIELD
     conffile.Close();
     conffile.Unlock();
 }
@@ -415,10 +423,10 @@ void CUserConfig::SaveUsernameAndPW(
     if (!password.empty())
         EncryptUserName(password);
 
-    userinfo.unl2t1 = username.length();
-    userinfo.dcd2x = write_password ? password.length() : 0;
-    userinfo.ed2e1 = username;
-    userinfo.gr2a1 = write_password ? "" : password;
+    userinfo.username_len = username.length();
+    userinfo.password_len = write_password ? password.length() : 0;
+    userinfo.username = username;
+    userinfo.password = write_password ? "" : password;
     WriteRegUserInfo(userinfo);
 }
 

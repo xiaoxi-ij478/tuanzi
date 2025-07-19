@@ -3,6 +3,7 @@
 #include "netutil.h"
 #include "threadutil.h"
 #include "mtypes.h"
+#include "global.h"
 #include "adapterdetectthread.h"
 
 // *INDENT-OFF*
@@ -126,7 +127,7 @@ bool CAdapterDetectThread::InitInstance()
     return false;
 }
 
-void CAdapterDetectThread::OnTimer(int tflag) const
+void CAdapterDetectThread::OnTimer(int tflag)
 {
     if (OnTimerEnter(tflag)) {
         if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, -1))

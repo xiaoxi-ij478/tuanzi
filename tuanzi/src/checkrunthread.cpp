@@ -136,7 +136,15 @@ unsigned CCheckRunThread::create_sem_and_lock()
     struct sembuf sops = { 1, -1, IPC_NOWAIT | SEM_UNDO };
     // I copied the code from IDA and simply did a few modification
     // so the result may be hard to understand
-    sem_id = semget(519407, 2, 0666 | IPC_CREAT | IPC_EXCL);
+    sem_id =
+        semget(
+            519407,
+            2,
+            S_IRUSR | S_IWUSR |
+            S_IRGRP | S_IWGRP |
+            S_IROTH | S_IWOTH |
+            IPC_CREAT | IPC_EXCL
+        );
 
     if (sem_id != -1) {
         g_logChkRun.AppendText("create semid...%d\n", sem_id);
@@ -160,7 +168,12 @@ unsigned CCheckRunThread::create_sem_and_lock()
         return 4;
     }
 
-    sem_id = semget(519407, 2, 0666);
+    sem_id =
+        semget(
+            519407,
+            2,
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
+        );
 
     if (sem_id == -1) {
         g_logChkRun.AppendText("Error-open sem:%s\n", strerror(errno));
@@ -179,7 +192,15 @@ unsigned CCheckRunThread::create_sem_and_lock()
             if (del_sem(sem_id))
                 return 1;
 
-            sem_id = semget(519407, 2, 0666 | IPC_CREAT | IPC_EXCL);
+            sem_id =
+                semget(
+                    519407,
+                    2,
+                    S_IRUSR | S_IWUSR |
+                    S_IRGRP | S_IWGRP |
+                    S_IROTH | S_IWOTH |
+                    IPC_CREAT | IPC_EXCL
+                );
 
             if (sem_id == -1) {
                 g_logChkRun.AppendText("Error-create sem:%s\n", strerror(errno));
@@ -211,7 +232,15 @@ unsigned CCheckRunThread::create_sem_and_lock()
         if (del_sem(sem_id))
             return 1;
 
-        sem_id = semget(519407, 2, 0666 | IPC_CREAT | IPC_EXCL);
+        sem_id =
+            semget(
+                519407,
+                2,
+                S_IRUSR | S_IWUSR |
+                S_IRGRP | S_IWGRP |
+                S_IROTH | S_IWOTH |
+                IPC_CREAT | IPC_EXCL
+            );
 
         if (sem_id == -1) {
             g_logChkRun.AppendText("Error-create sem:%s\n", strerror(errno));
@@ -261,7 +290,15 @@ unsigned CCheckRunThread::create_sem_and_lock()
             if (del_sem(sem_id))
                 return 1;
 
-            sem_id = semget(519407, 2, 0666 | IPC_CREAT | IPC_EXCL);
+            sem_id =
+                semget(
+                    519407,
+                    2,
+                    S_IRUSR | S_IWUSR |
+                    S_IRGRP | S_IWGRP |
+                    S_IROTH | S_IWOTH |
+                    IPC_CREAT | IPC_EXCL
+                );
 
             if (sem_id == -1) {
                 g_logChkRun.AppendText("Error-create sem:%s\n", strerror(errno));

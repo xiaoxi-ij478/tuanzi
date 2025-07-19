@@ -76,7 +76,7 @@ int CLnxThread::GetMessageID() const
 }
 
 bool CLnxThread::PostThreadMessage(
-    unsigned long mtype,
+    long mtype,
     unsigned long arg1,
     unsigned long arg2
 ) const
@@ -266,7 +266,7 @@ bool CLnxThread::Run()
 void CLnxThread::DispathMessage([[maybe_unused]] struct LNXMSG *msg)
 {}
 
-void CLnxThread::OnTimer(int tflag) const
+void CLnxThread::OnTimer(int tflag)
 {
     g_logSystem.AppendText(
         "CLnxThread::OnTimer pid =%d,timerFlag=%d\n",
@@ -479,7 +479,14 @@ void *CLnxThread::_LnxThreadEntry(void *arg)
     if (wait_handle->no_need_send_msg)
         goto start_exec;
 
-    msgid = msgget(calling_thread->thread_id, 0666 | IPC_CREAT | IPC_EXCL);
+    msgid =
+        msgget(
+            calling_thread->thread_id,
+            S_IRUSR | S_IWUSR |
+            S_IRGRP | S_IWGRP |
+            S_IROTH | S_IWOTH |
+            IPC_CREAT | IPC_EXCL
+        );
 
     if (msgid != -1)
         goto start_exec;
@@ -520,7 +527,11 @@ void *CLnxThread::_LnxThreadEntry(void *arg)
     g_logSystem.AppendText(
         "--------------------------creat msg id error,del it first\n"
     );
-    msgid = msgget(calling_thread->thread_id, 0666);
+    msgid =
+        msgget(
+            calling_thread->thread_id,
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
+        );
     calling_thread->msgid = msgid;
 
     if (
@@ -528,7 +539,13 @@ void *CLnxThread::_LnxThreadEntry(void *arg)
         msgctl(msgid, IPC_RMID, nullptr) == -1 ||
         (
             calling_thread->msgid =
-                msgget(calling_thread->thread_id, 0666 | IPC_CREAT | IPC_EXCL)
+                msgget(
+                    calling_thread->thread_id,
+                    S_IRUSR | S_IWUSR |
+                    S_IRGRP | S_IWGRP |
+                    S_IROTH | S_IWOTH |
+                    IPC_CREAT | IPC_EXCL
+                )
         ) == -1
     ) {
         g_logSystem.AppendText("msgget error:%s", strerror(errno));

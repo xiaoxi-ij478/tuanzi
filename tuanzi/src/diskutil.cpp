@@ -5,7 +5,7 @@
 
 int get_sata_serial(int fd, char *dst)
 {
-    static char args[0x200] = {};
+    char args[0x200] = {};
     unsigned short pos = 0;
     struct sg_io_hdr hdr = {};
     char cmd_blk[] = {
@@ -19,8 +19,8 @@ int get_sata_serial(int fd, char *dst)
     hdr.dxfer_direction = SG_DXFER_FROM_DEV;
     hdr.dxfer_len = sizeof(args);
     hdr.dxferp = args;
-    hdr.cmdp = cmd_blk;
-    hdr.sbp = sense_blk;
+    hdr.cmdp = reinterpret_cast<unsigned char *>(cmd_blk);
+    hdr.sbp = reinterpret_cast<unsigned char *>(sense_blk);
     hdr.timeout = 10000;
 
     if (ioctl(fd, SG_IO, &hdr) == -1) {

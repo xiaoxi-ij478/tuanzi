@@ -1,6 +1,8 @@
 #ifndef CHANGELANGUAGE_H_INCLUDED
 #define CHANGELANGUAGE_H_INCLUDED
 
+#include "miscdefs.h"
+
 struct tagSectionUnit {
     tagSectionUnit(unsigned id, const std::string &str) : id(id), str(str)
     {}

@@ -12,7 +12,7 @@ CSuDES::~CSuDES()
 
 int CSuDES::Decrypts(char *buf, unsigned buflen) const
 {
-    char tmp1[8] = {}, tmp2[8] = {}, tmp3[8] = {};
+    unsigned char tmp1[8] = {}, tmp2[8] = {}, tmp3[8] = {};
     assert(buf && buflen);
 
     if (!ivbuf || !keybuf)
@@ -26,7 +26,7 @@ int CSuDES::Decrypts(char *buf, unsigned buflen) const
     if (!buflen)
         return 1;
 
-    deskey(keybuf, DE1);
+    deskey(reinterpret_cast<unsigned char *>(keybuf), DE1);
     memcpy(tmp1, ivbuf, sizeof(tmp1));
 
     while (buflen--) {
@@ -46,7 +46,7 @@ int CSuDES::Decrypts(char *buf, unsigned buflen) const
 
 int CSuDES::Encrypts(char *buf, unsigned buflen) const
 {
-    char tmp1[8] = {}, tmp2[8] = {};
+    unsigned char tmp1[8] = {}, tmp2[8] = {};
     assert(buf && buflen);
 
     if (!ivbuf || !keybuf)
@@ -60,7 +60,7 @@ int CSuDES::Encrypts(char *buf, unsigned buflen) const
     if (!buflen)
         return 1;
 
-    deskey(keybuf, EN0);
+    deskey(reinterpret_cast<unsigned char *>(keybuf), EN0);
     memcpy(tmp1, ivbuf, sizeof(tmp1));
 
     while (buflen--) {

@@ -9,6 +9,7 @@ class CSuConfigFile
 
         void Close();
         bool Open();
+        bool Open(const char *filename);
         bool WritePrivateProfileString(
             const char *domain,
             const char *key,
@@ -30,11 +31,10 @@ class CSuConfigFile
         );
 
     private:
-        bool Open(const char *filename);
         bool UpdateConfig();
 
-        static void EnablePrivilege(const char *, bool);
-        static void GetSysUPTime(unsigned &, unsigned &);
+        static void EnablePrivilege(const char *lpszPrivilegeName, bool bEnable);
+        static void GetSysUPTime(unsigned &highDataTime, unsigned &lowDataTime);
         static void LogToFile(const char *str);
         static void DeleteFile(const std::string &filename);
         static void DeleteTempConfig();

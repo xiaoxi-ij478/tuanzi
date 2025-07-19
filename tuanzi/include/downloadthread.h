@@ -2,6 +2,8 @@
 #define DOWNLOADTHREAD_H_INCLUDED
 
 #include "lnxthread.h"
+#include "miscdefs.h"
+#include "cmdutil.h"
 
 struct len_and_sockaddr {
     int len;

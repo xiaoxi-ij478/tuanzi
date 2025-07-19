@@ -9,6 +9,8 @@
 #include "util.h"
 #include "mtypes.h"
 #include "dirtransutil.h"
+#include "rxpacketthread.h"
+#include "contextcontrolthread.h"
 #include "udplistenthread.h"
 
 CUDPListenThread::CUDPListenThread(struct UdpListenParam *listen_param) :
@@ -108,7 +110,7 @@ bool CUDPListenThread::InitInstance()
     return CLnxThread::InitInstance();
 }
 
-void CUDPListenThread::OnTimer(int tflag) const
+void CUDPListenThread::OnTimer(int tflag)
 {
     if (OnTimerEnter(tflag)) {
         if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, -1))
@@ -1218,12 +1220,11 @@ void CUDPListenThread::freeMemory()
         auto it = gsn_pkgs.begin();
         it != gsn_pkgs.end();
         it = gsn_pkgs.erase(it)
-    ) {
+    )
         for (struct tagRecvSessionBind &session_bind : it->recv_session_bounds) {
             delete[] session_bind.data;
             session_bind.data = nullptr;
         }
-    }
 
     LeaveCriticalSection(&recv_mutex);
 }

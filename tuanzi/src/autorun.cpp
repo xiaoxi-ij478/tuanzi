@@ -1,6 +1,6 @@
 #include "all.h"
-#include "util.h"
 #include "cmdutil.h"
+#include "psutil.h"
 #include "autorun.h"
 
 bool AddAutoRun(const char *arg)

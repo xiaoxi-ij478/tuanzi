@@ -5,6 +5,8 @@
 #include "sysutil.h"
 #include "vz_apiapp.h"
 #include "netutil.h"
+#include "util.h"
+#include "contextcontrolthread.h"
 #include "eapolutil.h"
 
 struct eapolpkg *ChangeToUChar(
@@ -76,7 +78,8 @@ struct eapolpkg *ChangeToUChar(
             if (!CtrlThread->IsRuijieNas()) {
                 len += 16;
                 priproc.EncapRGVerdorSeg(
-                    ret->eap_packet.data.md5.value_name + 16,
+                    reinterpret_cast<char *>
+                    (ret->eap_packet.data.md5.value_name + 16),
                     priproc_len
                 );
 
@@ -185,7 +188,7 @@ struct EAPOLFrame *ChangeToEAPOLFrame(
         ret->eap_type_md5_data[ret->eap_type_md5_length] = 0;
 
         if (CtrlThread->IsRuijieNas()) {
-            if (length >= 24 + ret->eap_type_md5_length + 6 + 4 + 1 + 1 + 4 + 1) {
+            if (length >= ret->eap_type_md5_length + 24 + 6 + 4 + 1 + 1 + 4 + 1) {
                 private_buf =
                     reinterpret_cast<const char *>
                     (&eapol_pkg->eap_packet.data.md5.value_name[ret->eap_type_md5_length]);
@@ -232,7 +235,8 @@ struct EAPOLFrame *ChangeToEAPOLFrame(
 
         } else if (ret->eap_length > 22)
             priproc.ReadRGVendorSeg(
-                eapol_pkg->eap_packet.data.md5.value_name,
+                reinterpret_cast<const char *>
+                (eapol_pkg->eap_packet.data.md5.value_name),
                 ret->eap_type_md5_length
             );
 
@@ -825,13 +829,13 @@ void ParsePrivateProperty(
                 if (cur_length != 6 || len < cur_pos + 4)
                     return;
 
-                CtrlThread->configure_info.auto_reconnect =
+                CtrlThread->configure_info.autoreconnect =
                     ntohl(*reinterpret_cast<const uint32_t *>(&buf[cur_pos]));
                 CtrlThread->configure_info.is_autoreconnect =
-                    CtrlThread->configure_info.auto_reconnect;
+                    CtrlThread->configure_info.autoreconnect;
                 logFile.AppendText(
                     "auto reconnect is: %u",
-                    CtrlThread->configure_info.auto_reconnect
+                    CtrlThread->configure_info.autoreconnect
                 );
                 break;
 
@@ -877,7 +881,12 @@ void ParsePrivateProperty(
                     return;
 
                 memcpy(CtrlThread->private_properties.encrypt_key, &buf[cur_pos], 8);
-                RC4(CtrlThread->private_properties.encrypt_key, "com.ruijie.www", 8);
+                RC4(
+                    reinterpret_cast<unsigned char *>
+                    (CtrlThread->private_properties.encrypt_key),
+                    reinterpret_cast<const unsigned char *>("com.ruijie.www"),
+                    8
+                );
                 g_rjPrivateParselog.AppendText("ChangeToEAPOLFrame()---->ENCRYPT_KEY");
                 g_rjPrivateParselog.HexPrinter(
                     CtrlThread->private_properties.encrypt_key,
@@ -890,7 +899,11 @@ void ParsePrivateProperty(
                     return;
 
                 memcpy(CtrlThread->private_properties.encrypt_iv, &buf[cur_pos], 8);
-                RC4(CtrlThread->private_properties.encrypt_iv, "com.ruijie.www", 8);
+                RC4(
+                    reinterpret_cast<unsigned char *>
+                    (CtrlThread->private_properties.encrypt_iv),
+                    reinterpret_cast<const unsigned char *>("com.ruijie.www"),
+                    8);
                 g_rjPrivateParselog.AppendText("ChangeToEAPOLFrame()---->ENCRYPT_IV");
                 g_rjPrivateParselog.HexPrinter(
                     CtrlThread->private_properties.encrypt_iv,

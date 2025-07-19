@@ -34,9 +34,9 @@ unsigned Decompress(
 )
 {
     unsigned in_pos = 0, out_pos = 0;
+    unsigned uncompressed_size = 0;
     char prev_prev_char = 0, prev_char = 0, cur_char = 0;
     char master_byte = 0;
-    unsigned uncompressed_size = 0;
     memset(pc_table, ' ', sizeof(pc_table));
 
     while (in_pos < in_len) {
@@ -79,10 +79,10 @@ unsigned Compress(
 )
 {
     unsigned in_pos = 0, out_pos = 0;
+    unsigned buffer_index = 0;
     char prev_prev_char = 0, prev_char = 0, cur_char = 0;
     char master_byte = 0;
     char buffer[8] = {};
-    char buffer_index = 0;
     unsigned compressed_size = 0;
     memset(pc_table, ' ', sizeof(pc_table));
 

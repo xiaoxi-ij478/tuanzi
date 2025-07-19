@@ -9,19 +9,36 @@ class CDirectTranSrv : public CLnxThread
         CDirectTranSrv();
         ~CDirectTranSrv() override;
 
+        bool DeInit_Sam();
+        bool DeInit_Smp();
+        bool PostToSam(const char *buf, unsigned buflen) const;
+        bool PostToSamWithNoResponse(const char *buf, unsigned buflen) const;
+        bool PostToSmp(const char *buf, unsigned buflen) const;
+        bool PostToSmpWithNoResponse(const char *buf, unsigned buflen) const;
+        bool SendToSam(const char *buf, unsigned buflen, unsigned timeout) const;
+        bool SendToSamWithNoResponse(
+            const char *buf,
+            unsigned buflen,
+            unsigned timeout
+        ) const;
+        bool SendToSmp(const char *buf, unsigned buflen, unsigned timeout) const;
+        bool SendToSmpWithNoResponse(
+            const char *buf,
+            unsigned buflen,
+            unsigned timeout
+        ) const;
+
     protected:
         void DispathMessage(struct LNXMSG *msg) override;
         bool ExitInstance() override;
         bool InitInstance() override;
-        void OnTimer(int tflag) const override;
+        void OnTimer(int tflag) override;
 
     private:
-        bool AnalyzePrivate_SAM(char *buf, unsigned buflen) const;
-        bool AnalyzePrivate_SMP(char *buf, unsigned buflen);
+        bool AnalyzePrivate_SAM(const char *buf, unsigned buflen) const;
+        bool AnalyzePrivate_SMP(const char *buf, unsigned buflen);
         bool AskForSmpInitData();
         bool DeInitDirectEnvironment();
-        bool DeInit_Sam();
-        bool DeInit_Smp();
         void Destroy();
         void DoWithAuthResult(bool should_do);
         unsigned long GetSMPTimestamp() const;
@@ -52,43 +69,31 @@ class CDirectTranSrv : public CLnxThread
         DECLARE_DISPATH_MESSAGE_HANDLER(OnPostNoResponse_SMP) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnPostNoResponse_SAM) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer);
-        void ParseACLParam(char *buf, unsigned buflen) const;
+        void ParseACLParam(const char *buf, unsigned buflen) const;
         void ParseDHCPAuthResult_ForSAM(
-            char *buf,
+            const char *buf,
             unsigned buflen,
             unsigned &pos
         ) const;
-        void ParseDHCPAuthResult_ForSMP(char *buf, unsigned buflen);
-        void ParseGetHIStatusNow(char *buf, unsigned buflen) const;
-        void ParseGetHostInfoNow(char *buf, unsigned buflen) const;
-        void ParseLogoff(char *buf, unsigned buflen) const;
-        void ParseLogoffOhers(char *buf, unsigned buflen) const;
-        void ParseModifyPWResult(char *buf, unsigned buflen) const;
-        void ParseMsgAndPro(char *buf, unsigned buflen) const;
-        void ParsePasswordSecurity(TiXmlDocument &xml) const;
-        void ParseRM_Assist(char *buf, unsigned buflen) const;
-        void ParseReAuth(char *buf, unsigned buflen) const;
-        void ParseSMPData(char *buf, unsigned buflen);
-        bool PostToSam(char *buf, unsigned buflen) const;
-        bool PostToSamWithNoResponse(char *buf, unsigned buflen) const;
-        bool PostToSmp(char *buf, unsigned buflen) const;
-        bool PostToSmpWithNoResponse(char *buf, unsigned buflen) const;
-        bool SendToSam(char *buf, unsigned buflen, unsigned timeout) const;
-        bool SendToSamWithNoResponse(
-            char *buf,
-            unsigned buflen,
-            unsigned timeout
-        ) const;
-        bool SendToSmp(char *buf, unsigned buflen, unsigned timeout) const;
-        bool SendToSmpWithNoResponse(
-            char *buf,
-            unsigned buflen,
-            unsigned timeout
-        ) const;
+        void ParseDHCPAuthResult_ForSMP(const char *buf, unsigned buflen);
+        void ParseGetHIStatusNow(const char *buf, unsigned buflen) const;
+        void ParseGetHostInfoNow(const char *buf, unsigned buflen) const;
+        void ParseLogoff(const char *buf, unsigned buflen) const;
+        void ParseLogoffOhers(const char *buf, unsigned buflen) const;
+        void ParseModifyPWResult(const char *buf, unsigned buflen) const;
+        void ParseMsgAndPro(const char *buf, unsigned buflen) const;
+        void ParsePasswordSecurity(const TiXmlDocument &xml) const;
+        void ParseRM_Assist(const char *buf, unsigned buflen) const;
+        void ParseReAuth(const char *buf, unsigned buflen) const;
+        void ParseSMPData(const char *buf, unsigned buflen);
 
         bool sam_or_smp_inited;
         CRITICAL_SECTION destroy_mutex;
+
+    public:
         CDirTranThread *dir_thread;
+
+    private:
         struct tagSmpParaDir dir_smp_para;
         struct tagDirectTranSrvPara dir_trans_srvpara;
         timer_t sam_init_timerid;

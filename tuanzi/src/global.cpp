@@ -1,8 +1,5 @@
 #include "all.h"
-#include "logfile.h"
-#include "checkrunthread.h"
 #include "contextcontrolthread.h"
-#include "supplicantapp.h"
 #include "supf.h"
 #include "global.h"
 
@@ -12,10 +9,11 @@ std::string g_strNotify;
 std::string g_strError;
 bool bLoadLib = false;
 bool updteParam = false;
+std::string update_file_path;
 std::string update_message;
-std::string alt_update_message;
 int g_rwpipe[2] = {};
-timer_t g_runModetimer;
+timer_t g_runModetimer = 0;
+bool g_background = false;
 bool g_bDoRunIbus = false;
 pthread_rwlock_t g_fileLock;
 struct SuPlatformParam *g_supf_param = nullptr;
@@ -25,8 +23,8 @@ int g_supf_cb_read_pipe = -1;
 int g_supf_cb_write_pipe = -1;
 int g_conf_pipe_read = -1;
 bool g_supf_exited = false;
-pthread_t g_supf_thread;
-pthread_t g_supf_callback_thread;
+pthread_t g_supf_thread = 0;
+pthread_t g_supf_callback_thread = 0;
 char e_pMd5Chanllenge[16] = {};
 unsigned e_pHelloID[16] = {};
 const char g_pAppData[1820] = {
@@ -1142,6 +1140,6 @@ CLogFile g_logFile_dns;
 
 CSupplicantApp theApp;
 
-CCheckRunThread chkRunThread;
+CCheckRunThread chkRunThred;
 
 CContextControlThread *CtrlThread = nullptr;

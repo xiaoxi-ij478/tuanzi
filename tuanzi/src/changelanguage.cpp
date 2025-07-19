@@ -55,21 +55,14 @@ bool CChangeLanguage::InitLanguage()
         ParseString(line, '=', val);
         std::string &trans_id_str = val[0];
         std::string &trans_str = val[1];
-
-        while (
-            trans_str.front() == ' ' ||
-            trans_str.front() == '\n' ||
-            trans_str.front() == '\r'
-        )
-            trans_str.erase(trans_str.begin());
-
-        while (
-            trans_str.back() == ' ' ||
-            trans_str.back() == '\n' ||
-            trans_str.back() == '\r'
-        )
-            trans_str.pop_back();
-
+        trans_str.erase(
+            trans_str.cbegin(),
+            std::next(trans_str.cbegin(), trans_str.find_first_not_of(" \n\r"))
+        );
+        trans_str.erase(
+            std::prev(trans_str.cend(), trans_str.find_last_not_of(" \n\r")),
+            trans_str.cend()
+        );
         replace_all_distinct(trans_str, "\\r", "\r");
         replace_all_distinct(trans_str, "\\n", "\n");
 //        tagSectionUnit tsu;

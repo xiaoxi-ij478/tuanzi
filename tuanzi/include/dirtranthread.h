@@ -28,17 +28,17 @@ class CDirTranThread : public CLnxThread
         );
         bool PostPacketNoResponse(
             int id,
-            char *buf,
+            const char *buf,
             unsigned buflen
         );
         bool PostPacketSAMHeartbeatNoResponse(
             int id,
-            char *buf,
+            const char *buf,
             unsigned buflen
         );
         bool SendPacketNoResponse(
             int id,
-            char *buf,
+            const char *buf,
             unsigned buflen,
             unsigned timeout
         );
@@ -59,19 +59,11 @@ class CDirTranThread : public CLnxThread
         );
         void StartRun();
         void StopRun();
-        bool postMessage(
-            int id,
-            char *buf,
-            unsigned buflen
-        );
-        bool sendMessage(
-            int id,
-            char *buf,
-            unsigned buflen
-        );
+        bool postMessage(int id, const char *buf, unsigned buflen);
+        bool sendMessage(int id, const char *buf, unsigned buflen);
         bool sendMessageWithTimeout(
             int id,
-            char *buf,
+            const char *buf,
             unsigned buflen,
             unsigned timeout
         );
@@ -122,6 +114,8 @@ class CDirTranThread : public CLnxThread
         CDirectTransfer direct_transfer;
         struct ether_addr gateway_mac;
         unsigned next_session_id;
+
+        public:
         CUDPListenThread *udp_listenthread;
 };
 

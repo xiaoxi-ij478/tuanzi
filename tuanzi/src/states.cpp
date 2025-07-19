@@ -2,6 +2,10 @@
 #include "global.h"
 #include "mtypes.h"
 #include "timeutil.h"
+#include "statedata.h"
+#include "threadutil.h"
+#include "statemachinethread.h"
+#include "contextcontrolthread.h"
 #include "states.h"
 
 void CStateDisconnected::Initlize()
@@ -76,7 +80,6 @@ void CStateConnecting::MoveState()
             CtrlThread->machine_thread->OnStateMove(STATE_AUTHENTICATED, 0);
     }
 }
-}
 
 void CStateAcquired::Initlize()
 {
@@ -86,7 +89,7 @@ void CStateAcquired::Initlize()
     ) {
         state_data->req_id = false;
         state_data->req_auth = false;
-        CtrlThread->txRspID();
+        CtrlThread->machine_thread->txRspID();
         state_data->recv_id2 = state_data->recv_id;
         return;
     }
@@ -120,7 +123,7 @@ void CStateAcquired::Initlize()
     state_data->auth_attempt_count = 0;
     state_data->req_id = false;
     state_data->req_auth = false;
-    CtrlThread->txRspID();
+    CtrlThread->machine_thread->txRspID();
     state_data->recv_id2 = state_data->recv_id;
 }
 
@@ -150,7 +153,7 @@ void CStateAuthenticating::Initlize()
 {
     state_data->prev_state = state_data->state;
     state_data->state = STATE_AUTHENTICATING;
-    state_data->auth_timeout = v2->configure_info.authparam_authtimeout;
+    state_data->auth_timeout = CtrlThread->configure_info.authparam_authtimeout;
 
     if (state_data->auth_timer)
         CtrlThread->machine_thread->KillTimer(state_data->auth_timer);
@@ -165,10 +168,10 @@ void CStateAuthenticating::Initlize()
     state_data->req_auth = false;
 
     if (state_data->eap_md5_datalen)
-        CStateMachineThread::txRspAuth(CtrlThread->machine_thread);
+        CtrlThread->machine_thread->txRspAuth();
 
     else
-        CStateMachineThread::txRspAuthPAP(CtrlThread->machine_thread);
+        CtrlThread->machine_thread->txRspAuthPAP();
 
     state_data->recv_id2 = state_data->recv_id;
 }
@@ -210,7 +213,7 @@ void CStateAuthenticated::Initlize()
 void CStateAuthenticated::MoveState()
 {
     if (state_data->req_id && CtrlThread->machine_thread)
-        CtrlThread->machine_thread->OnStateMove(machine_thread, STATE_ACQUIRED, 0);
+        CtrlThread->machine_thread->OnStateMove(STATE_ACQUIRED, 0);
 }
 
 void CStateHold::Initlize()
@@ -218,7 +221,7 @@ void CStateHold::Initlize()
     state_data->prev_state = state_data->state;
     state_data->state = STATE_HOLD;
 
-    if (state == STATE_AUTHENTICATED)
+    if (state_data->prev_state == STATE_AUTHENTICATED)
         state_data->hold_count = 99;
 
     state_data->hold_timeout = CtrlThread->configure_info.authparam_heldtimeout;
@@ -253,20 +256,21 @@ void CStateHold::Initlize()
 void CStateHold::MoveState()
 {
     if (CtrlThread->configure_info.public_sutype == 1 && !CtrlThread->field_538)
-        PostThreadMessage(theApp.field_0, HOLD_MTYPE, STATE_ACQUIRED, 0);
+        PostThreadMessage(theApp.thread_key, HOLD_MTYPE, STATE_ACQUIRED, 0);
 
     if (state_data->hold_count == 100) {
         g_log_Wireless.AppendText("CStateHold::MoveState eap failure");
         state_data->SetUserLogOff();
         CtrlThread->PostThreadMessage(
             CtrlThread->IsRuijieNas() ? FORCE_OFFLINE_MTYPE : COMPATIBLE_LOGOFF_MTYPE,
-            CtrlThread->IsRuijieNas() ? nullptr : CtrlThread->logoff_message.c_str(),
+            reinterpret_cast<unsigned long>
+            (CtrlThread->IsRuijieNas() ? nullptr : CtrlThread->logoff_message.c_str()),
             CtrlThread->IsRuijieNas() ? 0 : CtrlThread->logoff_message.length()
         );
         return;
     }
 
-    if (hold_count > 2) {
+    if (state_data->hold_count > 2) {
         state_data->SetUserLogOff();
         CtrlThread->connect_fail = true;
     }

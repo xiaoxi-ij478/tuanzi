@@ -7,12 +7,22 @@
 
 class CStateMachineThread : public CLnxThread
 {
+        friend class CStateDisconnected;
+        friend class CStateConnecting;
+        friend class CStateAcquired;
+        friend class CStateAuthenticating;
+        friend class CStateAuthenticated;
+        friend class CStateHold;
+        friend class CStateLogOff;
     public:
         CStateMachineThread();
 
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnStateMove);
+        void txRspID() const;
+
     protected:
         void DispathMessage(struct LNXMSG *msg) override;
-        void OnTimer(int tflag) const override;
+        void OnTimer(int tflag) override;
 
     private:
         CStateVisual *CreateState(enum STATES state);
@@ -28,7 +38,6 @@ class CStateMachineThread : public CLnxThread
         DECLARE_DISPATH_MESSAGE_HANDLER(OnSayHello) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnSendLogoff) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnStartMachine);
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnStateMove);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer);
         void SendNAKFrame() const;
         void SendNotificationFrame() const;
@@ -36,7 +45,6 @@ class CStateMachineThread : public CLnxThread
         void txLogOff(char a1) const;
         void txRspAuth() const;
         void txRspAuthPAP() const;
-        void txRspID() const;
         void txSetLogOff_CompThird();
         void txStart() const;
 

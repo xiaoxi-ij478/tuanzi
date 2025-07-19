@@ -4,6 +4,8 @@
 #include "global.h"
 #include "cmdutil.h"
 #include "threadutil.h"
+#include "mtypes.h"
+#include "contextcontrolthread.h"
 #include "proxydetectthread.h"
 
 CProxyDetectThread::CProxyDetectThread() :
@@ -65,7 +67,7 @@ void CProxyDetectThread::DispathMessage(struct LNXMSG *msg)
 
         case RECV_PACKET_RETURN_MTYPE:
             if (!started) {
-                reinterpret_cast<char *>(msg->arg2);
+                delete[] reinterpret_cast<char *>(msg->arg2);
                 break;
             }
 
@@ -87,7 +89,7 @@ void CProxyDetectThread::DispathMessage(struct LNXMSG *msg)
     }
 }
 
-void CProxyDetectThread::OnTimer(int tflag) const
+void CProxyDetectThread::OnTimer(int tflag)
 {
     if (OnTimerEnter(tflag)) {
         if (tflag == PROXY_DETECT_TIMER_MTYPE)
@@ -133,7 +135,7 @@ bool CProxyDetectThread::StartDetect(
 {
     struct DHCPIPInfo dhcp_ipinfo = {};
 
-    if (strlen(src) > 512) {
+    if (strlen(adapter_name_l) > 512) {
         if (errbuf)
             strcpy(errbuf, "para adapter name is too long");
 

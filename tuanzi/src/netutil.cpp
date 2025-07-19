@@ -5,8 +5,10 @@
 #include "fileutil.h"
 #include "util.h"
 #include "sysutil.h"
+#include "threadutil.h"
 #include "stdpkgs.h"
 #include "global.h"
+#include "contextcontrolthread.h"
 #include "netutil.h"
 
 int sockets_open()
@@ -903,11 +905,6 @@ unsigned long htonLONGLONG(unsigned long val)
     return bswap_64(val);
 }
 
-void stop_dhclient_asyn()
-{
-    killProcess("dhclient");
-}
-
 bool dhclient_asyn(const char *ipaddr, sem_t *semaphore)
 {
     struct DHClientThreadStruct *arg = new struct DHClientThreadStruct;
@@ -946,8 +943,8 @@ void *dhclient_thread(void *varg)
         return nullptr;
     }
 
-    chmod("/sbin/dhclient-script", 0755);
-    chmod("/sbin/dhclient-script", 0751);
+    chmod("/sbin/dhclient-script", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+    chmod("/sbin/dhclient-script", S_IRWXU | S_IRGRP | S_IXGRP | S_IXOTH);
     addStringOnLineHead(
         "/sbin/dhclient-script",
         "/sbin/rjsu-dhclient-script",
@@ -983,11 +980,6 @@ void *dhclient_thread(void *varg)
     sem_post(arg->semaphore);
     delete arg;
     return nullptr;
-}
-
-void dhclient_exit()
-{
-    system("dhclient -x");
 }
 
 void disable_enable_nic(const char *ifname)
@@ -1156,10 +1148,10 @@ void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname)
                 (&route.rt_gateway)->sin_addr.s_addr = *gatewayd =
                         inet_addr(gateway.c_str());
                 std::cout << "get_gateway_from_file GATEWAY:"
-                          << (gatewayd & 0xff)
-                          << ':' << (gatewayd >> 8 & 0xff)
-                          << ':' << (gatewayd >> 16 & 0xff)
-                          << ':' << (gatewayd >> 24)
+                          << (*gatewayd & 0xff)
+                          << ':' << (*gatewayd >> 8 & 0xff)
+                          << ':' << (*gatewayd >> 16 & 0xff)
+                          << ':' << (*gatewayd >> 24)
                           << ';' << std::endl;
                 ioctl(fd, SIOCADDRT, &route);
                 exit_ok = true;
@@ -1225,7 +1217,7 @@ bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool)
         "Adapter name:%s",
         CtrlThread->configure_info.public_adapter.c_str()
     );
-    nic_info = get_nics_info(CtrlThread->configure_info.field_38.c_str());
+    nic_info = get_nics_info(CtrlThread->configure_info.public_adapter.c_str());
 
     if (!nic_info)
         return false;
@@ -1254,21 +1246,21 @@ bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool)
 
         if (cip->ipaddr.s6_addr[0] == 0xFE) {
             if (
-                cip->ipaddr.s6_addr[1] & 0xC0 == 0x80 &&
+                (cip->ipaddr.s6_addr[1] & 0xC0) == 0x80 &&
                 !info.ip6_link_local_ipaddr.s6_addr[0] &&
                 !info.ip6_link_local_ipaddr.s6_addr[1]
             )
                 info.ip6_link_local_ipaddr = cip->ipaddr;
 
             else if (
-                cip->ipaddr.s6_addr[1] & 0xC0 == 0xC0 &&
+                (cip->ipaddr.s6_addr[1] & 0xC0) == 0xC0 &&
                 !info.ip6_ipaddr.s6_addr[0] &&
                 !info.ip6_ipaddr.s6_addr[1]
             )
                 info.ip6_ipaddr = cip->ipaddr;
 
         } else if (
-            cip->ipaddr.s6_addr[0] & 0xE0 == 0x20 &&
+            (cip->ipaddr.s6_addr[0] & 0xE0) == 0x20 &&
             !info.ip6_ipaddr.s6_addr[0] &&
             !info.ip6_ipaddr.s6_addr[1]
         )
@@ -1310,7 +1302,7 @@ void repair_ip_gateway(
 
 void swapipv6(struct in6_addr *addr)
 {
-    swap128(static_cast<char *>(addr->s6_addr));
+    swap128(reinterpret_cast<char *>(addr->s6_addr));
 }
 
 void del_default_gateway()
@@ -1322,4 +1314,16 @@ void del_default_gateway()
     EXIT_ON_FAIL(ioctl(fd, SIOCDELRT, &route));
 #undef EXIT_ON_FAIL
     close(fd);
+}
+
+void get_ssid_list(
+    const char *adapter_name,
+    std::vector<struct tagWirelessSignal> &signals
+)
+{
+    if (!CtrlThread->RefreshSignal(adapter_name))
+        return;
+
+    WaitForSingleObject(&CtrlThread->scan_completed, 0);
+    signals = CtrlThread->wireless_signal;
 }

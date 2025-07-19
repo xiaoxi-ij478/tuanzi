@@ -1,5 +1,8 @@
 #include "all.h"
 #include "util.h"
+#include "global.h"
+#include "cmdutil.h"
+#include "changelanguage.h"
 #include "signals.h"
 
 void set_signals()

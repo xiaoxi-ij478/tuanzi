@@ -225,7 +225,7 @@ void CContextControlThread::DispathMessage(struct LNXMSG *msg)
     }
 }
 
-void CContextControlThread::OnTimer(int tflag) const
+void CContextControlThread::OnTimer(int tflag)
 {
     if (OnTimerEnter(tflag)) {
         if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, -1))
@@ -238,7 +238,7 @@ void CContextControlThread::OnTimer(int tflag) const
         );
 }
 
-unsigned CContextControlThread::Authenticate_InitAll() const
+unsigned CContextControlThread::Authenticate_InitAll()
 {
     unsigned su_plat_init_ret = 0;
     char debug_file[256] = {};
@@ -285,14 +285,14 @@ unsigned CContextControlThread::Authenticate_InitAll() const
         );
     }
 
-    read_packet_thread->SetRxPacketAdapter(configure_info.public_adapter);
+    read_packet_thread->SetRxPacketAdapter(configure_info.public_adapter.c_str());
 
     if (read_packet_thread->StartRecvPacketThread() == -1)
         return 1;
 
     if (
         !send_packet_thread->SetSenderAdapter(
-            CtrlThread->configure_info.public_adapter
+            CtrlThread->configure_info.public_adapter.c_str()
         )
     ) {
         read_packet_thread->StopRxPacketThread();
@@ -325,7 +325,7 @@ unsigned CContextControlThread::Authenticate_InitAll() const
     return 0;
 }
 
-bool CContextControlThread::BeginStart() const
+bool CContextControlThread::BeginStart()
 {
     CtrlThread->GetAdapterMac(&old_src_macaddr);
     g_Logoff.AppendText(
@@ -347,7 +347,7 @@ bool CContextControlThread::BeginStart() const
     return true;
 }
 
-void CContextControlThread::CancelBOOTP() const
+void CContextControlThread::CancelBOOTP()
 {
     stop_dhclient_asyn();
 
@@ -363,7 +363,7 @@ void CContextControlThread::CancelBOOTP() const
     ip_offer_count = 0;
 }
 
-void CContextControlThread::CancelWaitDHCPAuthResultTimer() const
+void CContextControlThread::CancelWaitDHCPAuthResultTimer()
 {
     if (!wait_dhcp_auth_result_timerid)
         return;
@@ -439,7 +439,7 @@ void CContextControlThread::ConnectClientCenter() const
     CClientCenterPeerManager::StartConnect(&control_center_info);
 }
 
-void CContextControlThread::DeAuthenticate_ExitAll() const
+void CContextControlThread::DeAuthenticate_ExitAll()
 {
     struct tagPasSecurityInfo secinfo = {};
     StopAdapterStateCheck();
@@ -505,7 +505,7 @@ void CContextControlThread::DeAuthenticate_ExitAll() const
     g_log_Wireless.AppendText("CContextControlThread::DeAuthenticate_ExitAll LEAVE");
 }
 
-void CContextControlThread::DeinitAll_Success() const
+void CContextControlThread::DeinitAll_Success()
 {
     g_log_Wireless.AppendText("DeinitAll_Success ENTER");
 
@@ -519,12 +519,12 @@ void CContextControlThread::DeinitAll_Success() const
 
     if (hello_processor) {
         hello_processor->Exit();
-        delete hello_processor
+        delete hello_processor;
         hello_processor = nullptr;
     }
 }
 
-void CContextControlThread::DoBOOTP() const
+void CContextControlThread::DoBOOTP()
 {
     in_addr_t gateway = 0;
     g_log_Wireless.AppendText("DoBOOTP");
@@ -577,7 +577,7 @@ void CContextControlThread::DoBOOTP() const
     g_log_Wireless.AppendText("\t Set offer ip timer success %u", bootp_timerid);
 }
 
-void CContextControlThread::DoForSTATE_AUTHENTICATED() const
+void CContextControlThread::DoForSTATE_AUTHENTICATED()
 {
     CSuConfigFile conffile;
     g_log_Wireless.AppendText(
@@ -609,7 +609,7 @@ void CContextControlThread::DoUpgrade(
     unsigned version,
     std::string url,
     unsigned type
-) const
+)
 {
     static bool upgradingFromSAM = false;
     struct tagDownLoadPara download_para = {};
@@ -687,7 +687,7 @@ void CContextControlThread::DoWithDHCPUpload() const
     }
 }
 
-bool CContextControlThread::DoWithGetDHCPInfo() const
+bool CContextControlThread::DoWithGetDHCPInfo()
 {
     unsigned i = 0;
     struct DHCPIPInfo dhcp_ipinfo = {};
@@ -712,7 +712,7 @@ bool CContextControlThread::DoWithGetDHCPInfo() const
             dhcp_ipinfo.gateway & 0xff,
             dhcp_ipinfo.gateway >> 8 & 0xff,
             dhcp_ipinfo.gateway >> 16 & 0xff,
-            dhcp_ipinfo.gateway >> 24,
+            dhcp_ipinfo.gateway >> 24
         );
 
         if (
@@ -746,7 +746,7 @@ void CContextControlThread::DoWithSendUserinfoSuccess() const
     SetWaitDHCPAuthResultTimer();
 }
 
-int CContextControlThread::EnvironmentCheck() const
+int CContextControlThread::EnvironmentCheck()
 {
     char tmpbuf[512] = {};
     char tmpbuf2[256] = {};
@@ -754,7 +754,7 @@ int CContextControlThread::EnvironmentCheck() const
     struct ifreq ifr = {};
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     std::vector<struct NICsStatus> nic_statuses;
-    get_all_nics_statu(nics_status);
+    get_all_nics_statu(nic_statuses);
 
     if (check_process_run("NetworkManager")) {
         GetCurDataAndTime(tmpbuf2);
@@ -831,7 +831,7 @@ int CContextControlThread::EnvironmentCheck() const
     close(fd);
 }
 
-void CContextControlThread::ExitExtance_ExitAll() const
+void CContextControlThread::ExitExtance_ExitAll()
 {
     g_log_Wireless.AppendText("Enter CContextControlThread::ExitExtance_ExitAll");
 
@@ -891,7 +891,7 @@ void CContextControlThread::GetAdapterMac(struct ether_addr *dst) const
     *dst = configure_info.dhcp_ipinfo.adapter_mac;
 }
 
-unsigned CContextControlThread::GetDHCPAuthStep() const
+unsigned CContextControlThread::GetDHCPAuthStep()
 {
     if (IsRuijieNas() && IS_WIRED(RFC_EAP_MD5) && IsDhcpAuth()) {
         if (dhcp_auth_step != 1 && dhcp_auth_step != 2)
@@ -981,7 +981,7 @@ bool CContextControlThread::IS_WLAN(enum EAP_TYPE_RFC type) const
 
 void CContextControlThread::InitAll_Success(
     const struct SuRadiusPrivate &private_prop
-) const
+)
 {
     char errbuf[512] = {};
     struct ether_addr macaddr = {};
@@ -1021,7 +1021,7 @@ void CContextControlThread::InitAll_Success(
 
     if (private_prop.proxy_avoid) {
         g_log_Wireless.AppendText(
-            "Start Proxy Detect,type=%08x"
+            "Start Proxy Detect,type=%08x",
             private_prop.proxy_dectect_kinds
         );
         disallow_multi_nic_ip = ((private_prop.proxy_dectect_kinds ? : -1) >> 4) & 1;
@@ -1062,7 +1062,7 @@ void CContextControlThread::InitAll_Success(
 void CContextControlThread::InitCheckSelf() const
 {}
 
-bool CContextControlThread::InitInstance_InitAll() const
+bool CContextControlThread::InitInstance_InitAll()
 {
     CClientCenterPeerManager::Start(thread_id);
     g_log_Wireless.AppendText("\t 创建收包线程");
@@ -1129,17 +1129,17 @@ bool CContextControlThread::InitInstance_InitAll() const
     return true;
 }
 
-bool CContextControlThread::InitNICDevice() const
+bool CContextControlThread::InitNICDevice()
 {
     g_log_Wireless.AppendText("Enter CContextControlThread::InitNICDevice");
     return GetNICInUse(nic_in_use, false);
 }
 
-void CContextControlThread::InitStartDstMac() const
+void CContextControlThread::InitStartDstMac()
 {
     struct ether_addr macaddr_special1 = { 0x01, 0x80, 0xC2, 0x00, 0x00, 0x03 };
     struct ether_addr macaddr_special2 = { 0x01, 0xD0, 0xF8, 0x00, 0x00, 0x03 };
-    start_addr =
+    start_dst_addr =
         memcmp(
             &start_dst_addr,
             &macaddr_special2,
@@ -1154,7 +1154,7 @@ bool CContextControlThread::IsDhcpAuth() const
     return configure_info.dhcp_ipinfo.dhcp_enabled;
 }
 
-void CContextControlThread::IsIPOffered() const
+void CContextControlThread::IsIPOffered()
 {
     if (sem_trywait(&bootp_semaphore)) {
         if (ip_offer_count++ > 20) {
@@ -1200,8 +1200,8 @@ void CContextControlThread::IsIPOffered() const
     );
 
     if (
-        !IsGetDhcpIpp(configure_info.dhcp_ipinfo.ip4_ipaddr) ||
-        !IsGetDhcpIpp(configure_info.dhcp_ipinfo.gateway)
+        !IsGetDhcpIpp(&configure_info.dhcp_ipinfo.ip4_ipaddr) ||
+        !IsGetDhcpIpp(&configure_info.dhcp_ipinfo.gateway)
     ) {
         if (ip_offer_count++ > 20) {
             g_log_Wireless.AppendText("Error-等待dhcp offer超时");
@@ -1267,7 +1267,7 @@ bool CContextControlThread::IsWirelessAuth() const
     return configure_info.public_authmode == "EAPWIRELESS";
 }
 
-void CContextControlThread::KillDirectSrv() const
+void CContextControlThread::KillDirectSrv()
 {
     if (!dir_tran_srv)
         return;
@@ -1294,10 +1294,6 @@ unsigned CContextControlThread::ModifyLogoffReason(
             reason = LOGOFF_REASON_FORCE_OFFLINE_3;
             break;
 
-        case LOGOFF_REASON_COMM_FAIL_TIMEOUT:
-            reason = LOGOFF_REASON_FORCE_OFFLINE_3;
-            break;
-
         case LOGOFF_REASON_IP_CHANGED:
         case LOGOFF_REASON_MAC_CHANGED:
             reason = LOGOFF_REASON_ADDRESS_CHANGED;
@@ -1312,12 +1308,12 @@ unsigned CContextControlThread::ModifyLogoffReason(
     }
 
     if (IsRuijieNas() && reason != LOGOFF_REASON_NORMAL_LOGOFF)
-        reason -= 100;
+        reason = static_cast<enum LOGOFF_REASON>(reason - 100);
 
     return reason;
 }
 
-DEFINE_DISPATH_MESSAGE_HANDLER(ONSAMWantLogOff, CContextControlThread) const
+DEFINE_DISPATH_MESSAGE_HANDLER(ONSAMWantLogOff, CContextControlThread)
 {
     if (reinterpret_cast<char *>(arg1)[0])
         logoff_message.assign(reinterpret_cast<char *>(arg1), arg2);
@@ -1332,7 +1328,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(ONSAMWantLogOff, CContextControlThread) const
     StopAuthentication(LOGOFF_REASON_FORCE_OFFLINE_2, APP_QUIT_TYPE_2, true);
 }
 
-DEFINE_DISPATH_MESSAGE_HANDLER(ONSAWantLogOff, CContextControlThread) const
+DEFINE_DISPATH_MESSAGE_HANDLER(ONSAWantLogOff, CContextControlThread)
 {
     if (reinterpret_cast<char *>(arg1)[0])
         logoff_message.assign(reinterpret_cast<char *>(arg1), arg2);
@@ -1358,7 +1354,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(ONSAWantLogOff, CContextControlThread) const
     WriteTipInfoToLog(logoff_message, 5);
 }
 
-DEFINE_DISPATH_MESSAGE_HANDLER(OnAdaptersState, CContextControlThread) const
+DEFINE_DISPATH_MESSAGE_HANDLER(OnAdaptersState, CContextControlThread)
 {
     static in_addr_t gateway = 0; // szGateway
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -1460,7 +1456,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnAdaptersState, CContextControlThread) const
     close(fd);
 }
 
-DEFINE_DISPATH_MESSAGE_HANDLER(OnConnectNotify, CContextControlThread) const
+DEFINE_DISPATH_MESSAGE_HANDLER(OnConnectNotify, CContextControlThread)
 {
     switch (arg1) {
         case 0:
@@ -1516,7 +1512,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(
     StopAuthentication(LOGOFF_REASON_UNKNOWN_REASON, APP_QUIT_TYPE_2, true);
 }
 
-DEFINE_DISPATH_MESSAGE_HANDLER(OnOpenSSOURL, CContextControlThread) const
+DEFINE_DISPATH_MESSAGE_HANDLER(OnOpenSSOURL, CContextControlThread)
 {
     if (CtrlThread->private_properties.utrust_url.empty())
         return;
@@ -1550,7 +1546,12 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPacketReturn, CContextControlThread) const
         return;
     }
 
-    if (IsLoopBack(eapol_pkg->etherheader.ether_shost)) {
+    if (
+        IsLoopBack(
+            reinterpret_cast<struct ether_addr *>
+            (eapol_pkg->etherheader.ether_shost)
+        )
+    ) {
         g_log_Wireless.AppendText("OnPacketReturn packet is skip i=%d", 2);
         delete eapol_pkg;
         return;
@@ -1608,8 +1609,8 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPacketReturn, CContextControlThread) const
         delete eapol_frame;
 
         if (
-            !CheckSSAMessPacket(eapol_pkg, arg1) ||
-            !SSAMessPrivParse(eapol_pkg, arg1)
+            !CheckSSAMessPacket(reinterpret_cast<char *>(eapol_pkg), arg1) ||
+            !SSAMessPrivParse(reinterpret_cast<char *>(eapol_pkg), arg1)
         )
             delete eapol_pkg;
 
@@ -1928,12 +1929,11 @@ DEFINE_DISPATH_MESSAGE_HANDLER(
     CContextControlThread
 ) const
 {
-    static std::string strLogFile;
+    static std::string strLogFile = g_strAppPath + "log/run.log";
     static enum STATES last_state = STATE_DISASSOC;
     char tmpbuf[64] = {};
     std::string timestr;
     timer_t reauth_timer = 0;
-    strLogFile = g_strAppPath + "log/run.log";
     g_log_Wireless.AppendText("Enter CContextControlThread::OnStateMachineReturn");
     GetCurDataAndTime(tmpbuf);
     timestr = tmpbuf;
@@ -2292,8 +2292,8 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnUpGradeReturn, CContextControlThread) const
             delete[] reinterpret_cast<char *>(arg1);
 
         updteParam = true;
-        update_message = reinterpret_cast<char *>(arg1);
-        alt_update_message.clear();
+        update_file_path = reinterpret_cast<char *>(arg1);
+        update_message.clear();
         StopAuthentication(LOGOFF_REASON_NORMAL_LOGOFF, APP_QUIT_TYPE_2, true);
         return;
     }
@@ -2351,7 +2351,6 @@ bool CContextControlThread::RefreshSignal(const std::string &adapter_name) const
     char debug_file[256] = {};
     struct SuPlatformParam platform_param = {};
     struct SupfCmd cmd = {};
-    strLastAdapter.clear();
 
     if (strLastAdapter != adapter_name && auth_inited) {
         g_log_Wireless.AppendText("strLastAdapter != strAdaptor su_platform_deinit");
@@ -2377,7 +2376,7 @@ bool CContextControlThread::RefreshSignal(const std::string &adapter_name) const
         strcpy(platform_param.driver_name, "wext");
         strcpy(platform_param.ifname, adapter_name.c_str());
         sprintf(debug_file, "%slog/supf_debug.log", g_strAppPath.c_str());
-        platform_param.event_callback = supf_event_callback_fun;
+//        platform_param.event_callback = supf_event_callback_fun;
         platform_param.debug_file = debug_file /* nullptr */;
         rj_printf_debug(" before su_platform_init \n");
         su_plat_init_ret = su_platform_init(&platform_param);
@@ -2463,7 +2462,7 @@ bool CContextControlThread::SSAMessPrivParse(char *buf, unsigned buflen) const
 }
 
 void CContextControlThread::SaveRadiusPrivate(
-    struct EAPOLFrame *eapol_frame
+    const struct EAPOLFrame *eapol_frame
 ) const
 {
     CRGPrivateProc priproc;
@@ -2586,7 +2585,7 @@ void CContextControlThread::SendLogOffPacket(
                 PUT_DATA(tmpbuf, strlen(tmpbuf));
                 PUT_TYPE(0x04);
                 PUT_LENGTH(0x04);
-                PUT_DATA_IMMEDIATE_UINT32(GetNetOrderIPV4());
+                PUT_DATA_IMMEDIATE_UINT32(ntohl(GetNetOrderIPV4()));
                 PUT_TYPE(0x05);
                 PUT_LENGTH(0x06);
                 GetAdapterMac(
@@ -3297,7 +3296,7 @@ bool CContextControlThread::WlanDisconnect() const
 }
 
 void CContextControlThread::WlanScanComplete(
-    struct ScanCmdCtx *scan_result
+    const struct ScanCmdCtx *scan_result
 ) const
 {
     bool found = false;

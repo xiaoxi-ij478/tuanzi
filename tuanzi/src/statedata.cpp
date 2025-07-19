@@ -1,5 +1,6 @@
 #include "all.h"
 #include "global.h"
+#include "contextcontrolthread.h"
 #include "statedata.h"
 
 CStateData::CStateData() :

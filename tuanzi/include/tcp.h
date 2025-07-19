@@ -1,6 +1,9 @@
 #ifndef TCP_H_INCLUDED
 #define TCP_H_INCLUDED
 
+#include "dnsquery.h"
+#include "miscdefs.h"
+
 class CTcp
 {
     public:

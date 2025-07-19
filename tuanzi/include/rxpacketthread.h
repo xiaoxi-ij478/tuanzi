@@ -34,9 +34,9 @@ class CRxPacketThread : public CLnxThread
         DECLARE_DISPATH_MESSAGE_HANDLER(StartRecvPacket);
 
         static void RecvPacketCallBack(
-            char *user,
+            unsigned char *user,
             const struct pcap_pkthdr *h,
-            const char *bytes
+            const unsigned char *bytes
         );
 
         struct CRxPacketThread_msgids msgids;

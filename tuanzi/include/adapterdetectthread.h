@@ -23,7 +23,7 @@ class CAdapterDetectThread : public CLnxThread
     protected:
         bool InitInstance() override;
         void DispathMessage(struct LNXMSG *msg) override;
-        void OnTimer(int tflag) const override;
+        void OnTimer(int tflag) override;
         bool ExitInstance() override;
 
     private:

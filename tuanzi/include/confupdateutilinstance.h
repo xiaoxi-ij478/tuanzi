@@ -15,8 +15,6 @@ class IConfUpdateEventReceiver
 class CConfUpdateUtilInstance
 {
     public:
-        CConfUpdateUtilInstance();
-        ~CConfUpdateUtilInstance();
         void Attach(IConfUpdateEventReceiver *event_receiver);
         void Detach(IConfUpdateEventReceiver *event_receiver);
 

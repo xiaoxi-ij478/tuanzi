@@ -10,8 +10,12 @@
 #include "userconfig.h"
 #include "suconfigfile.h"
 #include "msgutil.h"
+#include "psutil.h"
+#include "netutil.h"
+#include "directtransrv.h"
 #include "changelanguage.h"
 #include "passwordmodifier.h"
+#include "contextcontrolthread.h"
 #include "global.h"
 #include "util.h"
 
@@ -50,13 +54,6 @@ int TakeAppPath(std::string &dst)
     }
 
     return -1;
-}
-
-void get_exe_name(std::string &dst)
-{
-    char s[1024] = {};
-    int r = readlink("/proc/self/exe", s, sizeof(s));
-    dst = r == -1 ? "" : s;
 }
 
 void InitLogFiles()
@@ -550,39 +547,49 @@ std::string IntToString(int num)
     return std::to_string(num);
 }
 
-//void KillRunModeCheckTimer()
-//{
-//    if (g_runModetimer) {
-//        my_timer_delete(g_runModetimer);
-//        g_runModetimer = nullptr;
-//    }
-//}
-//
-//void *OnRunModeCheckTimer(union sigval arg)
-//{
-//
-//}
-//
-//void SetRunModeCheckTimer()
-//{
-//    struct sigevent sev = {};
-//    struct itimerspec new_time = { { 1, 0 }, { 1, 0 } };
-//
-//    if (g_runModetimer)
-//        return;
-//
-//    sev.sigev_notify = SIGEV_THREAD;
-//    sev.sigev_notify_function = &OnRunModeCheckTimer;
-//    sev.sigev_value.sival_int = 1;
-//
-//    if (my_timer_create(CLOCK_REALTIME, &sev, &g_runModetimer) == -1) {
-//        g_uilog.AppendText("SetRunModeCheckTimer my_timer_create error");
-//        return;
-//    }
-//
-//    if (my_timer_settime(g_runModetimer, CLOCK_REALTIME, &new_time, nullptr) == -1)
-//        g_uilog.AppendText("SetRunModeCheckTimer my_timer_settime error");
-//}
+void KillRunModeCheckTimer()
+{
+    if (g_runModetimer) {
+        my_timer_delete(g_runModetimer);
+        g_runModetimer = 0;
+    }
+}
+
+void OnRunModeCheckTimer(union sigval arg)
+{
+    if (is_run_background() != g_background) {
+        g_uilog.AppendText(
+            "OnRunModeCheckTimer runmode change is_run_background=%d,g_background=%d",
+            !g_background,
+            g_background
+        );
+        post_command('c');
+    }
+
+    if (modify_password_timeout(false) <= 0)
+        message_info(CChangeLanguage::Instance().LoadString(273));
+}
+
+void SetRunModeCheckTimer()
+{
+    struct sigevent sev = {};
+    struct itimerspec new_time = { { 1, 0 }, { 1, 0 } };
+
+    if (g_runModetimer)
+        return;
+
+    sev.sigev_notify = SIGEV_THREAD;
+    sev.sigev_notify_function = OnRunModeCheckTimer;
+    sev.sigev_value.sival_int = 1;
+
+    if (my_timer_create(CLOCK_REALTIME, &sev, &g_runModetimer) == -1) {
+        g_uilog.AppendText("SetRunModeCheckTimer my_timer_create error");
+        return;
+    }
+
+    if (my_timer_settime(g_runModetimer, CLOCK_REALTIME, &new_time, nullptr) == -1)
+        g_uilog.AppendText("SetRunModeCheckTimer my_timer_settime error");
+}
 
 int MemCmpare(const char *buf1, int begin, int end, const char *buf2, int len)
 {
@@ -737,23 +744,40 @@ int StringToHex(
     return str.length() / 2;
 }
 
-void WriteRegUserInfo(const struct UserInfo &info)
+void WriteRegUserInfo(
+    const struct UserInfo &info
+#ifdef BUILDING_UPDATER
+    , const std::string &filename
+#endif // BUILDING_UPDATER
+)
 {
     std::string apppath;
     dictionary *ini = nullptr;
     FILE *fp = nullptr;
+#ifdef BUILDING_UPDATER
+    apppath = filename;
+#else
     TakeAppPath(apppath);
     apppath.append("fileReg.ini");
+#endif // BUILDING_UPDATER
 
     if (!(ini = iniparser_load(apppath.c_str()))) {
         g_logSystem.AppendText("ini create[path=%s]failed", apppath.c_str());
         return;
     }
 
-    iniparser_set(ini, "pu32list:unl2t1", std::to_string(info.unl2t1).c_str());
-    iniparser_set(ini, "pu32list:dcd2x", std::to_string(info.dcd2x).c_str());
-    iniparser_set(ini, "pu32list:ed2e1", info.ed2e1.c_str());
-    iniparser_set(ini, "pu32list:gr2a1", info.gr2a1.c_str());
+    iniparser_set(
+        ini,
+        "pu32list:unl2t1",
+        std::to_string(info.username_len).c_str()
+    );
+    iniparser_set(
+        ini,
+        "pu32list:dcd2x",
+        std::to_string(info.password_len).c_str()
+    );
+    iniparser_set(ini, "pu32list:ed2e1", info.username.c_str());
+    iniparser_set(ini, "pu32list:gr2a1", info.password.c_str());
 
     if (!(fp = fopen(apppath.c_str(), "w")))
         return;
@@ -763,12 +787,21 @@ void WriteRegUserInfo(const struct UserInfo &info)
     fclose(fp);
 }
 
-void ReadRegUserInfo(struct UserInfo &info)
+void ReadRegUserInfo(
+    struct UserInfo &info
+#ifdef BUILDING_UPDATER
+    , const std::string &filename
+#endif // BUILDING_UPDATER
+)
 {
     std::string apppath;
     dictionary *ini = nullptr;
+#ifdef BUILDING_UPDATER
+    apppath = filename;
+#else
     TakeAppPath(apppath);
     apppath.append("fileReg.ini");
+#endif // BUILDING_UPDATER
 
     // the original implementation include a "ini create[path=%s]failed"
     // but we have nowhere to put it (we use a different load strategy)
@@ -777,17 +810,21 @@ void ReadRegUserInfo(struct UserInfo &info)
         return;
     }
 
-    info.unl2t1 = iniparser_getint(ini, "pu32list:unl2t1", 5);
-    info.dcd2x = iniparser_getint(ini, "pu32list:dcd2x", 5);
-    info.ed2e1 = iniparser_getstring(ini, "pu32list:ed2e1", "");
-    info.gr2a1 = iniparser_getstring(ini, "pu32list:gr2a1", "");
+    info.username_len = iniparser_getint(ini, "pu32list:unl2t1", 5);
+    info.password_len = iniparser_getint(ini, "pu32list:dcd2x", 5);
+    info.username = iniparser_getstring(ini, "pu32list:ed2e1", "");
+    info.password = iniparser_getstring(ini, "pu32list:gr2a1", "");
     iniparser_freedict(ini);
 }
 
 void SimulateSuLogoff(char *buf, unsigned buflen)
 {
     logFile.AppendText("receive simulate su logoff command!");
-    CtrlThread->PostThreadMessage(SIMULATE_SU_LOGOFF_MTYPE, buflen, buf);
+    CtrlThread->PostThreadMessage(
+        SIMULATE_SU_LOGOFF_MTYPE,
+        buflen,
+        reinterpret_cast<unsigned long>(buf)
+    );
 }
 
 bool SetLanFlag(unsigned flag)
@@ -932,7 +969,7 @@ extern void RcvSvrList(const std::vector<std::string> &service_list)
         conffile.WritePrivateProfileString(
             "SERVER",
             "Number",
-            IntToString(CtrlThread->private_properties.services.length()).c_str()
+            IntToString(CtrlThread->private_properties.services.size()).c_str()
         );
 
         for (
@@ -951,7 +988,7 @@ extern void RcvSvrList(const std::vector<std::string> &service_list)
                         )
                     )
                 ).c_str(),
-                *it + '>' + *it
+                (*it + '>' + *it).c_str()
             );
     }
 
@@ -1036,4 +1073,138 @@ void RcvSvrSwitchResult(const std::string &notify)
 }
 
 void RcvModifyPasswordResult(bool change_success, const char *fail_msg)
-{}
+{
+    std::string fail_msg_str;
+    struct tagPasSecurityInfo *secinfo = nullptr;
+    logFile.AppendText("recv modify password result");
+    modify_password_timeout(true);
+
+    if (change_success) {
+        secinfo = CPasswordModifier::GetPasswordSecurityInfo();
+        secinfo->result = 1;
+        secinfo->force_offline = 0;
+        secinfo->password_modify_message.clear();
+        CPasswordModifier::SetPasswordSecurityInfo(secinfo);
+        CPasswordModifier::UpdateToNewPassword();
+        message_info(CChangeLanguage::Instance().LoadString(274) + '\n');
+
+    } else if (fail_msg) {
+        ConvertUtf8ToGBK(fail_msg, strlen(fail_msg), fail_msg_str);
+        message_info(fail_msg_str.append("\n"));
+    }
+}
+
+void DoWithServiceSwitch_NoRuijieNas()
+{
+    char tmpbuf[128] = {};
+    char finalbuf[300] = {};
+    unsigned finalbuflen = 0;
+    struct DHCPIPInfo dhcp_ipinfo = {};
+#define PUT_TYPE(type) finalbuf[finalbuflen++] = (type)
+#define PUT_LENGTH(length) finalbuf[finalbuflen++] = (length)
+#define PUT_DATA(buf, buflen) \
+    do { \
+        memcpy(&finalbuf[finalbuflen], (buf), (buflen)); \
+        finalbuflen += (buflen); \
+    } while (0)
+#define PUT_DATA_IMMEDIATE_BYTE(byte) finalbuf[finalbuflen++] = (byte)
+#define PUT_DATA_IMMEDIATE_UINT32(value) \
+    do { \
+        *reinterpret_cast<uint32_t *>(&finalbuf[finalbuflen]) = \
+                htonl(value); \
+        finalbuflen += 4; \
+    } while (0)
+    ConvertUtf8ToGBK(
+        tmpbuf,
+        sizeof(tmpbuf),
+        CtrlThread->configure_info.last_auth_username.c_str(),
+        CtrlThread->configure_info.last_auth_username.length()
+    );
+    PUT_TYPE(0x01);
+    PUT_LENGTH(0x01);
+    PUT_DATA_IMMEDIATE_BYTE(0x06);
+    PUT_TYPE(0x03);
+    PUT_LENGTH(strlen(tmpbuf));
+    PUT_DATA(tmpbuf, strlen(tmpbuf));
+    InitDhcpIpInfo(dhcp_ipinfo);
+    CtrlThread->GetDHCPInfoParam(dhcp_ipinfo);
+    PUT_TYPE(0x04);
+    PUT_LENGTH(0x04);
+    PUT_DATA_IMMEDIATE_UINT32(ntohl(dhcp_ipinfo.ip4_ipaddr));
+    PUT_TYPE(0x10);
+    PUT_LENGTH(0x01);
+    PUT_DATA_IMMEDIATE_BYTE(dhcp_ipinfo.dhcp_enabled);
+    PUT_TYPE(0x05);
+    PUT_LENGTH(0x06);
+    CtrlThread->GetAdapterMac(
+        reinterpret_cast<struct ether_addr *>(&finalbuf[finalbuflen])
+    );
+    finalbuflen += 6;
+    ConvertUtf8ToGBK(
+        tmpbuf,
+        sizeof(tmpbuf),
+        CtrlThread->service_name.c_str(),
+        CtrlThread->service_name.length()
+    );
+    PUT_TYPE(0x09);
+    PUT_LENGTH(strlen(tmpbuf));
+    PUT_DATA(tmpbuf, strlen(tmpbuf));
+#undef PUT_DATA
+#undef PUT_LENGTH
+#undef PUT_TYPE
+#undef PUT_DATA_IMMEDIATE_BYTE
+#undef PUT_DATA_IMMEDIATE_UINT32
+    assert(finalbuflen <= 300);
+
+    if (CtrlThread->dir_tran_srv) {
+        CtrlThread->dir_tran_srv->PostToSam(finalbuf, finalbuflen);
+        logFile.AppendText("no ruijie nas switch service successly");
+    }
+}
+
+void DoWithServiceSwitch_RuijieNas()
+{
+    CtrlThread->field_1139 = true;
+    CtrlThread->PostThreadMessage(REAUTH_MTYPE, 0, 0);
+}
+
+void InitAppMain()
+{
+    CtrlThread = new CContextControlThread;
+    CtrlThread->CreateThread(nullptr, false);
+
+    if (CtrlThread->StartThread()) {
+        ShowLocalMsg("Create Main Thread Failed",  "RG-SU");
+        return;
+    }
+
+    g_log_Wireless.AppendText(
+        "CtrlThread->GetMessageID msgid=%d\n",
+        CtrlThread->GetMessageID()
+    );
+}
+
+void ServiceSwitch(const std::string &new_name)
+{
+    auto pos =
+        std::find(
+            CtrlThread->configure_info.server_names.cbegin(),
+            CtrlThread->configure_info.server_names.cend(),
+            new_name
+        );
+
+    if (pos == CtrlThread->configure_info.server_names.cend())
+        return;
+
+    CtrlThread->service_name =
+        *std::next(
+            CtrlThread->configure_info.server_alt_names.cbegin(),
+            std::distance(CtrlThread->configure_info.server_names.cbegin(), pos)
+        );
+
+    if (CtrlThread->IsRuijieNas())
+        DoWithServiceSwitch_RuijieNas();
+
+    else
+        DoWithServiceSwitch_NoRuijieNas();
+}

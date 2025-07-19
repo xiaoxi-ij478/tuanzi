@@ -15,24 +15,28 @@ class CSupplicantApp
         void GUI_update_LOGOFF(
             enum LOGOFF_REASON reason,
             enum STATES new_state
-        ) const;
+        );
         void GUI_update_connect_states_and_text(
             enum STATES new_state,
             const std::string &msg
-        ) const;
+        );
         void GUI_update_connect_text(const std::string &msg) const;
-        void GUI_update_connectdlg_by_states(enum STATES new_state) const;
+        void GUI_update_connectdlg_by_states(enum STATES new_state);
         bool IsOnline() const;
 
         key_t thread_key;
-        std::string version;
-        CRITICAL_SECTION su_config_file_lock;
 
     private:
         unsigned field_8;
-        CRITICAL_SECTION field_48;
+
+    public:
+        std::string version;
+        CRITICAL_SECTION su_config_file_lock;
+        CRITICAL_SECTION self_lock;
         enum STATES state;
         unsigned field_7C;
+
+    public:
         unsigned long success_time;
 };
 

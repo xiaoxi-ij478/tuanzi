@@ -3,7 +3,6 @@
 
 extern void setAppEnvironment();
 extern int TakeAppPath(std::string &dst);
-extern void get_exe_name(std::string &dst);
 extern void InitLogFiles();
 extern void replace_all_distinct(
     std::string &str,
@@ -61,11 +60,10 @@ extern std::string AsciiToStr(
     unsigned len
 );
 extern std::string IntToString(int num);
-//extern void KillRunModeCheckTimer();
-//extern void *OnRunModeCheckTimer(union sigval arg);
-//extern void SetRunModeCheckTimer();
+extern void KillRunModeCheckTimer();
+extern void OnRunModeCheckTimer(union sigval arg);
+extern void SetRunModeCheckTimer();
 extern unsigned MD5StrtoUChar(const std::string &str, char *buf);
-extern int do_quit();
 extern int MemCmpare(
     const char *buf1,
     int begin,
@@ -92,8 +90,18 @@ extern int StringToHex(
     char *retbuf,
     int retbuflen
 );
-extern void WriteRegUserInfo(const struct UserInfo &info);
-extern void ReadRegUserInfo(struct UserInfo &info);
+extern void WriteRegUserInfo(
+    const struct UserInfo &info
+#ifdef BUILDING_UPDATER
+    , const std::string &filename
+#endif // BUILDING_UPDATER
+);
+extern void ReadRegUserInfo(
+    struct UserInfo &info
+#ifdef BUILDING_UPDATER
+    , const std::string &filename
+#endif // BUILDING_UPDATER
+);
 extern void SimulateSuLogoff(char *buf, unsigned buflen);
 extern bool SetLanFlag(unsigned flag);
 extern void RecvSecdomainPacket(char *buf, unsigned buflen);
@@ -119,6 +127,10 @@ extern bool GetHIResult(
 );
 extern void RcvSvrSwitchResult(const std::string &notify);
 extern void RcvModifyPasswordResult(bool change_success, const char *fail_msg);
+extern void DoWithServiceSwitch_NoRuijieNas();
+extern void DoWithServiceSwitch_RuijieNas();
+extern void InitAppMain();
+extern void ServiceSwitch(const std::string &service_name);
 
 static inline void swap128(char *val)
 {

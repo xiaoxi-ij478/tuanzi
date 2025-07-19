@@ -152,3 +152,30 @@ bool check_process_run(const char *proc)
     // "pidof $proc 2>&-"
     return get_pid_byname(proc) != -1;
 }
+
+void stop_dhclient_asyn()
+{
+    killProcess("dhclient");
+}
+
+void dhclient_exit()
+{
+    switch (fork()) {
+        case 0:
+            execlp("dhclient", "dhclient", "-x", nullptr);
+            [[fallthrough]];
+
+        case -1:
+            return;
+
+        default:
+            wait(nullptr);
+    }
+}
+
+void get_exe_name(std::string &dst)
+{
+    char s[1024] = {};
+    int r = readlink("/proc/self/exe", s, sizeof(s));
+    dst = r == -1 ? "" : s;
+}

@@ -1,4 +1,5 @@
 #include "all.h"
+#include "util.h"
 #include "fileutil.h"
 
 unsigned long get_file_size(const char *filename)
@@ -24,7 +25,7 @@ void DeleteFile(const char *filename)
 
 int cmd_mkdir(const char *dirname)
 {
-    return mkdir(dirname, 0755);
+    return mkdir(dirname, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 }
 
 void removeFileOrDir(const char *filename)
@@ -110,7 +111,12 @@ bool SuCreateDirectory(const std::string &dirname)
     std::vector<std::string> pathnames;
     std::string tmp;
 
-    if (mkdir(dirname.c_str(), 0666) != -1)
+    if (
+        mkdir(
+            dirname.c_str(),
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
+        ) != -1
+    )
         return true;
 
     if (errno != ENOENT)
@@ -124,7 +130,12 @@ bool SuCreateDirectory(const std::string &dirname)
 
         tmp.append(path);
 
-        if (mkdir(tmp.c_str(), 0666) == -1)
+        if (
+            mkdir(
+                tmp.c_str(),
+                S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
+            ) == -1
+        )
             return true;
     }
 

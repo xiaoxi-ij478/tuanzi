@@ -1,6 +1,8 @@
 #ifndef AUTORUN_H_INCLUDED
 #define AUTORUN_H_INCLUDED
 
+#include "miscdefs.h"
+
 extern bool AddAutoRun(const char *arg);
 extern bool DelAutoRun(const char *arg);
 extern int auto_run(const char *exe, enum MODIFY_MODE mode, const char *arg);

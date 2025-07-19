@@ -46,7 +46,7 @@ void CMD5ForVz::Final2CharBuff(char *buf, unsigned buflen)
     if (buflen < 16) // buffer size is not enough
         return;
 
-    MD5Final_Vz(buf, &ctx);
+    MD5Final_Vz(reinterpret_cast<unsigned char *>(buf), &ctx);
 }
 
 char *CMD5ForVz::GetMD5(const char *buf, unsigned buflen)

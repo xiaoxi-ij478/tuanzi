@@ -1,10 +1,4 @@
-#include <algorithm>
-#include <cstring>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <string>
-
+#include "all.h"
 #include "compressor.h"
 
 [[noreturn]] void usage(const char *progname)

@@ -32,7 +32,7 @@ class CLogFile
 
         static void GetTimeString(char *dst);
 
-        std::string log_filename;
+        char log_filename[520];
         int prio;
 };
 

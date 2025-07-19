@@ -1,5 +1,6 @@
 #include "all.h"
 #include "encodeutil.h"
+#include "xmlparser.h"
 #include "customizeinfo.h"
 
 CCustomizeInfo::CCustomizeInfo() :

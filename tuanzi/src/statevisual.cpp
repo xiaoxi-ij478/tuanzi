@@ -13,7 +13,7 @@ void CStateVisual::Initlize()
 void CStateVisual::MoveState()
 {}
 
-void CStateVisual::SetStateData(const CStateData *new_data)
+void CStateVisual::SetStateData(CStateData *new_data)
 {
     state_data = new_data;
 }

@@ -18,13 +18,13 @@ const char CEncryption::base64_cbytes[128] = {
 int CEncryption::base64_decode(const char *src, char *dst)
 {
     // this was written by myself
-    int srclen = strlen(src);
-    int written = 0;
+    unsigned srclen = strlen(src);
+    unsigned written = 0;
     bool met_equal = false;
     char tmp[4] = {};
 
     // read 4 bytes from the base64 string one time
-    for (int i = 0; i < srclen / 4 && !met_equal; i++) {
+    for (unsigned i = 0; i < srclen / 4 && !met_equal; i++) {
         tmp[0] = *src++;
         tmp[1] = *src++;
         tmp[2] = *src++;
@@ -47,11 +47,11 @@ int CEncryption::base64_decode(const char *src, char *dst)
 int CEncryption::base64_encode(const char *src, unsigned len, char *dst)
 {
     // this was written by myself too
-    int written = 0;
+    unsigned written = 0;
     char tmp[3] = {};
 
     // process up to the 3-byte boundary
-    for (int i = 0; i < len / 3; i++) {
+    for (unsigned i = 0; i < len / 3; i++) {
         tmp[0] = *src++;
         tmp[1] = *src++;
         tmp[2] = *src++;

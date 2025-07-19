@@ -126,7 +126,7 @@ void CClientCenterPeerManager::DispathMessage(struct LNXMSG *msg)
     }
 }
 
-void CClientCenterPeerManager::OnTimer(int tflag) const
+void CClientCenterPeerManager::OnTimer(int tflag)
 {
     if (OnTimerEnter(tflag)) {
         if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, -1))
@@ -326,7 +326,7 @@ void CClientCenterPeerManager::ProcessConnect()
         http_read,
         http_length
     );
-    delete buf;
+    delete[] buf;
     buf = nullptr;
 http_close:
     http_client.httpClose();

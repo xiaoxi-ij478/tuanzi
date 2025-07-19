@@ -46,7 +46,7 @@ void AddMsgItem(int type, const std::string &msg)
         return;
     }
 
-    for (auto it = msgarr.begin(); it != msgarr.end(); it++)
+    for (auto it = msgarr.cbegin(); it != msgarr.cend(); it++)
         if (type == it->ntype && msg == it->msg) {
             msgarr.erase(it);
             break;
@@ -99,7 +99,7 @@ void DelMsgItem(int type, const std::string &msg)
         return;
     }
 
-    for (auto it = msgarr.begin(); it != msgarr.end(); it++)
+    for (auto it = msgarr.cbegin(); it != msgarr.cend(); it++)
         if (type == it->ntype && msg == it->msg) {
             msgarr.erase(it);
             break;
@@ -179,6 +179,7 @@ unsigned GetMsgArray_Ex(
 
 const std::string &GetMessageType(int type)
 {
+    static std::string none;
     switch (type) {
         case 0:
             return CChangeLanguage::Instance().LoadString(77);
@@ -190,7 +191,7 @@ const std::string &GetMessageType(int type)
             return CChangeLanguage::Instance().LoadString(92);
 
         default:
-            return std::string();
+            return none;
     }
 }
 
@@ -220,5 +221,10 @@ void ShowLocalMsg(const std::string &content, const std::string &header)
         20,
         std::string("\n").append(content).append("\n")
     );
-    CLogFile::LogToFile(header + ' ' + content, g_runLogFile.c_str(), true, true);
+    CLogFile::LogToFile(
+        (header + ' ' + content).c_str(),
+        g_runLogFile.c_str(),
+        true,
+        true
+    );
 }

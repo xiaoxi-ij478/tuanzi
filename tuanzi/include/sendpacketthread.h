@@ -10,17 +10,17 @@ class CSendPacketThread : public CLnxThread
         ~CSendPacketThread() override;
 
         void CloseAdapter();
-        bool SetSenderAdapter(char *name);
+        int DoSendPacket(const char *buf, unsigned buflen);
+        bool SetSenderAdapter(const char *name);
+        int SendPacket(const char *buf, unsigned buflen);
+        bool StopSendPacketThread() const;
 
     protected:
         void DispathMessage(struct LNXMSG *msg) override;
 
     private:
-        int DoSendPacket(unsigned buflen, char *buf);
         bool ExitSendPacketThread() const;
         int StartSendPacketThread();
-        bool StopSendPacketThread() const;
-        int SendPacket(unsigned buflen, char *buf);
 
         char adapter_name[100];
         pcap_t *pcap_handle;

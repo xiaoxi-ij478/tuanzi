@@ -1,7 +1,9 @@
 #include "all.h"
-#include "util.h"
 #include "netutil.h"
 #include "dirtransutil.h"
+#include "global.h"
+#include "contextcontrolthread.h"
+#include "sendpacketthread.h"
 #include "directtransfer.h"
 
 CDirectTransfer::CDirectTransfer() :
@@ -61,14 +63,13 @@ bool CDirectTransfer::sendudp(
         struct etherudppkg header;
         char data[2048];
     } tmpbuf;
-    unsigned ipv4_len = 0, udp_len = 0;
     *reinterpret_cast<struct ether_addr *>
     (tmpbuf.header.etherheader.ether_shost) = dir_tran_para.srcmacaddr;
     *reinterpret_cast<struct ether_addr *>
     (tmpbuf.header.etherheader.ether_dhost) = dir_tran_para.dstmacaddr;
     tmpbuf.header.etherheader.ether_type = htons(ETHERTYPE_IP);
-    ipv4_len = InitIpv4Header(&tmpbuf.header.ipheader, srcaddr, dstaddr, buflen);
-    udp_len = InitUdpHeader(&tmpbuf.header.udpheader, srcport, dstport, buflen);
+    InitIpv4Header(&tmpbuf.header.ipheader, srcaddr, dstaddr, buflen);
+    InitUdpHeader(&tmpbuf.header.udpheader, srcport, dstport, buflen);
     ComputeUdpPseudoHeaderChecksumV4(
         &tmpbuf.header.ipheader,
         &tmpbuf.header.udpheader,
@@ -79,7 +80,7 @@ bool CDirectTransfer::sendudp(
 
     if (CtrlThread->send_packet_thread)
         CtrlThread->send_packet_thread->SendPacket(
-            &tmpbuf,
+            reinterpret_cast<char *>(&tmpbuf),
             sizeof(struct etherudppkg) + buflen
         );
 

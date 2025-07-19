@@ -1,15 +1,9 @@
 #include "all.h"
 #include "global.h"
+#include "customizeinfo.h"
+#include "suconfigfile.h"
+#include "contextcontrolthread.h"
 #include "confupdateutilinstance.h"
-
-CConfUpdateUtilInstance::CConfUpdateUtilInstance() :
-    event_receivers(),
-    someflag(),
-    someflag2()
-{}
-
-CConfUpdateUtilInstance::~CConfUpdateUtilInstance()
-{}
 
 void CConfUpdateUtilInstance::Attach(IConfUpdateEventReceiver *event_receiver)
 {
@@ -47,7 +41,7 @@ unsigned CConfUpdateUtilInstance::UpdateConfigure(const char *xml)
 
     someflag = 0;
     UpdateManagerCenterConf(&custom_info, conffile);
-    conffile.close();
+    conffile.Close();
 
     if (someflag)
         for (IConfUpdateEventReceiver *event_receiver : event_receivers)

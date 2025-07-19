@@ -1,6 +1,8 @@
 #ifndef SYSUTIL_H_INCLUDED
 #define SYSUTIL_H_INCLUDED
 
+#include "miscdefs.h"
+
 extern void check_run_ibus();
 extern void check_stop_ibus();
 extern bool check_service_status(const char *service_name);

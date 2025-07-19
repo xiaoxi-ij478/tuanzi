@@ -2,6 +2,8 @@
 #include "global.h"
 #include "timeutil.h"
 #include "util.h"
+#include "proxyclienttcp.h"
+#include "proxysertcp.h"
 #include "isproser.h"
 
 CIsProSer::CIsProSer() :
@@ -486,10 +488,9 @@ void CIsProSer::UpdateLocalIPTable()
     struct ifaddrs *ifap = nullptr;
     bool updated = false;
 
-    for (auto it = local_ips.begin(); it != local_ips.end(); it++) {
+    for (auto it = local_ips.cbegin(); it != local_ips.cend(); it++)
         if (cur_tick - it->creation_time >= 120000)
             it = local_ips.erase(it) - 1;
-    }
 
     if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) <= 0)
         return;

@@ -1,5 +1,4 @@
 #include "all.h"
-#include "cmdutil.h"
 #include "threadutil.h"
 #include "fileutil.h"
 #include "global.h"
@@ -315,9 +314,14 @@ int CDownLoadThread::ftp_receive(
         goto quit;
     }
 
-    if (
-        (file_fd = open(final_save_path, O_WRONLY | O_CREAT | O_TRUNC, 0777) == -1)
-    ) {
+    file_fd =
+        open(
+            final_save_path,
+            O_WRONLY | O_CREAT | O_TRUNC,
+            S_IRWXU | S_IRWXG | S_IRWXO
+        );
+
+    if (file_fd == -1) {
         std::cerr << "open path error:" << strerror(errno)
                   << std::endl;
         rj_printf_debug("open %s file error\n", final_save_path);
@@ -578,9 +582,14 @@ int CDownLoadThread::get_remote_file(
         goto error_quit;
     }
 
-    if (
-        (file_fd = open(final_save_path, O_WRONLY | O_CREAT | O_TRUNC, 0777)) == -1
-    ) {
+    file_fd =
+        open(
+            final_save_path,
+            O_WRONLY | O_CREAT | O_TRUNC,
+            S_IRWXU | S_IRWXG | S_IRWXO
+        );
+
+    if (file_fd == -1) {
         std::cerr << "open path error:" << strerror(errno) << std::endl;
         ret = DOWNLOAD_ERROR_6;
         goto error_quit;

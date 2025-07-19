@@ -6,6 +6,7 @@
 struct SaveConfigureInfo {
     std::string last_auth_username;
     std::string last_auth_password;
+    std::string public_language;
     std::string public_title;
     std::string public_service;
     std::string public_selfsvrurl;
@@ -13,6 +14,9 @@ struct SaveConfigureInfo {
     std::string public_authmode;
     std::string public_adapter;
     std::string public_wirelessconf;
+    std::string public_prompt;
+    std::string public_promptmsg;
+    unsigned public_daemon;
     unsigned public_sutype;
     bool public_modifysave;
     bool public_disablesavebutton;

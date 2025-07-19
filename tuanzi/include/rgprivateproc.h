@@ -6,7 +6,7 @@ struct EAPOLFrame;
 
 class CRGPrivateProc
 {
-    private:
+    public:
         static void EncapRGVerdorSeg(char *buf, unsigned &len);
         static void EncapRGVerdorSegForEapHost(
             char *buf,
@@ -14,6 +14,9 @@ class CRGPrivateProc
             const std::string &
         );
         static void EncapRGVerdorSegForPeap(char *buf, unsigned &len, char *);
+        static void ReadRGVendorSeg(const char *buf, unsigned len);
+
+    private:
         static void GetAlternateDNS(char *buf, unsigned &len);
         static void GetClientOSBits(char *buf, unsigned &len);
         static void GetClientReleaseVersion(char *buf, unsigned &len);
@@ -54,7 +57,6 @@ class CRGPrivateProc
             const struct EAPOLFrame *eapol_frame,
             struct SuRadiusPrivate &private_infobuf
         );
-        static void ReadRGVendorSeg(const char *buf, unsigned len);
 };
 
 #endif // RGPRIVATEPROC_H_INCLUDED

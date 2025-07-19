@@ -10,7 +10,8 @@
 #include "mtypes.h"
 #include "changelanguage.h"
 #include "global.h"
-#include "eapolutil.h"
+#include "passwordmodifier.h"
+#include "contextcontrolthread.h"
 #include "directtransrv.h"
 
 /* SMP's data format:
@@ -93,7 +94,7 @@ bool CDirectTranSrv::InitInstance()
     return CLnxThread::InitInstance();
 }
 
-void CDirectTranSrv::OnTimer(int tflag) const
+void CDirectTranSrv::OnTimer(int tflag)
 {
     if (OnTimerEnter(tflag)) {
         if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, -1))
@@ -107,7 +108,7 @@ void CDirectTranSrv::OnTimer(int tflag) const
 }
 
 bool CDirectTranSrv::AnalyzePrivate_SAM(
-    char *buf,
+    const char *buf,
     unsigned buflen
 ) const
 {
@@ -165,7 +166,7 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
                 );
                 CtrlThread->PostThreadMessage(
                     FORCE_OFFLINE_MTYPE,
-                    force_offline_buf,
+                    reinterpret_cast<unsigned long>(force_offline_buf),
                     force_offline_str.length() + 1
                 );
                 break;
@@ -187,12 +188,15 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
     return true;
 }
 
-bool CDirectTranSrv::AnalyzePrivate_SMP(char *buf, unsigned buflen)
+bool CDirectTranSrv::AnalyzePrivate_SMP(const char *buf, unsigned buflen)
 {
     unsigned short smp_datalen = 0;
     char *smp_data = nullptr, *other_data = nullptr;
 
-    if (buf[0] != 1 || ntohs(*reinterpret_cast<unsigned short *>(&buf[1])) != 1)
+    if (
+        buf[0] != 1 ||
+        ntohs(*reinterpret_cast<const unsigned short *>(&buf[1])) != 1
+    )
         return true;
 
     switch (buf[3]) {
@@ -200,7 +204,8 @@ bool CDirectTranSrv::AnalyzePrivate_SMP(char *buf, unsigned buflen)
             if (buf[4] != 11)
                 break;
 
-            smp_datalen = ntohs(*reinterpret_cast<unsigned short *>(&buf[5]));
+            smp_datalen =
+                ntohs(*reinterpret_cast<const unsigned short *>(&buf[5]));
             smp_data = new char[smp_datalen + 1];
             memcpy(smp_data, &buf[7], smp_datalen);
             ParseSMPData(smp_data, smp_datalen);
@@ -1166,11 +1171,11 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CDirectTranSrv)
     OnTimerLeave(arg1);
 }
 
-void CDirectTranSrv::ParseACLParam(char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseACLParam(const char *buf, unsigned buflen) const
 {}
 
 void CDirectTranSrv::ParseDHCPAuthResult_ForSAM(
-    char *buf,
+    const char *buf,
     unsigned buflen,
     unsigned &pos
 ) const
@@ -1198,13 +1203,14 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSAM(
         !CtrlThread->PostThreadMessage(
             ANNOUNCE_DHCP_RESULT_MTYPE,
             some_flag,
-            some_string_buf
+            reinterpret_cast<unsigned long>(some_string_buf)
         )
     )
         delete[] some_string_buf;
 }
 
-void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(char *buf, unsigned buflen)
+void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(const char *buf,
+        unsigned buflen)
 {
     std::string some_string;
     char *some_string_buf = nullptr;
@@ -1214,7 +1220,7 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(char *buf, unsigned buflen)
     for (
         unsigned pos = 0, datalen = 0;
         pos + datalen + 3 <= buflen;
-        datalen = ntohs(*reinterpret_cast<unsigned short *>(&buf[pos + 1])),
+        datalen = ntohs(*reinterpret_cast<const unsigned short *>(&buf[pos + 1])),
         pos += datalen + 3
     )
         switch (buf[pos]) {
@@ -1234,7 +1240,7 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(char *buf, unsigned buflen)
         !CtrlThread->PostThreadMessage(
             ANNOUNCE_DHCP_RESULT_MTYPE,
             some_flag,
-            some_string_buf
+            reinterpret_cast<unsigned long>(some_string_buf)
         )
     ) {
         delete[] some_string_buf;
@@ -1244,16 +1250,16 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(char *buf, unsigned buflen)
     DoWithAuthResult(some_flag);
 }
 
-void CDirectTranSrv::ParseGetHIStatusNow(char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseGetHIStatusNow(const char *buf, unsigned buflen) const
 {}
 
 void CDirectTranSrv::ParseGetHostInfoNow(
-    char *buf,
+    const char *buf,
     unsigned buflen
 ) const
 {}
 
-void CDirectTranSrv::ParseLogoff(char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseLogoff(const char *buf, unsigned buflen) const
 {
     std::string some_string;
     char *some_string_buf = nullptr;
@@ -1264,7 +1270,7 @@ void CDirectTranSrv::ParseLogoff(char *buf, unsigned buflen) const
     for (
         unsigned pos = 0, datalen = 0;
         pos + datalen + 3 <= buflen;
-        datalen = ntohs(*reinterpret_cast<unsigned short *>(&buf[pos + 1])),
+        datalen = ntohs(*reinterpret_cast<const unsigned short *>(&buf[pos + 1])),
         pos += datalen + 3
     )
         switch (buf[pos]) {
@@ -1278,7 +1284,7 @@ void CDirectTranSrv::ParseLogoff(char *buf, unsigned buflen) const
                 if (
                     !CtrlThread->PostThreadMessage(
                         DO_FORCE_OFFLINE_MTYPE,
-                        some_string_buf,
+                        reinterpret_cast<unsigned long>(some_string_buf),
                         datalen ? datalen + 2 : 0
                     )
                 )
@@ -1292,7 +1298,7 @@ void CDirectTranSrv::ParseLogoff(char *buf, unsigned buflen) const
         }
 }
 
-void CDirectTranSrv::ParseLogoffOhers(char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseLogoffOhers(const char *buf, unsigned buflen) const
 {
     char *some_string_buf = nullptr;
 
@@ -1302,7 +1308,7 @@ void CDirectTranSrv::ParseLogoffOhers(char *buf, unsigned buflen) const
     for (
         unsigned pos = 0, datalen = 0;
         pos + datalen + 3 <= buflen;
-        datalen = ntohs(*reinterpret_cast<unsigned short *>(&buf[pos + 1])),
+        datalen = ntohs(*reinterpret_cast<const unsigned short *>(&buf[pos + 1])),
         pos += datalen + 3
     )
         switch (buf[pos]) {
@@ -1315,7 +1321,7 @@ void CDirectTranSrv::ParseLogoffOhers(char *buf, unsigned buflen) const
         }
 }
 
-void CDirectTranSrv::ParseModifyPWResult(char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseModifyPWResult(const char *buf, unsigned buflen) const
 {
     char *fail_msg = nullptr;
     bool change_success = false;
@@ -1324,7 +1330,7 @@ void CDirectTranSrv::ParseModifyPWResult(char *buf, unsigned buflen) const
     for (
         unsigned pos = 0, datalen = 0;
         pos + datalen + 3 <= buflen;
-        datalen = ntohs(*reinterpret_cast<unsigned short *>(&buf[pos + 1])),
+        datalen = ntohs(*reinterpret_cast<const unsigned short *>(&buf[pos + 1])),
         pos += datalen + 3
     )
         switch (buf[pos]) {
@@ -1341,7 +1347,7 @@ void CDirectTranSrv::ParseModifyPWResult(char *buf, unsigned buflen) const
     RcvModifyPasswordResult(change_success, fail_msg);
 }
 
-void CDirectTranSrv::ParseMsgAndPro(char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseMsgAndPro(const char *buf, unsigned buflen) const
 {
     std::string message, url;
     bool has_message = false, has_url = false;
@@ -1349,7 +1355,7 @@ void CDirectTranSrv::ParseMsgAndPro(char *buf, unsigned buflen) const
     for (
         unsigned pos = 0, datalen = 0;
         pos + datalen + 3 <= buflen;
-        datalen = ntohs(*reinterpret_cast<unsigned short *>(&buf[pos + 1])),
+        datalen = ntohs(*reinterpret_cast<const unsigned short *>(&buf[pos + 1])),
         pos += datalen + 3
     )
         switch (buf[pos]) {
@@ -1388,7 +1394,7 @@ void CDirectTranSrv::ParseMsgAndPro(char *buf, unsigned buflen) const
     }
 }
 
-void CDirectTranSrv::ParsePasswordSecurity(TiXmlDocument &xml) const
+void CDirectTranSrv::ParsePasswordSecurity(const TiXmlDocument &xml) const
 {
     const TiXmlNode *ss_child = nullptr;
     const TiXmlNode *ssp_child = nullptr;
@@ -1496,17 +1502,17 @@ void CDirectTranSrv::ParsePasswordSecurity(TiXmlDocument &xml) const
         secinfo.force_offline,
         secinfo.offline_wait_time
     );
-    CPasswordModifier::SetPasswordSecurityInfo(secinfo);
+    CPasswordModifier::SetPasswordSecurityInfo(&secinfo);
 }
 
 void CDirectTranSrv::ParseRM_Assist(
-    [[maybe_unused]] char *buf,
+    [[maybe_unused]] const char *buf,
     [[maybe_unused]] unsigned buflen
 ) const
 {}
 
 void CDirectTranSrv::ParseReAuth(
-    char *buf,
+    const char *buf,
     [[maybe_unused]] unsigned buflen
 ) const
 {
@@ -1514,7 +1520,7 @@ void CDirectTranSrv::ParseReAuth(
     CtrlThread->PostThreadMessage(REAUTH_MTYPE, 0, 0);
 }
 
-void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
+void CDirectTranSrv::ParseSMPData(const char *buf, unsigned buflen)
 {
     TiXmlDocument xml_data;
     const TiXmlNode *bc_child = nullptr;
@@ -1531,10 +1537,10 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
     char net_src_param[2] = {};
     struct tagSmpInitPacket_SendPacketCheck spc_struct = {};
     struct tagSmpInitPacket_ARPAttackDetection arpad_struct = {};
-    char *sec_domain_start_tag_pos = nullptr;
-    char *sec_domain_end_tag_pos = nullptr;
-    char *hi_start_tag_pos = nullptr;
-    char *hi_end_tag_pos = nullptr;
+    const char *sec_domain_start_tag_pos = nullptr;
+    const char *sec_domain_end_tag_pos = nullptr;
+    const char *hi_start_tag_pos = nullptr;
+    const char *hi_end_tag_pos = nullptr;
     char *sec_domain_xml_buf = nullptr;
     struct [[gnu::packed]] eappkg {
         struct ether_header etherheader;
@@ -1605,8 +1611,8 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
         smp_init_packet.basic_config.hello_interval,
         smp_init_packet.basic_config.timeout,
         smp_init_packet.basic_config.retry_times,
-        smp_init_packet.basic_config.disable_arpbam,
-        smp_init_packet.basic_config.disable_dhcpbam
+        smp_init_packet.basic_config.disable_arpbam.c_str(),
+        smp_init_packet.basic_config.disable_dhcpbam.c_str()
     );
 
     if (smp_init_packet.basic_config.timeout)
@@ -1650,7 +1656,7 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
         logFile_debug.AppendText(
             "smpPacketPara strSvrip=%s,dwSvrip=%d,nSvrport=%d,"
             "llTimeStamp=%I64d,m_smpData.tmInit=%I64d",
-            dcp_sip_s,
+            dcp_sip_s.c_str(),
             dcp_sip,
             dcp_sp,
             dcp_ts,
@@ -1736,7 +1742,11 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
         // it seems that CtrlThread does not handle POST_ARP_ATTACK_PARAM_MTYPE
         if (
             CtrlThread &&
-            !CtrlThread->PostThreadMessage(POST_ARP_ATTACK_PARAM_MTYPE, 0, &arpad_struct)
+            !CtrlThread->PostThreadMessage(
+                POST_ARP_ATTACK_PARAM_MTYPE,
+                0,
+                reinterpret_cast<unsigned long>(&arpad_struct)
+            )
         )
             logFile_debug.AppendText("post arp attack detect param failed");
     }
@@ -1808,8 +1818,7 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
     eap_pkg.eaphdr.length = htons(0x189);
     eap_pkg.eaptype = 0x00;
     // this is useless
-    eap_pkg.data[0] = 0x00;
-    eap_pkg_curpos = 1;
+    eap_pkg.data[eap_pkg_curpos++] = 0x00;
 #define PUT_TYPE(type) eap_pkg.data[eap_pkg_curpos++] = (type)
 #define PUT_LENGTH(length) eap_pkg.data[eap_pkg_curpos++] = (length)
 #define PUT_DATA(buf, buflen) \
@@ -1820,7 +1829,7 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
 #define PUT_DATA_IMMEDIATE_BYTE(byte) eap_pkg.data[eap_pkg_curpos++] = (byte)
 #define PUT_DATA_IMMEDIATE_UINT32(value) \
     do { \
-        reinterpret_cast<uint32_t *>(&eap_pkg.data[eap_pkg_curpos]) = \
+        *reinterpret_cast<uint32_t *>(&eap_pkg.data[eap_pkg_curpos]) = \
                 htonl(value); \
         eap_pkg_curpos += 4; \
     } while (0)
@@ -1927,7 +1936,7 @@ void CDirectTranSrv::ParseSMPData(char *buf, unsigned buflen)
     delete[] buf;
 }
 
-bool CDirectTranSrv::PostToSam(char *buf, unsigned buflen) const
+bool CDirectTranSrv::PostToSam(const char *buf, unsigned buflen) const
 {
     bool ret = false;
     char *newbuf = new char[buflen];
@@ -1952,7 +1961,10 @@ bool CDirectTranSrv::PostToSam(char *buf, unsigned buflen) const
     return ret;
 }
 
-bool CDirectTranSrv::PostToSamWithNoResponse(char *buf, unsigned buflen) const
+bool CDirectTranSrv::PostToSamWithNoResponse(
+    const char *buf,
+    unsigned buflen
+) const
 {
     char *newbuf = new char[buflen];
 
@@ -1968,7 +1980,7 @@ bool CDirectTranSrv::PostToSamWithNoResponse(char *buf, unsigned buflen) const
            );
 }
 
-bool CDirectTranSrv::PostToSmp(char *buf, unsigned buflen) const
+bool CDirectTranSrv::PostToSmp(const char *buf, unsigned buflen) const
 {
     bool ret = false;
     char *newbuf = new char[buflen];
@@ -1993,7 +2005,10 @@ bool CDirectTranSrv::PostToSmp(char *buf, unsigned buflen) const
     return ret;
 }
 
-bool CDirectTranSrv::PostToSmpWithNoResponse(char *buf, unsigned buflen) const
+bool CDirectTranSrv::PostToSmpWithNoResponse(
+    const char *buf,
+    unsigned buflen
+) const
 {
     char *newbuf = new char[buflen];
 
@@ -2010,7 +2025,7 @@ bool CDirectTranSrv::PostToSmpWithNoResponse(char *buf, unsigned buflen) const
 }
 
 bool CDirectTranSrv::SendToSam(
-    char *buf,
+    const char *buf,
     unsigned buflen,
     unsigned timeout
 ) const
@@ -2033,7 +2048,7 @@ bool CDirectTranSrv::SendToSam(
 }
 
 bool CDirectTranSrv::SendToSamWithNoResponse(
-    char *buf,
+    const char *buf,
     unsigned buflen,
     unsigned timeout
 ) const
@@ -2055,7 +2070,7 @@ bool CDirectTranSrv::SendToSamWithNoResponse(
 }
 
 bool CDirectTranSrv::SendToSmp(
-    char *buf,
+    const char *buf,
     unsigned buflen,
     unsigned timeout
 ) const
@@ -2078,7 +2093,7 @@ bool CDirectTranSrv::SendToSmp(
 }
 
 bool CDirectTranSrv::SendToSmpWithNoResponse(
-    char *buf,
+    const char *buf,
     unsigned buflen,
     unsigned timeout
 ) const

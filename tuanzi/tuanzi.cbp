@@ -57,9 +57,36 @@
 					<Add option="-s" />
 				</Linker>
 			</Target>
+			<Target title="Updater Debug">
+				<Option output="bin/Debug/tuanzi_updater" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-DBUILDING_UPDATER" />
+				</Compiler>
+				<Linker>
+					<Add directory="../iniparser/bin/Debug" />
+				</Linker>
+			</Target>
+			<Target title="Updater Release">
+				<Option output="bin/Release/tuanzi_updater" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Compiler>
+					<Add option="-DBUILDING_UPDATER" />
+					<Add option="-DNDEBUG" />
+				</Compiler>
+				<Linker>
+					<Add directory="../iniparser/bin/Release" />
+				</Linker>
+			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-Weffc++" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add option="-fPIC" />
@@ -113,6 +140,11 @@
 		</Unit>
 		<Unit filename="include/all.h">
 			<Option compile="1" />
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="Configure Reader / Writer Debug" />
+			<Option target="Configure Reader / Writer Release" />
+			<Option target="Updater Debug" />
 		</Unit>
 		<Unit filename="include/autorun.h">
 			<Option target="Debug" />
@@ -138,7 +170,12 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="include/compressor.h" />
+		<Unit filename="include/compressor.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="Configure Reader / Writer Debug" />
+			<Option target="Configure Reader / Writer Release" />
+		</Unit>
 		<Unit filename="include/confupdateutilinstance.h">
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -206,6 +243,7 @@
 		<Unit filename="include/global.h">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Updater Debug" />
 		</Unit>
 		<Unit filename="include/helloprocessor.h">
 			<Option target="Debug" />
@@ -238,6 +276,7 @@
 		<Unit filename="include/logfile.h">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Updater Debug" />
 		</Unit>
 		<Unit filename="include/md5checksum.h">
 			<Option target="Debug" />
@@ -326,6 +365,7 @@
 		<Unit filename="include/suconfigfile.h">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Updater Debug" />
 		</Unit>
 		<Unit filename="include/sudes.h">
 			<Option target="Debug" />
@@ -370,6 +410,7 @@
 		<Unit filename="include/util.h">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Updater Debug" />
 		</Unit>
 		<Unit filename="include/vz_apiapp.h">
 			<Option target="Debug" />
@@ -411,7 +452,12 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="src/compressor.cpp" />
+		<Unit filename="src/compressor.cpp">
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="Configure Reader / Writer Debug" />
+			<Option target="Configure Reader / Writer Release" />
+		</Unit>
 		<Unit filename="src/confupdateutilinstance.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -475,6 +521,7 @@
 		<Unit filename="src/global.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Updater Debug" />
 		</Unit>
 		<Unit filename="src/helloprocessor.cpp">
 			<Option target="Debug" />
@@ -507,6 +554,7 @@
 		<Unit filename="src/logfile.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Updater Debug" />
 		</Unit>
 		<Unit filename="src/main.cpp">
 			<Option target="Debug" />
@@ -584,6 +632,7 @@
 		<Unit filename="src/suconfigfile.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Updater Debug" />
 		</Unit>
 		<Unit filename="src/sudes.cpp">
 			<Option target="Debug" />
@@ -617,6 +666,10 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="src/updater.cpp">
+			<Option target="Updater Debug" />
+			<Option target="Updater Release" />
+		</Unit>
 		<Unit filename="src/userconfig.cpp">
 			<Option compilerVar="CC" />
 			<Option target="Debug" />
@@ -625,6 +678,7 @@
 		<Unit filename="src/util.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
+			<Option target="Updater Debug" />
 		</Unit>
 		<Unit filename="src/vz_apiapp.cpp">
 			<Option target="Debug" />

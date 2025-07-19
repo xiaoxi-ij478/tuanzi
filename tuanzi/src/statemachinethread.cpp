@@ -4,9 +4,12 @@
 #include "changelanguage.h"
 #include "eapolutil.h"
 #include "msgutil.h"
+#include "util.h"
 #include "mtypes.h"
 #include "encodeutil.h"
 #include "md5checksum.h"
+#include "contextcontrolthread.h"
+#include "sendpacketthread.h"
 #include "statemachinethread.h"
 
 CStateMachineThread::CStateMachineThread() :
@@ -32,7 +35,7 @@ void CStateMachineThread::DispathMessage(struct LNXMSG *msg)
     }
 }
 
-void CStateMachineThread::OnTimer(int tflag) const
+void CStateMachineThread::OnTimer(int tflag)
 {
     if (OnTimerEnter(tflag)) {
         if (!PostThreadMessage(ON_TIMER_MTYPE, tflag, -1))
@@ -64,6 +67,8 @@ case (state_enum): \
             RETURN_STATE(STATE_LOGOFF, state_logoff);
 #undef RETURN_STATE
     }
+
+    return nullptr;
 }
 
 // *INDENT-OFF*
@@ -161,6 +166,7 @@ struct EAPOLFrame *CStateMachineThread::EncapsulateFrame(
 
             break;
     }
+    return eapol_frame;
 }
 
 void CStateMachineThread::FailNotification(struct EAPOLFrame *eapol_frame)
@@ -225,7 +231,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPacketNotify, CStateMachineThread)
 DEFINE_DISPATH_MESSAGE_HANDLER(OnSayHello, CStateMachineThread) const
 {
     if (CtrlThread->send_packet_thread)
-        CtrlThread->send_packet_thread.PostThreadMessage(
+        CtrlThread->send_packet_thread->PostThreadMessage(
             SEND_MESSAGE_MTYPE,
             arg1,
             arg2
@@ -296,7 +302,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStateMove, CStateMachineThread)
         CtrlThread->IsRuijieNas() ||
         state_visual->state_data->prev_state != STATE_AUTHENTICATED
     )
-        CtrlThread->PostThreadMessage(STATE_MACHINE_RETURN_MTYPE, arg1);
+        CtrlThread->PostThreadMessage(STATE_MACHINE_RETURN_MTYPE, arg1, 0);
 
     state_visual->MoveState();
 
@@ -537,10 +543,10 @@ void CStateMachineThread::txLogOff(char a1) const
     DeleteFrameMemory(eapol_frame);
 
     if (CtrlThread->send_packet_thread)
-        send_packet_thread->PostThreadMessage(
+        CtrlThread->send_packet_thread->PostThreadMessage(
             SEND_MESSAGE_MTYPE,
             length,
-            eapol_pkg
+            reinterpret_cast<unsigned long>(eapol_pkg)
         );
 
     rj_printf_debug("Send : LogOff\r\n");
@@ -610,7 +616,7 @@ void CStateMachineThread::txRspAuth() const
         CtrlThread->send_packet_thread->PostThreadMessage(
             SEND_MESSAGE_MTYPE,
             eapol_pkglen,
-            eapol_pkg
+            reinterpret_cast<unsigned long>(eapol_pkg)
         );
 }
 
@@ -652,7 +658,7 @@ void CStateMachineThread::txRspAuthPAP() const
         CtrlThread->send_packet_thread->PostThreadMessage(
             SEND_MESSAGE_MTYPE,
             eapol_pkglen,
-            eapol_pkg
+            reinterpret_cast<unsigned long>(eapol_pkg)
         );
 }
 
@@ -663,7 +669,6 @@ void CStateMachineThread::txRspID() const
     unsigned length = 0;
     eapol_frame =
         EncapsulateFrame(
-            this,
             IEEE8021X_EAP_PACKET,
             EAP_TYPE_IDENTITY,
             CtrlThread->configure_info.last_auth_username.length(),
@@ -674,10 +679,10 @@ void CStateMachineThread::txRspID() const
     DeleteFrameMemory(eapol_frame);
 
     if (CtrlThread->send_packet_thread)
-        send_packet_thread->PostThreadMessage(
+        CtrlThread->send_packet_thread->PostThreadMessage(
             SEND_MESSAGE_MTYPE,
             length,
-            eapol_pkg
+            reinterpret_cast<unsigned long>(eapol_pkg)
         );
 
     rj_printf_debug("Send : RspID\r\n");
@@ -720,10 +725,10 @@ void CStateMachineThread::txStart() const
     DeleteFrameMemory(eapol_frame);
 
     if (CtrlThread->send_packet_thread)
-        send_packet_thread->PostThreadMessage(
+        CtrlThread->send_packet_thread->PostThreadMessage(
             SEND_MESSAGE_MTYPE,
             length,
-            eapol_pkg
+            reinterpret_cast<unsigned long>(eapol_pkg)
         );
 
     rj_printf_debug("Send : Start\r\n");

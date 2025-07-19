@@ -5,33 +5,34 @@
 #include "timeutil.h"
 #include "msgutil.h"
 #include "global.h"
+#include "contextcontrolthread.h"
 #include "supplicantapp.h"
 
 CSupplicantApp::CSupplicantApp() :
     thread_key(),
     field_8(1),
     version("RG-SU For Linux V1.30"),
-    status(),
+    state(),
     field_7C(),
     success_time()
 {
     InitializeCriticalSection(&su_config_file_lock);
-    InitializeCriticalSection(&field_48);
+    InitializeCriticalSection(&self_lock);
 }
 
 CSupplicantApp::~CSupplicantApp()
 {
     DeleteCriticalSection(&su_config_file_lock);
-    DeleteCriticalSection(&field_48);
+    DeleteCriticalSection(&self_lock);
 }
 
 void CSupplicantApp::GUI_QuitMainLoop(const std::string &msg) const
 {
     ShowLocalMsg(msg + '\n', CChangeLanguage::Instance().LoadString(96));
-    CLogFile::LogToFile(msg.c_str(), g_runLogFile, true, true);
+    CLogFile::LogToFile(msg.c_str(), g_runLogFile.c_str(), true, true);
     CLogFile::LogToFile(
-        CChangeLanguage::Instance().LoadString(2051),
-        g_runLogFile,
+        CChangeLanguage::Instance().LoadString(2051).c_str(),
+        g_runLogFile.c_str(),
         true,
         true
     );
@@ -47,7 +48,7 @@ void CSupplicantApp::GUI_update_LOGOFF(
     enum LOGOFF_REASON reason,
     enum STATES new_state
     // *INDENT-ON*
-) const
+)
 {
     std::string notify_msg;
     bool should_not_exit = false;
@@ -127,9 +128,9 @@ case (reason): \
 
     if (!should_not_exit) {
         GetCurDataAndTime(cur_date);
-        const std::string &final_msg = std::string(cur_date).append(notify_msg);
+        std::string final_msg = std::string(cur_date).append(notify_msg);
         GUI_update_connect_text(final_msg);
-        CLogFile::LogToFile(final_msg, g_runLogFile, true, true);
+        CLogFile::LogToFile(final_msg.c_str(), g_runLogFile.c_str(), true, true);
 
     } else
         GUI_ShowMainWindow(notify_msg);
@@ -143,7 +144,7 @@ case (reason): \
 void CSupplicantApp::GUI_update_connect_states_and_text(
     enum STATES new_state,
     const std::string &msg
-) const
+)
 {
     GUI_update_connect_text(msg);
     GUI_update_connectdlg_by_states(new_state);
@@ -158,11 +159,11 @@ void CSupplicantApp::GUI_update_connectdlg_by_states(
     // *INDENT-OFF*
     enum STATES new_state
     // *INDENT-ON*
-) const
+)
 {
     char date_buf[64] = {};
 
-    switch (status = new_state) {
+    switch (state = new_state) {
         case STATE_AUTHENTICATED:
             rj_printf_debug(
                 "CMiniWindow::update_connectdlg_by_states connect success\n"
@@ -174,8 +175,8 @@ void CSupplicantApp::GUI_update_connectdlg_by_states(
                 .append(CChangeLanguage::Instance().LoadString(172))
             );
             CLogFile::LogToFile(
-                CChangeLanguage::Instance().LoadString(172),
-                g_runLogFile,
+                CChangeLanguage::Instance().LoadString(172).c_str(),
+                g_runLogFile.c_str(),
                 true,
                 true
             );
@@ -192,5 +193,5 @@ void CSupplicantApp::GUI_update_connectdlg_by_states(
 
 bool CSupplicantApp::IsOnline() const
 {
-    return status == STATE_AUTHENTICATED;
+    return state == STATE_AUTHENTICATED;
 }

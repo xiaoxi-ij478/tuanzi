@@ -184,7 +184,13 @@ bool CDNSQuery::StartQueryThread(char *errmsg)
         return false;
     }
 
-    if ((msgid = msgget(lmsgid, 0666 | IPC_CREAT)) == -1) {
+    msgid =
+        msgget(
+            lmsgid,
+            S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH | IPC_CREAT
+        );
+
+    if (msgid == -1) {
         if (errmsg)
             sprintf(errmsg, "msgget failed with error: %d\n", errno);
 

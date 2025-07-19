@@ -3,6 +3,9 @@
 #include "cmdutil.h"
 #include "changelanguage.h"
 #include "userconfig.h"
+#include "global.h"
+#include "contextcontrolthread.h"
+#include "directtransrv.h"
 #include "passwordmodifier.h"
 
 std::string CPasswordModifier::submited_new_password;
@@ -64,13 +67,13 @@ bool CPasswordModifier::SendModifyPWRequest(
     len += CtrlThread->configure_info.last_auth_username.length();
     buf[len++] = 0x03;
     *reinterpret_cast<uint16_t *>(&buf[len]) =
-        CtrlThread->configure_info.diskid.length();
+        CtrlThread->diskid.length();
     len += 2;
     strcpy(
         &buf[len],
-        CtrlThread->configure_info.diskid.c_str()
+        CtrlThread->diskid.c_str()
     );
-    len += CtrlThread->configure_info.diskid.length();
+    len += CtrlThread->diskid.length();
     buf[len++] = 0xBF;
     *reinterpret_cast<uint16_t *>(&buf[len]) = old_password.length();
     len += 2;

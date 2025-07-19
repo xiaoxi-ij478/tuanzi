@@ -5,6 +5,7 @@
 #include "threadutil.h"
 #include "mtypes.h"
 #include "stdpkgs.h"
+#include "global.h"
 #include "rxpacketthread.h"
 
 CRxPacketThread::CRxPacketThread() :
@@ -139,7 +140,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(StartRecvPacket, CRxPacketThread)
                 pcap_handle,
                 1,
                 CRxPacketThread::RecvPacketCallBack,
-                reinterpret_cast<char *>(&msgids)
+                reinterpret_cast<unsigned char *>(&msgids)
             ) == -1
         ) {
             g_logSystem.AppendText(
@@ -185,9 +186,9 @@ int CRxPacketThread::StopRxPacketThread()
 }
 
 void CRxPacketThread::RecvPacketCallBack(
-    char *user,
+    unsigned char *user,
     const struct pcap_pkthdr *h,
-    const char *bytes
+    const unsigned char *bytes
 )
 {
     struct CRxPacketThread_msgids *msgids =

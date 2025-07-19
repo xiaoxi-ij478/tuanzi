@@ -8,6 +8,7 @@
 #include "mtypes.h"
 #include "dirtransutil.h"
 #include "cmdutil.h"
+#include "contextcontrolthread.h"
 #include "dirtranthread.h"
 
 CDirTranThread::CDirTranThread() :
@@ -142,7 +143,7 @@ void CDirTranThread::CloseGSNSender(int id)
     LeaveCriticalSection(&data_send_mutex);
     EnterCriticalSection(&send_bind_mutex);
 
-    for (auto it = send_bind.begin(); it != send_bind.end(); it++)
+    for (auto it = send_bind.cbegin(); it != send_bind.cend(); it++)
         if (it->id == id)
             it = send_bind.erase(it) - 1;
 
@@ -565,7 +566,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnTransPacket, CDirTranThread)
             }
 
             send_unit = data_send.front();
-            data_send.erase(data_send.begin());
+            data_send.erase(data_send.cbegin());
             LeaveCriticalSection(&data_send_mutex);
             EnterCriticalSection(&send_bind_mutex);
 
@@ -644,7 +645,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnTransPacket, CDirTranThread)
 
 bool CDirTranThread::PostPacketNoResponse(
     int id,
-    char *buf,
+    const char *buf,
     unsigned buflen
 )
 {
@@ -652,7 +653,6 @@ bool CDirTranThread::PostPacketNoResponse(
         0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
     };
     struct tagDataSendUnit send_unit = {};
-    char *msg = nullptr;
     unsigned buflen_new = buflen;
 
     if (!GetProtocalParamFromSenderHand(proto_param, id)) {
@@ -687,10 +687,12 @@ bool CDirTranThread::PostPacketNoResponse(
 
 bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
     int id,
-    char *buf,
+    const char *buf,
     unsigned buflen
 )
 {
+    char tmpbuf[130] = {};
+    bool tmpbuf_used = false;
     struct tagDirectCom_ProtocalParam proto_param = {
         0, 0, 0, 0, 3, 3000, {}, {}, true, 0, GetTickCount(), false, 1
     };
@@ -729,15 +731,16 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
                 e_pMd5Chanllenge + sizeof(e_pMd5Chanllenge),
                 0
             );
-        buf[buflen_new] = 0x14;
-        buf[buflen_new + 1] = 0x80; // buffer len
+        tmpbuf_used = true;
+        tmpbuf[0] = 0x14;
+        tmpbuf[1] = 0x80;
         CVz_APIApp::V3HeartbeatAPI(
             &cHeartBeatArray[(0x2D7 * heartbeat_checksum_sum % 0x35) << 7],
-            buf[buflen_new + 1],
-            &buf[buflen_new + 2],
+            tmpbuf[1],
+            &tmpbuf[2],
             static_cast<enum HASH_TYPE>(0x2D7 * heartbeat_checksum_sum % 0x35)
         );
-        buflen_new += buf[buflen_new + 1] + 2;
+        buflen_new += sizeof(tmpbuf);
     }
 
     buflen_new = ((buflen_new >> 3) + !!(buflen_new & 7)) << 3;
@@ -747,6 +750,10 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
         return false;
 
     memcpy(send_unit.msg, buf, buflen);
+
+    if (tmpbuf_used)
+        memcpy(&send_unit.msg[buflen], tmpbuf, sizeof(tmpbuf));
+
     EncryptPrivateData(proto_param, send_unit.msg, buflen_new);
     EnterCriticalSection(&data_send_mutex);
     data_send.push_back(send_unit);
@@ -761,7 +768,7 @@ bool CDirTranThread::PostPacketSAMHeartbeatNoResponse(
 
 bool CDirTranThread::SendPacketNoResponse(
     int id,
-    char *buf,
+    const char *buf,
     unsigned buflen,
     unsigned timeout
 )
@@ -794,7 +801,7 @@ bool CDirTranThread::SendPacketNoResponse(
         return false;
     }
 
-    memcpy(send_unit.msg, buf, buflen);
+    memcpy(send_unit.msg, buf, buflen_new);
     EncryptPrivateData(proto_param, send_unit.msg, buflen_new);
     EnterCriticalSection(&data_send_mutex);
     data_send.push_back(send_unit);
@@ -954,7 +961,7 @@ bool CDirTranThread::WaitUDP_DirectThread_OK(WAIT_HANDLE &event_udp_ready) const
 
 bool CDirTranThread::postMessage(
     int id,
-    char *buf,
+    const char *buf,
     unsigned buflen
 )
 {
@@ -992,7 +999,7 @@ bool CDirTranThread::postMessage(
 
 bool CDirTranThread::sendMessage(
     int id,
-    char *buf,
+    const char *buf,
     unsigned buflen
 )
 {
@@ -1045,7 +1052,7 @@ bool CDirTranThread::sendMessage(
 
 bool CDirTranThread::sendMessageWithTimeout(
     int id,
-    char *buf,
+    const char *buf,
     unsigned buflen,
     unsigned timeout
 )

@@ -15,12 +15,11 @@ extern void format_tc_string(
     const std::string &str
 );
 extern void fill_tc_left_char(unsigned len, char c);
-extern void print_separator(const char *s, unsigned len, bool print_crlf);
+extern void print_separator(const char *s, int len, bool print_crlf);
 extern void print_string_list(
     const char *prefix,
     const std::vector<std::string> &slist
 );
-extern bool check_quit();
 extern bool check_safe_exit(bool create_file);
 extern bool is_run_background();
 extern int set_termios(bool set_echo_icanon);
@@ -33,13 +32,26 @@ extern void show_url(
     const std::string &content,
     const std::string &header
 );
-extern void show_version();
-extern void show_message_info();
 extern void show_login_url();
-extern void do_modify_password();
-extern void dispatch_cmd(char cmd);
+extern unsigned dispatch_cmd(char cmd);
 extern void display_help();
 extern int modify_password_timeout(bool reset);
-extern void show_sso_url();
+extern bool post_command(char c);
+extern int do_quit();
+extern void print_service_list(bool do_switch);
+extern void do_update(struct updateArg_t *update_arg);
+extern void show_auth_info(bool use_default, bool wireless_only);
+extern unsigned show_all_info();
+extern unsigned show_connect_net_info();
+extern unsigned show_connect_time();
+extern unsigned show_connect_user_info();
+extern unsigned show_message_info();
+extern unsigned show_version();
+extern unsigned show_sso_url();
+extern unsigned do_modify_password();
+extern bool check_quit();
+extern unsigned do_switch_service();
+extern void show_wlan_scan_info(const char *adapter_name);
+extern void print_nic_list(bool wireless_only);
 
 #endif // CMDUTIL_H_INCLUDED

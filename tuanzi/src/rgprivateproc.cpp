@@ -7,6 +7,8 @@
 #include "encodeutil.h"
 #include "vz_apiapp.h"
 #include "changelanguage.h"
+#include "contextcontrolthread.h"
+#include "eapolutil.h"
 #include "rgprivateproc.h"
 
 void CRGPrivateProc::EncapRGVerdorSeg(char *buf, unsigned &len)
@@ -363,7 +365,7 @@ void CRGPrivateProc::GetHardDiskSN(char *buf, unsigned &len)
         CtrlThread->diskid.length(),
         CtrlThread->diskid.c_str()
     );
-    buf[len++] = std::max(CtrlThread->diskid.length(), 64);
+    buf[len++] = std::max(CtrlThread->diskid.length(), 64ul);
     memcpy(&buf[len], CtrlThread->diskid.c_str(), buf[1]);
     len += buf[1];
 }
@@ -491,7 +493,7 @@ void CRGPrivateProc::GetMACAddr(char *buf, unsigned &len)
     len = 0;
     buf[len++] = 0x2D;
     buf[len++] = 0x06;
-    CtrlThread->GetAdapterMac(&buf[len]);
+    CtrlThread->GetAdapterMac(reinterpret_cast<struct ether_addr*>(&buf[len]));
     len += 6;
 }
 
@@ -986,8 +988,9 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                     sizeof(CtrlThread->private_properties.encrypt_key)
                 );
                 RC4(
-                    CtrlThread->private_properties.encrypt_key,
-                    "com.ruijie.www",
+                    reinterpret_cast<unsigned char *>
+                    (CtrlThread->private_properties.encrypt_key),
+                    reinterpret_cast<const unsigned char *>("com.ruijie.www"),
                     sizeof(CtrlThread->private_properties.encrypt_key)
                 );
                 g_dhcpDug.AppendText(
@@ -1011,8 +1014,9 @@ void CRGPrivateProc::ReadRGVendorSeg(const char *buf, unsigned len)
                     sizeof(CtrlThread->private_properties.encrypt_iv)
                 );
                 RC4(
-                    CtrlThread->private_properties.encrypt_iv,
-                    "com.ruijie.www",
+                    reinterpret_cast<unsigned char *>
+                    (CtrlThread->private_properties.encrypt_iv),
+                    reinterpret_cast<const unsigned char *>("com.ruijie.www"),
                     sizeof(CtrlThread->private_properties.encrypt_iv)
                 );
                 g_dhcpDug.AppendText(

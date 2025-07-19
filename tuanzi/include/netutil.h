@@ -73,10 +73,8 @@ extern bool IsMulDstMac(struct ether_addr *macaddr);
 extern bool IsStarGroupDstMac(struct ether_addr *macaddr);
 extern void createUdpBindSocket(unsigned short port);
 extern bool isNoChangeIP(in_addr_t *ipaddr1, in_addr_t *ipaddr2);
-extern void stop_dhclient_asyn();
 extern bool dhclient_asyn(const char *ipaddr, sem_t *semaphore);
 extern void *dhclient_thread(void *varg);
-extern void dhclient_exit();
 extern void disable_enable_nic(const char *ifname);
 extern void get_all_nics_statu(std::vector<struct NICsStatus> &dest);
 extern bool IsEqualDhcpInfo(
@@ -92,5 +90,9 @@ extern void repair_ip_gateway(
 );
 extern void swapipv6(struct in6_addr *addr);
 extern void del_default_gateway();
+extern void get_ssid_list(
+    const char *adapter_name,
+    std::vector<struct tagWirelessSignal> &signals
+);
 
 #endif // NETUTIL_H_INCLUDED

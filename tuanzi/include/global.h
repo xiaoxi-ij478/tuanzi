@@ -15,10 +15,11 @@ extern std::string g_strError;
 extern bool bLoadLib; // librt loaded
 // used in update procedure
 extern bool updteParam; // update requested
-extern std::string update_message;
+extern std::string update_file_path;
 // this is always set to empty
-extern std::string alt_update_message;
+extern std::string update_message;
 extern int g_rwpipe[2];
+extern bool g_background;
 extern timer_t g_runModetimer;
 extern bool g_bDoRunIbus;
 extern pthread_rwlock_t g_fileLock;
@@ -87,7 +88,7 @@ extern CLogFile g_logFile_dns;
 
 extern CSupplicantApp theApp;
 
-extern CCheckRunThread chkRunThread;
+extern CCheckRunThread chkRunThred;
 
 extern CContextControlThread *CtrlThread;
 

@@ -6,6 +6,14 @@
 
 #define MAX_NIC_NAME_LEN 0x200
 
+#define LNXMSG_MSGSZ (sizeof(struct LNXMSG) - offsetof(struct LNXMSG, arg1))
+
+struct LNXMSG {
+    long mtype;
+    unsigned long arg1;
+    unsigned long arg2;
+};
+
 enum MODIFY_MODE {
     BEFOER_LOGIN_DISABLE, // the source code writes as this, not typo
     BEFOER_LOGIN_ENABLE,
@@ -218,6 +226,17 @@ enum APP_QUIT_TYPE {
 enum LOGOFF_REASON {
     LOGOFF_REASON_UNKNOWN_REASON = 0,
     LOGOFF_REASON_NORMAL_LOGOFF = 1,
+    LOGOFF_REASON_RUIJIE_MULTIPLE_NIC = 2,
+    LOGOFF_REASON_RUIJIE_ADDRESS_CHANGED = 3,
+    LOGOFF_REASON_RUIJIE_PROXY_DETECTED = 4,
+    LOGOFF_REASON_RUIJIE_NIC_NOT_FOUND = 6,
+    LOGOFF_REASON_RUIJIE_AUTH_FAIL = 8,
+    LOGOFF_REASON_RUIJIE_FORCE_OFFLINE_3 = 17,
+    LOGOFF_REASON_RUIJIE_FORCE_OFFLINE_2 = 20,
+    LOGOFF_REASON_RUIJIE_COULD_NOT_COMM_WITH_SERVER = 25,
+    LOGOFF_REASON_RUIJIE_OTHERS_FAKING_MAC = 26,
+    LOGOFF_REASON_RUIJIE_SOCKS_PROXY = 27,
+    LOGOFF_REASON_RUIJIE_HTTP_PROXY = 28,
     LOGOFF_REASON_MULTIPLE_NIC = 102,
     LOGOFF_REASON_ADDRESS_CHANGED = 103,
     LOGOFF_REASON_PROXY_DETECTED = 104,
@@ -293,10 +312,27 @@ struct UdpListenParam {
 };
 
 struct UserInfo {
-    unsigned unl2t1;
-    unsigned dcd2x;
-    std::string ed2e1;
-    std::string gr2a1;
+    unsigned username_len;
+    unsigned password_len;
+    std::string username;
+    std::string password;
+};
+
+struct updateArg_t {
+    bool update;
+    std::string update_file_path;
+    std::string update_message;
+};
+
+struct tagWirelessSignal {
+    tagWirelessSignal() = default;
+    tagWirelessSignal(char *ssid_l, unsigned ssid_len, unsigned qual) :
+        ssid_len(ssid_len), qual(qual) {
+        memcpy(ssid, ssid_l, ssid_len);
+    }
+    char ssid[33];
+    unsigned ssid_len;
+    unsigned qual;
 };
 
 #endif // MISCDEFS_H_INCLUDED

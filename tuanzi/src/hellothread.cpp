@@ -2,6 +2,8 @@
 #include "global.h"
 #include "util.h"
 #include "mtypes.h"
+#include "sendpacketthread.h"
+#include "contextcontrolthread.h"
 #include "hellothread.h"
 
 CHelloThread::CHelloThread() :
@@ -32,7 +34,7 @@ bool CHelloThread::InitInstance()
     return CLnxThread::InitInstance();
 }
 
-void CHelloThread::OnTimer(int tflag) const
+void CHelloThread::OnTimer(int tflag)
 {
     if (OnTimerEnter(tflag)) {
         if (
@@ -61,7 +63,7 @@ struct HelloPacket *CHelloThread::CreateHelloPacket(unsigned &packet_len)
         reinterpret_cast<struct ether_addr *>(ret->ether_header.ether_shost)
     );
     *reinterpret_cast<struct ether_addr *>(ret->ether_header.ether_dhost) =
-        CtrlThread->field_550;
+        CtrlThread->dstaddr;
     ret->ether_header.ether_type = htons(ETH_P_PAE);
     ret->code = 1;
     ret->id = 0xBF;
@@ -76,7 +78,7 @@ struct HelloPacket *CHelloThread::CreateHelloPacket(unsigned &packet_len)
     ret->field_1E.field_4 = htonl(cur_crcid + 0x74 - e_pHelloID[hello_id_offset++]);
     hello_id_offset &= 15;
     encode(
-        &ret->type,
+        reinterpret_cast<char *>(&ret->type),
         sizeof(struct HelloPacket) - offsetof(struct HelloPacket, type)
     );
     packet_len = sizeof(struct HelloPacket);
@@ -138,7 +140,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnHelloTimer, CHelloThread)
             !CtrlThread->send_packet_thread->PostThreadMessage(
                 SEND_MESSAGE_MTYPE,
                 rbuflen,
-                hello_packet
+                reinterpret_cast<unsigned long>(hello_packet)
             )
         )
             g_log_Wireless.AppendText(

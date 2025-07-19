@@ -18,17 +18,16 @@ extern void SetEvent(WAIT_HANDLE *wait_handle, bool broadcast);
 extern bool TerminateThread(pthread_t thread_id);
 extern bool PostThreadMessage(
     key_t thread_key,
-    unsigned mtype,
+    long mtype,
     unsigned long arg1,
     unsigned long arg2
 );
 extern bool GPostThreadMessage(
     int msqid,
-    unsigned mtype,
+    long mtype,
     unsigned long arg1,
     unsigned long arg2
 );
-extern bool post_command(char c);
 extern void StopOcx();
 
 #endif // THREADUTIL_H_INCLUDED

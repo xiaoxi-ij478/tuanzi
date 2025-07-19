@@ -8,10 +8,10 @@ CDNSQuery CTcp::dns_queryer;
 
 CTcp::CTcp(const struct TcpInfo &info) :
     request_type(REQUEST_UNKNOWN_N1),
-    reqaddr_int(-1),
-    reqport(),
-    hostent(),
     tcpinfo(info),
+    reqport(),
+    reqaddr_int(-1),
+    hostent(),
     socks5_request_addr(),
     socks5_request_header(),
     socks5_request_domain_len(),
@@ -482,7 +482,7 @@ bool CTcp::IsMmsType(const struct TCPIP &pkg)
 {
     wchar_t *wchar_buf = nullptr;
     char *char_buf = nullptr;
-    char_buflen = 0;
+    unsigned char_buflen = 0;
     int host_pos = 0;
     const struct MMSTcpMessage *message =
             reinterpret_cast<const struct MMSTcpMessage *>(pkg.content);

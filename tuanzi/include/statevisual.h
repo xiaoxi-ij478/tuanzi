@@ -9,10 +9,10 @@ class CStateVisual
         CStateVisual();
         virtual ~CStateVisual();
 
+        void SetStateData(CStateData *new_data);
+
         virtual void Initlize();
         virtual void MoveState();
-
-        void SetStateData(const CStateData *new_data);
 
         pthread_t thread_id;
         unsigned long field_10;

@@ -46,7 +46,7 @@ void CMD5Checksum::Final2CharBuff(char *buf, unsigned buflen)
     if (buflen < 16) // buffer size is not enough
         return;
 
-    MD5Final(buf, &ctx);
+    MD5Final(reinterpret_cast<unsigned char *>(buf), &ctx);
 }
 
 char *CMD5Checksum::GetMD5(const char *buf, unsigned buflen)

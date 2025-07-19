@@ -2,14 +2,7 @@
 #define LNXTHREAD_H_INCLUDED
 
 #include "waithandle.h"
-
-struct LNXMSG {
-    unsigned long mtype;
-    unsigned long arg1;
-    unsigned long arg2;
-};
-
-#define LNXMSG_MSGSZ (sizeof(struct LNXMSG) - offsetof(struct LNXMSG, arg1))
+#include "miscdefs.h"
 
 struct TIMERPARAM {
     int tflag;
@@ -39,7 +32,7 @@ class CLnxThread
         int CreateThread(pthread_attr_t *pthread_attr, bool no_need_send_msg_l);
         int GetMessageID() const;
         bool PostThreadMessage(
-            unsigned long mtype,
+            long mtype,
             unsigned long arg1,
             unsigned long arg2
         ) const;
@@ -63,7 +56,7 @@ class CLnxThread
         virtual void DispathMessage(struct LNXMSG *msg);
         virtual bool OnTimerEnter(int tflag) const;
         virtual void OnTimerLeave(int tflag) const;
-        virtual void OnTimer(int tflag) const;
+        virtual void OnTimer(int tflag);
         virtual bool ExitInstance();
         virtual bool KillTimer(timer_t &timerid);
 
@@ -78,7 +71,7 @@ class CLnxThread
         static void *_LnxThreadEntry(void * /* WAIT_HANDLE2 * */ arg);
         static void _OnTimerEntry(union sigval /* TIMERPARAM @ sival_ptr */ arg);
 
-    protected:
+    public:
         bool doing_upgrade;
 
     private:

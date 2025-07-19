@@ -64,7 +64,7 @@ class CUDPListenThread : public CLnxThread
         void DispathMessage(struct LNXMSG *msg) override;
         bool ExitInstance() override;
         bool InitInstance() override;
-        void OnTimer(int tflag) const override;
+        void OnTimer(int tflag) override;
 
     private:
         bool DecryptPrivateData(

@@ -7,13 +7,12 @@ CLogFile::CLogFile() : log_filename(), prio()
 
 void CLogFile::CreateLogFile_S(const std::string &filename, int prio_l)
 {
-    log_filename = filename;
-    prio = prio_l;
+    CreateLogFile(filename.c_str(), prio_l);
 }
 
 void CLogFile::CreateLogFile(const char *filename, int prio_l)
 {
-    log_filename = filename;
+    strcpy(log_filename, filename);
     prio = prio_l;
 }
 
@@ -51,7 +50,7 @@ void CLogFile::LogToFile(
 {
     char time[304] = {};
 
-    if (!log_msg || !*log_msg || ! filename || !*filename)
+    if (!log_msg || !*log_msg || !filename || !*filename)
         return;
 
     std::ofstream ofs(filename, std::ios::app);
@@ -90,5 +89,5 @@ void CLogFile::AppendText_V(const char *format, va_list va)
 
 void CLogFile::WriteString(const char *str)
 {
-    LogToFile(str, log_filename.c_str(), true, true);
+    LogToFile(str, log_filename, true, true);
 }
