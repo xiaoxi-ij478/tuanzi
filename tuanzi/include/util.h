@@ -45,6 +45,12 @@ extern void ParseString(
     char delim,
     std::vector<std::string> &dest
 );
+extern void ParseString(
+    const std::string &str,
+    char delim,
+    std::vector<std::string> &dest,
+    unsigned max_time
+);
 extern void TrimLeft(std::string &str, const std::string &chars);
 extern void TrimRight(std::string &str, const std::string &chars);
 extern void HIPacketUpdate(const char *, int);
@@ -131,6 +137,7 @@ extern void DoWithServiceSwitch_NoRuijieNas();
 extern void DoWithServiceSwitch_RuijieNas();
 extern void InitAppMain();
 extern void ServiceSwitch(const std::string &service_name);
+extern void TrimAll(std::string &str, const std::string &chars);
 
 static inline void swap128(char *val)
 {

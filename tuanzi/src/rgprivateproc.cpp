@@ -493,7 +493,7 @@ void CRGPrivateProc::GetMACAddr(char *buf, unsigned &len)
     len = 0;
     buf[len++] = 0x2D;
     buf[len++] = 0x06;
-    CtrlThread->GetAdapterMac(reinterpret_cast<struct ether_addr*>(&buf[len]));
+    CtrlThread->GetAdapterMac(reinterpret_cast<struct ether_addr *>(&buf[len]));
     len += 6;
 }
 

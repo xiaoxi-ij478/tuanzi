@@ -10,7 +10,7 @@ CRITICAL_SECTION::CRITICAL_SECTION() :
 
 CRITICAL_SECTION::~CRITICAL_SECTION()
 {
-    unsigned ret;
+    int ret = 0;
 
     if (!inited)
         return;
@@ -73,7 +73,7 @@ bool CRITICAL_SECTION::leave()
 {
     int ret = pthread_mutex_unlock(&pthread_mutex);
 
-    if (pthread_mutex_unlock(&pthread_mutex))
+    if (ret)
         g_logSystem.AppendText("pthread_mutex_unlock return %d", ret);
 
     return !ret;

@@ -97,6 +97,7 @@ void chk_call_back(int)
 
 bool set_msg_config(const std::string &key, int val)
 {
+    // "sysctl -w kernel.$key=$val >&-"
     std::ofstream ofs;
 
     if (key != "msgmax" && key != "msgmnb" && key != "msgmni")
@@ -164,6 +165,7 @@ bool DecryptSuConfig()
         return false;
     }
 
+    ofs.close();
     return true;
 }
 
@@ -207,6 +209,7 @@ bool EncryptSuConfig()
         return false;
     }
 
+    ofs.close();
     return true;
 }
 
@@ -367,36 +370,55 @@ void ParseString(
     std::string tmp;
     dest.clear();
 
-    while (std::getline(iss, tmp, delim)) {
+    while (std::getline(iss, tmp, delim))
+        dest.push_back(tmp);
+}
+
+void ParseString(
+    const std::string &str,
+    char delim,
+    std::vector<std::string> &dest,
+    unsigned max_time
+)
+{
+    unsigned i = 0;
+    std::istringstream iss(str);
+    std::string tmp;
+    dest.clear();
+
+    while (i++ < max_time && std::getline(iss, tmp, delim))
         dest.push_back(tmp);
 
-        while (iss.get() == delim);
+    if (iss.eof())
+        return;
 
-        if (iss.eof())
-            break;
-
-        iss.unget();
-    }
+    dest.push_back(str.substr(iss.tellg()));
 }
 
 void TrimLeft(std::string &str, const std::string &chars)
 {
-    std::string::size_type p = 0;
+    std::string::size_type first = str.find_first_not_of(chars);
 
-    if ((p = str.find_first_not_of(chars)) == std::string::npos)
+    if (first == std::string::npos) {
         str.clear();
+        return;
+    }
 
-    str.erase(0, p - 1);
+    if (first)
+        str.erase(str.cbegin(), std::next(str.cbegin(), first));
 }
 
 void TrimRight(std::string &str, const std::string &chars)
 {
-    std::string::size_type p = 0;
+    std::string::size_type last = str.find_last_not_of(chars);
 
-    if ((p = str.find_last_not_of(chars)) == std::string::npos)
+    if (last == std::string::npos) {
         str.clear();
+        return;
+    }
 
-    str.erase(p + 1);
+    if (last != str.length())
+        str.erase(std::next(str.cbegin(), last + 1), str.cend());
 }
 
 void HIPacketUpdate(const char *, int)
@@ -566,7 +588,7 @@ void OnRunModeCheckTimer(union sigval arg)
         post_command('c');
     }
 
-    if (modify_password_timeout(false) <= 0)
+    if (modify_password_timeout(false) > 0)
         message_info(CChangeLanguage::Instance().LoadString(273));
 }
 
@@ -1174,7 +1196,7 @@ void InitAppMain()
     CtrlThread->CreateThread(nullptr, false);
 
     if (CtrlThread->StartThread()) {
-        ShowLocalMsg("Create Main Thread Failed",  "RG-SU");
+        ShowLocalMsg("Create Main Thread Failed", "RG-SU");
         return;
     }
 
@@ -1207,4 +1229,10 @@ void ServiceSwitch(const std::string &new_name)
 
     else
         DoWithServiceSwitch_NoRuijieNas();
+}
+
+void TrimAll(std::string &str, const std::string &chars)
+{
+    TrimLeft(str, chars);
+    TrimRight(str, chars);
 }

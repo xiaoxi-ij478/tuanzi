@@ -76,6 +76,7 @@ void CUserConfig::PrepareForRunboot(bool)
 bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo &info)
 {
     CSuConfigFile conffile;
+    conffile.Lock();
 
     if (!conffile.Open()) {
         g_log_Wireless.AppendText("ReadConfigParam file open error.");

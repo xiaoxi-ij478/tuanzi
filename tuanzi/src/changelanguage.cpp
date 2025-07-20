@@ -52,17 +52,14 @@ bool CChangeLanguage::InitLanguage()
 //
 //        trans_id_str = s.substr(0, equal_pos);
 //        trans_str = s.substr(equal_pos + 1);
-        ParseString(line, '=', val);
+        ParseString(line, '=', val, 1);
+
+        if (val.size() == 1)
+            continue;
+
         std::string &trans_id_str = val[0];
         std::string &trans_str = val[1];
-        trans_str.erase(
-            trans_str.cbegin(),
-            std::next(trans_str.cbegin(), trans_str.find_first_not_of(" \n\r"))
-        );
-        trans_str.erase(
-            std::prev(trans_str.cend(), trans_str.find_last_not_of(" \n\r")),
-            trans_str.cend()
-        );
+        TrimAll(trans_str, " \r\n");
         replace_all_distinct(trans_str, "\\r", "\r");
         replace_all_distinct(trans_str, "\\n", "\n");
 //        tagSectionUnit tsu;
@@ -73,10 +70,6 @@ bool CChangeLanguage::InitLanguage()
     }
 
     translate_file.close();
-
-    if (!translate_file)
-        return false;
-
     return true;
 }
 

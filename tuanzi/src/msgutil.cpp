@@ -164,7 +164,8 @@ unsigned GetMsgArray_Ex(
             replace_all_distinct(msg, "\r\n", "{$\\r\\n$}");
 
         ntype = iniparser_getint(ini, std::string(msgid + ":ntype").c_str(), -1);
-        msgtime = iniparser_getstring(ini, std::string(msgid + ":msgtime").c_str(), "");
+        msgtime =
+            iniparser_getstring(ini, std::string(msgid + ":msgtime").c_str(), "");
         msg = iniparser_getstring(ini, std::string(msgid + ":msg").c_str(), "");
 
         if (ntype == -1 || msgtime == "empty" || msg == "empty")
@@ -180,6 +181,7 @@ unsigned GetMsgArray_Ex(
 const std::string &GetMessageType(unsigned type)
 {
     static std::string none;
+
     switch (type) {
         case 0:
             return CChangeLanguage::Instance().LoadString(77);

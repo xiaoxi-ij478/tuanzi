@@ -206,8 +206,8 @@ int main(int argc, char **argv)
 
     if (version == 1) { // requested to show version
         // ;)
-//        std::cout << "Ruijie Supplicant V1.31" << std::endl
-//                  << "transcribed by xiaoxi-ij478" << std::endl;
+        std::cout << "Ruijie Supplicant V1.31" << std::endl
+                  << "written by xiaoxi-ij478" << std::endl;
         return EXIT_SUCCESS;
     }
 
@@ -220,7 +220,7 @@ int main(int argc, char **argv)
 
     if (geteuid()) { // not superuser
         message_info(cinstance.LoadString(257) + '\n');
-        return EXIT_SUCCESS;
+//        return EXIT_SUCCESS;
     }
 
     if (request_exit == 1) {
@@ -276,13 +276,16 @@ int main(int argc, char **argv)
     if (list_mode == 1) {
         switch (auth_mode) {
             case AUTH_INVALID:
-                show_auth_info(false, true);break;
+                show_auth_info(false, true);
+                break;
 
             case AUTH_WIRELESS:
-                show_auth_info(true, true);break;
+                show_auth_info(true, true);
+                break;
 
             case AUTH_WIRED:
-                show_auth_info(true, false);break;
+                show_auth_info(true, false);
+                break;
         }
 
         return do_quit();
@@ -306,7 +309,8 @@ int main(int argc, char **argv)
     if (dhcp_mode != DHCP_INVALID)
         CtrlThread->configure_info.public_dhcp = dhcp_mode;
 
-    CtrlThread->configure_info.public_service = service;
+    if (service)
+        CtrlThread->configure_info.public_service = service;
 
     if (ssid && CtrlThread->configure_info.public_authmode == "EAPWIRELESS")
         CtrlThread->configure_info.public_wirelessconf = ssid;
@@ -461,42 +465,42 @@ int main(int argc, char **argv)
             g_uilog.AppendText("main select return %s", strerror(errno));
         }
 
-        if (!FD_ISSET(g_rwpipe[0], &fds)) {
-            g_uilog.AppendText("main FD_ISSET pipe false.");
-            continue;
-        }
+        if (FD_ISSET(g_rwpipe[0], &fds)) {
+            read(g_rwpipe[0], &read_cmd, 1);
 
-        read(g_rwpipe[0], &read_cmd, 1);
-
-        if (read_cmd == 'q')
-            return do_quit();
-
-        if (read_cmd == 'c') {
-            g_uilog.AppendText("main 收到信息");
-            continue;
-        }
-
-        if (!FD_ISSET(STDIN_FILENO, &fds))
-            g_uilog.AppendText("main FD_ISSET STDIN_FILENO false.");
-
-        read(STDIN_FILENO, &read_cmd, 1);
-
-        switch (dispatch_cmd(read_cmd)) {
-            case 0:
+            if (read_cmd == 'q')
                 return do_quit();
 
-            case 2:
-                if ((GetDayTime() - time) > 50) {
-                    time = GetDayTime();
-                    message_info(cinstance.LoadString(2005) + '\n');
-                }
+            if (read_cmd == 'c') {
+                g_uilog.AppendText("main 收到信息");
+                continue;
+            }
 
-                break;
+        } else
+            g_uilog.AppendText("main FD_ISSET pipe false.");
 
-            case 3:
-                message_info(cinstance.LoadString(2006) + '\n');
-                break;
-        }
+        if (FD_ISSET(STDIN_FILENO, &fds)) {
+            read(STDIN_FILENO, &read_cmd, 1);
+
+            switch (dispatch_cmd(read_cmd)) {
+                case 0:
+                    return do_quit();
+
+                case 2:
+                    if ((GetDayTime() - time) > 50) {
+                        time = GetDayTime();
+                        message_info(cinstance.LoadString(2005) + '\n');
+                    }
+
+                    break;
+
+                case 3:
+                    message_info(cinstance.LoadString(2006) + '\n');
+                    break;
+            }
+
+        } else
+            g_uilog.AppendText("main FD_ISSET STDIN_FILENO false.");
     }
 
     return do_quit();

@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="--help" />
+				<Option parameters="-u 123 -d 1 -p 123" />
 				<Compiler>
 					<Add option="-ggdb3" />
 				</Compiler>

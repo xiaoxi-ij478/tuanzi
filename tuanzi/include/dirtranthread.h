@@ -115,7 +115,7 @@ class CDirTranThread : public CLnxThread
         struct ether_addr gateway_mac;
         unsigned next_session_id;
 
-        public:
+    public:
         CUDPListenThread *udp_listenthread;
 };
 

@@ -41,11 +41,12 @@ void message_info(const char *format, ...)
     va_start(arg, format);
     vprintf(format, arg);
     va_end(arg);
+    std::cout.flush();
 }
 
 void message_info(const std::string &str)
 {
-    std::cout << str;
+    std::cout << str << std::flush;
 }
 
 void display_usage()
@@ -71,6 +72,7 @@ void display_usage()
     PRINT_USAGE("\t-p --password\t", 2013);
     PRINT_USAGE("\t-S --save\t", 2014);
     PRINT_USAGE("\t-q --quit\t", 2046);
+    PRINT_USAGE("\t-l --list\t", 2015);
 #undef PRINT_USAGE
     std::cout << "\t   --comments\t";
     sprintf(str2, cinstance.LoadString(2045).c_str(), log_path.c_str());
@@ -111,28 +113,27 @@ void format_tc_string(
 {
     // i wrote this function myself since I
     // can't read what the heck they are...
-    unsigned actual_line_width = tc_width - indent_len;
-    unsigned remain = str.length();
-    unsigned actual_write = 0;
-    char *spaces = new char[indent_len + 1];
+    unsigned remaining = str.length(), written = 0;
     const char *rstr = str.c_str();
-    memset(spaces, ' ', sizeof(char) * indent_len);
-    spaces[indent_len] = 0;
 
     while (true) {
-        actual_write = remain > actual_line_width ? actual_line_width : remain;
-        std::cout.write(rstr, actual_write);
-        rstr += actual_write;
-        remain -= actual_write;
+        written = std::min(tc_width - indent_len, remaining);
+        std::cout.write(rstr, written);
+        rstr += written;
+        remaining -= written;
 
-        if (!remain)
+        if (!remaining) {
+            std::fill_n(
+                std::ostream_iterator<char>(std::cout),
+                tc_width - indent_len - written,
+                ' '
+            );
             break;
+        }
 
-        std::cout << std::endl << spaces;
+        std::cout << std::endl;
+        std::fill_n(std::ostream_iterator<char>(std::cout), indent_len, ' ');
     }
-
-    delete[] spaces;
-    spaces = nullptr;
 }
 
 void fill_tc_left_char(unsigned len, char c)
@@ -140,10 +141,8 @@ void fill_tc_left_char(unsigned len, char c)
     if (len <= 0)
         return;
 
-    for (unsigned i = 0; i < len; i++)
-        std::cout << c;
-
-    std::cout.flush();
+    std::string str(c, len);
+    std::cout << str << std::flush;
 }
 
 void print_separator(const char *s, int len, bool print_crlf)
@@ -158,8 +157,7 @@ void print_separator(const char *s, int len, bool print_crlf)
     if (!len)
         len = 10;
 
-    for (int i = 0; i < len; i++)
-        std::cout << s;
+    std::fill_n(std::ostream_iterator<const char *>(std::cout), len, s);
 
     if (print_crlf)
         std::cout << std::endl;

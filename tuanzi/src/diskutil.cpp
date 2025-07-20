@@ -120,9 +120,7 @@ int getdiskid(char *buf, int buflen)
     }
 
     ifs.close();
-
-    while (val[0].back() >= '0' && val[0].back() <= '9')
-        val[0].pop_back();
+    TrimRight(val[0], "0123456789");
 
     if ((fd = open(val[0].c_str(), O_RDONLY)) == -1) {
         rj_printf_debug("%s", "open hard disk device failed\n");

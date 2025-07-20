@@ -2,6 +2,17 @@
 #include "global.h"
 #include "checkrunthread.h"
 
+#ifdef _SEM_SEMUN_UNDEFINED
+// I copied this from /usr/include/linux/sem.h
+union semun {
+    int val;                /* value for SETVAL */
+    struct semid_ds *buf;   /* buffer for IPC_STAT & IPC_SET */
+    unsigned short *array;  /* array for GETALL & SETALL */
+    struct seminfo *__buf;  /* buffer for IPC_INFO */
+    void *__pad;
+};
+#endif // _SEM_SEMUN_UNDEFINED
+
 bool CCheckRunThread::started = 0;
 int CCheckRunThread::sem_id = -1;
 pthread_t CCheckRunThread::thread_id;
@@ -9,9 +20,11 @@ void (*CCheckRunThread::callback)(int) = nullptr;
 
 static bool is_sem_init_ok(int semid)
 {
-    semid_ds s;
+    struct semid_ds s = {};
+    union semun arg = {};
+    arg.buf = &s;
 
-    if (semctl(semid, 0, IPC_STAT, &s) == -1) {
+    if (semctl(semid, 0, IPC_STAT, arg) == -1) {
         g_logChkRun.AppendText("get sem info error:%s\n", strerror(errno));
         return -1;
     }
@@ -37,7 +50,9 @@ static int del_sem(int semid)
 
 static int set_sem_all(int semid, int semnum)
 {
-    unsigned short arg[12] = {};
+    unsigned short val[2] = {};
+    union semun arg = {};
+    arg.array = val;
 
     if (semctl(semid, semnum, SETALL, arg) == -1) {
         g_logChkRun.AppendText("Set sem error(%d):%s\n", errno, strerror(errno));
@@ -47,6 +62,7 @@ static int set_sem_all(int semid, int semnum)
     return 0;
 }
 
+// release the semaphore by 1
 static int semaphore_v(int semid, unsigned short semnum)
 {
     struct sembuf sbuf = { semnum, 1, SEM_UNDO };
@@ -59,6 +75,7 @@ static int semaphore_v(int semid, unsigned short semnum)
     return 0;
 }
 
+// acquire the semaphore by 1
 static int semaphore_p(int semid, unsigned short semnum)
 {
     struct sembuf sbuf = { semnum, -1, SEM_UNDO };
@@ -80,30 +97,29 @@ bool CCheckRunThread::StartThread(int *result, void (*callback)(int))
         return false;
     }
 
-    if (callback) {
-        // don't know why the original implementation does not assign this
-        // well we assign this
-        CCheckRunThread::callback = callback;
-        sem_and_lock = create_sem_and_lock();
-
-        if (!sem_and_lock) {
-            if (pthread_create(&thread_id, nullptr, thread_function, nullptr)) {
-                *result = 7;
-                del_sem(sem_id);
-                return false;
-            }
-
-            started = true;
-            return true;
-        }
-
-        *result = sem_and_lock;
-        return false;
-
-    } else {
+    if (!callback) {
         *result = 2;
         return false;
     }
+
+    // don't know why the original implementation does not assign this
+    // well we assign this
+    CCheckRunThread::callback = callback;
+    sem_and_lock = create_sem_and_lock();
+
+    if (sem_and_lock) {
+        *result = sem_and_lock;
+        return false;
+    }
+
+    if (pthread_create(&thread_id, nullptr, thread_function, nullptr)) {
+        *result = 7;
+        del_sem(sem_id);
+        return false;
+    }
+
+    started = true;
+    return true;
 }
 
 unsigned CCheckRunThread::StopThread()
@@ -146,22 +162,8 @@ unsigned CCheckRunThread::create_sem_and_lock()
             IPC_CREAT | IPC_EXCL
         );
 
-    if (sem_id != -1) {
-        g_logChkRun.AppendText("create semid...%d\n", sem_id);
-
-        if (set_sem_all(sem_id, 2)) {
-            g_logChkRun.AppendText("Sem init failed\n");
-            del_sem(sem_id);
-            return 5;
-        }
-
-        if (semaphore_v(sem_id, 0) || semaphore_p(sem_id, 0)) {
-            del_sem(sem_id);
-            return 5;
-        }
-
-        return 0;
-    }
+    if (sem_id != -1)
+        goto create_new;
 
     if (errno != EEXIST) {
         g_logChkRun.AppendText("Error-create sem:%s\n", strerror(errno));
@@ -188,39 +190,7 @@ unsigned CCheckRunThread::create_sem_and_lock()
 
         if (i++ >= 4) {
             g_logChkRun.AppendText("Creater may be exit with sem no init\n");
-
-            if (del_sem(sem_id))
-                return 1;
-
-            sem_id =
-                semget(
-                    519407,
-                    2,
-                    S_IRUSR | S_IWUSR |
-                    S_IRGRP | S_IWGRP |
-                    S_IROTH | S_IWOTH |
-                    IPC_CREAT | IPC_EXCL
-                );
-
-            if (sem_id == -1) {
-                g_logChkRun.AppendText("Error-create sem:%s\n", strerror(errno));
-                return 1;
-            }
-
-            g_logChkRun.AppendText("create semid...%d\n", sem_id);
-
-            if (set_sem_all(sem_id, 2)) {
-                g_logChkRun.AppendText("Sem init failed\n");
-                del_sem(sem_id);
-                return 5;
-            }
-
-            if (semaphore_v(sem_id, 0) || semaphore_p(sem_id, 0)) {
-                del_sem(sem_id);
-                return 5;
-            }
-
-            return 0;
+            goto error_handle;
         }
     }
 
@@ -228,39 +198,7 @@ unsigned CCheckRunThread::create_sem_and_lock()
 
     if (set_sem_all(sem_id, 2)) {
         g_logChkRun.AppendText("set_sem_all Sem init failed\n");
-
-        if (del_sem(sem_id))
-            return 1;
-
-        sem_id =
-            semget(
-                519407,
-                2,
-                S_IRUSR | S_IWUSR |
-                S_IRGRP | S_IWGRP |
-                S_IROTH | S_IWOTH |
-                IPC_CREAT | IPC_EXCL
-            );
-
-        if (sem_id == -1) {
-            g_logChkRun.AppendText("Error-create sem:%s\n", strerror(errno));
-            return 1;
-        }
-
-        g_logChkRun.AppendText("create semid...%d\n", sem_id);
-
-        if (set_sem_all(sem_id, 2)) {
-            g_logChkRun.AppendText("Sem init failed\n");
-            del_sem(sem_id);
-            return 5;
-        }
-
-        if (semaphore_v(sem_id, 0) || semaphore_p(sem_id, 0)) {
-            del_sem(sem_id);
-            return 5;
-        }
-
-        return 0;
+        goto error_handle;
     }
 
     if (semaphore_v(sem_id, 0))
@@ -286,44 +224,47 @@ unsigned CCheckRunThread::create_sem_and_lock()
                 "Sem P failed times(%d)-no response,creater may be exit error\n",
                 4
             );
-
-            if (del_sem(sem_id))
-                return 1;
-
-            sem_id =
-                semget(
-                    519407,
-                    2,
-                    S_IRUSR | S_IWUSR |
-                    S_IRGRP | S_IWGRP |
-                    S_IROTH | S_IWOTH |
-                    IPC_CREAT | IPC_EXCL
-                );
-
-            if (sem_id == -1) {
-                g_logChkRun.AppendText("Error-create sem:%s\n", strerror(errno));
-                return 1;
-            }
-
-            g_logChkRun.AppendText("create semid...%d\n", sem_id);
-
-            if (set_sem_all(sem_id, 2)) {
-                g_logChkRun.AppendText("Sem init failed\n");
-                del_sem(sem_id);
-                return 5;
-            }
-
-            if (semaphore_v(sem_id, 0) || semaphore_p(sem_id, 0)) {
-                del_sem(sem_id);
-                return 5;
-            }
-
-            return 0;
+            goto error_handle;
         }
     }
 
     g_logChkRun.AppendText("Sem P success-Others is running\n");
     return 1;
+error_handle:
+
+    if (del_sem(sem_id))
+        return 1;
+
+    sem_id =
+        semget(
+            519407,
+            2,
+            S_IRUSR | S_IWUSR |
+            S_IRGRP | S_IWGRP |
+            S_IROTH | S_IWOTH |
+            IPC_CREAT | IPC_EXCL
+        );
+
+    if (sem_id == -1) {
+        g_logChkRun.AppendText("Error-create sem:%s\n", strerror(errno));
+        return 1;
+    }
+
+create_new:
+    g_logChkRun.AppendText("create semid...%d\n", sem_id);
+
+    if (set_sem_all(sem_id, 2)) {
+        g_logChkRun.AppendText("Sem init failed\n");
+        del_sem(sem_id);
+        return 5;
+    }
+
+    if (semaphore_v(sem_id, 0) || semaphore_p(sem_id, 0)) {
+        del_sem(sem_id);
+        return 5;
+    }
+
+    return 0;
 }
 
 void *CCheckRunThread::thread_function([[maybe_unused]] void *arg)

@@ -48,15 +48,10 @@ int CLnxThread::CreateThread(
     me = this;
     wait_handle.calling_thread = this;
     wait_handle.no_need_send_msg = no_need_send_msg_l;
+    retval =
+        pthread_create(&thread_id, pthread_attr, _LnxThreadEntry, &wait_handle);
 
-    if (
-        (retval = pthread_create(
-                      &thread_id,
-                      pthread_attr,
-                      _LnxThreadEntry,
-                      &wait_handle
-                  ))
-    ) {
+    if (retval) {
         g_logSystem.AppendText("pthread_create error. retrun = %d", retval);
         return -1;
     }
@@ -445,14 +440,19 @@ void CLnxThread::SafeExitThread(unsigned off_msec)
         return;
 
     if (!StopThread()) {
-        g_logSystem.AppendText("CLnxThread::StopThread %s failed.", classname);
+        g_logSystem.AppendText(
+            "CLnxThread::StopThread %s failed.",
+            classname
+        );
 
         if (!TerminateThread(thread_id))
             delete this;
 
     } else if (!doing_upgrade) {
-        if (!(retval = WaitForSingleObject(&wait_handle1, off_msec)))
+        if (!(retval = WaitForSingleObject(&wait_handle1, off_msec))) {
             delete this;
+            return;
+        }
 
         g_logSystem.AppendText(
             "CLnxThread::StopThread %s WaitForSingleObject error = %d",
@@ -467,7 +467,6 @@ void CLnxThread::SafeExitThread(unsigned off_msec)
 
 void *CLnxThread::_LnxThreadEntry(void *arg)
 {
-    int msgid = 0;
     WAIT_HANDLE2 *wait_handle = static_cast<WAIT_HANDLE2 *>(arg);
     CLnxThread *calling_thread = wait_handle->calling_thread;
 
@@ -479,7 +478,7 @@ void *CLnxThread::_LnxThreadEntry(void *arg)
     if (wait_handle->no_need_send_msg)
         goto start_exec;
 
-    msgid =
+    calling_thread->msgid =
         msgget(
             calling_thread->thread_id,
             S_IRUSR | S_IWUSR |
@@ -488,7 +487,7 @@ void *CLnxThread::_LnxThreadEntry(void *arg)
             IPC_CREAT | IPC_EXCL
         );
 
-    if (msgid != -1)
+    if (calling_thread->msgid != -1)
         goto start_exec;
 
     if (errno != EEXIST) {
@@ -527,16 +526,15 @@ void *CLnxThread::_LnxThreadEntry(void *arg)
     g_logSystem.AppendText(
         "--------------------------creat msg id error,del it first\n"
     );
-    msgid =
+    calling_thread->msgid =
         msgget(
             calling_thread->thread_id,
             S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH
         );
-    calling_thread->msgid = msgid;
 
     if (
-        msgid == -1 ||
-        msgctl(msgid, IPC_RMID, nullptr) == -1 ||
+        calling_thread->msgid == -1 ||
+        msgctl(calling_thread->msgid, IPC_RMID, nullptr) == -1 ||
         (
             calling_thread->msgid =
                 msgget(

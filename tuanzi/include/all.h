@@ -19,6 +19,7 @@
 #include <iostream>
 #include <iterator>
 #include <numeric>
+#include <limits>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -44,7 +45,6 @@
 #include <linux/hdreg.h>
 #include <linux/sockios.h>
 #include <linux/wireless.h>
-//#include <net/if.h>
 #include <net/route.h>
 #include <netinet/ether.h>
 #include <netinet/ip_icmp.h>

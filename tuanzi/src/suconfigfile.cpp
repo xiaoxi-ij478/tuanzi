@@ -53,7 +53,6 @@ bool CSuConfigFile::Open()
 
 void CSuConfigFile::AppendComma(std::string &str)
 {
-    assert(str.length());
     unsigned long slen = str.length();
     const char *sym = nullptr;
 
@@ -171,8 +170,6 @@ bool CSuConfigFile::Open(const char *rfilename)
         return false;
     }
 
-    ofs.open(filename);
-
     if (!ofs) {
         g_logSystem.AppendText("ERROR: Open file %s failed.\n", filename.c_str());
         delete[] obuf;
@@ -205,6 +202,7 @@ bool CSuConfigFile::Open(const char *rfilename)
     delete[] obuf;
     ibuf = obuf = nullptr;
     LogToFile("open suconfig success");
+    ofs.close();
     return true;
 }
 
@@ -270,6 +268,7 @@ bool CSuConfigFile::UpdateConfig()
     delete[] obuf;
     ibuf = obuf = nullptr;
     config_dirty = false;
+    ofs.close();
     return true;
 }
 

@@ -166,6 +166,7 @@ struct EAPOLFrame *CStateMachineThread::EncapsulateFrame(
 
             break;
     }
+
     return eapol_frame;
 }
 

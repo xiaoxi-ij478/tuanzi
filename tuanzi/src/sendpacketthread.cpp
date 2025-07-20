@@ -151,5 +151,5 @@ bool CSendPacketThread::StopSendPacketThread() const
 
 int CSendPacketThread::SendPacket(const char *buf, unsigned buflen)
 {
-    return DoSendPacket(buf,buflen);
+    return DoSendPacket(buf, buflen);
 }

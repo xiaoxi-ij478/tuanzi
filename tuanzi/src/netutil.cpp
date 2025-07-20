@@ -149,6 +149,7 @@ struct NICINFO *get_nics_info(const char *ifname)
 
         if (!info || !interface_added) {
             cur_info = new struct NICINFO;
+            cur_info->next = nullptr;
 
             if (!cur_info)
                 continue;
