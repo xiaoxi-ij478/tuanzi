@@ -24,7 +24,7 @@ void CreateNewMsgFile()
     ofs.close();
 }
 
-void AddMsgItem(int type, const std::string &msg)
+void AddMsgItem(unsigned type, const std::string &msg)
 {
     std::string msgcopy = msg;
     std::string inifile = g_strAppPath + "systemmsg.ini";
@@ -177,7 +177,7 @@ unsigned GetMsgArray_Ex(
     return 0;
 }
 
-const std::string &GetMessageType(int type)
+const std::string &GetMessageType(unsigned type)
 {
     static std::string none;
     switch (type) {

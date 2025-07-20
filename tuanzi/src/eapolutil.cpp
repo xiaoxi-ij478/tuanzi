@@ -322,7 +322,7 @@ void DhcpIpInfoToUChar(char *buf, const struct EAPOLFrame *eapol_frame)
     *buf++ = crcsum & 0xff;
 }
 
-void EncapUCharDhcpIpInfo(char *buf, struct EAPOLFrame *eapol_frame)
+void EncapUCharDhcpIpInfo(char *buf, const struct EAPOLFrame *eapol_frame)
 {
     char tmpbuf[23] = {};
     DhcpIpInfoToUChar(buf, eapol_frame);

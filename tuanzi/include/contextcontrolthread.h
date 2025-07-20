@@ -34,10 +34,10 @@ class CContextControlThread : public CLnxThread
         bool IsDhcpAuth() const;
         bool IsRuijieNas() const;
         bool IsServerlistUpdate(const std::vector<std::string> &new_list) const;
-        bool RefreshSignal(const std::string &adapter_name) const;
-        void SaveRadiusPrivate(const struct EAPOLFrame *eapol_frame) const;
-        void SetRadiusServer(unsigned type) const;
-        void WlanScanComplete(const struct ScanCmdCtx *scan_result) const;
+        bool RefreshSignal(const std::string &adapter_name);
+        void SaveRadiusPrivate(const struct EAPOLFrame *eapol_frame);
+        void SetRadiusServer(unsigned type);
+        void WlanScanComplete(const struct ScanCmdCtx *scan_result);
 
     protected:
         bool InitInstance() override;
@@ -62,9 +62,9 @@ class CContextControlThread : public CLnxThread
             std::string url,
             unsigned type
         );
-        void DoWithDHCPUpload() const;
+        void DoWithDHCPUpload();
         bool DoWithGetDHCPInfo();
-        void DoWithSendUserinfoSuccess() const;
+        void DoWithSendUserinfoSuccess();
         int EnvironmentCheck();
         void ExitExtance_ExitAll();
         bool GetAdapterDHCPEnable() const;
@@ -77,31 +77,31 @@ class CContextControlThread : public CLnxThread
         bool IsWirelessAuth() const;
         void KillDirectSrv();
         unsigned ModifyLogoffReason(enum LOGOFF_REASON &reason) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(ONSAMWantLogOff) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(ONSAWantLogOff) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnAdaptersState) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnConnectNotify) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnLogoffWithUnknownReason) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnOpenSSOURL) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnOthersWantLogOff) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(ONSAMWantLogOff);
+        DECLARE_DISPATH_MESSAGE_HANDLER(ONSAWantLogOff);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnAdaptersState);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnConnectNotify);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnLogoffWithUnknownReason);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnOpenSSOURL);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnOthersWantLogOff);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnPacketReturn) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnPatchLogoff) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnRcvDHCPAuthResult) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnRcvProxyDetectResult) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnRecvFailure) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnSaWantReAuth) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnPatchLogoff);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnRcvDHCPAuthResult);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnRcvProxyDetectResult);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnRecvFailure);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnSaWantReAuth);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnSayHello) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnSaySaEvent) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnShowSaMessage) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnSimulateLogoff) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnStartMachine) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnStateMachineReturn) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnUpGradeReturn) const;
-        DECLARE_DISPATH_MESSAGE_HANDLER(OnUpgradeClient) const;
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnStartMachine);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnStateMachineReturn);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnTimer);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnUpGradeReturn);
+        DECLARE_DISPATH_MESSAGE_HANDLER(OnUpgradeClient);
         void OnShowLoginURL() const;
-        void SET_EAP_TYPE() const;
-        void SET_IF_TYPE() const;
+        void SET_EAP_TYPE();
+        void SET_IF_TYPE();
         bool SSAMessPrivParse(char *buf, unsigned buflen) const;
         void SendLogOffPacket(enum LOGOFF_REASON logoff_reason, bool) const;
         bool SendUserinfoToAuthSvr() const;
@@ -109,24 +109,24 @@ class CContextControlThread : public CLnxThread
         bool SendUserinfoToAuthSvr_ForSMP() const;
         void SetConnectWindowText(enum OP_STATE op_state) const;
         void SetInitFailed() const;
-        void SetNasManufacturer(bool is_ruijie_nas_l) const;
-        void SetWaitDHCPAuthResultTimer() const;
+        void SetNasManufacturer(bool is_ruijie_nas_l);
+        void SetWaitDHCPAuthResultTimer();
         bool StartAdapterStateCheck() const;
         void StartDirectTrans(
             const struct SuRadiusPrivate &private_prop,
             bool wait,
             bool request_init_data_now
-        ) const;
+        );
         void StartProcessBusiness(
             const struct SuRadiusPrivate &private_prop
-        ) const;
-        int StartStateMachine(bool no_get_dhcpinfo) const;
+        );
+        int StartStateMachine(bool no_get_dhcpinfo);
         bool StopAdapterStateCheck() const;
         void StopAuthentication(
             enum LOGOFF_REASON logoff_reason,
             enum APP_QUIT_TYPE quit_type,
             bool logoff_if_required
-        ) const;
+        );
         void SuccessNotification(const std::string &notif_str) const;
         bool WlanConnect() const;
         bool WlanDisconnect() const;

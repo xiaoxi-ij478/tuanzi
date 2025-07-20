@@ -15,6 +15,26 @@ class CRGPrivateProc
         );
         static void EncapRGVerdorSegForPeap(char *buf, unsigned &len, char *);
         static void ReadRGVendorSeg(const char *buf, unsigned len);
+        static void ParseHello(
+            const struct EAPOLFrame *eapol_frame,
+            struct SuRadiusPrivate &private_infobuf
+        );
+        static void ParseNotification(
+            const struct EAPOLFrame *eapol_frame,
+            struct SuRadiusPrivate &private_infobuf
+        );
+        static void ParseProxyAvoid(
+            const struct EAPOLFrame *eapol_frame,
+            struct SuRadiusPrivate &private_infobuf
+        );
+        static void ParseRadiusInfo_RuijieNas(
+            const struct EAPOLFrame *eapol_frame,
+            struct SuRadiusPrivate &private_infobuf
+        );
+        static void ParseUpGrade(
+            const struct EAPOLFrame *eapol_frame,
+            struct SuRadiusPrivate &private_infobuf
+        );
 
     private:
         static void GetAlternateDNS(char *buf, unsigned &len);
@@ -37,26 +57,6 @@ class CRGPrivateProc
         static void GetV2SegmentHash(char *buf, unsigned &len);
         static void GetV3SegmentHash(char *buf, unsigned &len);
         static void GetV3SegmentHash4Peap(char *buf, unsigned &len);
-        static void ParseHello(
-            const struct EAPOLFrame *eapol_frame,
-            struct SuRadiusPrivate &private_infobuf
-        );
-        static void ParseNotification(
-            const struct EAPOLFrame *eapol_frame,
-            struct SuRadiusPrivate &private_infobuf
-        );
-        static void ParseProxyAvoid(
-            const struct EAPOLFrame *eapol_frame,
-            struct SuRadiusPrivate &private_infobuf
-        );
-        static void ParseRadiusInfo_RuijieNas(
-            const struct EAPOLFrame *eapol_frame,
-            struct SuRadiusPrivate &private_infobuf
-        );
-        static void ParseUpGrade(
-            const struct EAPOLFrame *eapol_frame,
-            struct SuRadiusPrivate &private_infobuf
-        );
 };
 
 #endif // RGPRIVATEPROC_H_INCLUDED

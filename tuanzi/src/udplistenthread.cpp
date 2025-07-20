@@ -839,10 +839,12 @@ bool CUDPListenThread::RevcDirectPack(
         if (
             dir_head.id < session.cur_sliceid ||
             session.cur_sliceid < dir_head.id - 1 ||
-            dir_head.slicetype == DIRPACKET_MULTI_END &&
-            dir_head.packet_len +
-            session.received -
-            sizeof(struct mtagFinalDirPacket) != dir_head.data_len
+            (
+                dir_head.slicetype == DIRPACKET_MULTI_END &&
+                dir_head.packet_len +
+                session.received -
+                sizeof(struct mtagFinalDirPacket) != dir_head.data_len
+            )
         ) {
             logFile_debug.AppendText(
                 "当前分片ID[%d],收到非法的ID[%d] 或者报文长度检验不正确，丢弃该报文分片",

@@ -87,7 +87,15 @@ void CRxPacketThread::SetPacketFilter(const char *filter_expr)
     struct bpf_program filter = {};
     rj_printf_debug("SetPacketFilter =%s\n", filter_expr);
 
-    if (pcap_compile(pcap_handle, &filter, filter_expr, true, 0)) {
+    if (
+        pcap_compile(
+            pcap_handle,
+            &filter,
+            const_cast<char *>(filter_expr),
+            true,
+            0
+        )
+    ) {
         rj_printf_debug("pcap_compile error %s\n", pcap_geterr(pcap_handle));
         pcap_close(pcap_handle);
         pthread_exit(nullptr);

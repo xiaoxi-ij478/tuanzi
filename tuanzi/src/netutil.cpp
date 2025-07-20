@@ -849,6 +849,13 @@ bool IsHostDstMac(struct ether_addr *macaddr)
     return !memcmp(&host_macaddr, macaddr, sizeof(struct ether_addr));
 }
 
+bool IsLoopBack(struct ether_addr *macaddr)
+{
+    struct ether_addr host_macaddr = {};
+    CtrlThread->GetAdapterMac(&host_macaddr);
+    return !memcmp(&host_macaddr, macaddr, sizeof(struct ether_addr));
+}
+
 bool IsMulDstMac(struct ether_addr *macaddr)
 {
     // FF:FF:FF:FF:FF:FF

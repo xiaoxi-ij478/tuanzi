@@ -14,11 +14,17 @@ class CStateMachineThread : public CLnxThread
         friend class CStateAuthenticated;
         friend class CStateHold;
         friend class CStateLogOff;
+
     public:
         CStateMachineThread();
 
         DECLARE_DISPATH_MESSAGE_HANDLER(OnStateMove);
         void txRspID() const;
+        void txLogOff(char a1) const;
+        void txRspAuth() const;
+        void txRspAuthPAP() const;
+        void txSetLogOff_CompThird();
+        void txStart() const;
 
     protected:
         void DispathMessage(struct LNXMSG *msg) override;
@@ -42,11 +48,6 @@ class CStateMachineThread : public CLnxThread
         void SendNAKFrame() const;
         void SendNotificationFrame() const;
         int parseFrame(struct EAPOLFrame *eapol_frame);
-        void txLogOff(char a1) const;
-        void txRspAuth() const;
-        void txRspAuthPAP() const;
-        void txSetLogOff_CompThird();
-        void txStart() const;
 
         char field_1D0;
         char field_1D1[3007];

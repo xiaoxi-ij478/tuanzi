@@ -10,6 +10,7 @@ class CProxyDetectThread : public CLnxThread
         CProxyDetectThread();
         ~CProxyDetectThread() override;
 
+        bool GetFakeInfo(in_addr_t *ipaddr, struct ether_addr *macaddr) const;
         bool StartDetect(
             const char *adapter_name_l,
             key_t thread_key_l,
@@ -26,8 +27,6 @@ class CProxyDetectThread : public CLnxThread
         bool ExitInstance() override;
 
     private:
-        bool GetFakeInfo(in_addr_t *ipaddr, struct ether_addr *macaddr) const;
-
         CIsProSer isproser;
         char adapter_name[512];
         struct ether_addr hostmac;

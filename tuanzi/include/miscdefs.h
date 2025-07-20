@@ -326,13 +326,13 @@ struct updateArg_t {
 
 struct tagWirelessSignal {
     tagWirelessSignal() = default;
-    tagWirelessSignal(char *ssid_l, unsigned ssid_len, unsigned qual) :
+    tagWirelessSignal(const char *ssid_l, unsigned ssid_len, int qual) :
         ssid_len(ssid_len), qual(qual) {
         memcpy(ssid, ssid_l, ssid_len);
     }
     char ssid[33];
     unsigned ssid_len;
-    unsigned qual;
+    int qual;
 };
 
 #endif // MISCDEFS_H_INCLUDED

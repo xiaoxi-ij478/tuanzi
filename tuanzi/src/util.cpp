@@ -610,7 +610,7 @@ void RcvCMD_GetProcessAndNetworkInfo()
     logFile.AppendText("recv cmd of get process and network info");
 }
 
-void RcvFlowMonitorParam(void *arg)
+void RcvFlowMonitorParam(const void *arg)
 {
     logFile.AppendText("recv flow monitor param");
     assert(arg);
@@ -626,7 +626,7 @@ void RcvLoginURL([[maybe_unused]] const std::string &arg)
     logFile.AppendText("recv login url");
 }
 
-void RcvNetSecParam(void *arg)
+void RcvNetSecParam(const void *arg)
 {
     logFile.AppendText("recv network security param");
     assert(arg);

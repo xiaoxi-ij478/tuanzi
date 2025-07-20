@@ -11,6 +11,8 @@ class CDirectTranSrv : public CLnxThread
 
         bool DeInit_Sam();
         bool DeInit_Smp();
+        bool Init_Sam(struct tagDirectTranSrvPara *dir_srv_para, bool wait);
+        bool Init_Smp(struct tagSmpParaDir *smp_para, bool wait);
         bool PostToSam(const char *buf, unsigned buflen) const;
         bool PostToSamWithNoResponse(const char *buf, unsigned buflen) const;
         bool PostToSmp(const char *buf, unsigned buflen) const;
@@ -56,8 +58,6 @@ class CDirectTranSrv : public CLnxThread
         bool HandshakeToSMP();
         bool InitDirThread();
         bool InitDirectEnvironment();
-        bool Init_Sam(struct tagDirectTranSrvPara *dir_srv_para, bool wait);
-        bool Init_Smp(struct tagSmpParaDir *smp_para, bool wait);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SAM) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(OnInit_SAM);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnDeInit_SAM);
