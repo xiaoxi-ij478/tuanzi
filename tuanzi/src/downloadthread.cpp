@@ -918,11 +918,13 @@ int CDownLoadThread::http_send(
     if ((*fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
         return -1;
 
-    if ((connect(
-                *fd,
-                reinterpret_cast<struct sockaddr *>(&dest_ipaddr),
-                sizeof(dest_ipaddr)
-            )) == -1)
+    if (
+        (connect(
+             *fd,
+             reinterpret_cast<struct sockaddr *>(&dest_ipaddr),
+             sizeof(dest_ipaddr)
+         )) == -1
+    )
         return -1;
 
     if (strlen(path) + strlen(domain) + strlen(HTTP_REQUEST) > sizeof(send_buf))

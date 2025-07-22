@@ -12,8 +12,8 @@
 #include "netutil.h"
 #include "mtypes.h"
 #include "threadutil.h"
-#include "contextcontrolthread.h"
 #include "userconfig.h"
+#include "contextcontrolthread.h"
 #include "global.h"
 
 enum AUTH_MODE {
@@ -190,7 +190,7 @@ int main(int argc, char **argv)
         }
 
     if (option_parse_error) { // error exists
-        message_info(option_parse_error_str);
+        message_info("%s", option_parse_error_str);
         return EXIT_SUCCESS;
     }
 

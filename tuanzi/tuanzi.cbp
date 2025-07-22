@@ -11,7 +11,7 @@
 				<Option object_output="obj/Debug" />
 				<Option type="1" />
 				<Option compiler="gcc" />
-				<Option parameters="-u 123 -d 1 -p 123" />
+				<Option parameters="-u 123 -d 1 -p 123 -n eno1" />
 				<Compiler>
 					<Add option="-ggdb3" />
 				</Compiler>
@@ -666,10 +666,6 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="src/updater.cpp">
-			<Option target="Updater Debug" />
-			<Option target="Updater Release" />
-		</Unit>
 		<Unit filename="src/userconfig.cpp">
 			<Option compilerVar="CC" />
 			<Option target="Debug" />
@@ -691,6 +687,10 @@
 		<Unit filename="src/xmlparser.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
+		</Unit>
+		<Unit filename="updater.cpp">
+			<Option target="Updater Debug" />
+			<Option target="Updater Release" />
 		</Unit>
 		<Extensions>
 			<lib_finder disable_auto="1" />

@@ -159,13 +159,7 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
         if (!strcmp(nic_name, cur_info->ifname)) {
             g_log_Wireless.AppendText("nic name:%s", nic_name);
 
-            if (
-                memcmp(
-                    &macaddr,
-                    &cur_info->hwaddr,
-                    sizeof(macaddr)
-                )
-            ) {
+            if (memcmp(&macaddr, &cur_info->hwaddr, sizeof(macaddr))) {
                 g_log_Wireless.AppendText("mac chaged\n");
                 POST_TO_CONTROL_THREAD(MAC_CHANGED_MTYPE);
                 break;
@@ -218,10 +212,7 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
                 }
 
             } else {
-                if (
-                    ifr.ifr_flags & IFF_UP &&
-                    ifr.ifr_flags & IFF_RUNNING
-                ) {
+                if (ifr.ifr_flags & IFF_UP && ifr.ifr_flags & IFF_RUNNING) {
                     g_log_Wireless.AppendText(
                         "multiple adapters flags:%4x",
                         ifr.ifr_flags
@@ -230,10 +221,7 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
                     break;
                 }
 
-                g_log_Wireless.AppendText(
-                    "SIOCGIFFLAGS flags:%4x",
-                    ifr.ifr_flags
-                );
+                g_log_Wireless.AppendText("SIOCGIFFLAGS flags:%4x", ifr.ifr_flags);
             }
         }
     }

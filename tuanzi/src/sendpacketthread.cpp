@@ -6,8 +6,8 @@
 #include "sendpacketthread.h"
 
 CSendPacketThread::CSendPacketThread() :
-    pcap_handle(),
     adapter_name(),
+    pcap_handle(),
     started()
 {
     pthread_mutexattr_t mutexattr;
@@ -39,7 +39,7 @@ bool CSendPacketThread::SetSenderAdapter(const char *name)
 
     if (!adapter_name[0]) {
         g_logSystem.AppendText("m_szAdapterName == NULL");
-        return 0;
+        return false;
     }
 
     if ((pcap_handle = pcap_open_live(adapter_name, 2000, 1, -1, ebuf)))
@@ -48,7 +48,7 @@ bool CSendPacketThread::SetSenderAdapter(const char *name)
     else
         g_logSystem.AppendText("pcap_open_live(): %s", ebuf);
 
-    return 0;
+    return false;
 }
 
 void CSendPacketThread::DispathMessage(struct LNXMSG *msg)

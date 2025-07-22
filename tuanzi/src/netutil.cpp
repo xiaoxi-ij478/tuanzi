@@ -31,6 +31,7 @@ enum ADAPTER_TYPE get_nic_type(const char *ifname)
 {
     int fd = sockets_open();
     struct iwreq iwr = {};
+    int ret = 0;
 
     if (fd < 0) {
         perror("get_nic_type __ sockets_open");
@@ -38,7 +39,9 @@ enum ADAPTER_TYPE get_nic_type(const char *ifname)
     }
 
     strncpy(iwr.ifr_name, ifname, IFNAMSIZ - 1);
-    return ioctl(fd, SIOCGIWNAME, &iwr) >= 0 ? ADAPTER_WIRELESS : ADAPTER_WIRED;
+    ret = ioctl(fd, SIOCGIWNAME, &iwr);
+    close(fd);
+    return ret >= 0 ? ADAPTER_WIRELESS : ADAPTER_WIRED;
 }
 
 unsigned short ComputeTcpPseudoHeaderChecksum(
@@ -128,9 +131,8 @@ struct NICINFO *get_nics_info(const char *ifname)
         return nullptr;
     }
 
-    if (get_dns(&dns_addr)) {}
-
-//        swap32(static_cast<char *>(&dns_addr.s_addr));
+    if (get_dns(&dns_addr))
+        dns_addr = ntohl(dns_addr);
 
     for (struct ifaddrs *cur_if = ifap; cur_if; cur_if = cur_if->ifa_next) {
         interface_added = false;
@@ -149,7 +151,7 @@ struct NICINFO *get_nics_info(const char *ifname)
 
         if (!info || !interface_added) {
             cur_info = new struct NICINFO;
-            cur_info->next = nullptr;
+            memset(cur_info, 0, sizeof(*cur_info));
 
             if (!cur_info)
                 continue;
@@ -157,7 +159,7 @@ struct NICINFO *get_nics_info(const char *ifname)
             if (!info)
                 info = cur_info;
 
-            if (!interface_added) {
+            else if (!interface_added) {
                 tmp_info = info;
 
                 while (tmp_info->next)
@@ -203,6 +205,7 @@ struct NICINFO *get_nics_info(const char *ifname)
         switch (cur_if->ifa_addr->sa_family) {
             case AF_INET:
                 tmp_ipnode = new struct NICINFO::IPAddrNode;
+                memset(tmp_ipnode, 0, sizeof(*tmp_ipnode));
 
                 if (!tmp_ipnode)
                     continue;
@@ -238,6 +241,7 @@ struct NICINFO *get_nics_info(const char *ifname)
 
             case AF_INET6:
                 tmp_ip6node = new struct NICINFO::IP6AddrNode;
+                memset(tmp_ip6node, 0, sizeof(*tmp_ip6node));
 
                 if (!tmp_ip6node)
                     continue;
@@ -246,12 +250,11 @@ struct NICINFO *get_nics_info(const char *ifname)
                 tmp_ip6node->ipaddr =
                     reinterpret_cast<struct sockaddr_in6 *>
                     (cur_if->ifa_addr)->sin6_addr;
-//                swap128(reinterpret_cast<char *>(tmp_ip6node->ipaddr));
+                swap128(reinterpret_cast<char *>(tmp_ip6node->ipaddr.s6_addr));
                 tmp_ip6node->netmask =
                     reinterpret_cast<struct sockaddr_in6 *>
                     (cur_if->ifa_netmask)->sin6_addr;
-
-//                swap128(reinterpret_cast<char *>(tmp_ip6node->netmask));
+                swap128(reinterpret_cast<char *>(&tmp_ip6node->netmask.s6_addr));
 
                 if (!cur_info->ip6addrs)
                     cur_info->ip6addrs = tmp_ip6node;
@@ -299,8 +302,10 @@ bool get_dns(in_addr_t *dst)
     while (!found && std::getline(ifs, line)) {
         ParseString(line, ' ', val);
 
-        if (val[0] == "nameserver")
+        if (val[0] == "nameserver") {
+            found = true;
             break;
+        }
     }
 
     ifs.close();
@@ -308,7 +313,7 @@ bool get_dns(in_addr_t *dst)
     if (!found)
         return false;
 
-    inet_pton(AF_INET, val[1].c_str(), &dst);
+    inet_pton(AF_INET, val[1].c_str(), dst);
     return true;
 }
 

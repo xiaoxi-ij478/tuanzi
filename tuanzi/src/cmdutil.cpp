@@ -89,12 +89,8 @@ unsigned short get_tc_width()
         rj_printf_debug("get_tc_width ioctl=%s\n", strerror(errno));
         return def;
 
-    } else {
-        if (wsz.ws_col)
-            return wsz.ws_col;
-
-        return def;
-    }
+    } else
+        return wsz.ws_col ? : def;
 }
 
 void rj_printf_debug(const char *format, ...)
@@ -103,6 +99,7 @@ void rj_printf_debug(const char *format, ...)
     va_start(arg, format);
     vprintf(format, arg);
     va_end(arg);
+    std::cout << std::endl;
 }
 
 void format_tc_string(
@@ -114,24 +111,44 @@ void format_tc_string(
     // i wrote this function myself since I
     // can't read what the heck they are...
     unsigned remaining = str.length(), written = 0;
-    const char *rstr = str.c_str();
+    unsigned cur_pos = 0;
+    std::string::size_type lf_pos = 0;
+    bool has_lf = false;
 
     while (true) {
-        written = std::min(tc_width - indent_len, remaining);
-        std::cout.write(rstr, written);
-        rstr += written;
+        has_lf = (lf_pos = str.find('\n', cur_pos)) != std::string::npos;
+
+        if (!has_lf)
+            lf_pos = remaining;
+
+        // *INDENT-OFF*
+        written =
+            std::min(
+                {
+                    tc_width - indent_len,
+                    remaining,
+                    static_cast<unsigned>(++lf_pos)
+                }
+            );
+        // *INDENT-ON*
+        std::cout << str.substr(cur_pos, written) << std::flush;
+        cur_pos += written;
         remaining -= written;
 
         if (!remaining) {
-            std::fill_n(
-                std::ostream_iterator<char>(std::cout),
-                tc_width - indent_len - written,
-                ' '
-            );
+            if (!has_lf)
+                std::fill_n(
+                    std::ostream_iterator<char>(std::cout),
+                    tc_width - indent_len - written,
+                    ' '
+                );
+
             break;
         }
 
-        std::cout << std::endl;
+        if (!has_lf)
+            std::cout << std::endl;
+
         std::fill_n(std::ostream_iterator<char>(std::cout), indent_len, ' ');
     }
 }

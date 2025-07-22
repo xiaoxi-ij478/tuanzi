@@ -18,11 +18,6 @@ class ProxyClientTcp : public CTcp
         );
         bool IsExpired(unsigned) const;
 
-        ProxySerTcp *bound_proxy_ser_tcp;
-        ProxyClientTcp *prev;
-        ProxyClientTcp *next;
-        unsigned long creation_time;
-
     private:
         int FindSerTcp(const ProxySerTcp *server);
 
@@ -39,6 +34,12 @@ class ProxyClientTcp : public CTcp
         unsigned field_190;
         bool found_ser;
         unsigned find_ser_times; // m_findSerTimes
+
+    public:
+        ProxySerTcp *bound_proxy_ser_tcp;
+        ProxyClientTcp *prev;
+        ProxyClientTcp *next;
+        unsigned long creation_time;
 };
 
 #endif // PROXYCLIENTTCP_H_INCLUDED

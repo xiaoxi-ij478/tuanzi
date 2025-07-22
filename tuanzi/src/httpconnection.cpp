@@ -178,11 +178,13 @@ int CHttpConnection::makeSocket(const char *addr, unsigned short port)
         return -1;
     }
 
-    if (connect(
-                fd,
-                reinterpret_cast<struct sockaddr *>(&inaddr),
-                sizeof(inaddr)
-            ) == -1) {
+    if (
+        connect(
+            fd,
+            reinterpret_cast<struct sockaddr *>(&inaddr),
+            sizeof(inaddr)
+        ) == -1
+    ) {
         setErrorCode(errno, "makeSocket:connect");
         close(fd);
         return -1;
