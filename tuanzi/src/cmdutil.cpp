@@ -16,7 +16,7 @@
 void exec_cmd(const char *cmd, char *buf, unsigned buflen)
 {
     FILE *fp = popen(cmd, "r");
-    unsigned read_len = 0;
+    int read_len = 0;
 
     if (!fp) {
         rj_printf_debug("exec_cmd popen null:%s\n", strerror(errno));

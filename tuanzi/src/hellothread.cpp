@@ -120,7 +120,7 @@ unsigned CHelloThread::GetCurCRCID()
 DEFINE_DISPATH_MESSAGE_HANDLER(OnChangeHelloPara, CHelloThread)
 {
     if (arg1)
-        hello_para = reinterpret_cast<unsigned long>(arg1);
+        hello_para = arg1;
 
     CreateHelloTimer(arg1);
 }

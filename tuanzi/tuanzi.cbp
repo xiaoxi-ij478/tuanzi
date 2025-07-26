@@ -140,11 +140,6 @@
 		</Unit>
 		<Unit filename="include/all.h">
 			<Option compile="1" />
-			<Option target="Debug" />
-			<Option target="Release" />
-			<Option target="Configure Reader / Writer Debug" />
-			<Option target="Configure Reader / Writer Release" />
-			<Option target="Updater Debug" />
 		</Unit>
 		<Unit filename="include/autorun.h">
 			<Option target="Debug" />
@@ -244,6 +239,7 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 			<Option target="Updater Debug" />
+			<Option target="Updater Release" />
 		</Unit>
 		<Unit filename="include/helloprocessor.h">
 			<Option target="Debug" />
@@ -277,6 +273,7 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 			<Option target="Updater Debug" />
+			<Option target="Updater Release" />
 		</Unit>
 		<Unit filename="include/md5checksum.h">
 			<Option target="Debug" />
@@ -411,6 +408,7 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 			<Option target="Updater Debug" />
+			<Option target="Updater Release" />
 		</Unit>
 		<Unit filename="include/vz_apiapp.h">
 			<Option target="Debug" />
@@ -522,6 +520,7 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 			<Option target="Updater Debug" />
+			<Option target="Updater Release" />
 		</Unit>
 		<Unit filename="src/helloprocessor.cpp">
 			<Option target="Debug" />
@@ -555,6 +554,7 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 			<Option target="Updater Debug" />
+			<Option target="Updater Release" />
 		</Unit>
 		<Unit filename="src/main.cpp">
 			<Option target="Debug" />
@@ -597,7 +597,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="src/rgprivateproc.cpp">
-			<Option compilerVar="CC" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
@@ -633,6 +632,7 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 			<Option target="Updater Debug" />
+			<Option target="Updater Release" />
 		</Unit>
 		<Unit filename="src/sudes.cpp">
 			<Option target="Debug" />
@@ -667,7 +667,6 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="src/userconfig.cpp">
-			<Option compilerVar="CC" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
@@ -675,6 +674,7 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 			<Option target="Updater Debug" />
+			<Option target="Updater Release" />
 		</Unit>
 		<Unit filename="src/vz_apiapp.cpp">
 			<Option target="Debug" />
@@ -692,8 +692,6 @@
 			<Option target="Updater Debug" />
 			<Option target="Updater Release" />
 		</Unit>
-		<Extensions>
-			<lib_finder disable_auto="1" />
-		</Extensions>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

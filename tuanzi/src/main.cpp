@@ -59,13 +59,20 @@ int save_password_tmp = 0;
 int start_thread_result = 0;
 const char *opt_string = "qlh?wa:d:u:p:s:n:S:I:";
 const struct option long_opts[] = {
-    { "auth",    1, nullptr, 'a' }, { "dhcp",     1, nullptr, 'd' },
-    { "nic",     1, nullptr, 'n' }, { "ssid",     1, nullptr, 'I' },
-    { "wlan",    0, nullptr, 'w' }, { "service",  1, nullptr, 's' },
-    { "user",    1, nullptr, 'u' }, { "password", 1, nullptr, 'p' },
-    { "save",    1, nullptr, 'S' }, { "quit",     0, nullptr, 'q' },
-    { "list",    0, nullptr, 'l' }, { "help",     0, nullptr, 'h' },
-    { "version", 0, nullptr, 'v' }, { }
+    { "auth",     required_argument, nullptr, 'a' },
+    { "dhcp",     required_argument, nullptr, 'd' },
+    { "nic",      required_argument, nullptr, 'n' },
+    { "ssid",     required_argument, nullptr, 'I' },
+    { "wlan",     no_argument,       nullptr, 'w' },
+    { "service",  required_argument, nullptr, 's' },
+    { "user",     required_argument, nullptr, 'u' },
+    { "password", required_argument, nullptr, 'p' },
+    { "save",     required_argument, nullptr, 'S' },
+    { "quit",     no_argument,       nullptr, 'q' },
+    { "list",     no_argument,       nullptr, 'l' },
+    { "help",     no_argument,       nullptr, 'h' },
+    { "version",  no_argument,       nullptr, 'v' },
+    { }
 };
 
 int main(int argc, char **argv)
@@ -220,7 +227,7 @@ int main(int argc, char **argv)
 
     if (geteuid()) { // not superuser
         message_info(cinstance.LoadString(257) + '\n');
-//        return EXIT_SUCCESS;
+        return EXIT_SUCCESS;
     }
 
     if (request_exit == 1) {

@@ -282,8 +282,6 @@ int do_update(const std::string &strInstallPath, const std::string &strCurPath)
     return nRet;
 }
 
-const char *opt_string = "h?p:e";
-
 int main(int argc, char **argv)
 {
     int opt = 0;
@@ -293,7 +291,7 @@ int main(int argc, char **argv)
     std::string strCurPath;
     std::string strInstallPath;
 
-    while ((opt = getopt(argc, argv, opt_string)) == -1) {
+    while ((opt = getopt(argc, argv, "h?p:e")) == -1) {
         switch (opt) {
             case 'e':
                 english = 1;

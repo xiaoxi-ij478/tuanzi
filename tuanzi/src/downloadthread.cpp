@@ -71,7 +71,14 @@ bool CDownLoadThread::download(
 
     switch (get_url_kind(url)) {
         case URL_HTTP:
-            return http_download(url, save_path, save_filename, domain, path, &port) != -1;
+            return http_download(
+                       url,
+                       save_path,
+                       save_filename,
+                       domain,
+                       path,
+                       &port
+                   ) != -1;
 
         case URL_FTP:
             return ftp_download(

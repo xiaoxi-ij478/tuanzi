@@ -153,16 +153,9 @@ bool CTcp::GetHttpReqAddr_Port(const struct TCPIP &pkg)
     )
         return false;
 
-    if (
-        (space_pos2 =
-             FindChar(
-                 ' ',
-                 pkg.content,
-                 space_pos + 1,
-                 pkg.content_length - 1
-             )
-        ) < 0
-    )
+    space_pos2 = FindChar(' ', pkg.content, space_pos + 1, pkg.content_length - 1);
+
+    if (space_pos2 < 0)
         return false;
 
     if (
@@ -190,13 +183,9 @@ bool CTcp::GetHttpReqAddr_Port(const struct TCPIP &pkg)
     if (!MemCmpare(pkg.content, url_begin, end, "http://", strlen("http://")))
         url_begin += strlen("http://");
 
-    else if (!MemCmpare(
-                 pkg.content,
-                 url_begin,
-                 end,
-                 "https://",
-                 strlen("https://")
-             ))
+    else if (
+        !MemCmpare(pkg.content, url_begin, end, "https://", strlen("https://"))
+    )
         url_begin += strlen("https://");
 
     if (url_begin > end)
@@ -434,16 +423,9 @@ bool CTcp::IsHttpType(const struct TCPIP &pkg)
     )
         return false;
 
-    if (
-        (space_pos2 =
-             FindChar(
-                 ' ',
-                 pkg.content,
-                 space_pos + 1,
-                 pkg.content_length - 1
-             )
-        ) < 0
-    )
+    space_pos2 = FindChar(' ', pkg.content, space_pos + 1, pkg.content_length - 1);
+
+    if (space_pos2 < 0)
         return false;
 
     if (
@@ -517,19 +499,11 @@ bool CTcp::IsMmsType(const struct TCPIP &pkg)
     );
     wchar_buf[char_buflen] = 0;
     sprintf(char_buf, "%S", wchar_buf);
+    host_pos = FindSub("Host: ", strlen("Host: "), char_buf, 0, strlen(char_buf));
 
     if (
-        (host_pos =
-             FindSub(
-                 "Host: ",
-                 strlen("Host: "),
-                 char_buf,
-                 0,
-                 strlen(char_buf)
-             )
-        ) >= 0 &&
-        strlen(char_buf) + 1 - (host_pos + strlen("Host: "))
-        <= sizeof(reqaddr_char) - 1
+        host_pos >= 0 &&
+        strlen(char_buf) + 1 - (host_pos + strlen("Host: ")) <= sizeof(reqaddr_char) - 1
     )
         strcpy(reqaddr_char, char_buf + host_pos + strlen("Host: "));
 
