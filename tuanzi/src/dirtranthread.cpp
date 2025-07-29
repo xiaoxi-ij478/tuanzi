@@ -9,6 +9,7 @@
 #include "dirtransutil.h"
 #include "cmdutil.h"
 #include "contextcontrolthread.h"
+#include "util.h"
 #include "dirtranthread.h"
 
 CDirTranThread::CDirTranThread() :
@@ -536,6 +537,8 @@ bool CDirTranThread::GetProtocalParamFromSenderHand(
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnTransPacket, CDirTranThread)
 {
+    UNUSED_VAR(arg1);
+    UNUSED_VAR(arg2);
     struct tagDataSendUnit send_unit = {};
     struct tagSenderBind sender_bind = { -1, 0, 0, 0, 0, 1 };
     bool found_sender_bind = false;

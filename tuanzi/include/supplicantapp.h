@@ -37,7 +37,7 @@ class CSupplicantApp
         unsigned field_7C;
 
     public:
-        unsigned long success_time;
+        unsigned long long success_time;
 };
 
 #endif // SUPPLICANTAPP_H_INCLUDED

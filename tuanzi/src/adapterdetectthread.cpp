@@ -4,6 +4,7 @@
 #include "threadutil.h"
 #include "mtypes.h"
 #include "global.h"
+#include "util.h"
 #include "adapterdetectthread.h"
 
 // *INDENT-OFF*
@@ -231,6 +232,7 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnStartDetect, CAdapterDetectThread)
 {
+    UNUSED_VAR(arg2);
     struct DetectNICInfo *info = reinterpret_cast<struct DetectNICInfo *>(arg1);
 
     if (proxy_detect_timerid)
@@ -260,6 +262,8 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStartDetect, CAdapterDetectThread)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnStopDetect, CAdapterDetectThread)
 {
+    UNUSED_VAR(arg2);
+
     if (arg1 & STOP_PROXY_DETECT_TIMER_FLAG) {
         g_log_Wireless.AppendText("adapter detect thread stop proxy detect");
         KillTimer(proxy_detect_timerid);
@@ -273,6 +277,8 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStopDetect, CAdapterDetectThread)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CAdapterDetectThread)
 {
+    UNUSED_VAR(arg2);
+
     switch (arg1) {
         case ADAPTER_PROXY_DETECT_TIMER_MTYPE:
             if (proxy_detect_timerid)

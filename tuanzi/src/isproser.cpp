@@ -55,7 +55,7 @@ int CIsProSer::Detect(const char *pkg, unsigned pkglen)
     tcpip_info.etherheader = etherheader;
     tcpip_info.ipheader = ipheader;
 
-    if (ipheader->ihl << 2 < sizeof(struct iphdr)) {
+    if ((ipheader->ihl << 2) < sizeof(struct iphdr)) {
         g_logFile_proxy.AppendText("IP Head Len min than 20\r\n");
         return 0;
     }

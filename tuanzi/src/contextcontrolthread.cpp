@@ -254,7 +254,12 @@ unsigned CContextControlThread::Authenticate_InitAll()
         strcpy(platform_param.ifname, configure_info.public_adapter.c_str());
         sprintf(debug_file, "%slog/supf_debug.log", g_strAppPath.c_str());
 //        platform_param.event_callback = supf_event_callback_fun;
-        platform_param.debug_file = debug_file; /* nullptr */
+        platform_param.debug_file =
+#ifdef NDEBUG
+            nullptr;
+#else
+            debug_file;
+#endif // NDEBUG
         rj_printf_debug("Authenticate_InitAll before su_platform_init \n");
         su_plat_init_ret = su_platform_init(&platform_param);
         rj_printf_debug("Authenticate_InitAll after su_platform_init - END\n");
@@ -466,8 +471,8 @@ void CContextControlThread::DeAuthenticate_ExitAll()
 
             if (read_packet_thread->StopRxPacketThread() == ETIMEDOUT) {
                 g_log_Wireless.AppendText(
-                    "CContextControlThread::DeAuthenticate_ExitAll TerminateThread m_readPa"
-                    "cketThread->m_nThreadID=%x",
+                    "CContextControlThread::DeAuthenticate_ExitAll TerminateThread "
+                    "m_readPacketThread->m_nThreadID=%x",
                     read_packet_thread->thread_id
                 );
 
@@ -562,8 +567,8 @@ void CContextControlThread::DoBOOTP()
         return;
     }
 
-    if ((bootp_timerid = SetTimer(nullptr, PACKET_NOTIFY_MTYPE, 2000, nullptr)) {
-    g_log_Wireless.AppendText("\t SetTimer error");
+    if ((bootp_timerid = SetTimer(nullptr, PACKET_NOTIFY_MTYPE, 2000, nullptr))) {
+        g_log_Wireless.AppendText("\t SetTimer error");
         stop_dhclient_asyn();
         sem_wait(&bootp_semaphore);
         sem_destroy(&bootp_semaphore);
@@ -574,6 +579,7 @@ void CContextControlThread::DoBOOTP()
         );
         return;
     }
+
     g_log_Wireless.AppendText("\t Set offer ip timer success %u", bootp_timerid);
 }
 
@@ -661,8 +667,8 @@ void CContextControlThread::DoUpgrade(
     download_thread->StartThread();
     g_log_Wireless.AppendText(
         "enter CContextControlThread::DoUpgrade end path=%s,strFileName=%s",
-        download_para.save_path,
-        download_para.save_filename
+        download_para.save_path.c_str(),
+        download_para.save_filename.c_str()
     );
 }
 
@@ -782,7 +788,7 @@ int CContextControlThread::EnvironmentCheck()
             network_manager_stopped = true;
     }
 
-    if (IS_WLAN(RFC_EAP_NONE) && check_service_status("wpa_supplicant")) {
+    if (IS_WLAN(EAP_TYPE_INVALID) && check_service_status("wpa_supplicant")) {
         GetCurDataAndTime(tmpbuf2);
         sprintf(
             tmpbuf,
@@ -894,7 +900,7 @@ void CContextControlThread::GetAdapterMac(struct ether_addr *dst) const
 
 unsigned CContextControlThread::GetDHCPAuthStep()
 {
-    if (IsRuijieNas() && IS_WIRED(RFC_EAP_MD5) && IsDhcpAuth()) {
+    if (IsRuijieNas() && IS_WIRED(EAP_TYPE_MD5) && IsDhcpAuth()) {
         if (dhcp_auth_step != 1 && dhcp_auth_step != 2)
             dhcp_auth_step = 1;
 
@@ -951,14 +957,14 @@ std::string CContextControlThread::GetSAMMessBuff(
     return ret;
 }
 
-bool CContextControlThread::IS_EAP_TYPE(enum EAP_TYPE_RFC type) const
+bool CContextControlThread::IS_EAP_TYPE(enum EAP_TYPES type) const
 {
     return eap_type == type;
 }
 
-bool CContextControlThread::IS_WIRED(enum EAP_TYPE_RFC type) const
+bool CContextControlThread::IS_WIRED(enum EAP_TYPES type) const
 {
-    if (type == RFC_EAP_NONE)
+    if (type == EAP_TYPE_INVALID)
         return if_type == 1;
 
     if (if_type == 1)
@@ -967,11 +973,11 @@ bool CContextControlThread::IS_WIRED(enum EAP_TYPE_RFC type) const
     return false;
 }
 
-bool CContextControlThread::IS_WLAN(enum EAP_TYPE_RFC type) const
+bool CContextControlThread::IS_WLAN(enum EAP_TYPES type) const
 {
     g_log_Wireless.AppendText("m_iftype=%d m_unEapType=%d", if_type, eap_type);
 
-    if (type == RFC_EAP_NONE)
+    if (type == EAP_TYPE_INVALID)
         return if_type == 2;
 
     if (if_type == 2)
@@ -989,26 +995,27 @@ void CContextControlThread::InitAll_Success(
     bool disallow_multi_nic_ip = false;
     g_log_Wireless.AppendText("InitAll_Success ENTER");
 
-    if (private_prop.parse_hello) {
-        if (private_prop.parse_hello == -1) {
+    switch (private_prop.parse_hello) {
+        case -1:
             if (hello_processor) {
                 g_log_Wireless.AppendText("Hello disable");
                 hello_processor->ProcessorStop();
             }
 
-        } else if (private_prop.parse_hello == 1) {
+            break;
+
+        case 1:
             g_log_Wireless.AppendText("Hello Enable");
 
             if (!hello_processor)
                 hello_processor = new CHelloProcessor;
 
-            if (hello_processor)
-                hello_processor->ProcessorRun(
-                    GetMessageID(),
-                    private_prop.parse_hello_inv,
-                    private_prop.parse_hello_id
-                );
-        }
+            hello_processor->ProcessorRun(
+                GetMessageID(),
+                private_prop.parse_hello_inv,
+                private_prop.parse_hello_id
+            );
+            break;
     }
 
     g_log_Wireless.AppendText(
@@ -1244,7 +1251,7 @@ void CContextControlThread::IsIPOffered()
 
 bool CContextControlThread::IsRuijieNas() const
 {
-    return IS_WIRED(RFC_EAP_MD5) ? is_ruijie_nas : false;
+    return IS_WIRED(EAP_TYPE_MD5) ? is_ruijie_nas : false;
 }
 
 bool CContextControlThread::IsServerlistUpdate(
@@ -1306,6 +1313,9 @@ unsigned CContextControlThread::ModifyLogoffReason(
         case LOGOFF_REASON_FAIL_GETTING_DYNAMIC_IP:
             reason = LOGOFF_REASON_NORMAL_LOGOFF;
             break;
+
+        default:
+            break;
     }
 
     if (IsRuijieNas() && reason != LOGOFF_REASON_NORMAL_LOGOFF)
@@ -1357,6 +1367,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(ONSAWantLogOff, CContextControlThread)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnAdaptersState, CContextControlThread)
 {
+    UNUSED_VAR(arg2);
     static in_addr_t gateway = 0; // szGateway
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     char speed_buf[100] = {};
@@ -1365,7 +1376,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnAdaptersState, CContextControlThread)
 
     switch (arg1) {
         case ADAPTER_UP_REPORT_MTYPE:
-            if (IS_WLAN(RFC_EAP_NONE))
+            if (IS_WLAN(EAP_TYPE_INVALID))
                 break;
 
             if (gateway) {
@@ -1397,7 +1408,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnAdaptersState, CContextControlThread)
             break;
 
         case ADAPTER_DOWN_REPORT_MTYPE:
-            if (IS_WLAN(RFC_EAP_NONE))
+            if (IS_WLAN(EAP_TYPE_INVALID))
                 break;
 
             theApp.GUI_update_LOGOFF(LOGOFF_REASON_NIC_NOT_CONNECTED, STATE_HOLD);
@@ -1409,14 +1420,14 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnAdaptersState, CContextControlThread)
             gateway = configure_info.dhcp_ipinfo.gateway;
             theApp.GUI_update_LOGOFF(LOGOFF_REASON_NIC_DISABLED, STATE_HOLD);
 
-            if (IS_WLAN(RFC_EAP_NONE))
+            if (IS_WLAN(EAP_TYPE_INVALID))
                 WlanDisconnect();
 
             StopAuthentication(LOGOFF_REASON_NORMAL_LOGOFF, APP_QUIT_TYPE_0, false);
             break;
 
         case ADAPTER_ENABLE_REPORT_MTYPE:
-            if (IS_WIRED(RFC_EAP_NONE))
+            if (IS_WIRED(EAP_TYPE_INVALID))
                 break;
 
             if (gateway) {
@@ -1459,6 +1470,8 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnAdaptersState, CContextControlThread)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnConnectNotify, CContextControlThread)
 {
+    UNUSED_VAR(arg2);
+
     switch (arg1) {
         case 0:
             StopAuthentication(LOGOFF_REASON_NORMAL_LOGOFF, APP_QUIT_TYPE_1, true);
@@ -1506,12 +1519,17 @@ DEFINE_DISPATH_MESSAGE_HANDLER(
     CContextControlThread
 )
 {
+    UNUSED_VAR(arg1);
+    UNUSED_VAR(arg2);
     g_log_Wireless.AppendText("CContextControlThread::OnLogoffWithUnknownReason()");
     StopAuthentication(LOGOFF_REASON_UNKNOWN_REASON, APP_QUIT_TYPE_2, true);
 }
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnOpenSSOURL, CContextControlThread)
 {
+    UNUSED_VAR(arg1);
+    UNUSED_VAR(arg2);
+
     if (CtrlThread->private_properties.utrust_url.empty())
         return;
 
@@ -1540,7 +1558,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPacketReturn, CContextControlThread) const
     struct EAPOLFrame *eapol_frame = nullptr;
     struct eapolpkg *eapol_pkg = reinterpret_cast<struct eapolpkg *>(arg2);
 
-    if (!IS_WIRED(RFC_EAP_MD5) || !eapol_pkg)
+    if (!IS_WIRED(EAP_TYPE_MD5) || !eapol_pkg)
         return;
 
     if (arg1 <= 13) {
@@ -1660,6 +1678,8 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPacketReturn, CContextControlThread) const
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnPatchLogoff, CContextControlThread)
 {
+    UNUSED_VAR(arg1);
+    UNUSED_VAR(arg2);
     StopAuthentication(LOGOFF_REASON_NORMAL_LOGOFF, APP_QUIT_TYPE_0, true);
     g_uilog.AppendText("CContextControlThread::OnPatchLogoff(WM_QUIT_MAIN_LOOP,1)");
     theApp.GUI_QuitMainLoop("");
@@ -1667,6 +1687,8 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnPatchLogoff, CContextControlThread)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnRcvDHCPAuthResult, CContextControlThread)
 {
+    const char *msgl = reinterpret_cast<const char *>(arg2);
+
     if (!wait_dhcp_auth_result_timerid) {
         g_log_Wireless.AppendText(
             "%s 已经收到成功认证成功报文",
@@ -1679,30 +1701,25 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnRcvDHCPAuthResult, CContextControlThread)
 
     if (arg1) {
         if (arg2) {
-            std::string msg = reinterpret_cast<char *>(arg2);
             g_uilog.AppendText(
                 "shownotify CContextControlThread::OnRcvDHCPAuthResult,strInfo=%s",
-                msg
+                msgl
             );
-            shownotify(
-                msg,
-                CChangeLanguage::Instance().LoadString(95),
-                0
-            );
+            shownotify(msgl, CChangeLanguage::Instance().LoadString(95), 0);
         }
 
         DoForSTATE_AUTHENTICATED();
 
         if (arg2)
-            delete[] reinterpret_cast<char *>(arg2);
+            delete[] msgl;
 
         return;
     }
 
     if (arg2) {
-        logoff_message = reinterpret_cast<char *>(arg2);
+        logoff_message = msgl;
         StopAuthentication(LOGOFF_REASON_FORCE_OFFLINE_3, APP_QUIT_TYPE_2, true);
-        delete[] reinterpret_cast<char *>(arg2);
+        delete[] msgl;
         return;
     }
 
@@ -1792,6 +1809,8 @@ DEFINE_DISPATH_MESSAGE_HANDLER(
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnRecvFailure, CContextControlThread)
 {
+    UNUSED_VAR(arg1);
+    UNUSED_VAR(arg2);
     CtrlThread->has_auth_success = false;
 
     if (reconnect_timer) {
@@ -1802,6 +1821,9 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnRecvFailure, CContextControlThread)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnSaWantReAuth, CContextControlThread)
 {
+    UNUSED_VAR(arg1);
+    UNUSED_VAR(arg2);
+
     if (!IsRuijieNas())
         SendLogOffPacket(LOGOFF_REASON_NORMAL_LOGOFF, false);
 
@@ -1823,16 +1845,14 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnSaySaEvent, CContextControlThread) const
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnShowSaMessage, CContextControlThread) const
 {
+    UNUSED_VAR(arg2);
+    const char *msgl = reinterpret_cast<const char *>(arg1);
     g_uilog.AppendText(
         "shownotify CContextControlThread::OnShowSaMessage,strInfo=%s",
-        reinterpret_cast<char *>(arg1)
+        msgl
     );
-    shownotify(
-        reinterpret_cast<char *>(arg1),
-        CChangeLanguage::Instance().LoadString(95),
-        0
-    );
-    delete[] reinterpret_cast<char *>(arg1);
+    shownotify(msgl, CChangeLanguage::Instance().LoadString(95), 0);
+    delete[] msgl;
 }
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnSimulateLogoff, CContextControlThread) const
@@ -1867,6 +1887,8 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnSimulateLogoff, CContextControlThread) const
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnStartMachine, CContextControlThread)
 {
+    UNUSED_VAR(arg1);
+    UNUSED_VAR(arg2);
     char tmpbuf[256] = {};
     SET_EAP_TYPE();
     SET_IF_TYPE();
@@ -1938,6 +1960,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(
     CContextControlThread
 )
 {
+    UNUSED_VAR(arg2);
     static std::string strLogFile = g_strAppPath + "log/run.log";
     static enum STATES last_state = STATE_DISASSOC;
     CBackoffReAuthenticationManager &boram_instance =
@@ -2012,7 +2035,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(
             CBackoffReAuthenticationManager::Instance().reauth_count = 0;
 
             if (
-                IS_WIRED(RFC_EAP_NONE) &&
+                IS_WIRED(EAP_TYPE_INVALID) &&
                 (
                     CtrlThread->connect_fail ||
                     (
@@ -2089,7 +2112,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(
             );
 
             if (
-                !IS_WIRED(RFC_EAP_NONE) ||
+                !IS_WIRED(EAP_TYPE_INVALID) ||
                 !connect_fail ||
                 !logoff_message.empty()
             ) {
@@ -2224,6 +2247,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CContextControlThread)
 {
+    UNUSED_VAR(arg2);
     g_logFile_start.AppendText(
         "CContextControlThread::OnTimer nIDEvent = %d",
         arg1
@@ -2386,7 +2410,12 @@ bool CContextControlThread::RefreshSignal(const std::string &adapter_name)
         strcpy(platform_param.ifname, adapter_name.c_str());
         sprintf(debug_file, "%slog/supf_debug.log", g_strAppPath.c_str());
 //        platform_param.event_callback = supf_event_callback_fun;
-        platform_param.debug_file = debug_file /* nullptr */;
+        platform_param.debug_file =
+#ifdef NDEBUG
+            nullptr;
+#else
+            debug_file;
+#endif // NDEBUG
         rj_printf_debug(" before su_platform_init \n");
         su_plat_init_ret = su_platform_init(&platform_param);
         rj_printf_debug(" after su_platform_init \n");
@@ -2622,7 +2651,7 @@ void CContextControlThread::SendLogOffPacket(
                 break;
         }
 
-    if (!IS_WIRED(RFC_EAP_NONE)) {
+    if (!IS_WIRED(EAP_TYPE_INVALID)) {
         WlanDisconnect();
         return;
     }
@@ -3100,7 +3129,7 @@ void CContextControlThread::StartProcessBusiness(
     );
     InitAll_Success(private_prop);
 
-    if (!IS_WIRED(RFC_EAP_NONE)) {
+    if (!IS_WIRED(EAP_TYPE_INVALID)) {
         configure_info.is_autoreconnect = false;
         configure_info.autoreconnect = 0;
         PostThreadMessage(ASK_SMP_INIT_DATA_MTYPE, 4, 0);
@@ -3178,7 +3207,7 @@ int CContextControlThread::StartStateMachine(bool no_get_dhcpinfo)
         return -1;
     }
 
-    if (IS_WLAN(RFC_EAP_PEAP)) {
+    if (IS_WLAN(EAP_TYPE_PEAP)) {
         g_log_Wireless.AppendText(
             "CContextControlThread::StartStateMachine 无线认证，m_CurrentState=%d",
             state
@@ -3188,7 +3217,7 @@ int CContextControlThread::StartStateMachine(bool no_get_dhcpinfo)
         return 0;
     }
 
-    if (bfirst && IS_WIRED(RFC_EAP_NONE) && !check_safe_exit(1)) {
+    if (bfirst && IS_WIRED(EAP_TYPE_INVALID) && !check_safe_exit(1)) {
         eapol_pkg = new struct eapolpkg;
         eapol_pkg->etherheader.ether_dhost[0] = 0x01;
         eapol_pkg->etherheader.ether_dhost[1] = 0x80;
@@ -3335,7 +3364,7 @@ void CContextControlThread::WlanScanComplete(
     wireless_signal.clear();
     rj_printf_debug("扫描完成-num(%d)\n", scan_result->num);
 
-    for (unsigned i = 0; i < scan_result->num; i++) {
+    for (int i = 0; i < scan_result->num; i++) {
         found = false;
 
         if (

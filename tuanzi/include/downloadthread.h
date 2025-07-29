@@ -128,41 +128,18 @@ class CDownLoadThread : public CLnxThread
             const char *path
         ) const;
         int is_exist_dir(const char *dir) const;
-//        int my_strnicmp(const char *src, const char *dst, int len) const;
         void set_nport(struct len_and_sockaddr *addr, unsigned port) const;
         struct len_and_sockaddr *str2sockaddr(
             const char *straddr,
             int port,
             int flag
         ) const;
-//        unsigned long xatoul_range(char *str, char break_char, int upper) const;
-        int xconnect(int fd, const sockaddr *addr, socklen_t addrlen) const {
-            if (!connect(fd, addr, addrlen))
-                return 0;
-
-            close(fd);
-            return -1;
-        }
-        int xconnect_ftpdata(struct ftp_host_info_s *hostinfo, char *pasv_reply) const;
-        int xconnect_stream(struct len_and_sockaddr *addr) const {
-            int fd = socket(addr->addr.sin_family, SOCK_STREAM, 0);
-
-            if (fd < 0) {
-                rj_printf_debug("xsocket socket error\n");
-                return -1;
-            }
-
-            if (
-                xconnect(
-                    fd,
-                    reinterpret_cast<struct sockaddr *>(&addr->addr),
-                    addr->len
-                ) == -1
-            )
-                return -1;
-
-            return fd;
-        }
+        int xconnect(int fd, const sockaddr *addr, socklen_t addrlen) const;
+        int xconnect_ftpdata(
+            struct ftp_host_info_s *hostinfo,
+            char *pasv_reply
+        ) const;
+        int xconnect_stream(struct len_and_sockaddr *addr) const;
 
         struct tagDownLoadPara dl_para;
         bool create_progress_dialog;

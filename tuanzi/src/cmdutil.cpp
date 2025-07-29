@@ -613,7 +613,7 @@ int do_quit()
     if (CtrlThread) {
         CtrlThread->PostThreadMessage(CONNECT_NOTIFY_MTYPE, 0, 0);
 
-        if (CtrlThread->IS_WIRED(RFC_EAP_NONE))
+        if (CtrlThread->IS_WIRED(EAP_TYPE_INVALID))
             check_safe_exit(false);
 
         CtrlThread->SafeExitThread(10000);
@@ -761,6 +761,9 @@ void do_update(struct updateArg_t *update_arg)
         case LANG_CHINESE:
             execl(exe, exe, "-p", g_strAppPath.c_str(), nullptr);
             break;
+
+        default:
+            break;
     }
 }
 
@@ -821,7 +824,7 @@ unsigned show_connect_net_info()
 
 unsigned show_connect_time()
 {
-    unsigned long success_time = 0;
+    unsigned long long success_time = 0;
     success_time =
         theApp.success_time ?
         0 :

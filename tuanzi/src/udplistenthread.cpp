@@ -427,6 +427,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnRecvPacketReturn, CUDPListenThread)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CUDPListenThread)
 {
+    UNUSED_VAR(arg2);
     struct tagDirectCom_ProtocalParam proto_param = {};
     unsigned finish_time = 0;
     logFile_debug.AppendText(
@@ -1151,7 +1152,6 @@ bool CUDPListenThread::SetProtocalParam_TimeStamp(
     unsigned long timestamp
 )
 {
-    bool found = false;
     EnterCriticalSection(&get_set_proto_param_mutex);
 
     for (struct tagDirectCom_ProtocalParam &proto_param_l : proto_params) {

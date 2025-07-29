@@ -74,14 +74,17 @@ bool CTcp::GetReqAddr_Port(const struct TCPIP &pkg, bool query_hostname)
     if (!ret)
         return false;
 
-    if (query_hostname && reqaddr_int == -1)
+    if (query_hostname && reqaddr_int == inet_addr("255.255.255.255")) {
+        reqaddr_int = inet_addr(reqaddr_char);
+
         if (
-            (reqaddr_int = inet_addr(reqaddr_char)) == -1 &&
+            reqaddr_int == inet_addr("255.255.255.255") &&
             dns_queryer.PostQueryByName(reqaddr_char, &hostent) != 1
         )
             g_logFile_proxy.AppendText(
                 "ProxyClientTcp::TryDetectTCPIP PostQueryByName failed\r\n"
             );
+    }
 
     g_logFile_proxy.AppendText(
         "m_reqConnAddr:%s; m_ulReqAddr:%u; m_reqPort:%d",
@@ -115,11 +118,9 @@ bool CTcp::GetFtpReqAddr_Port(const struct TCPIP &pkg)
     )
         return false;
 
-    if (
-        (at_pos =
-             FindChar('@', pkg.content, space_pos + 1, pkg.content_length - 1)
-        ) < space_pos + 1
-    )
+    at_pos = FindChar('@', pkg.content, space_pos + 1, pkg.content_length - 1);
+
+    if (at_pos < space_pos + 1)
         return false;
 
     if (at_pos + 1 >= pkg.content_length - 3)

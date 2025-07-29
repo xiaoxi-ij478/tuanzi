@@ -311,6 +311,9 @@ int main(int argc, char **argv)
         case AUTH_WIRED:
             CtrlThread->configure_info.public_authmode = "EAPMD5";
             break;
+
+        default:
+            break;
     }
 
     if (dhcp_mode != DHCP_INVALID)

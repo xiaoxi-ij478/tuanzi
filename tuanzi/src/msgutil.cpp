@@ -55,7 +55,7 @@ void AddMsgItem(unsigned type, const std::string &msg)
     GetCurDataAndTime(time);
     msgarr.emplace_back(type, time, msg);
 
-    for (int i = 0; i < msgarr.size(); i++) {
+    for (unsigned i = 0; i < msgarr.size(); i++) {
         std::string inikey = "msg_" + std::to_string(i);
         iniparser_set(
             ini,
@@ -78,7 +78,7 @@ void AddMsgItem(unsigned type, const std::string &msg)
     LeaveCriticalSection(&msg_write_lock);
 }
 
-void DelMsgItem(int type, const std::string &msg)
+void DelMsgItem(unsigned type, const std::string &msg)
 {
     std::string msgcopy = msg;
     std::string inifile = g_strAppPath + "systemmsg.ini";
@@ -105,7 +105,7 @@ void DelMsgItem(int type, const std::string &msg)
             break;
         }
 
-    for (int i = 0; i < msgarr.size(); i++) {
+    for (unsigned i = 0; i < msgarr.size(); i++) {
         std::string inikey = "msg_" + std::to_string(i);
         iniparser_set(
             ini,

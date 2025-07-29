@@ -27,7 +27,7 @@ struct SuRadiusPrivate {
     unsigned delay_second_show_utrust_url;
     unsigned proxy_dectect_kinds;
     in_addr_t smp_ipaddr;
-    unsigned parse_hello;
+    int parse_hello;
     unsigned parse_hello_inv;
     unsigned parse_hello_id;
     char direct_communication_highest_version_supported;

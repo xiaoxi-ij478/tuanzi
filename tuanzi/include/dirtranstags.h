@@ -72,7 +72,7 @@ struct tagRecvSessionBind {
 struct tagRecvBind {
     tagRecvBind() = default;
     tagRecvBind(
-        unsigned id,
+        int id,
         in_addr_t srcaddr,
         unsigned srcport,
         in_addr_t dstaddr,
@@ -88,7 +88,7 @@ struct tagRecvBind {
         pthread(pthread),
         on_receive_packet_post_mtype(on_receive_packet_post_mtype)
     {}
-    unsigned id;
+    int id;
     in_addr_t srcaddr;
     unsigned srcport;
     in_addr_t dstaddr;
@@ -238,7 +238,7 @@ struct tagSmpInitPacket {
 };
 
 struct tagDataSendUnit {
-    unsigned id;
+    int id;
     unsigned field_4;
     char *msg;
     unsigned totallen;

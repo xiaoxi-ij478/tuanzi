@@ -74,41 +74,31 @@ const char *getSupfStateText(enum SupfState state)
 
 void *supf_event_callback_recv_fun(void *)
 {
-    struct SupfPipeStateMsgData *read_data =
-            reinterpret_cast<struct SupfPipeStateMsgData *>
-        (new char[sizeof(enum SUPF_EVENT_TYPE) + sizeof(enum SupfState)]);
-    struct SupfPipeStateMsgData *new_read_data = nullptr;
+    struct SupfPipeStateMsgData read_data = {};
+    char *msg_databuf = nullptr;
     struct SupfMsgData msg_data = {};
 
     while (!g_supf_exited) {
         read(
             g_supf_cb_read_pipe,
-            read_data,
+            &read_data,
             sizeof(enum SUPF_EVENT_TYPE) + sizeof(enum SupfState)
         );
 
-        switch (read_data->type) {
+        switch (read_data.type) {
             case SUPF_STATE:
-                supf_state_handle(read_data->state);
+                supf_state_handle(read_data.state);
                 break;
 
             case SUPF_MSG:
-                new_read_data =
-                    reinterpret_cast<struct SupfPipeStateMsgData *>
-                    (new char[sizeof(struct SupfPipeStateMsgData) + read_data->len]);
-                *new_read_data = *read_data;
-                read(g_supf_cb_read_pipe, new_read_data->data, new_read_data->len);
-                delete[] read_data;
-                read_data = nullptr;
-                msg_data.msg = new_read_data->msg;
-                msg_data.buf = new_read_data->data;
-                msg_data.len = new_read_data->len;
+                msg_databuf = new char[read_data.len];
+                read(g_supf_cb_read_pipe, msg_databuf, read_data.len);
+                msg_data.msg = read_data.msg;
+                msg_data.buf = msg_databuf;
+                msg_data.len = read_data.len;
                 supf_msg_handle(&msg_data);
-                delete[] reinterpret_cast<char *>(new_read_data);
-                new_read_data = nullptr;
-                read_data =
-                    reinterpret_cast<struct SupfPipeStateMsgData *>
-                    (new char[sizeof(enum SUPF_EVENT_TYPE) + sizeof(enum SupfState)]);
+                delete[] msg_databuf;
+                msg_databuf = nullptr;
                 break;
         }
     }
@@ -159,7 +149,7 @@ unsigned generate_cmd_arguments(
 )
 {
     int argc = param->debug_file ? 10 : 8;
-    unsigned next_argc = 0;
+    int next_argc = 0;
     char **real_arguments = nullptr;
 
     if (!param->driver_name[0] || !param->ifname[0])
@@ -170,7 +160,7 @@ unsigned generate_cmd_arguments(
 
     real_arguments[argc] = nullptr;
 
-    for (unsigned i = 0; i < argc; i++) {
+    for (int i = 0; i < argc; i++) {
         if ((real_arguments[i] = new char[512]))
             continue;
 
@@ -266,7 +256,7 @@ unsigned su_platform_cmd(struct SupfCmd *cmd)
 unsigned supf_start(struct StartCmdCtx *start_ctx)
 {
     unsigned gen_network_cfg_ret = 0;
-    int exact_write = 0;
+    long exact_write = 0;
     struct SupfPipeCmdMsgData *msg_data = nullptr;
     int conf_pipe_read[2] = {};
 

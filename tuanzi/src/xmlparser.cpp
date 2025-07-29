@@ -272,7 +272,7 @@ bool XML_PARSER::Load_XML_Document(const char *filename)
 bool XML_PARSER::Load_XML_String(const char *str)
 {
     Parse(str, nullptr, TIXML_DEFAULT_ENCODING);
-    return (currentElement = FirstChildElement());
+    return !!(currentElement = FirstChildElement());
 }
 
 bool XML_PARSER::RemoveChildElements(const char *name) const

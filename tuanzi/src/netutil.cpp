@@ -1061,6 +1061,9 @@ void get_all_nics_statu(std::vector<struct NICsStatus> &dest)
                 rj_printf_debug("%s check_nic_status disable", cur_if->ifa_name);
                 dest.emplace_back(cur_if->ifa_name, true);
                 break;
+
+            default:
+                break;
         }
     }
 

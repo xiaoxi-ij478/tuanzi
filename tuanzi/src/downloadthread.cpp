@@ -3,6 +3,7 @@
 #include "fileutil.h"
 #include "global.h"
 #include "mtypes.h"
+#include "util.h"
 #include "downloadthread.h"
 
 CDownLoadThread::CDownLoadThread() :
@@ -43,6 +44,9 @@ void CDownLoadThread::DispathMessage(struct LNXMSG *msg)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnStartThread, CDownLoadThread)
 {
+    UNUSED_VAR(arg1);
+    UNUSED_VAR(arg2);
+
     if (!down_para_set)
         rj_printf_debug("error ,no para has been set!");
 
@@ -533,8 +537,8 @@ int CDownLoadThread::get_remote_file(
     int file_fd = 0;
     int socket_fd = 0;
     long read_byte = 0;
-    unsigned long total_read_byte = 0;
-    unsigned long file_size = 0;
+    long total_read_byte = 0;
+    long file_size = 0;
     char dir[1024] = {};
     char filename[1024] = {};
     char final_save_path[2048] = {};
@@ -609,13 +613,7 @@ int CDownLoadThread::get_remote_file(
     FD_SET(socket_fd, &listen_fd);
 
     if (
-        select(
-            socket_fd + 1,
-            &listen_fd,
-            nullptr,
-            nullptr,
-            &listen_timeout
-        ) == -1
+        select(socket_fd + 1, &listen_fd, nullptr, nullptr, &listen_timeout) == -1
     ) {
         g_log_Wireless.AppendText("select failed.");
         ret = DOWNLOAD_ERROR_4;
@@ -627,7 +625,12 @@ int CDownLoadThread::get_remote_file(
         goto error_quit;
     }
 
-    if (http_parse_response_head(buf, &file_size)) {
+    if (
+        http_parse_response_head(
+                                 buf,
+                                 reinterpret_cast<unsigned long *>(&file_size)
+                                 )
+        ) {
         ret = DOWNLOAD_ERROR_2;
         goto error_quit;
     }
@@ -676,13 +679,7 @@ int CDownLoadThread::get_remote_file(
         listen_timeout = { 20, 0 };
 
         if (
-            select(
-                socket_fd + 1,
-                &listen_fd,
-                nullptr,
-                nullptr,
-                &listen_timeout
-            ) == -1
+            select(socket_fd + 1, &listen_fd, nullptr, nullptr, &listen_timeout) == -1
         ) {
             g_log_Wireless.AppendText("select failed.");
             ret = DOWNLOAD_ERROR_4;
@@ -778,13 +775,12 @@ enum URL_KIND CDownLoadThread::get_url_kind(const char *url) const
 
 void CDownLoadThread::http_del_blank(char *str) const
 {
-    char *ptr = str;
-
-    do
-        if (*str++ != ' ')
-            *ptr++ = *str;
-
-    while (*str && *str != '\r' && *str != '\n');
+    static const std::string crlf = "\r\n";
+    *std::remove(
+        str,
+        std::find_first_of(str, str + strlen(str), crlf.cbegin(), crlf.cend()),
+        ' '
+    ) = 0;
 }
 
 int CDownLoadThread::http_download(
@@ -983,6 +979,19 @@ struct len_and_sockaddr *CDownLoadThread::str2sockaddr(
     return ret;
 }
 
+int CDownLoadThread::xconnect(
+    int fd,
+    const sockaddr *addr,
+    socklen_t addrlen
+) const
+{
+    if (!connect(fd, addr, addrlen))
+        return 0;
+
+    close(fd);
+    return -1;
+}
+
 int CDownLoadThread::xconnect_ftpdata(
     struct ftp_host_info_s *hostinfo,
     char *pasv_reply
@@ -1026,4 +1035,25 @@ int CDownLoadThread::xconnect_ftpdata(
     port |= ptmp;
     set_nport(hostinfo->addr, htons(port));
     return xconnect_stream(hostinfo->addr);
+}
+
+int CDownLoadThread::xconnect_stream(struct len_and_sockaddr *addr) const
+{
+    int fd = socket(addr->addr.sin_family, SOCK_STREAM, 0);
+
+    if (fd < 0) {
+        rj_printf_debug("xsocket socket error\n");
+        return -1;
+    }
+
+    if (
+        xconnect(
+            fd,
+            reinterpret_cast<struct sockaddr *>(&addr->addr),
+            addr->len
+        ) == -1
+    )
+        return -1;
+
+    return fd;
 }

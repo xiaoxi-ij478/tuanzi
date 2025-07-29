@@ -28,9 +28,9 @@ class CContextControlThread : public CLnxThread
         in_addr_t GetNetOrderIPV4() const;
         unsigned GetRadiusServer() const;
         void InitStartDstMac();
-        bool IS_EAP_TYPE(enum EAP_TYPE_RFC type) const;
-        bool IS_WIRED(enum EAP_TYPE_RFC type) const;
-        bool IS_WLAN(enum EAP_TYPE_RFC type) const;
+        bool IS_EAP_TYPE(enum EAP_TYPES type) const;
+        bool IS_WIRED(enum EAP_TYPES type) const;
+        bool IS_WLAN(enum EAP_TYPES type) const;
         bool IsDhcpAuth() const;
         bool IsRuijieNas() const;
         bool IsServerlistUpdate(const std::vector<std::string> &new_list) const;

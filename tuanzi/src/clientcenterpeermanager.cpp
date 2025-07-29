@@ -4,6 +4,7 @@
 #include "xmlparser.h"
 #include "httpconnection.h"
 #include "mtypes.h"
+#include "util.h"
 #include "confupdateutilinstance.h"
 #include "clientcenterpeermanager.h"
 
@@ -154,6 +155,7 @@ bool CClientCenterPeerManager::InitInstance()
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnStart, CClientCenterPeerManager)
 {
+    UNUSED_VAR(arg2);
     struct _START_CENTERCONTROL_START_ *info =
             reinterpret_cast<struct _START_CENTERCONTROL_START_ *>(arg1);
     g_logContextControl.AppendText("Start to connect client center");
@@ -176,6 +178,8 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStart, CClientCenterPeerManager)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnStop, CClientCenterPeerManager)
 {
+    UNUSED_VAR(arg1);
+    UNUSED_VAR(arg2);
     g_logContextControl.AppendText("Stop to connect client center");
 
     if (!process_connect_timerid)
@@ -187,6 +191,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStop, CClientCenterPeerManager)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CClientCenterPeerManager)
 {
+    UNUSED_VAR(arg2);
     g_logContextControl.AppendText(
         "CContextControlThread::OnTimer nIDEvent = %d",
         arg1

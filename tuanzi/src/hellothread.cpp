@@ -119,6 +119,7 @@ unsigned CHelloThread::GetCurCRCID()
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnChangeHelloPara, CHelloThread)
 {
+    UNUSED_VAR(arg2);
     if (arg1)
         hello_para = arg1;
 
@@ -127,6 +128,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnChangeHelloPara, CHelloThread)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnHelloTimer, CHelloThread)
 {
+    UNUSED_VAR(arg2);
     unsigned rbuflen = 0;
     struct HelloPacket *hello_packet = CreateHelloPacket(rbuflen);
 
@@ -161,5 +163,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnHelloTimer, CHelloThread)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnSetHelloTimerPlease, CHelloThread)
 {
+    UNUSED_VAR(arg1);
+    UNUSED_VAR(arg2);
     CreateHelloTimer(hello_timer_interval);
 }

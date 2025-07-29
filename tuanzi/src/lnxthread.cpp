@@ -318,7 +318,6 @@ bool CLnxThread::ExitInstance()
 
 bool CLnxThread::KillTimer(timer_t &timerid)
 {
-    bool ret = false;
     g_logFile_start.AppendText(
         "CLnxThread(%s)::KillTimer() %u ,pid =%u\n",
         classname,

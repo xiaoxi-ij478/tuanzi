@@ -212,7 +212,7 @@ bool CDNSQuery::StartQueryThread(char *errmsg)
 
 int CDNSQuery::StopQueryThread()
 {
-    struct DNSQueryStruct msg = { STOP_DNS_QUERY_MTYPE };
+    struct DNSQueryStruct msg = { STOP_DNS_QUERY_MTYPE, {} };
 
     if (!thread_is_running())
         return -1;

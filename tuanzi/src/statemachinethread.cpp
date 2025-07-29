@@ -66,9 +66,10 @@ case (state_enum): \
             RETURN_STATE(STATE_HOLD, state_hold);
             RETURN_STATE(STATE_LOGOFF, state_logoff);
 #undef RETURN_STATE
-    }
 
-    return nullptr;
+        default:
+            return nullptr;
+    }
 }
 
 // *INDENT-OFF*
@@ -165,6 +166,7 @@ struct EAPOLFrame *CStateMachineThread::EncapsulateFrame(
                 );
 
             break;
+            default:break;
     }
 
     return eapol_frame;
@@ -216,6 +218,7 @@ void CStateMachineThread::InitState() const
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnPacketNotify, CStateMachineThread)
 {
+    UNUSED_VAR(arg1);
     if (!state_visual)
         return;
 
@@ -244,11 +247,14 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnSayHello, CStateMachineThread) const
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnSendLogoff, CStateMachineThread) const
 {
+    UNUSED_VAR(arg1);
     txLogOff(arg2);
 }
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnStartMachine, CStateMachineThread)
 {
+    UNUSED_VAR(arg1);
+    UNUSED_VAR(arg2);
     CtrlThread->has_auth_success = false;
 
     if (state_visual && state_visual->state_data)
@@ -268,6 +274,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStartMachine, CStateMachineThread)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnStateMove, CStateMachineThread)
 {
+    UNUSED_VAR(arg2);
     enum STATES new_state = static_cast<enum STATES>(arg1);
 
     if (state_visual->state_data->state == STATE_LOGOFF)
@@ -313,6 +320,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStateMove, CStateMachineThread)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CStateMachineThread)
 {
+    UNUSED_VAR(arg2);
     switch (arg1) {
         case AUTH_WHILE_MTYPE:
             state_visual->state_data->SetAuthWhile();

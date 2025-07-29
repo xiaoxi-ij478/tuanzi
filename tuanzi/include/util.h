@@ -94,7 +94,7 @@ extern std::string makeUpper(const std::string &str);
 extern int StringToHex(
     const std::string &str,
     char *retbuf,
-    int retbuflen
+    unsigned retbuflen
 );
 extern void WriteRegUserInfo(
     const struct UserInfo &info
@@ -168,5 +168,7 @@ static inline void swap128(char *val)
 
 #define free_list(head) \
     free_list_with_func_custom_next(head, __free_list_delete_operator, next)
+
+#define UNUSED_VAR(name) (void)name
 
 #endif // UTIL_H_INCLUDED

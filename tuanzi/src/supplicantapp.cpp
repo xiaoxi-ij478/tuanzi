@@ -119,10 +119,13 @@ case (reason): \
             SET_MSG_AND_EXIT_FLAG(LOGOFF_REASON_MULTIPLE_IP, 256, true);
             SET_MSG_AND_EXIT_FLAG(LOGOFF_REASON_IP_CHANGED, 60, true);
             SET_MSG_AND_EXIT_FLAG(LOGOFF_REASON_MAC_CHANGED, 62, true);
-    }
-
 #undef SET_MSG_AND_EXIT_FLAG
 #undef SET_CUSTOM_MSG_AND_EXIT_FLAG
+
+        default:
+            break;
+    }
+
     AddMsgItem(5, notify_msg);
     GUI_update_connectdlg_by_states(new_state);
 
@@ -187,6 +190,9 @@ void CSupplicantApp::GUI_update_connectdlg_by_states(
         case STATE_ACQUIRED:
         case STATE_AUTHENTICATING:
             success_time = 0;
+            break;
+
+        default:
             break;
     }
 }

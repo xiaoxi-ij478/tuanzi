@@ -139,7 +139,7 @@ struct SupfPipeStateMsgData {
         struct { // type == SUPF_MSG
             enum SupfMsg msg;
             unsigned len; // data's length
-            char data[]; // exact data
+//            char data[]; // exact data
         };
     };
 };

@@ -206,22 +206,24 @@ int WaitForMultipleObjects(
 
 void CloseHandle(WAIT_HANDLE *wait_handle)
 {
+    int ret = 0;
+
     if (pthread_mutex_trylock(&wait_handle->pthread_mutex) == EBUSY) {
         rj_printf_debug("pthread_mutex_trylock busy\n");
 
-        if (pthread_cond_broadcast(&wait_handle->pthread_cond))
-            rj_printf_debug("pthread_cond_signal error %d\n");
+        if ((ret = pthread_cond_broadcast(&wait_handle->pthread_cond)))
+            rj_printf_debug("pthread_cond_signal error %d\n", ret);
 
         wait_handle->signal = true;
 
     } else {
-        if (pthread_cond_broadcast(&wait_handle->pthread_cond))
-            rj_printf_debug("pthread_cond_signal error %d\n");
+        if ((ret = pthread_cond_broadcast(&wait_handle->pthread_cond)))
+            rj_printf_debug("pthread_cond_signal error %d\n", ret);
 
         wait_handle->signal = true;
 
-        if (pthread_mutex_unlock(&wait_handle->pthread_mutex))
-            rj_printf_debug("pthread_mutex_unlock nResult=%d\n");
+        if ((ret = pthread_mutex_unlock(&wait_handle->pthread_mutex)))
+            rj_printf_debug("pthread_mutex_unlock nResult=%d\n", ret);
     }
 
     pthread_mutex_destroy(&wait_handle->pthread_mutex);
@@ -240,7 +242,7 @@ void SetEvent(WAIT_HANDLE *wait_handle, bool broadcast)
         ret = pthread_cond_signal(&wait_handle->pthread_cond);
 
     if (ret)
-        rj_printf_debug("pthread_cond_signal error %d\n");
+        rj_printf_debug("pthread_cond_signal error %d\n", ret);
 
     wait_handle->signal = true;
     pthread_mutex_unlock(&wait_handle->pthread_mutex);

@@ -31,15 +31,19 @@ class ProxyClientTcp : public CTcp
         int HandleSocks5(const struct TCPIP &pkg, const ProxySerTcp *server);
         int HandleTelnet(const struct TCPIP &pkg, const ProxySerTcp *server);
 
+
+    public:
+        ProxySerTcp *bound_proxy_ser_tcp;
+
+    private:
         unsigned field_190;
         bool found_ser;
         unsigned find_ser_times; // m_findSerTimes
 
     public:
-        ProxySerTcp *bound_proxy_ser_tcp;
+        unsigned long creation_time;
         ProxyClientTcp *prev;
         ProxyClientTcp *next;
-        unsigned long creation_time;
 };
 
 #endif // PROXYCLIENTTCP_H_INCLUDED

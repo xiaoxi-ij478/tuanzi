@@ -191,7 +191,7 @@ bool CDirectTranSrv::AnalyzePrivate_SAM(
 bool CDirectTranSrv::AnalyzePrivate_SMP(const char *buf, unsigned buflen)
 {
     unsigned short smp_datalen = 0;
-    char *smp_data = nullptr, *other_data = nullptr;
+    char *smp_data = nullptr;
 
     if (
         buf[0] != 1 ||
@@ -712,6 +712,7 @@ bool CDirectTranSrv::Init_Smp(
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnDeInit_SAM, CDirectTranSrv)
 {
+    UNUSED_VAR(arg2);
     logFile_debug.AppendText("OnDeInit_SAM call");
     EnterCriticalSection(&destroy_mutex);
 
@@ -741,6 +742,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnDeInit_SAM, CDirectTranSrv)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnDeInit_SMP, CDirectTranSrv)
 {
+    UNUSED_VAR(arg2);
     EnterCriticalSection(&destroy_mutex);
 
     if (dir_thread) {
@@ -769,10 +771,11 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnDeInit_SMP, CDirectTranSrv)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SAM, CDirectTranSrv)
 {
+    UNUSED_VAR(arg2);
     char ip_buf[32] = {};
     struct tagDirectCom_ProtocalParam proto_param = {
         dir_trans_srvpara.sam_ipaddr,
-        dir_trans_srvpara.sam_port,
+        static_cast<unsigned short>(dir_trans_srvpara.sam_port),
         dir_trans_srvpara.su_ipaddr,
         dir_trans_srvpara.gateway_ipaddr,
         dir_trans_srvpara.retry_count,
@@ -905,17 +908,18 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SAM, CDirectTranSrv)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SMP, CDirectTranSrv)
 {
+    UNUSED_VAR(arg2);
     char ip_buf[32] = {};
     struct tagDirectCom_ProtocalParam proto_param = {
         dir_smp_para.smp_ipaddr,
-        dir_smp_para.smp_port,
+        static_cast<unsigned short>(dir_smp_para.smp_port),
         dir_smp_para.su_ipaddr,
         dir_smp_para.gateway_ipaddr,
         dir_smp_para.retry_count,
         dir_smp_para.timeout,
         {},
         {},
-        dir_smp_para.utc_time,
+        !!dir_smp_para.utc_time,
         htonLONGLONG(dir_smp_para.utc_time),
         GetTickCount(),
         dir_smp_para.server_and_us_in_the_same_subnet,
@@ -1114,6 +1118,8 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnRecvPacket_SMP, CDirectTranSrv)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CDirectTranSrv)
 {
+    UNUSED_VAR(arg2);
+
     if (!dir_thread) {
         OnTimerLeave(arg1);
         return;
@@ -1171,7 +1177,10 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CDirectTranSrv)
     OnTimerLeave(arg1);
 }
 
-void CDirectTranSrv::ParseACLParam(const char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseACLParam(
+    [[maybe_unused]] const char *buf,
+    [[maybe_unused]] unsigned buflen
+) const
 {}
 
 void CDirectTranSrv::ParseDHCPAuthResult_ForSAM(
@@ -1250,12 +1259,15 @@ void CDirectTranSrv::ParseDHCPAuthResult_ForSMP(const char *buf,
     DoWithAuthResult(some_flag);
 }
 
-void CDirectTranSrv::ParseGetHIStatusNow(const char *buf, unsigned buflen) const
+void CDirectTranSrv::ParseGetHIStatusNow(
+    [[maybe_unused]] const char *buf,
+    [[maybe_unused]] unsigned buflen
+) const
 {}
 
 void CDirectTranSrv::ParseGetHostInfoNow(
-    const char *buf,
-    unsigned buflen
+    [[maybe_unused]] const char *buf,
+    [[maybe_unused]] unsigned buflen
 ) const
 {}
 
@@ -1520,7 +1532,10 @@ void CDirectTranSrv::ParseReAuth(
     CtrlThread->PostThreadMessage(REAUTH_MTYPE, 0, 0);
 }
 
-void CDirectTranSrv::ParseSMPData(const char *buf, unsigned buflen)
+void CDirectTranSrv::ParseSMPData(
+                                  const char *buf,
+                                  [[maybe_unused]] unsigned buflen
+                                  )
 {
     TiXmlDocument xml_data;
     const TiXmlNode *bc_child = nullptr;
@@ -1644,7 +1659,7 @@ void CDirectTranSrv::ParseSMPData(const char *buf, unsigned buflen)
                      )
                  );
 
-        if (dcp_sip != -1 && dcp_sp && dcp_ts)
+        if (dcp_sip != inet_addr("255.255.255.255") && dcp_sp && dcp_ts)
             if (dir_thread)
                 dir_thread->SetProtocalParam_TimeStamp(
                     dcp_sip,
@@ -1784,8 +1799,8 @@ void CDirectTranSrv::ParseSMPData(const char *buf, unsigned buflen)
         (sec_domain_end_tag_pos = strstr(buf, "</security_domain>"))
     ) {
         smp_init_packet.security_domain_xml =
-            "<?xml version=\"1.0\" encoding=\"GBK\"?>"
-            "\n<root version=\"1\">\n";
+            "<?xml version=\"1.0\" encoding=\"GBK\"?>\n"
+            "<root version=\"1\">\n";
         smp_init_packet.security_domain_xml.append(
             sec_domain_start_tag_pos,
             sec_domain_end_tag_pos + strlen("</security_domain>") -

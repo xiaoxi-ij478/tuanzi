@@ -72,7 +72,7 @@ int ProxyClientTcp::FindSerTcp(const ProxySerTcp *server)
 {
     in_addr_t laddr = 0;
 
-    if (reqaddr_int != -1) {
+    if (reqaddr_int != inet_addr("255.255.255.255")) {
         if (!server)
             return 0;
 

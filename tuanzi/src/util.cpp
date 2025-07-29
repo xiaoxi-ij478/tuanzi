@@ -577,7 +577,7 @@ void KillRunModeCheckTimer()
     }
 }
 
-void OnRunModeCheckTimer(union sigval arg)
+void OnRunModeCheckTimer([[maybe_unused]] union sigval arg)
 {
     if (is_run_background() != g_background) {
         g_uilog.AppendText(
@@ -685,14 +685,15 @@ void decode(char *buf, unsigned buflen)
         return;
 
     while (buflen--) {
-        *buf = ((~*buf & 0x10) >> 1) |
-               ((~*buf & 0x20) >> 3) |
-               ((~*buf & 0x40) >> 5) |
-               ((~*buf & 0x80) >> 7) |
-               ((~*buf & 0x08) << 1) |
-               ((~*buf & 0x04) << 3) |
-               ((~*buf & 0x02) << 5) |
-               ((~*buf & 0x01) << 7);
+        *buf =
+            ((~*buf & 0x10) >> 1) |
+            ((~*buf & 0x20) >> 3) |
+            ((~*buf & 0x40) >> 5) |
+            ((~*buf & 0x80) >> 7) |
+            ((~*buf & 0x08) << 1) |
+            ((~*buf & 0x04) << 3) |
+            ((~*buf & 0x02) << 5) |
+            ((~*buf & 0x01) << 7);
         buf++;
     }
 }
@@ -705,23 +706,31 @@ void encode(char *buf, unsigned buflen)
 std::string makeLower(const std::string &str)
 {
     std::string ret;
-    ret.resize(str.length());
-    std::transform(str.cbegin(), str.cend(), ret.begin(), tolower);
+    std::transform(
+        str.cbegin(),
+        str.cend(),
+        std::back_insert_iterator<std::string>(ret),
+        tolower
+    );
     return ret;
 }
 
 std::string makeUpper(const std::string &str)
 {
     std::string ret;
-    ret.resize(str.length());
-    std::transform(str.cbegin(), str.cend(), ret.begin(), toupper);
+    std::transform(
+        str.cbegin(),
+        str.cend(),
+        std::back_insert_iterator<std::string>(ret),
+        toupper
+    );
     return ret;
 }
 
 int StringToHex(
     const std::string &str,
     char *retbuf,
-    int retbuflen
+    unsigned retbuflen
 )
 {
     if (str.length() & 1)
@@ -1091,7 +1100,7 @@ void RcvSvrSwitchResult(const std::string &notify)
     AddMsgItem(5, notify);
     g_uilog.AppendText("RcvSvrSwitchResult(WM_UPDATA_MAIN_WINDOW)");
     CtrlThread->private_properties.svr_switch_result.clear();
-    CtrlThread->field_1139 = 0;
+    CtrlThread->field_1139 = false;
 }
 
 void RcvModifyPasswordResult(bool change_success, const char *fail_msg)

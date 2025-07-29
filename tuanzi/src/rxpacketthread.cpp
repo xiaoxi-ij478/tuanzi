@@ -6,6 +6,7 @@
 #include "mtypes.h"
 #include "stdpkgs.h"
 #include "global.h"
+#include "util.h"
 #include "rxpacketthread.h"
 
 CRxPacketThread::CRxPacketThread() :
@@ -129,6 +130,8 @@ void CRxPacketThread::SetRxPacketAdapter(const char *adapter_name_l)
 
 DEFINE_DISPATH_MESSAGE_HANDLER(StartRecvPacket, CRxPacketThread)
 {
+    UNUSED_VAR(arg1);
+    UNUSED_VAR(arg2);
     if (!InitAdapter())
         return;
 

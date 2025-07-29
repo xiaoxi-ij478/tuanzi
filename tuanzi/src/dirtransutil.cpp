@@ -44,6 +44,7 @@ void CreateDirPktHead(
     // we must hard-code keybuf and ivbuf's size
     memcpy(checksum_buf + sizeof(struct mtagFinalDirPacket), keybuf, 8);
     memcpy(checksum_buf + sizeof(struct mtagFinalDirPacket) + 8, ivbuf, 8);
+    memcpy(checksum_buf + sizeof(struct mtagFinalDirPacket) + 16, buf, buflen);
     md5_checksum_ascii =
         CMD5Checksum::GetMD5(
             checksum_buf,

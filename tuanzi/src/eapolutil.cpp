@@ -188,7 +188,7 @@ struct EAPOLFrame *ChangeToEAPOLFrame(
         ret->eap_type_md5_data[ret->eap_type_md5_length] = 0;
 
         if (CtrlThread->IsRuijieNas()) {
-            if (length >= ret->eap_type_md5_length + 24 + 6 + 4 + 1 + 1 + 4 + 1) {
+            if (length >= ret->eap_type_md5_length + 24u + 6 + 4 + 1 + 1 + 4 + 1) {
                 private_buf =
                     reinterpret_cast<const char *>
                     (&eapol_pkg->eap_packet.data.md5.value_name[ret->eap_type_md5_length]);
