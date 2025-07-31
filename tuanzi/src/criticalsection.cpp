@@ -45,7 +45,7 @@ bool CRITICAL_SECTION::Delete()
     if (ret)
         g_logSystem.AppendText("pthread_mutex_destroy return %d", ret);
 
-    inited = true;
+    inited = false;
     return true; // !ret;
 }
 
