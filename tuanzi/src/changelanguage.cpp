@@ -10,7 +10,7 @@ CChangeLanguage::CChangeLanguage() :
     trans_strings()
 {}
 
-CChangeLanguage &CChangeLanguage::Instance()
+CChangeLanguage& CChangeLanguage::Instance()
 {
     static CChangeLanguage lang; // sLang
     return lang;
@@ -57,34 +57,25 @@ bool CChangeLanguage::InitLanguage()
         if (val.size() == 1)
             continue;
 
-        std::string &trans_id_str = val[0];
-        std::string &trans_str = val[1];
+        std::string& trans_str = val[1];
         TrimAll(trans_str, " \r\n");
         replace_all_distinct(trans_str, "\\r", "\r");
         replace_all_distinct(trans_str, "\\n", "\n");
-//        tagSectionUnit tsu;
-//        tsu.id = std::stoi(trans_id_str);
-//        tsu.str = trans_str;
-//        trans_strings.push_back(tsu);
-        trans_strings.emplace_back(std::stoi(trans_id_str), trans_str);
+        trans_strings[std::stoi(val[0])] = trans_str;
     }
 
     translate_file.close();
     return true;
 }
 
-const std::string &CChangeLanguage::LoadString(unsigned str_id) const
+const std::string& CChangeLanguage::LoadString(unsigned str_id) const
 {
     static std::string none;
 
     if (!lang_inited)
         return none;
 
-    for (const struct tagSectionUnit &trans_str : trans_strings)
-        if (trans_str.id == str_id)
-            return trans_str.str;
-
-    return none;
+    return trans_strings.at(str_id);
 }
 
 bool CChangeLanguage::SetLanguage(enum LANG lang_id)

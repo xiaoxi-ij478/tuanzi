@@ -104,7 +104,7 @@ std::string XML_PARSER::GetAttributeValue(const char *name) const
     return attr;
 }
 
-bool XML_PARSER::GetAttributeValue(const char *name, std::string &result) const
+bool XML_PARSER::GetAttributeValue(const char *name, std::string& result) const
 {
     TiXmlElement *el = nullptr;
     const char *attr = nullptr;
@@ -138,7 +138,7 @@ int XML_PARSER::GetAttributeValueInt(const char *name) const
     return attr;
 }
 
-bool XML_PARSER::GetAttributeValueInt(const char *name, int &result) const
+bool XML_PARSER::GetAttributeValueInt(const char *name, int& result) const
 {
     TiXmlElement *el = nullptr;
     result = 0;
@@ -169,7 +169,7 @@ const char *XML_PARSER::Get_Text() const
     return attr;
 }
 
-bool XML_PARSER::Get_XML(std::string &result) const
+bool XML_PARSER::Get_XML(std::string& result) const
 {
     TiXmlPrinter printer;
     printer.SetIndent(nullptr);

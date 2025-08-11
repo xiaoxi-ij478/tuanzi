@@ -35,7 +35,7 @@ void setAppEnvironment()
     new_path = nullptr;
 }
 
-int TakeAppPath(std::string &dst)
+int TakeAppPath(std::string& dst)
 {
     std::string t;
 
@@ -78,9 +78,9 @@ void InitLogFiles()
 }
 
 void replace_all_distinct(
-    std::string &str,
-    const std::string &srcstr,
-    const std::string &dststr
+    std::string& str,
+    const std::string& srcstr,
+    const std::string& dststr
 )
 {
     size_t special_pos = 0;
@@ -95,7 +95,7 @@ void chk_call_back(int)
     exit(0);
 }
 
-bool set_msg_config(const std::string &key, int val)
+bool set_msg_config(const std::string& key, int val)
 {
     // "sysctl -w kernel.$key=$val >&-"
     std::ofstream ofs;
@@ -361,9 +361,9 @@ void GetMD5File(const char *filename, char *result)
 }
 
 void ParseString(
-    const std::string &str,
+    const std::string& str,
     char delim,
-    std::vector<std::string> &dest
+    std::vector<std::string>& dest
 )
 {
     std::istringstream iss(str);
@@ -371,13 +371,13 @@ void ParseString(
     dest.clear();
 
     while (std::getline(iss, tmp, delim))
-        dest.push_back(tmp);
+        dest.emplace_back(tmp);
 }
 
 void ParseString(
-    const std::string &str,
+    const std::string& str,
     char delim,
-    std::vector<std::string> &dest,
+    std::vector<std::string>& dest,
     unsigned max_time
 )
 {
@@ -387,15 +387,15 @@ void ParseString(
     dest.clear();
 
     while (i++ < max_time && std::getline(iss, tmp, delim))
-        dest.push_back(tmp);
+        dest.emplace_back(tmp);
 
     if (iss.eof())
         return;
 
-    dest.push_back(str.substr(iss.tellg()));
+    dest.emplace_back(str.substr(iss.tellg()));
 }
 
-void TrimLeft(std::string &str, const std::string &chars)
+void TrimLeft(std::string& str, const std::string& chars)
 {
     std::string::size_type first = str.find_first_not_of(chars);
 
@@ -408,7 +408,7 @@ void TrimLeft(std::string &str, const std::string &chars)
         str.erase(str.cbegin(), std::next(str.cbegin(), first));
 }
 
-void TrimRight(std::string &str, const std::string &chars)
+void TrimRight(std::string& str, const std::string& chars)
 {
     std::string::size_type last = str.find_last_not_of(chars);
 
@@ -427,7 +427,7 @@ void HIPacketUpdate(const char *, int)
 }
 
 unsigned HexCharToAscii(
-    const std::string &str,
+    const std::string& str,
     char *buf,
     unsigned buflen
 )
@@ -486,7 +486,7 @@ std::string HexToString(const char *buf, int buflen)
 }
 
 // should be used to decode mac address
-int ASCIIStrtoChar(const std::string &str, char *buf)
+int ASCIIStrtoChar(const std::string& str, char *buf)
 {
     if (!str.length())
         return 0;
@@ -532,7 +532,7 @@ std::string AsciiToStr(const char *buf, unsigned len)
     return std::string(buf, len);
 }
 
-unsigned MD5StrtoUChar(const std::string &str, char *buf)
+unsigned MD5StrtoUChar(const std::string& str, char *buf)
 {
     if (!str.length())
         return 0;
@@ -569,50 +569,6 @@ std::string IntToString(int num)
     return std::to_string(num);
 }
 
-void KillRunModeCheckTimer()
-{
-    if (g_runModetimer) {
-        my_timer_delete(g_runModetimer);
-        g_runModetimer = 0;
-    }
-}
-
-void OnRunModeCheckTimer([[maybe_unused]] union sigval arg)
-{
-    if (is_run_background() != g_background) {
-        g_uilog.AppendText(
-            "OnRunModeCheckTimer runmode change is_run_background=%d,g_background=%d",
-            !g_background,
-            g_background
-        );
-        post_command('c');
-    }
-
-    if (modify_password_timeout(false) > 0)
-        message_info(CChangeLanguage::Instance().LoadString(273));
-}
-
-void SetRunModeCheckTimer()
-{
-    struct sigevent sev = {};
-    struct itimerspec new_time = { { 1, 0 }, { 1, 0 } };
-
-    if (g_runModetimer)
-        return;
-
-    sev.sigev_notify = SIGEV_THREAD;
-    sev.sigev_notify_function = OnRunModeCheckTimer;
-    sev.sigev_value.sival_int = 1;
-
-    if (my_timer_create(CLOCK_REALTIME, &sev, &g_runModetimer) == -1) {
-        g_uilog.AppendText("SetRunModeCheckTimer my_timer_create error");
-        return;
-    }
-
-    if (my_timer_settime(g_runModetimer, CLOCK_REALTIME, &new_time, nullptr) == -1)
-        g_uilog.AppendText("SetRunModeCheckTimer my_timer_settime error");
-}
-
 int MemCmpare(const char *buf1, int begin, int end, const char *buf2, int len)
 {
     if (!buf1 || !buf2 || end - begin + 1 < len)
@@ -643,7 +599,7 @@ void RcvIPMACChangeNotify()
     logFile.AppendText("recv ip mac change notify");
 }
 
-void RcvLoginURL([[maybe_unused]] const std::string &arg)
+void RcvLoginURL([[maybe_unused]] const std::string& arg)
 {
     logFile.AppendText("recv login url");
 }
@@ -654,7 +610,7 @@ void RcvNetSecParam(const void *arg)
     assert(arg);
 }
 
-void RcvOpenUtrustUrlCmd(const std::string &arg)
+void RcvOpenUtrustUrlCmd(const std::string& arg)
 {
     logFile.AppendText("recv open utrust url cmd,url=%s", arg.c_str());
 }
@@ -673,7 +629,7 @@ void StrToLower(char *str)
         str[i] = tolower(str[i]);
 }
 
-bool convertInt(const char *str, int &result)
+bool convertInt(const char *str, int& result)
 {
     result = strtol(str, nullptr, 10);
     return true;
@@ -681,21 +637,24 @@ bool convertInt(const char *str, int &result)
 
 void decode(char *buf, unsigned buflen)
 {
-    if (buflen <= 0)
-        return;
-
-    while (buflen--) {
-        *buf =
-            ((~*buf & 0x10) >> 1) |
-            ((~*buf & 0x20) >> 3) |
-            ((~*buf & 0x40) >> 5) |
-            ((~*buf & 0x80) >> 7) |
-            ((~*buf & 0x08) << 1) |
-            ((~*buf & 0x04) << 3) |
-            ((~*buf & 0x02) << 5) |
-            ((~*buf & 0x01) << 7);
-        buf++;
-    }
+    // *INDENT-OFF*
+    std::transform(
+        buf,
+        buf + buflen,
+        buf,
+        [](char i) {
+            return
+                ((~i & 0x10) >> 1) |
+                ((~i & 0x20) >> 3) |
+                ((~i & 0x40) >> 5) |
+                ((~i & 0x80) >> 7) |
+                ((~i & 0x08) << 1) |
+                ((~i & 0x04) << 3) |
+                ((~i & 0x02) << 5) |
+                ((~i & 0x01) << 7);
+        }
+    );
+    // *INDENT-ON*
 }
 
 void encode(char *buf, unsigned buflen)
@@ -703,7 +662,7 @@ void encode(char *buf, unsigned buflen)
     return decode(buf, buflen);
 }
 
-std::string makeLower(const std::string &str)
+std::string makeLower(const std::string& str)
 {
     std::string ret;
     std::transform(
@@ -715,7 +674,7 @@ std::string makeLower(const std::string &str)
     return ret;
 }
 
-std::string makeUpper(const std::string &str)
+std::string makeUpper(const std::string& str)
 {
     std::string ret;
     std::transform(
@@ -728,7 +687,7 @@ std::string makeUpper(const std::string &str)
 }
 
 int StringToHex(
-    const std::string &str,
+    const std::string& str,
     char *retbuf,
     unsigned retbuflen
 )
@@ -776,9 +735,9 @@ int StringToHex(
 }
 
 void WriteRegUserInfo(
-    const struct UserInfo &info
+    const struct UserInfo& info
 #ifdef BUILDING_UPDATER
-    , const std::string &filename
+    , const std::string& filename
 #endif // BUILDING_UPDATER
 )
 {
@@ -819,9 +778,9 @@ void WriteRegUserInfo(
 }
 
 void ReadRegUserInfo(
-    struct UserInfo &info
+    struct UserInfo& info
 #ifdef BUILDING_UPDATER
-    , const std::string &filename
+    , const std::string& filename
 #endif // BUILDING_UPDATER
 )
 {
@@ -896,12 +855,12 @@ void RecvSecdomainPacket(char *buf, unsigned buflen)
     );
 }
 
-void CopyGradeInfo(struct SPUpGradeInfo &dst, const struct SPUpGradeInfo &src)
+void CopyGradeInfo(struct SPUpGradeInfo& dst, const struct SPUpGradeInfo& src)
 {
     dst = src;
 }
 
-void GetSuInternalVersion(unsigned &major, unsigned &minor)
+void GetSuInternalVersion(unsigned& major, unsigned& minor)
 {
     if (
         CtrlThread &&
@@ -975,11 +934,11 @@ char GetHIRusultByLocal()
     return 0;
 }
 
-extern void RcvSvrList(const std::vector<std::string> &service_list)
+extern void RcvSvrList(const std::vector<std::string>& service_list)
 {
     CSuConfigFile conffile;
 
-    for (const std::string &service : service_list)
+    for (const std::string& service : service_list)
         logFile.AppendText(service.c_str());
 
     if (!CtrlThread->IsServerlistUpdate(service_list)) {
@@ -1058,7 +1017,7 @@ bool IsUpgrade(unsigned ver)
 }
 
 bool GetHIResult(
-    const std::vector<struct HIFailInfo> &a1,
+    const std::vector<struct HIFailInfo>& a1,
     unsigned long a2,
     unsigned a3
 )
@@ -1081,7 +1040,7 @@ bool GetHIResult(
            );
 }
 
-void RcvSvrSwitchResult(const std::string &notify)
+void RcvSvrSwitchResult(const std::string& notify)
 {
     if (notify.empty())
         return;
@@ -1215,7 +1174,7 @@ void InitAppMain()
     );
 }
 
-void ServiceSwitch(const std::string &new_name)
+void ServiceSwitch(const std::string& new_name)
 {
     auto pos =
         std::find(
@@ -1240,7 +1199,7 @@ void ServiceSwitch(const std::string &new_name)
         DoWithServiceSwitch_NoRuijieNas();
 }
 
-void TrimAll(std::string &str, const std::string &chars)
+void TrimAll(std::string& str, const std::string& chars)
 {
     TrimLeft(str, chars);
     TrimRight(str, chars);

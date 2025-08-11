@@ -3,21 +3,21 @@
 
 #include "dirtranstags.h"
 
-extern void InitSmpInitPacket(struct tagSmpInitPacket &packet);
+extern void InitSmpInitPacket(struct tagSmpInitPacket& packet);
 extern void CreateDirPktHead(
-    struct mtagFinalDirPacket &final_packet_head,
-    struct tagDirPacketHead &packet_head,
-    struct tagSenderBind &sender_bind,
+    struct mtagFinalDirPacket& final_packet_head,
+    struct tagDirPacketHead& packet_head,
+    struct tagSenderBind& sender_bind,
     char *buf,
     unsigned buflen,
     char *keybuf,
     char *ivbuf
 );
 extern void CreateSessionIfNecessary(
-    struct tagRecvBind &gsn_pkgs,
+    struct tagRecvBind& gsn_pkgs,
     in_addr_t srcaddr,
     unsigned session_id,
-    struct tagRecvSessionBind &recv_session
+    struct tagRecvSessionBind& recv_session
 );
 extern void CopyDirTranPara(
     struct tagDirTranPara *dst,

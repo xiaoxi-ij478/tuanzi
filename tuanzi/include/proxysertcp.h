@@ -9,10 +9,10 @@ class CIsProSer;
 class ProxySerTcp : public CTcp
 {
     public:
-        ProxySerTcp(const struct TcpInfo &tcpinfo);
+        ProxySerTcp(const struct TcpInfo& tcpinfo);
 
         int FindClientTcp(
-            const struct TCPIP &pkg,
+            const struct TCPIP& pkg,
             ProxyClientTcp *client,
             unsigned flag
         );

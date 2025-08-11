@@ -11,6 +11,7 @@
 #include "changelanguage.h"
 #include "passwordmodifier.h"
 #include "contextcontrolthread.h"
+#include "timer.h"
 #include "cmdutil.h"
 
 void exec_cmd(const char *cmd, char *buf, unsigned buflen)
@@ -44,7 +45,7 @@ void message_info(const char *format, ...)
     std::cout.flush();
 }
 
-void message_info(const std::string &str)
+void message_info(const std::string& str)
 {
     std::cout << str << std::flush;
 }
@@ -54,7 +55,7 @@ void display_usage()
     unsigned short tc_width = get_tc_width();
     char str2[2048] = {};
     std::string log_path(g_strAppPath + "log/run.log");
-    CChangeLanguage &cinstance = CChangeLanguage::Instance();
+    CChangeLanguage& cinstance = CChangeLanguage::Instance();
     std::cout << cinstance.LoadString(2007) << std::endl;
 #define PRINT_USAGE(head, help_str_id) \
     do { \
@@ -105,7 +106,7 @@ void rj_printf_debug(const char *format, ...)
 void format_tc_string(
     unsigned short tc_width,
     unsigned indent_len,
-    const std::string &str
+    const std::string& str
 )
 {
     // i wrote this function myself since I
@@ -182,7 +183,7 @@ void print_separator(const char *s, int len, bool print_crlf)
 
 void print_string_list(
     const char *prefix,
-    const std::vector<std::string> &slist
+    const std::vector<std::string>& slist
 )
 {
     format_tc_string(12, 0, prefix);
@@ -311,8 +312,8 @@ int set_termios(bool set_echo_icanon)
 }
 
 void shownotify(
-    const std::string &content,
-    const std::string &header,
+    const std::string& content,
+    const std::string& header,
     [[maybe_unused]] unsigned timeout
 )
 {
@@ -333,7 +334,7 @@ void shownotify(
     );
 }
 
-void show_url(const std::string &header, const std::string &content)
+void show_url(const std::string& header, const std::string& content)
 {
     if (content.empty())
         return;
@@ -799,7 +800,7 @@ void show_auth_info(bool use_default, bool wireless_only)
 unsigned show_connect_net_info()
 {
     struct DHCPIPInfo dhcp_ipinfo = {};
-    CChangeLanguage &cinstance = CChangeLanguage::Instance();
+    CChangeLanguage& cinstance = CChangeLanguage::Instance();
     CtrlThread->GetDHCPInfoParam(dhcp_ipinfo);
     format_tc_string(12, 0, cinstance.LoadString(153));
     message_info("%s\n", inet_ntoa({ dhcp_ipinfo.ip4_ipaddr }));
@@ -842,7 +843,7 @@ unsigned show_connect_time()
 unsigned show_connect_user_info()
 {
     std::string logfile_path = g_strAppPath + "log/run.log";
-    CChangeLanguage &cinstance = CChangeLanguage::Instance();
+    CChangeLanguage& cinstance = CChangeLanguage::Instance();
     format_tc_string(12, 0, CChangeLanguage::Instance().LoadString(2000));
 
     if (CtrlThread->configure_info.public_authmode == "EAPMD5") {
@@ -917,7 +918,7 @@ unsigned show_connect_user_info()
 
 void show_wlan_scan_info(const char *adapter_name)
 {
-    CChangeLanguage &cinstance = CChangeLanguage::Instance();
+    CChangeLanguage& cinstance = CChangeLanguage::Instance();
     bool adapter_usable = false;
     char tmpbuf[64] = {};
     std::vector<std::string> nics;
@@ -944,7 +945,7 @@ void show_wlan_scan_info(const char *adapter_name)
     message_info("%s\n", cinstance.LoadString(2040).c_str());
     get_ssid_list(adapter_usable ? adapter_name : nics.front().c_str(), signals);
 
-    for (const struct tagWirelessSignal &signal : signals) {
+    for (const struct tagWirelessSignal& signal : signals) {
         sprintf(tmpbuf, "(%d%%)", signal.qual);
         signals_strlist.push_back(std::string(signal.ssid).append(tmpbuf));
     }
@@ -981,4 +982,37 @@ void print_nic_list(bool wireless_only)
                 it->c_str()
             );
     }
+}
+
+void KillRunModeCheckTimer()
+{
+    if (!g_runModetimer)
+        return;
+
+    g_runModetimer->set_stop();
+    delete g_runModetimer;
+    g_runModetimer = nullptr;
+}
+
+void OnRunModeCheckTimer()
+{
+    if (is_run_background() != g_background) {
+        g_uilog.AppendText(
+            "OnRunModeCheckTimer runmode change is_run_background=%d,g_background=%d",
+            !g_background,
+            g_background
+        );
+        post_command('c');
+    }
+
+    if (modify_password_timeout(false) > 0)
+        message_info(CChangeLanguage::Instance().LoadString(273));
+}
+
+void SetRunModeCheckTimer()
+{
+    using namespace std::literals;
+
+    if (!g_runModetimer)
+        g_runModetimer = new Timer(1s, 1s, OnRunModeCheckTimer);
 }

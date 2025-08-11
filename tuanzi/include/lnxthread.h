@@ -8,7 +8,7 @@ struct TIMERPARAM {
     int tflag;
     int msqid;
     timer_t ti;
-    pthread_mutex_t pthread_mutex;
+    std::mutex mutex;
     CLnxThread *calling_thread;
 };
 
@@ -58,7 +58,7 @@ class CLnxThread
         virtual void OnTimerLeave(int tflag) const;
         virtual void OnTimer(int tflag);
         virtual bool ExitInstance();
-        virtual bool KillTimer(timer_t &timerid);
+        virtual bool KillTimer(timer_t& timerid);
 
     private:
         void KillAllTimer();

@@ -7,7 +7,7 @@
 #include "proxysertcp.h"
 #include "proxyclienttcp.h"
 
-ProxyClientTcp::ProxyClientTcp(const struct TcpInfo &info) :
+ProxyClientTcp::ProxyClientTcp(const struct TcpInfo& info) :
     CTcp(info),
     bound_proxy_ser_tcp(),
     field_190(),
@@ -19,7 +19,7 @@ ProxyClientTcp::ProxyClientTcp(const struct TcpInfo &info) :
 {}
 
 int ProxyClientTcp::TryDetectTCPIP(
-    const struct TCPIP &pkg,
+    const struct TCPIP& pkg,
     const ProxySerTcp *server,
     unsigned flag
 )
@@ -116,7 +116,7 @@ int ProxyClientTcp::FindSerTcp(const ProxySerTcp *server)
 }
 
 int ProxyClientTcp::HandleFtp(
-    const struct TCPIP &pkg,
+    const struct TCPIP& pkg,
     const ProxySerTcp *server
 )
 {
@@ -168,7 +168,7 @@ int ProxyClientTcp::HandleFtp(
 }
 
 int ProxyClientTcp::HandleHttp(
-    const struct TCPIP &pkg,
+    const struct TCPIP& pkg,
     const ProxySerTcp *server
 )
 {
@@ -213,7 +213,7 @@ int ProxyClientTcp::HandleHttp(
 }
 
 int ProxyClientTcp::HandleMms(
-    const struct TCPIP &pkg,
+    const struct TCPIP& pkg,
     const ProxySerTcp *server
 )
 {
@@ -227,7 +227,7 @@ int ProxyClientTcp::HandleMms(
 }
 
 int ProxyClientTcp::HandleNntp(
-    const struct TCPIP &pkg,
+    const struct TCPIP& pkg,
     const ProxySerTcp *server
 )
 {
@@ -276,7 +276,7 @@ int ProxyClientTcp::HandleNntp(
 }
 
 int ProxyClientTcp::HandlePop3(
-    const struct TCPIP &pkg,
+    const struct TCPIP& pkg,
     const ProxySerTcp *server
 )
 {
@@ -319,7 +319,7 @@ int ProxyClientTcp::HandlePop3(
 }
 
 int ProxyClientTcp::HandleSocks4(
-    const struct TCPIP &pkg,
+    const struct TCPIP& pkg,
     const ProxySerTcp *server
 )
 {
@@ -353,7 +353,7 @@ int ProxyClientTcp::HandleSocks4(
 }
 
 int ProxyClientTcp::HandleSocks4A(
-    const struct TCPIP &pkg,
+    const struct TCPIP& pkg,
     const ProxySerTcp *server
 )
 {
@@ -362,7 +362,7 @@ int ProxyClientTcp::HandleSocks4A(
 }
 
 int ProxyClientTcp::HandleSocks5(
-    const struct TCPIP &pkg,
+    const struct TCPIP& pkg,
     const ProxySerTcp *server
 )
 {
@@ -467,7 +467,7 @@ int ProxyClientTcp::HandleSocks5(
 }
 
 int ProxyClientTcp::HandleTelnet(
-    [[maybe_unused]] const struct TCPIP &pkg,
+    [[maybe_unused]] const struct TCPIP& pkg,
     [[maybe_unused]] const ProxySerTcp *server
 )
 {

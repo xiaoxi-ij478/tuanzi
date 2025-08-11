@@ -53,7 +53,7 @@ int main(int argc, char **argv)
         char *ibuf = new char[orig_size];
         ifs.read(ibuf, orig_size);
         ifs.close();
-        std::for_each(ibuf, ibuf + orig_size, [](char &i) {
+        std::for_each(ibuf, ibuf + orig_size, [](char& i) {
             i = ~i;
         });
         char *obuf = nullptr;
@@ -86,7 +86,7 @@ int main(int argc, char **argv)
     unsigned comp_size = Compress(ibuf, obuf, orig_size, 0);
     obuf = new char[comp_size];
     Compress(ibuf, obuf, orig_size, comp_size);
-    std::for_each(obuf, obuf + comp_size, [](char &i) {
+    std::for_each(obuf, obuf + comp_size, [](char& i) {
         i = ~i;
     });
 

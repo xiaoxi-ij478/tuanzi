@@ -21,8 +21,7 @@ void (*CCheckRunThread::callback)(int) = nullptr;
 static bool is_sem_init_ok(int semid)
 {
     struct semid_ds s = {};
-    union semun arg = {};
-    arg.buf = &s;
+    union semun arg = { .buf = &s };
 
     if (semctl(semid, 0, IPC_STAT, arg) == -1) {
         g_logChkRun.AppendText("get sem info error:%s\n", strerror(errno));
@@ -51,8 +50,7 @@ static int del_sem(int semid)
 static int set_sem_all(int semid, int semnum)
 {
     unsigned short val[2] = {};
-    union semun arg = {};
-    arg.array = val;
+    union semun arg = { .array = val };
 
     if (semctl(semid, semnum, SETALL, arg) == -1) {
         g_logChkRun.AppendText("Set sem error(%d):%s\n", errno, strerror(errno));
@@ -139,11 +137,10 @@ unsigned CCheckRunThread::StopThread()
     if (pthread_join(thread_id, &thread_return)) {
         g_logChkRun.AppendText("Thread join failed");
         return 10;
-
-    } else {
-        g_logChkRun.AppendText("CCheckRunThread thread_join\n");
-        return 0;
     }
+
+    g_logChkRun.AppendText("CCheckRunThread thread_join\n");
+    return 0;
 }
 
 unsigned CCheckRunThread::create_sem_and_lock()

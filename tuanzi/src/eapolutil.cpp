@@ -356,7 +356,7 @@ void InitEAPOLFrame(struct EAPOLFrame *eapol_frame)
 
 void AppendPrivateProperty(
     char *buf,
-    unsigned &len,
+    unsigned& len,
     const struct EAPOLFrame *eapol_frame
 )
 {
@@ -1100,7 +1100,7 @@ void ParsePrivateProperty(
         }
 }
 
-void EncapProgrammName(const std::string &prog_name, char *buf)
+void EncapProgrammName(const std::string& prog_name, char *buf)
 {
     char tmpbuf[128] = {};
     unsigned tmpbuflen = 0;

@@ -2,6 +2,8 @@
 #define ALL_H_INCLUDED
 
 #include <algorithm>
+#include <atomic>
+#include <chrono>
 #include <cassert>
 #include <cctype>
 #include <cerrno>
@@ -15,13 +17,18 @@
 #include <cstring>
 #include <ctime>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
-#include <numeric>
 #include <limits>
+#include <mutex>
+#include <numeric>
 #include <sstream>
 #include <string>
+#include <thread>
+#include <type_traits>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 

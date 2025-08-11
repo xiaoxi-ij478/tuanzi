@@ -7,7 +7,6 @@ static void *librt_handle = nullptr; /* orig name: librt */
 #endif // USE_EXTERNAL_LIBRT
 
 // the return value is its FAILURE value
-// we use native librt, so make it a no-op
 int load_librt()
 {
 #ifdef USE_EXTERNAL_LIBRT

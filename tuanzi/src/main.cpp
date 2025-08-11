@@ -77,7 +77,7 @@ const struct option long_opts[] = {
 
 int main(int argc, char **argv)
 {
-    static unsigned long time = GetDayTime();
+    static long time = GetDayTime();
     int longind = 0;
     char option_parse_error_str[1024] = {};
     bool option_parse_error = false;
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
     setAppEnvironment();
     TakeAppPath(g_strAppPath);
     g_runLogFile = g_strAppPath + "log/run.log";
-    CChangeLanguage &cinstance = CChangeLanguage::Instance();
+    CChangeLanguage& cinstance = CChangeLanguage::Instance();
     cinstance.SetLanguage(GetSysLanguage());
     InitLogFiles();
 
@@ -255,7 +255,9 @@ int main(int argc, char **argv)
     hold_signals();
     set_signals();
     release_signals();
-    signal(SIGCHLD, SIG_IGN);
+    // why to do this?
+    // this would introduce lots of zombie processes
+//    signal(SIGCHLD, SIG_IGN);
     g_logChkRun.CreateLogFile_S(g_strAppPath + "log/chkrun.log", 1);
 
     if (!chkRunThred.StartThread(&start_thread_result, chk_call_back)) {

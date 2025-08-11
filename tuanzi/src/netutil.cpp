@@ -317,7 +317,7 @@ bool get_dns(in_addr_t *dst)
     return true;
 }
 
-bool get_alternate_dns(char *dest, unsigned &length)
+bool get_alternate_dns(char *dest, unsigned& length)
 {
     // cat /etc/resolv.conf 2>&- |awk '{if ($1==\"nameserver\") {print $2}}' |awk 'NR>1'
     std::ifstream ifs("/etc/resolv.conf");
@@ -677,7 +677,7 @@ enum ADAPTER_STATUS check_nic_status(const char *ifname)
     return ifr.ifr_flags & IFF_UP ? ADAPTER_UP : ADAPTER_DOWN;
 }
 
-bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only)
+bool get_nic_in_use(std::vector<std::string>& nic_list, bool wireless_only)
 {
     struct ifaddrs *ifap = nullptr;
     bool in_list = false;
@@ -697,7 +697,7 @@ bool get_nic_in_use(std::vector<std::string> &nic_list, bool wireless_only)
         if (cur_if->ifa_flags & IFF_LOOPBACK)
             continue;
 
-        for (const std::string &nic_name : nic_list)
+        for (const std::string& nic_name : nic_list)
             if (nic_name == cur_if->ifa_name) {
                 in_list = true;
                 break;
@@ -769,9 +769,8 @@ bool get_nic_speed(char *dst, const char *ifname)
     return speed;
 }
 
-bool GetNICInUse(std::vector<std::string> &nic_list, bool wireless_only)
+bool GetNICInUse(std::vector<std::string>& nic_list, bool wireless_only)
 {
-    nic_list.clear();
     return get_nic_in_use(nic_list, wireless_only);
 }
 
@@ -945,12 +944,18 @@ void *dhclient_thread(void *varg)
             g_log_Wireless.AppendText("%s file is no exist.", "/sbin/dhclient-script");
 
         g_log_Wireless.AppendText("sfFile NULL");
-        system(
-            std::string("dhclient ")
-            .append(arg->ipaddr)
-            /*.append(" 2>&-")*/
-            .c_str()
-        );
+
+        switch (fork()) {
+            case 0:
+                execlp("dhclient", "dhclient", arg->ipaddr, nullptr);
+                [[fallthrough]];
+
+            case -1:
+                delete arg;
+                return nullptr;
+        }
+
+        wait(nullptr);
         sem_post(arg->semaphore);
         delete arg;
         return nullptr;
@@ -983,13 +988,25 @@ void *dhclient_thread(void *varg)
         "#"
     );
     g_log_Wireless.AppendText("sfFile:%s", "/sbin/rjsu-dhclient-script");
-    system(
-        std::string("dhclient -sf ")
-        .append("/sbin/rjsu-dhclient-script")
-        .append(arg->ipaddr)
-        /*.append(" 2>&-")*/
-        .c_str()
-    );
+
+    switch (fork()) {
+        case 0:
+            execlp(
+                "dhclient",
+                "dhclient",
+                "-sf",
+                "/sbin/rjsu-dhclient-script",
+                arg->ipaddr,
+                nullptr
+            );
+            [[fallthrough]];
+
+        case -1:
+            delete arg;
+            return nullptr;
+    }
+
+    wait(nullptr);
     sem_post(arg->semaphore);
     delete arg;
     return nullptr;
@@ -1016,7 +1033,7 @@ void disable_enable_nic(const char *ifname)
     close(fd);
 }
 
-void get_all_nics_statu(std::vector<struct NICsStatus> &dest)
+void get_all_nics_statu(std::vector<struct NICsStatus>& dest)
 {
     bool in_list = false;
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -1036,7 +1053,7 @@ void get_all_nics_statu(std::vector<struct NICsStatus> &dest)
         cur_if;
         cur_if = cur_if->ifa_next, in_list = false
     ) {
-        for (const struct NICsStatus &nic : dest) {
+        for (const struct NICsStatus& nic : dest) {
             if (!strcmp(nic.nic_name, cur_if->ifa_name))
                 in_list = true;
 
@@ -1192,8 +1209,8 @@ void get_and_set_gateway(in_addr_t *gatewayd, const char *ifname)
 }
 
 bool IsEqualDhcpInfo(
-    const struct DHCPIPInfo &info1,
-    const struct DHCPIPInfo &info2
+    const struct DHCPIPInfo& info1,
+    const struct DHCPIPInfo& info2
 )
 {
     return
@@ -1202,7 +1219,7 @@ bool IsEqualDhcpInfo(
         info1.ip4_netmask == info2.ip4_netmask;
 }
 
-void InitDHCPIPInfo(struct DHCPIPInfo &info)
+void InitDHCPIPInfo(struct DHCPIPInfo& info)
 {
     info.dns = 0;
     info.gateway = 0;
@@ -1211,7 +1228,7 @@ void InitDHCPIPInfo(struct DHCPIPInfo &info)
     info.dhcp_enabled = true;
 }
 
-void InitDhcpIpInfo(struct DHCPIPInfo &info)
+void InitDhcpIpInfo(struct DHCPIPInfo& info)
 {
     info.dns = 0;
     info.gateway = 0;
@@ -1225,7 +1242,7 @@ void InitDhcpIpInfo(struct DHCPIPInfo &info)
     info.adapter_mac = {};
 }
 
-bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool)
+bool GetDHCPIPInfo(struct DHCPIPInfo& info, bool)
 {
     struct NICINFO *nic_info = nullptr;
     InitDhcpIpInfo(info);
@@ -1288,8 +1305,8 @@ bool GetDHCPIPInfo(struct DHCPIPInfo &info, bool)
 }
 
 void repair_ip_gateway(
-    const struct DHCPIPInfo &info,
-    const std::string &adapter_name
+    const struct DHCPIPInfo& info,
+    const std::string& adapter_name
 )
 {
     // ifconfig $adapter_name $info.ip4_ipaddr netmask $info.ip4_netmask
@@ -1334,7 +1351,7 @@ void del_default_gateway()
 
 void get_ssid_list(
     const char *adapter_name,
-    std::vector<struct tagWirelessSignal> &signals
+    std::vector<struct tagWirelessSignal>& signals
 )
 {
     if (!CtrlThread->RefreshSignal(adapter_name))

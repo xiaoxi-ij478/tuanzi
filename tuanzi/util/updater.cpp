@@ -13,7 +13,7 @@ std::string GetParentPath(std::string strInstallPath)
     return strInstallPath.substr(0, strInstallPath.find_last_of("/"));
 }
 
-int CleanFile(const std::string &strPath)
+int CleanFile(const std::string& strPath)
 {
     if (strPath == "/")
         return -1;
@@ -25,8 +25,8 @@ int CleanFile(const std::string &strPath)
 }
 
 int DispatchFile(
-    const std::string &strInstallPath,
-    const std::string &strCurPath
+    const std::string& strInstallPath,
+    const std::string& strCurPath
 )
 {
     std::string strCmd;
@@ -45,8 +45,8 @@ int DispatchFile(
 }
 
 int ModifyConfFile(
-    const std::string &strInstallPath,
-    const std::string &strCurPath
+    const std::string& strInstallPath,
+    const std::string& strCurPath
 )
 {
     typedef struct _tagModifyInfo {
@@ -243,7 +243,7 @@ int ModifyConfFile(
     return modifyinfo.bSavePassword;
 }
 
-int do_update(const std::string &strInstallPath, const std::string &strCurPath)
+int do_update(const std::string& strInstallPath, const std::string& strCurPath)
 {
     int nRet = 0;
     struct UserInfo userinfo = {};

@@ -17,7 +17,7 @@ CDownLoadThread::CDownLoadThread() :
 CDownLoadThread::~CDownLoadThread()
 {}
 
-void CDownLoadThread::SetDlPara(struct tagDownLoadPara &para)
+void CDownLoadThread::SetDlPara(struct tagDownLoadPara& para)
 {
     if (dl_para.thread_id == para.thread_id) {
         down_para_set = true;
@@ -627,10 +627,10 @@ int CDownLoadThread::get_remote_file(
 
     if (
         http_parse_response_head(
-                                 buf,
-                                 reinterpret_cast<unsigned long *>(&file_size)
-                                 )
-        ) {
+            buf,
+            reinterpret_cast<unsigned long *>(&file_size)
+        )
+    ) {
         ret = DOWNLOAD_ERROR_2;
         goto error_quit;
     }

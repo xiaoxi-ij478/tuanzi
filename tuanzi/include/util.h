@@ -2,15 +2,15 @@
 #define UTIL_H_INCLUDED
 
 extern void setAppEnvironment();
-extern int TakeAppPath(std::string &dst);
+extern int TakeAppPath(std::string& dst);
 extern void InitLogFiles();
 extern void replace_all_distinct(
-    std::string &str,
-    const std::string &srcstr,
-    const std::string &dststr
+    std::string& str,
+    const std::string& srcstr,
+    const std::string& dststr
 );
 [[noreturn]] extern void chk_call_back(int);
-extern bool set_msg_config(const std::string &key, int val);
+extern bool set_msg_config(const std::string& key, int val);
 extern void ChangeSelfSvrParam(void *);
 extern void CoInitialize();
 extern void CoUnInitialize();
@@ -41,35 +41,32 @@ extern timer_t GSetTimer(
 );
 extern void GetMD5File(const char *filename, char *result);
 extern void ParseString(
-    const std::string &str,
+    const std::string& str,
     char delim,
-    std::vector<std::string> &dest
+    std::vector<std::string>& dest
 );
 extern void ParseString(
-    const std::string &str,
+    const std::string& str,
     char delim,
-    std::vector<std::string> &dest,
+    std::vector<std::string>& dest,
     unsigned max_time
 );
-extern void TrimLeft(std::string &str, const std::string &chars);
-extern void TrimRight(std::string &str, const std::string &chars);
+extern void TrimLeft(std::string& str, const std::string& chars);
+extern void TrimRight(std::string& str, const std::string& chars);
 extern void HIPacketUpdate(const char *, int);
 extern unsigned HexCharToAscii(
-    const std::string &str,
+    const std::string& str,
     char *buf,
     unsigned buflen
 );
 extern std::string HexToString(const char *buf, int buflen);
-extern int ASCIIStrtoChar(const std::string &str, char *buf);
+extern int ASCIIStrtoChar(const std::string& str, char *buf);
 extern std::string AsciiToStr(
     const char *buf,
     unsigned len
 );
 extern std::string IntToString(int num);
-extern void KillRunModeCheckTimer();
-extern void OnRunModeCheckTimer(union sigval arg);
-extern void SetRunModeCheckTimer();
-extern unsigned MD5StrtoUChar(const std::string &str, char *buf);
+extern unsigned MD5StrtoUChar(const std::string& str, char *buf);
 extern int MemCmpare(
     const char *buf1,
     int begin,
@@ -81,41 +78,41 @@ extern void RcvACLParam(const void *arg);
 extern void RcvCMD_GetProcessAndNetworkInfo();
 extern void RcvFlowMonitorParam(const void *arg);
 extern void RcvIPMACChangeNotify();
-extern void RcvLoginURL(const std::string &arg);
+extern void RcvLoginURL(const std::string& arg);
 extern void RcvNetSecParam(const void *arg);
-extern void RcvOpenUtrustUrlCmd(const std::string &arg);
+extern void RcvOpenUtrustUrlCmd(const std::string& arg);
 extern void RcvStartAuthNotification();
 extern void StrToLower(char *str);
-extern bool convertInt(const char *str, int &result);
+extern bool convertInt(const char *str, int& result);
 extern void decode(char *buf, unsigned buflen);
 extern void encode(char *buf, unsigned buflen);
-extern std::string makeLower(const std::string &str);
-extern std::string makeUpper(const std::string &str);
+extern std::string makeLower(const std::string& str);
+extern std::string makeUpper(const std::string& str);
 extern int StringToHex(
-    const std::string &str,
+    const std::string& str,
     char *retbuf,
     unsigned retbuflen
 );
 extern void WriteRegUserInfo(
-    const struct UserInfo &info
+    const struct UserInfo& info
 #ifdef BUILDING_UPDATER
-    , const std::string &filename
+    , const std::string& filename
 #endif // BUILDING_UPDATER
 );
 extern void ReadRegUserInfo(
-    struct UserInfo &info
+    struct UserInfo& info
 #ifdef BUILDING_UPDATER
-    , const std::string &filename
+    , const std::string& filename
 #endif // BUILDING_UPDATER
 );
 extern void SimulateSuLogoff(char *buf, unsigned buflen);
 extern bool SetLanFlag(unsigned flag);
 extern void RecvSecdomainPacket(char *buf, unsigned buflen);
 extern void CopyGradeInfo(
-    struct SPUpGradeInfo &dst,
-    const struct SPUpGradeInfo &src
+    struct SPUpGradeInfo& dst,
+    const struct SPUpGradeInfo& src
 );
-extern void GetSuInternalVersion(unsigned &major, unsigned &minor);
+extern void GetSuInternalVersion(unsigned& major, unsigned& minor);
 extern void RadiusEncrpytPwd(
     const char *md5_challenge,
     unsigned md5_challenge_len,
@@ -124,20 +121,20 @@ extern void RadiusEncrpytPwd(
     char *outbuf
 );
 extern char GetHIRusultByLocal();
-extern void RcvSvrList(const std::vector<std::string> &service_list);
+extern void RcvSvrList(const std::vector<std::string>& service_list);
 extern bool IsUpgrade(unsigned ver);
 extern bool GetHIResult(
-    const std::vector<struct HIFailInfo> &a1,
+    const std::vector<struct HIFailInfo>& a1,
     unsigned long a2,
     unsigned a3
 );
-extern void RcvSvrSwitchResult(const std::string &notify);
+extern void RcvSvrSwitchResult(const std::string& notify);
 extern void RcvModifyPasswordResult(bool change_success, const char *fail_msg);
 extern void DoWithServiceSwitch_NoRuijieNas();
 extern void DoWithServiceSwitch_RuijieNas();
 extern void InitAppMain();
-extern void ServiceSwitch(const std::string &service_name);
-extern void TrimAll(std::string &str, const std::string &chars);
+extern void ServiceSwitch(const std::string& service_name);
+extern void TrimAll(std::string& str, const std::string& chars);
 
 static inline void swap128(char *val)
 {

@@ -328,7 +328,7 @@ void CVz_APIApp::Vz_API(
     );
 }
 
-char *CVz_APIApp::GetAppData(unsigned &size) const
+char *CVz_APIApp::GetAppData(unsigned& size) const
 {
     return
         static_cast<char *>(
@@ -340,7 +340,7 @@ char *CVz_APIApp::GetAppData(unsigned &size) const
         );
 }
 
-char *CVz_APIApp::GetDllData(unsigned &size) const
+char *CVz_APIApp::GetDllData(unsigned& size) const
 {
     return
         static_cast<char *>(
@@ -352,7 +352,7 @@ char *CVz_APIApp::GetDllData(unsigned &size) const
         );
 }
 
-char *CVz_APIApp::GetFileData(unsigned &size, const char *filename) const
+char *CVz_APIApp::GetFileData(unsigned& size, const char *filename) const
 {
     std::ifstream ifs;
     char *ret = nullptr;
@@ -638,12 +638,9 @@ void CVz_APIApp::PrepareData(
             return;
     }
 
-//    memset(dstbuf, 0, 128);
-
     for (unsigned i = 0; i < 64; i++)
         sprintf(result + 2 * i, "%02x", whirlpool_dstbuf[i]);
 
-//    memcpy(result, dstbuf, 128);
     delete[] appdata;
     delete[] dlldata;
 }

@@ -11,7 +11,7 @@
 #include "eapolutil.h"
 #include "rgprivateproc.h"
 
-void CRGPrivateProc::EncapRGVerdorSeg(char *buf, unsigned &len)
+void CRGPrivateProc::EncapRGVerdorSeg(char *buf, unsigned& len)
 {
     unsigned field_len = 0;
     len = 0;
@@ -43,8 +43,8 @@ void CRGPrivateProc::EncapRGVerdorSeg(char *buf, unsigned &len)
 
 void CRGPrivateProc::EncapRGVerdorSegForEapHost(
     char *buf,
-    unsigned &len,
-    const std::string &
+    unsigned& len,
+    const std::string&
 )
 {
     unsigned field_len = 0;
@@ -167,7 +167,7 @@ void CRGPrivateProc::EncapRGVerdorSegForEapHost(
     g_dhcpDug.HexPrinter(buf, len);
 }
 
-void CRGPrivateProc::EncapRGVerdorSegForPeap(char *buf, unsigned &len, char *)
+void CRGPrivateProc::EncapRGVerdorSegForPeap(char *buf, unsigned& len, char *)
 {
     unsigned field_len = 0;
     len = 0;
@@ -287,7 +287,7 @@ void CRGPrivateProc::EncapRGVerdorSegForPeap(char *buf, unsigned &len, char *)
     g_dhcpDug.HexPrinter(buf, len);
 }
 
-void CRGPrivateProc::GetAlternateDNS(char *buf, unsigned &len)
+void CRGPrivateProc::GetAlternateDNS(char *buf, unsigned& len)
 {
     char tmpbuf[253] = {};
     unsigned tmpbuflen = sizeof(tmpbuf);
@@ -304,7 +304,7 @@ void CRGPrivateProc::GetAlternateDNS(char *buf, unsigned &len)
     len += tmpbuflen;
 }
 
-void CRGPrivateProc::GetClientOSBits(char *buf, unsigned &len)
+void CRGPrivateProc::GetClientOSBits(char *buf, unsigned& len)
 {
     len = 0;
     buf[len++] = 0x70;
@@ -312,7 +312,7 @@ void CRGPrivateProc::GetClientOSBits(char *buf, unsigned &len)
     buf[len++] = Is64BIT() ? 64 : 32;
 }
 
-void CRGPrivateProc::GetClientReleaseVersion(char *buf, unsigned &len)
+void CRGPrivateProc::GetClientReleaseVersion(char *buf, unsigned& len)
 {
     len = 0;
     buf[len++] = 0x6F;
@@ -322,7 +322,7 @@ void CRGPrivateProc::GetClientReleaseVersion(char *buf, unsigned &len)
     len++;
 }
 
-void CRGPrivateProc::GetClientVersion(char *buf, unsigned &len)
+void CRGPrivateProc::GetClientVersion(char *buf, unsigned& len)
 {
     len = 0;
     buf[len++] = 0x11;
@@ -332,7 +332,7 @@ void CRGPrivateProc::GetClientVersion(char *buf, unsigned &len)
     len += 4;
 }
 
-void CRGPrivateProc::GetDHCPAuthPhase(char *buf, unsigned &len)
+void CRGPrivateProc::GetDHCPAuthPhase(char *buf, unsigned& len)
 {
     g_log_Wireless.AppendText("CRGPrivateProc::GetDHCPAuthPhase");
     len = 0;
@@ -347,7 +347,7 @@ void CRGPrivateProc::GetDHCPAuthPhase(char *buf, unsigned &len)
 
 void CRGPrivateProc::GetDirectCommunicationHighestVersion(
     char *buf,
-    unsigned &len
+    unsigned& len
 )
 {
     len = 0;
@@ -356,7 +356,7 @@ void CRGPrivateProc::GetDirectCommunicationHighestVersion(
     buf[len++] = 0x02;
 }
 
-void CRGPrivateProc::GetHardDiskSN(char *buf, unsigned &len)
+void CRGPrivateProc::GetHardDiskSN(char *buf, unsigned& len)
 {
     len = 0;
     buf[len++] = 0x54;
@@ -372,13 +372,13 @@ void CRGPrivateProc::GetHardDiskSN(char *buf, unsigned &len)
 
 void CRGPrivateProc::GetIPDClientRunResult(
     [[maybe_unused]] char *buf,
-    unsigned &len
+    unsigned& len
 )
 {
     len = 0;
 }
 
-void CRGPrivateProc::GetIPv4Info(char *buf, unsigned &len)
+void CRGPrivateProc::GetIPv4Info(char *buf, unsigned& len)
 {
     struct DHCPIPInfo dhcp_ipinfo = {};
     len = 0;
@@ -404,7 +404,7 @@ void CRGPrivateProc::GetIPv4Info(char *buf, unsigned &len)
     buf[len++] = dhcp_ipinfo.dhcp_enabled;
 }
 
-void CRGPrivateProc::GetIPv4InfoForPeap(char *buf, unsigned &len)
+void CRGPrivateProc::GetIPv4InfoForPeap(char *buf, unsigned& len)
 {
     struct DHCPIPInfo dhcp_ipinfo = {};
     len = 0;
@@ -430,7 +430,7 @@ void CRGPrivateProc::GetIPv4InfoForPeap(char *buf, unsigned &len)
     buf[len++] = dhcp_ipinfo.dhcp_enabled;
 }
 
-void CRGPrivateProc::GetIPv6Info(char *buf, unsigned &len)
+void CRGPrivateProc::GetIPv6Info(char *buf, unsigned& len)
 {
     struct DHCPIPInfo dhcp_ipinfo = {};
     CtrlThread->GetDHCPInfoParam(dhcp_ipinfo);
@@ -488,7 +488,7 @@ void CRGPrivateProc::GetIPv6Info(char *buf, unsigned &len)
     len += 16;
 }
 
-void CRGPrivateProc::GetMACAddr(char *buf, unsigned &len)
+void CRGPrivateProc::GetMACAddr(char *buf, unsigned& len)
 {
     len = 0;
     buf[len++] = 0x2D;
@@ -497,7 +497,7 @@ void CRGPrivateProc::GetMACAddr(char *buf, unsigned &len)
     len += 6;
 }
 
-void CRGPrivateProc::GetSecCheckResult(char *buf, unsigned &len)
+void CRGPrivateProc::GetSecCheckResult(char *buf, unsigned& len)
 {
     len = 0;
     buf[len++] = 0x62;
@@ -505,7 +505,7 @@ void CRGPrivateProc::GetSecCheckResult(char *buf, unsigned &len)
     buf[len++] = GetHIRusultByLocal();
 }
 
-void CRGPrivateProc::GetSecDomainName(char *buf, unsigned &len)
+void CRGPrivateProc::GetSecDomainName(char *buf, unsigned& len)
 {
     len = 0;
 
@@ -517,7 +517,7 @@ void CRGPrivateProc::GetSecDomainName(char *buf, unsigned &len)
     strcpy(&buf[len], CtrlThread->sec_domain_name.c_str());
 }
 
-void CRGPrivateProc::GetServiceName(char *buf, unsigned &len)
+void CRGPrivateProc::GetServiceName(char *buf, unsigned& len)
 {
     char service_name[128] = {};
     len = 0;
@@ -537,7 +537,7 @@ void CRGPrivateProc::GetServiceName(char *buf, unsigned &len)
     len += 32;
 }
 
-void CRGPrivateProc::GetUserPasswd(char *buf, unsigned &len)
+void CRGPrivateProc::GetUserPasswd(char *buf, unsigned& len)
 {
     char password[128] = {};
     unsigned password_len = 0;
@@ -562,7 +562,7 @@ void CRGPrivateProc::GetUserPasswd(char *buf, unsigned &len)
     len += password_len;
 }
 
-void CRGPrivateProc::GetUserPasswd4Peap(char *buf, unsigned &len)
+void CRGPrivateProc::GetUserPasswd4Peap(char *buf, unsigned& len)
 {
     char password[512] = {};
     unsigned password_len = 0;
@@ -588,7 +588,7 @@ void CRGPrivateProc::GetUserPasswd4Peap(char *buf, unsigned &len)
     len += password_len;
 }
 
-void CRGPrivateProc::GetV2SegmentHash(char *buf, unsigned &len)
+void CRGPrivateProc::GetV2SegmentHash(char *buf, unsigned& len)
 {
     len = 0;
     buf[len++] = 0x17;
@@ -608,7 +608,7 @@ void CRGPrivateProc::GetV2SegmentHash(char *buf, unsigned &len)
     len += 32;
 }
 
-void CRGPrivateProc::GetV3SegmentHash(char *buf, unsigned &len)
+void CRGPrivateProc::GetV3SegmentHash(char *buf, unsigned& len)
 {
     CVz_APIApp vz_apiapp;
     len = 0;
@@ -622,7 +622,7 @@ void CRGPrivateProc::GetV3SegmentHash(char *buf, unsigned &len)
     len += 128;
 }
 
-void CRGPrivateProc::GetV3SegmentHash4Peap(char *buf, unsigned &len)
+void CRGPrivateProc::GetV3SegmentHash4Peap(char *buf, unsigned& len)
 {
     CVz_APIApp vz_apiapp;
     len = 0;
@@ -638,7 +638,7 @@ void CRGPrivateProc::GetV3SegmentHash4Peap(char *buf, unsigned &len)
 
 void CRGPrivateProc::ParseHello(
     const struct EAPOLFrame *eapol_frame,
-    struct SuRadiusPrivate &private_infobuf
+    struct SuRadiusPrivate& private_infobuf
 )
 {
     if (
@@ -668,7 +668,7 @@ void CRGPrivateProc::ParseHello(
 
 void CRGPrivateProc::ParseNotification(
     const struct EAPOLFrame *eapol_frame,
-    struct SuRadiusPrivate &private_infobuf
+    struct SuRadiusPrivate& private_infobuf
 )
 {
     if (eapol_frame->fail_reason_magic != FIELD_MAGIC) {
@@ -689,7 +689,7 @@ void CRGPrivateProc::ParseNotification(
 
 void CRGPrivateProc::ParseProxyAvoid(
     const struct EAPOLFrame *eapol_frame,
-    struct SuRadiusPrivate &private_infobuf
+    struct SuRadiusPrivate& private_infobuf
 )
 {
     if (
@@ -714,7 +714,7 @@ void CRGPrivateProc::ParseProxyAvoid(
 
 void CRGPrivateProc::ParseRadiusInfo_RuijieNas(
     const struct EAPOLFrame *eapol_frame,
-    struct SuRadiusPrivate &private_infobuf
+    struct SuRadiusPrivate& private_infobuf
 )
 {
     ParseNotification(eapol_frame, private_infobuf);
@@ -725,7 +725,7 @@ void CRGPrivateProc::ParseRadiusInfo_RuijieNas(
 
 void CRGPrivateProc::ParseUpGrade(
     const struct EAPOLFrame *eapol_frame,
-    struct SuRadiusPrivate &private_infobuf
+    struct SuRadiusPrivate& private_infobuf
 )
 {
     private_infobuf.su_upgrade_url.clear();

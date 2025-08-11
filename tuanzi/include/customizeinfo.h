@@ -22,10 +22,10 @@ class CCustomizeInfo
         std::string disable_ico;
 
     private:
-        std::string GetAttribute(const XML_PARSER &parser, const char *name) const;
-        std::string GetText(const XML_PARSER &parser) const;
-        int GetTextInt(const XML_PARSER &parser) const;
-        int Load(XML_PARSER &parser);
+        std::string GetAttribute(const XML_PARSER& parser, const char *name) const;
+        std::string GetText(const XML_PARSER& parser) const;
+        int GetTextInt(const XML_PARSER& parser) const;
+        int Load(XML_PARSER& parser);
 };
 
 #endif // CUSTOMIZEINFO_H_INCLUDED

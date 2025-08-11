@@ -49,7 +49,7 @@ void CHelloThread::OnTimer(int tflag)
         );
 }
 
-struct HelloPacket *CHelloThread::CreateHelloPacket(unsigned &packet_len)
+struct HelloPacket *CHelloThread::CreateHelloPacket(unsigned& packet_len)
 {
     struct HelloPacket *ret = new struct HelloPacket;
     unsigned cur_crcid = 0;
@@ -120,6 +120,7 @@ unsigned CHelloThread::GetCurCRCID()
 DEFINE_DISPATH_MESSAGE_HANDLER(OnChangeHelloPara, CHelloThread)
 {
     UNUSED_VAR(arg2);
+
     if (arg1)
         hello_para = arg1;
 

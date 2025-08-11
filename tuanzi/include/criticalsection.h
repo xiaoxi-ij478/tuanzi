@@ -16,9 +16,7 @@ class CRITICAL_SECTION
         bool leave();
 
     private:
-        pthread_mutex_t pthread_mutex;
-        bool inited;
-        pthread_mutexattr_t pthread_mutexattr;
+        std::recursive_mutex mutex;
 };
 
 bool DeleteCriticalSection(CRITICAL_SECTION *lock);

@@ -52,45 +52,31 @@ bool CreateCurrentUTC(
 
 void GetCurDataAndTime(char *dst)
 {
-    struct tm *timet = nullptr;
-    time_t times = 0;
-//    time(&times);
-    times = time(nullptr);
-    timet = localtime(&times);
-    strftime(dst, 64, "%F %T ", timet);
+    time_t times =
+        std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    strftime(dst, 64, "%T ", localtime(&times));
 }
 
 void PrintCurTime()
 {
-    struct tm *timet = nullptr;
-    time_t times = 0;
     char dst[64] = {};
-//    time(&times);
-    times = time(nullptr);
-    timet = localtime(&times);
-    strftime(dst, sizeof(dst), "%F %T ", timet);
+    GetCurDataAndTime(dst);
     std::cout << dst;
 }
 
 void GetCurTime(char *dst)
 {
-    struct tm *timet = nullptr;
-    time_t times = 0;
-//    time(&times);
-    times = time(nullptr);
-    timet = localtime(&times);
-    strftime(dst, 64, "%T ", timet);
+    time_t times =
+        std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    strftime(dst, 64, "%T ", localtime(&times));
 }
 
-unsigned long GetDayTime()
+long GetDayTime()
 {
-    struct timeval tv = {};
-
-    for (int i = 0; i < 3; i++)
-        if (!gettimeofday(&tv, nullptr))
-            return tv.tv_sec * 1000 + tv.tv_usec / 1000;
-
-    return 0;
+    return
+        std::chrono::milliseconds(
+            std::chrono::system_clock::now().time_since_epoch()
+        ).count();
 }
 
 unsigned long GetElapseMiliSec(struct timeval tvp)

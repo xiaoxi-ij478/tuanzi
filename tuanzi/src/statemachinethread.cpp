@@ -166,7 +166,9 @@ struct EAPOLFrame *CStateMachineThread::EncapsulateFrame(
                 );
 
             break;
-            default:break;
+
+        default:
+            break;
     }
 
     return eapol_frame;
@@ -219,6 +221,7 @@ void CStateMachineThread::InitState() const
 DEFINE_DISPATH_MESSAGE_HANDLER(OnPacketNotify, CStateMachineThread)
 {
     UNUSED_VAR(arg1);
+
     if (!state_visual)
         return;
 
@@ -321,6 +324,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStateMove, CStateMachineThread)
 DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CStateMachineThread)
 {
     UNUSED_VAR(arg2);
+
     switch (arg1) {
         case AUTH_WHILE_MTYPE:
             state_visual->state_data->SetAuthWhile();

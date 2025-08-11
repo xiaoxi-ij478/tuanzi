@@ -11,11 +11,11 @@ class XML_PARSER : public TiXmlDocument
         bool Add_FirstChildElement(const char *name);
         bool Add_LastChildElement(const char *name);
         std::string GetAttributeValue(const char *name) const;
-        bool GetAttributeValue(const char *name, std::string &result) const;
+        bool GetAttributeValue(const char *name, std::string& result) const;
         int GetAttributeValueInt(const char *name) const;
-        bool GetAttributeValueInt(const char *name, int &result) const;
+        bool GetAttributeValueInt(const char *name, int& result) const;
         const char *Get_Text() const;
-        bool Get_XML(std::string &result) const;
+        bool Get_XML(std::string& result) const;
         bool Go_to_Child(const char *name);
         bool Go_to_NextSibling(const char *name);
         bool Go_to_Parent(const char *name);

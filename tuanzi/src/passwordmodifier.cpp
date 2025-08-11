@@ -46,8 +46,8 @@ void CPasswordModifier::LogoffForPasswordInsecurity()
 }
 
 bool CPasswordModifier::SendModifyPWRequest(
-    const std::string &old_password,
-    const std::string &new_password
+    const std::string& old_password,
+    const std::string& new_password
 )
 {
     char buf[300] = {};
@@ -168,7 +168,7 @@ std::string CPasswordModifier::GetPasswordSecurityWarningInfo()
     return ret;
 }
 
-const std::string &CPasswordModifier::GetSubmitedNewPassword()
+const std::string& CPasswordModifier::GetSubmitedNewPassword()
 {
     return submited_new_password;
 }
@@ -193,7 +193,7 @@ void CPasswordModifier::SetPasswordSecurityInfo(
         KillForceOfflineWaitTimer();
 }
 
-void CPasswordModifier::SetSubmitedNewPassword(const std::string &new_password)
+void CPasswordModifier::SetSubmitedNewPassword(const std::string& new_password)
 {
     submited_new_password = new_password;
 }

@@ -13,7 +13,7 @@ extern bool CreateCurrentUTC(
 extern void GetCurDataAndTime(char *dst);
 extern void GetCurTime(char *dst);
 extern void PrintCurTime();
-extern unsigned long GetDayTime();
+extern long GetDayTime();
 extern unsigned long GetElapseMiliSec(struct timeval tvp);
 
 #endif // TIMEUTIL_H_INCLUDED

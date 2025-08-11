@@ -8,6 +8,6 @@ extern void removeFileOrDir(const char *filename);
 extern int get_sh_name(const char *src, const char *dst);
 extern bool decompressFile(const char *filename, const char *destdir);
 extern bool isFileExist(const char *filename);
-extern bool SuCreateDirectory(const std::string &dirname);
+extern bool SuCreateDirectory(const std::string& dirname);
 
 #endif // FILEUTIL_H_INCLUDED

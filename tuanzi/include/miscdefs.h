@@ -186,8 +186,8 @@ struct tagMsgItem {
     tagMsgItem() = default;
     tagMsgItem(
         unsigned ntype,
-        const std::string &msgtime,
-        const std::string &msg
+        const std::string& msgtime,
+        const std::string& msg
     ) : ntype(ntype), msgtime(msgtime), msg(msg)
     {}
     unsigned ntype;

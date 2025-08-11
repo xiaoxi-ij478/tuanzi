@@ -43,7 +43,7 @@ class CDirTranThread : public CLnxThread
             unsigned timeout
         );
         bool SetDirParaXieYi(
-            const struct tagDirectCom_ProtocalParam &proto_param
+            const struct tagDirectCom_ProtocalParam& proto_param
         );
         bool SetProtocalParam_TimeStamp(
             in_addr_t addr,
@@ -75,30 +75,30 @@ class CDirTranThread : public CLnxThread
         void ClearRetPara();
         void CloseAllGSNSender();
         bool DecryptPrivateData(
-            const struct tagDirectCom_ProtocalParam &proto_param,
+            const struct tagDirectCom_ProtocalParam& proto_param,
             char *buf,
             unsigned buflen
         ) const;
         bool DoSendPacket(
-            struct tagSenderBind &sender_bind,
-            const struct tagDataSendUnit &send_unit
+            struct tagSenderBind& sender_bind,
+            const struct tagDataSendUnit& send_unit
         );
         bool EncryptPrivateData(
-            const struct tagDirectCom_ProtocalParam &proto_param,
+            const struct tagDirectCom_ProtocalParam& proto_param,
             char *buf,
             unsigned buflen
         ) const;
         bool GetProtocalParam(
-            struct tagDirectCom_ProtocalParam &proto_param,
+            struct tagDirectCom_ProtocalParam& proto_param,
             in_addr_t addr,
             unsigned short port
         );
         bool GetProtocalParamFromSenderHand(
-            struct tagDirectCom_ProtocalParam &proto_param,
+            struct tagDirectCom_ProtocalParam& proto_param,
             int id
         );
         DECLARE_DISPATH_MESSAGE_HANDLER(OnTransPacket);
-        bool WaitUDP_DirectThread_OK(WAIT_HANDLE &event_udp_ready) const;
+        bool WaitUDP_DirectThread_OK(WAIT_HANDLE& event_udp_ready) const;
 
         struct tagDirTranPara dir_transpara;
         struct tagDirResPara dir_respara;

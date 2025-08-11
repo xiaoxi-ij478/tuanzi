@@ -12,7 +12,7 @@ bool updteParam = false;
 std::string update_file_path;
 std::string update_message;
 int g_rwpipe[2] = {};
-timer_t g_runModetimer = 0;
+Timer *g_runModetimer = nullptr;
 bool g_background = false;
 bool g_bDoRunIbus = false;
 pthread_rwlock_t g_fileLock;

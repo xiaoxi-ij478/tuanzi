@@ -181,10 +181,8 @@ enum LANG GetSysLanguage()
 float get_fedora_lib_version(const char *pkgname)
 {
     // I'm a Debian fan, so I don't know how to use yum
-    // yum list installed |grep $pkgname |awk 'NR==1 {print $2}'
-    // printf "%s version=%s\n" "get_fedora_lib_version" $version
-    char cmdbuf[1024] = {}; // [rsp+0h] [rbp-818h] BYREF
-    char cmdretbuf[1024] = {}; // [rsp+400h] [rbp-418h] BYREF
+    char cmdbuf[1024] = {};
+    char cmdretbuf[1024] = {};
     sprintf(cmdbuf, "yum list installed |grep %s |awk 'NR==1 {print $2}'", pkgname);
     exec_cmd(cmdbuf, cmdretbuf, sizeof(cmdretbuf));
     rj_printf_debug("%s version=%s\n", "get_fedora_lib_version", cmdretbuf);

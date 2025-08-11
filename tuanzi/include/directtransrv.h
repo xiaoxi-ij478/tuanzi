@@ -46,13 +46,13 @@ class CDirectTranSrv : public CLnxThread
         unsigned long GetSMPTimestamp() const;
         int GetXmlChild_Node_INT(
             const TiXmlNode *node,
-            const std::string &value,
-            const std::string &
+            const std::string& value,
+            const std::string&
         ) const;
         std::string GetXmlChild_Node_STR(
             const TiXmlNode *node,
-            const std::string &value,
-            const std::string &
+            const std::string& value,
+            const std::string&
         ) const;
         bool HandshakeToSAM();
         bool HandshakeToSMP();
@@ -73,7 +73,7 @@ class CDirectTranSrv : public CLnxThread
         void ParseDHCPAuthResult_ForSAM(
             const char *buf,
             unsigned buflen,
-            unsigned &pos
+            unsigned& pos
         ) const;
         void ParseDHCPAuthResult_ForSMP(const char *buf, unsigned buflen);
         void ParseGetHIStatusNow(const char *buf, unsigned buflen) const;
@@ -82,7 +82,7 @@ class CDirectTranSrv : public CLnxThread
         void ParseLogoffOhers(const char *buf, unsigned buflen) const;
         void ParseModifyPWResult(const char *buf, unsigned buflen) const;
         void ParseMsgAndPro(const char *buf, unsigned buflen) const;
-        void ParsePasswordSecurity(const TiXmlDocument &xml) const;
+        void ParsePasswordSecurity(const TiXmlDocument& xml) const;
         void ParseRM_Assist(const char *buf, unsigned buflen) const;
         void ParseReAuth(const char *buf, unsigned buflen) const;
         void ParseSMPData(const char *buf, unsigned buflen);

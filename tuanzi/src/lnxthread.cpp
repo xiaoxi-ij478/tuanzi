@@ -169,7 +169,6 @@ timer_t CLnxThread::SetTimer(int tflag, int off_msec)
     timer->calling_thread = me;
     timer->tflag = tflag;
     timer->msqid = msgid;
-    pthread_mutex_init(&timer->pthread_mutex, nullptr);
 
     if (my_timer_create(CLOCK_REALTIME, &sev, &timerid)) {
         g_logSystem.AppendText("timer_creat error.\n");

@@ -8,7 +8,7 @@ class CBackoffReAuthenticationManager
         bool IsNeedReAuthentication() const;
         void Reset();
 
-        static CBackoffReAuthenticationManager &Instance();
+        static CBackoffReAuthenticationManager& Instance();
 
         unsigned reauth_count;
         timer_t reauth_timer;

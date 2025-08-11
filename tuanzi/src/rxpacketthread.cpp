@@ -132,6 +132,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(StartRecvPacket, CRxPacketThread)
 {
     UNUSED_VAR(arg1);
     UNUSED_VAR(arg2);
+
     if (!InitAdapter())
         return;
 

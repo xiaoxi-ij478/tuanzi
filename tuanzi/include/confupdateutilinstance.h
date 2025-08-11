@@ -21,11 +21,11 @@ class CConfUpdateUtilInstance
         unsigned UpdateConfigure(const char *xml);
         void UpdateManagerCenterConf(
             CCustomizeInfo *custom_info,
-            CSuConfigFile &conffile
+            CSuConfigFile& conffile
         );
 
         static std::string AppendNum(const char *str, int num);
-        static CConfUpdateUtilInstance &Instance();
+        static CConfUpdateUtilInstance& Instance();
         static std::string IntToStr(int i);
         static std::string MemoryToHexString(const char *buf, unsigned buflen);
 

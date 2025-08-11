@@ -8,28 +8,28 @@
 #include "changelanguage.h"
 #include "userconfig.h"
 
-void CUserConfig::DecryptPassword(std::string &password)
+void CUserConfig::DecryptPassword(std::string& password)
 {
     char buf[32] = {};
     CEncryption::decrypt(buf, password.c_str());
     password = buf;
 }
 
-void CUserConfig::DecryptUserName(std::string &username)
+void CUserConfig::DecryptUserName(std::string& username)
 {
     char buf[32] = {};
     CEncryption::decrypt(buf, username.c_str());
     username = buf;
 }
 
-void CUserConfig::EncryptPassword(std::string &password)
+void CUserConfig::EncryptPassword(std::string& password)
 {
     char buf[32] = {};
     CEncryption::encrypt(buf, password.c_str());
     password = buf;
 }
 
-void CUserConfig::EncryptUserName(std::string &username)
+void CUserConfig::EncryptUserName(std::string& username)
 {
     char buf[32] = {};
     CEncryption::encrypt(buf, username.c_str());
@@ -37,7 +37,7 @@ void CUserConfig::EncryptUserName(std::string &username)
 }
 
 bool CUserConfig::ParseWirelessConf(
-    const std::string &wireless_confstr,
+    const std::string& wireless_confstr,
     struct tagWirelessConf *conf
 )
 {
@@ -73,7 +73,7 @@ bool CUserConfig::ParseWirelessConf(
 void CUserConfig::PrepareForRunboot(bool)
 {}
 
-bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo &info)
+bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo& info)
 {
     CSuConfigFile conffile;
     conffile.Lock();
@@ -264,8 +264,8 @@ bool CUserConfig::ReadSupplicantConf()
 }
 
 void CUserConfig::ReadUsernameAndPW(
-    std::string &username,
-    std::string &password
+    std::string& username,
+    std::string& password
 )
 {
     struct UserInfo userinfo = {};

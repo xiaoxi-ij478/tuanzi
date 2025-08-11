@@ -403,8 +403,8 @@ unsigned long CDirectTranSrv::GetSMPTimestamp() const
 
 int CDirectTranSrv::GetXmlChild_Node_INT(
     const TiXmlNode *node,
-    const std::string &value,
-    const std::string &
+    const std::string& value,
+    const std::string&
 ) const
 {
     const TiXmlElement *el = nullptr;
@@ -427,8 +427,8 @@ int CDirectTranSrv::GetXmlChild_Node_INT(
 
 std::string CDirectTranSrv::GetXmlChild_Node_STR(
     const TiXmlNode *node,
-    const std::string &value,
-    const std::string &
+    const std::string& value,
+    const std::string&
 ) const
 {
     const TiXmlElement *el = nullptr;
@@ -1186,7 +1186,7 @@ void CDirectTranSrv::ParseACLParam(
 void CDirectTranSrv::ParseDHCPAuthResult_ForSAM(
     const char *buf,
     unsigned buflen,
-    unsigned &pos
+    unsigned& pos
 ) const
 {
     std::string some_string;
@@ -1406,7 +1406,7 @@ void CDirectTranSrv::ParseMsgAndPro(const char *buf, unsigned buflen) const
     }
 }
 
-void CDirectTranSrv::ParsePasswordSecurity(const TiXmlDocument &xml) const
+void CDirectTranSrv::ParsePasswordSecurity(const TiXmlDocument& xml) const
 {
     const TiXmlNode *ss_child = nullptr;
     const TiXmlNode *ssp_child = nullptr;
@@ -1533,9 +1533,9 @@ void CDirectTranSrv::ParseReAuth(
 }
 
 void CDirectTranSrv::ParseSMPData(
-                                  const char *buf,
-                                  [[maybe_unused]] unsigned buflen
-                                  )
+    const char *buf,
+    [[maybe_unused]] unsigned buflen
+)
 {
     TiXmlDocument xml_data;
     const TiXmlNode *bc_child = nullptr;

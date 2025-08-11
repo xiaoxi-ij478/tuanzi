@@ -10,17 +10,17 @@ class CSupplicantApp
         CSupplicantApp();
         ~CSupplicantApp();
 
-        void GUI_QuitMainLoop(const std::string &msg) const;
-        void GUI_ShowMainWindow(const std::string &msg) const;
+        void GUI_QuitMainLoop(const std::string& msg) const;
+        void GUI_ShowMainWindow(const std::string& msg) const;
         void GUI_update_LOGOFF(
             enum LOGOFF_REASON reason,
             enum STATES new_state
         );
         void GUI_update_connect_states_and_text(
             enum STATES new_state,
-            const std::string &msg
+            const std::string& msg
         );
-        void GUI_update_connect_text(const std::string &msg) const;
+        void GUI_update_connect_text(const std::string& msg) const;
         void GUI_update_connectdlg_by_states(enum STATES new_state);
         bool IsOnline() const;
 

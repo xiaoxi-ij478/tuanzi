@@ -4,16 +4,12 @@
 
 unsigned long get_file_size(const char *filename)
 {
-    std::ifstream ifs(filename);
-    unsigned long ret = 0;
+    struct stat st = {};
 
-    if (!ifs)
+    if (stat(filename, &st) == -1)
         return 0;
 
-    ifs.seekg(0, std::ios::end);
-    ret = ifs.tellg();
-    ifs.close();
-    return ret;
+    return st.st_size;
 }
 
 void DeleteFile(const char *filename)
@@ -105,7 +101,7 @@ bool isFileExist(const char *filename)
     return !access(filename, F_OK);
 }
 
-bool SuCreateDirectory(const std::string &dirname)
+bool SuCreateDirectory(const std::string& dirname)
 {
     // "mkdir -p -m 666 $dirname"
     std::vector<std::string> pathnames;
@@ -124,7 +120,7 @@ bool SuCreateDirectory(const std::string &dirname)
 
     ParseString(dirname, '/', pathnames);
 
-    for (const std::string &path : pathnames) {
+    for (const std::string& path : pathnames) {
         if (!path.empty())
             tmp.append("/");
 
