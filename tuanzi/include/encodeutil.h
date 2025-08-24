@@ -29,7 +29,7 @@ extern int ConvertGBKToUtf8(
     int inbytesleft
 );
 extern int ConvertGBKToUtf8(
-    std::string& outbuf,
+    std::string &outbuf,
     const char *inbuf,
     int inbytesleft
 );
@@ -42,7 +42,7 @@ extern int ConvertUtf8ToGBK(
 extern int ConvertUtf8ToGBK(
     const char *inbuf,
     int inbytesleft,
-    std::string& outbuf
+    std::string &outbuf
 );
 
 #endif // ENCODEUTIL_H_INCLUDED

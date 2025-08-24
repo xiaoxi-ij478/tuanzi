@@ -31,6 +31,23 @@
 #include "rgprivateproc.h"
 #include "contextcontrolthread.h"
 
+static bool IsUpgrade(unsigned ver)
+{
+    unsigned major = 0, minor = 0;
+    GetSuInternalVersion(major, minor);
+    g_log_Wireless.AppendText(
+        "GetSuInternalVersion majorVer=%d, minorVer=%d",
+        major,
+        minor
+    );
+    g_log_Wireless.AppendText(
+        "IsUpgrade newHI=%d, oldHI=%d",
+        ver >> 16,
+        (minor & 0xff) | ((major & 0xff) << 8)
+    );
+    return (ver >> 16) > ((minor & 0xff) | ((major & 0xff) << 8));
+}
+
 CContextControlThread::CContextControlThread() :
     auth_inited(),
     field_1D1(),
@@ -77,8 +94,7 @@ CContextControlThread::CContextControlThread() :
     field_1129(),
     field_112A(),
     diskid(),
-    field_1138(),
-    field_1139(),
+    changing_service(),
     service_list_updated(),
     service_name(),
     has_auth_success(),
@@ -652,7 +668,7 @@ void CContextControlThread::DoUpgrade(
     download_thread->CreateThread(nullptr, false);
     download_para.mtype = UPGRADE_RETURN_MTYPE;
 //    download_para.thread_id=reinterpret_cast<pthread_t>(me); // ?????
-    download_para.thread_id = reinterpret_cast<pthread_t>(thread_id);
+    download_para.thread_id = thread_id;
     download_para.url = url;
     download_para.save_path = g_strAppPath + "upgrade/";
     download_para.save_filename = url.substr(0, url.rfind('/'));
@@ -813,7 +829,7 @@ int CContextControlThread::EnvironmentCheck()
         std::string(tmpbuf2).append(CChangeLanguage::Instance().LoadString(264))
     );
 
-    for (struct NICsStatus& nic_status : nic_statuses) {
+    for (struct NICsStatus &nic_status : nic_statuses) {
         if (!nic_status.is_up)
             continue;
 
@@ -904,7 +920,7 @@ unsigned CContextControlThread::GetDHCPAuthStep()
     return dhcp_auth_step;
 }
 
-void CContextControlThread::GetDHCPInfoParam(struct DHCPIPInfo& dst) const
+void CContextControlThread::GetDHCPInfoParam(struct DHCPIPInfo &dst) const
 {
     dst = configure_info.dhcp_ipinfo;
 }
@@ -981,7 +997,7 @@ bool CContextControlThread::IS_WLAN(enum EAP_TYPES type) const
 }
 
 void CContextControlThread::InitAll_Success(
-    const struct SuRadiusPrivate& private_prop
+    const struct SuRadiusPrivate &private_prop
 )
 {
     char errbuf[512] = {};
@@ -1249,7 +1265,7 @@ bool CContextControlThread::IsRuijieNas() const
 }
 
 bool CContextControlThread::IsServerlistUpdate(
-    const std::vector<std::string>& new_list
+    const std::vector<std::string> &new_list
 ) const
 {
     return
@@ -1911,7 +1927,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStartMachine, CContextControlThread)
     dhcp_auth_step = 1;
     has_auth_success = false;
     CtrlThread->private_properties.svr_switch_result.clear();
-    CtrlThread->field_1139 = false;
+    CtrlThread->changing_service = false;
     GetCurDataAndTime(tmpbuf);
     theApp.GUI_update_connectdlg_by_states(STATE_CONNECTING);
     theApp.GUI_update_connect_text(
@@ -1957,7 +1973,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(
     UNUSED_VAR(arg2);
     static std::string strLogFile = g_strAppPath + "log/run.log";
     static enum STATES last_state = STATE_DISASSOC;
-    CBackoffReAuthenticationManager& boram_instance =
+    CBackoffReAuthenticationManager &boram_instance =
         CBackoffReAuthenticationManager::Instance();
     char tmpbuf[64] = {};
     std::string timestr;
@@ -2370,7 +2386,7 @@ void CContextControlThread::OnShowLoginURL() const
     show_login_url();
 }
 
-bool CContextControlThread::RefreshSignal(const std::string& adapter_name)
+bool CContextControlThread::RefreshSignal(const std::string &adapter_name)
 {
     static std::string strLastAdapter;
     unsigned su_plat_init_ret = 0;
@@ -2933,7 +2949,7 @@ bool CContextControlThread::StartAdapterStateCheck() const
 }
 
 void CContextControlThread::StartDirectTrans(
-    const struct SuRadiusPrivate& private_prop,
+    const struct SuRadiusPrivate &private_prop,
     bool wait,
     bool request_init_data_now
 )
@@ -3096,7 +3112,7 @@ void CContextControlThread::StartDirectTrans(
 }
 
 void CContextControlThread::StartProcessBusiness(
-    const struct SuRadiusPrivate& private_prop
+    const struct SuRadiusPrivate &private_prop
 )
 {
     process_business_started = true;
@@ -3292,7 +3308,7 @@ void CContextControlThread::StopAuthentication(
 }
 
 void CContextControlThread::SuccessNotification(
-    const std::string& notif_str
+    const std::string &notif_str
 ) const
 {
     if (notif_str.empty())
@@ -3381,7 +3397,7 @@ void CContextControlThread::WlanScanComplete(
             scan_result->res[i].qual
         );
 
-        for (struct tagWirelessSignal& signal : wireless_signal) {
+        for (struct tagWirelessSignal &signal : wireless_signal) {
             if (
                 signal.ssid_len == scan_result->res[i].ssid_len &&
                 !memcmp(signal.ssid, scan_result->res[i].ssid, signal.ssid_len)

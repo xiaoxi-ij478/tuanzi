@@ -9,10 +9,10 @@ class CChangeLanguage
         void CleanLanguage();
         enum LANG GetLanguage() const;
         bool InitLanguage();
-        const std::string& LoadString(unsigned str_id) const;
+        const std::string &LoadString(unsigned str_id) const;
         bool SetLanguage(enum LANG lang_id);
 
-        static CChangeLanguage& Instance();
+        static CChangeLanguage &Instance();
 
     private:
         CChangeLanguage();

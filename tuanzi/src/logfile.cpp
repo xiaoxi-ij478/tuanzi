@@ -5,7 +5,7 @@
 CLogFile::CLogFile() : log_filename(), prio()
 {}
 
-void CLogFile::CreateLogFile_S(const std::string& filename, int prio_l)
+void CLogFile::CreateLogFile_S(const std::string &filename, int prio_l)
 {
     CreateLogFile(filename.c_str(), prio_l);
 }

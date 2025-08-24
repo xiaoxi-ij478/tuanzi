@@ -356,7 +356,7 @@ void InitEAPOLFrame(struct EAPOLFrame *eapol_frame)
 
 void AppendPrivateProperty(
     char *buf,
-    unsigned& len,
+    unsigned &len,
     const struct EAPOLFrame *eapol_frame
 )
 {
@@ -534,10 +534,10 @@ void AppendPrivateProperty(
     ConvertUtf8ToGBK(
         service_buf,
         sizeof(service_buf),
-        CtrlThread->field_1139 ?
+        CtrlThread->changing_service ?
         CtrlThread->service_name.c_str() :
         CtrlThread->configure_info.public_service.c_str(),
-        CtrlThread->field_1139 ?
+        CtrlThread->changing_service ?
         CtrlThread->service_name.length() :
         CtrlThread->configure_info.public_service.length()
     );
@@ -586,7 +586,7 @@ void AppendPrivateProperty(
     buf[len++] = 0x03;
     buf[len++] = eapol_frame->eap_type == EAP_TYPE_MD5 ? GetHIRusultByLocal() : 0;
 
-    if (CtrlThread->field_1139) {
+    if (CtrlThread->changing_service) {
         buf[len++] = 0x1A;
         buf[len++] = 0x0A;
         buf[len++] = 0x00;
@@ -943,7 +943,7 @@ void ParsePrivateProperty(
                     "ChangeToEAPOLFrame()---->RADIUS_SERV_TYPE = %d",
                     CtrlThread->GetRadiusServer()
                 );
-                CtrlThread->field_1149 = 0;
+                CtrlThread->field_1149 = false;
                 logFile.AppendText("radius server is new version");
                 break;
 
@@ -1100,7 +1100,7 @@ void ParsePrivateProperty(
         }
 }
 
-void EncapProgrammName(const std::string& prog_name, char *buf)
+void EncapProgrammName(const std::string &prog_name, char *buf)
 {
     char tmpbuf[128] = {};
     unsigned tmpbuflen = 0;

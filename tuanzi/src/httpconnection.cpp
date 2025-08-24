@@ -34,7 +34,7 @@ int CHttpConnection::getErrorCode() const
     return error_num;
 }
 
-const std::string& CHttpConnection::getErrorText() const
+const std::string &CHttpConnection::getErrorText() const
 {
     return error_msg;
 }
@@ -195,9 +195,9 @@ int CHttpConnection::makeSocket(const char *addr, unsigned short port)
 
 bool CHttpConnection::parseUrl(
     const char *url,
-    std::string& domain,
-    int& port,
-    std::string& path
+    std::string &domain,
+    int &port,
+    std::string &path
 )
 {
     char *url_copy = nullptr;

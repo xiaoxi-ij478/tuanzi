@@ -5,32 +5,20 @@
 #include "mtypes.h"
 #include "lnxthread.h"
 
-CLnxThread::CLnxThread(void *(*thread_func)(void *), void *thread_func_arg) :
+CLnxThread::CLnxThread() :
     doing_upgrade(),
     thread_running(),
-    me(),
-    wait_handle1(),
-    thread_id(),
     classname(),
     msgid(-1),
     no_need_send_msg(),
-    wait_handle2(),
-    thread_func_arg(thread_func_arg),
-    thread_func(thread_func),
-    cur_msg(),
-    timers(),
-    pthread_mutex()
 {
     pthread_mutex_init(&pthread_mutex, nullptr);
 }
 
-CLnxThread::CLnxThread() : CLnxThread(nullptr, nullptr)
-{}
-
 CLnxThread::~CLnxThread()
 {
     pthread_mutex_destroy(&pthread_mutex);
-    CloseHandle(&wait_handle1);
+    CloseHandle(&thread_end_wait_handle);
 }
 
 int CLnxThread::CreateThread(
@@ -41,11 +29,11 @@ int CLnxThread::CreateThread(
     int retval = 0;
     WAIT_HANDLE2 wait_handle;
 
-    if (me)
+    if (thread_inited)
         return -1;
 
     no_need_send_msg = no_need_send_msg_l;
-    me = this;
+    thread_inited = true;
     wait_handle.calling_thread = this;
     wait_handle.no_need_send_msg = no_need_send_msg_l;
     retval =
@@ -110,7 +98,7 @@ int CLnxThread::StartThread()
         return -1;
     }
 
-    return WaitForSingleObject(&wait_handle2, 0);
+    return WaitForSingleObject(&start_thread_wait_handle, 0);
 }
 
 int CLnxThread::StopThread()
@@ -130,27 +118,15 @@ int CLnxThread::StopThread()
     return 0;
 }
 
-// void CLnxThread::CommonConstruct()
-// {
-//    doing_upgrade = false;
-//    me = nullptr;
-//    pthread = nullptr;
-//    msgid = -1;
-//    no_need_send_msg = false;
-//    thread_running = false;
-//    pthread_mutex_init(&pthread_mutex, nullptr);
-//    memset(classname, 0, sizeof(classname));
-// }
-
-void CLnxThread::SetClassName(const char *name)
+void CLnxThread::SetClassName(const std::string &name)
 {
-    strcpy(classname, name);
+    classname = name;
 }
 
 timer_t CLnxThread::SetTimer(int tflag, int off_msec)
 {
     struct sigevent sev = {};
-    struct TIMERPARAM *timer = nullptr;
+    struct TIMERPARAM timer_param;
     struct itimerspec new_time = {
         { off_msec / 1000, off_msec % 1000 },
         { off_msec / 1000, off_msec % 1000 }
@@ -169,6 +145,7 @@ timer_t CLnxThread::SetTimer(int tflag, int off_msec)
     timer->calling_thread = me;
     timer->tflag = tflag;
     timer->msqid = msgid;
+    timer_param.calling_thread = this;
 
     if (my_timer_create(CLOCK_REALTIME, &sev, &timerid)) {
         g_logSystem.AppendText("timer_creat error.\n");
@@ -193,23 +170,9 @@ timer_t CLnxThread::SetTimer(int tflag, int off_msec)
     return timerid;
 }
 
-timer_t CLnxThread::SetTimer(
-    void *,
-    int tflag,
-    int off_msec,
-    void (*)(union sigval)
-)
-{
-    return SetTimer(tflag, off_msec);
-}
-
-bool CLnxThread::InitInstance()
-{
-    return true;
-}
-
 bool CLnxThread::Run()
 {
+    struct LNXMSG cur_msg;
     bool start_process = false;
 
     if (no_need_send_msg)
@@ -229,7 +192,7 @@ bool CLnxThread::Run()
                 return false;
             case START_THREAD_MTYPE:
                 start_process = true;
-                SetEvent(&wait_handle2, true);
+                SetEvent(&start_thread_wait_handle, true);
                 g_logFile_start.AppendText(
                     "(%s)msgrcv m_msgid =%d m_msgCur.message=%d ",
                     classname,
@@ -256,9 +219,6 @@ bool CLnxThread::Run()
 
     return true;
 }
-
-void CLnxThread::DispathMessage([[maybe_unused]] struct LNXMSG *msg)
-{}
 
 void CLnxThread::OnTimer(int tflag)
 {
@@ -308,11 +268,6 @@ void CLnxThread::OnTimerLeave(int tflag) const
     for (TIMERPARAM *timer : timers)
         if (timer->tflag == tflag)
             pthread_mutex_unlock(&timer->pthread_mutex);
-}
-
-bool CLnxThread::ExitInstance()
-{
-    return no_need_send_msg ? 0 : cur_msg.arg1;
 }
 
 bool CLnxThread::KillTimer(timer_t &timerid)
@@ -419,12 +374,12 @@ void CLnxThread::LnxEndThread()
         perror("msgctl error ");
 
     thread_running = false;
-    CloseHandle(&wait_handle2);
+    CloseHandle(&start_thread_wait_handle);
     g_logFile_start.AppendText(
         "CLnxThread::LnxEndThread %s \tCloseHandle (m_exitEvent)",
         classname
     );
-    SetEvent(&wait_handle1, 1);
+    SetEvent(&thread_end_wait_handle, true);
 
     if (doing_upgrade)
         delete this;
@@ -433,9 +388,6 @@ void CLnxThread::LnxEndThread()
 void CLnxThread::SafeExitThread(unsigned off_msec)
 {
     int retval = 0;
-
-    if (!this) // ???????
-        return;
 
     if (!StopThread()) {
         g_logSystem.AppendText(
@@ -447,7 +399,7 @@ void CLnxThread::SafeExitThread(unsigned off_msec)
             delete this;
 
     } else if (!doing_upgrade) {
-        if (!(retval = WaitForSingleObject(&wait_handle1, off_msec))) {
+        if (!(retval = WaitForSingleObject(&thread_end_wait_handle, off_msec))) {
             delete this;
             return;
         }
@@ -557,10 +509,7 @@ start_exec:
     SetEvent(wait_handle, false);
     calling_thread->thread_running = true;
 
-    if (calling_thread->thread_func)
-        calling_thread->thread_func(calling_thread->thread_func_arg);
-
-    else if (calling_thread->InitInstance())
+    if (calling_thread->InitInstance())
         calling_thread->Run();
 
     else

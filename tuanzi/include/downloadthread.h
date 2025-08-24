@@ -41,7 +41,7 @@ class CDownLoadThread : public CLnxThread
     public:
         CDownLoadThread();
         ~CDownLoadThread() override;
-        void SetDlPara(struct tagDownLoadPara& para);
+        void SetDlPara(struct tagDownLoadPara &para);
 
     protected:
         void DispathMessage(struct LNXMSG *msg) override;

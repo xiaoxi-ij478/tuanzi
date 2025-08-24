@@ -44,7 +44,7 @@ class CRxPacketThread : public CLnxThread
         bool stopped;
         pcap_t *pcap_handle;
         unsigned adapter_mode;
-        WAIT_HANDLE recv_packet_waithandle;
+        struct WAIT_HANDLE recv_packet_waithandle;
 };
 
 #endif // RXPACKETTHREAD_H_INCLUDED

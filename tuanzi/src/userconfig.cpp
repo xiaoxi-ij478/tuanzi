@@ -8,28 +8,28 @@
 #include "changelanguage.h"
 #include "userconfig.h"
 
-void CUserConfig::DecryptPassword(std::string& password)
+void CUserConfig::DecryptPassword(std::string &password)
 {
     char buf[32] = {};
     CEncryption::decrypt(buf, password.c_str());
     password = buf;
 }
 
-void CUserConfig::DecryptUserName(std::string& username)
+void CUserConfig::DecryptUserName(std::string &username)
 {
     char buf[32] = {};
     CEncryption::decrypt(buf, username.c_str());
     username = buf;
 }
 
-void CUserConfig::EncryptPassword(std::string& password)
+void CUserConfig::EncryptPassword(std::string &password)
 {
     char buf[32] = {};
     CEncryption::encrypt(buf, password.c_str());
     password = buf;
 }
 
-void CUserConfig::EncryptUserName(std::string& username)
+void CUserConfig::EncryptUserName(std::string &username)
 {
     char buf[32] = {};
     CEncryption::encrypt(buf, username.c_str());
@@ -37,7 +37,7 @@ void CUserConfig::EncryptUserName(std::string& username)
 }
 
 bool CUserConfig::ParseWirelessConf(
-    const std::string& wireless_confstr,
+    const std::string &wireless_confstr,
     struct tagWirelessConf *conf
 )
 {
@@ -73,7 +73,7 @@ bool CUserConfig::ParseWirelessConf(
 void CUserConfig::PrepareForRunboot(bool)
 {}
 
-bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo& info)
+bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo &info)
 {
     CSuConfigFile conffile;
     conffile.Lock();
@@ -116,7 +116,7 @@ bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo& info)
         struct tagWirelessConf wireless_conf = {};
         conffile.GetPrivateProfileString(
             "WIRELESS",
-            std::string("WirelessConf").append(IntToString(i)).c_str(),
+            std::string("WirelessConf").append(std::to_string(i)).c_str(),
             "",
             wireless_conf_str
         );
@@ -160,7 +160,7 @@ bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo& info)
         std::vector<std::string> splited_name;
         conffile.GetPrivateProfileString(
             "SERVER",
-            std::string("Name").append(IntToString(i)).c_str(),
+            std::string("Name").append(std::to_string(i)).c_str(),
             "",
             server_name_str
         );
@@ -182,7 +182,7 @@ bool CUserConfig::ReadConfigParam(struct SaveConfigureInfo& info)
         std::string secdomain_str;
         conffile.GetPrivateProfileString(
             "SECDOMAIN",
-            std::string("SecDomain").append(IntToString(i)).c_str(),
+            std::string("SecDomain").append(std::to_string(i)).c_str(),
             "",
             secdomain_str
         );
@@ -264,8 +264,8 @@ bool CUserConfig::ReadSupplicantConf()
 }
 
 void CUserConfig::ReadUsernameAndPW(
-    std::string& username,
-    std::string& password
+    std::string &username,
+    std::string &password
 )
 {
     struct UserInfo userinfo = {};
@@ -304,7 +304,7 @@ void CUserConfig::SaveConfigParam()
     // *INDENT-OFF*
 #define CONF_INFO (CtrlThread->configure_info)
 #define WRITE_DIRECT_INT(domain, key, val) \
-    conffile.WritePrivateProfileString((domain), (key), IntToString(val).c_str())
+    conffile.WritePrivateProfileString((domain), (key), std::to_string(val).c_str())
 #define WRITE_DIRECT_FIELD(domain, key, val) \
     conffile.WritePrivateProfileString((domain), (key), (val))
 #define WRITE_INT(domain, key, name) \

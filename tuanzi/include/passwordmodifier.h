@@ -11,19 +11,19 @@ class CPasswordModifier
 
         static struct tagPasSecurityInfo *GetPasswordSecurityInfo();
         static std::string GetPasswordSecurityWarningInfo();
-        static const std::string& GetSubmitedNewPassword();
+        static const std::string &GetSubmitedNewPassword();
         static void KillForceOfflineWaitTimer();
         static void LogoffForPasswordInsecurity();
         static bool SendModifyPWRequest(
-            const std::string& old_password,
-            const std::string& new_password
+            const std::string &old_password,
+            const std::string &new_password
         );
         static void SetForceOfflineWaitTimer();
         static void UpdateToNewPassword();
         static void SetPasswordSecurityInfo(
             const struct tagPasSecurityInfo *new_info
         );
-        static void SetSubmitedNewPassword(const std::string& new_password);
+        static void SetSubmitedNewPassword(const std::string &new_password);
         static void _OnForceOfflineTimerEntry(union sigval arg);
 
     private:

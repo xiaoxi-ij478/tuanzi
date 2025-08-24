@@ -21,7 +21,6 @@ class CClientCenterPeerManager : public CLnxThread
 
     private:
         CClientCenterPeerManager();
-        ~CClientCenterPeerManager() override;
 
         DECLARE_DISPATH_MESSAGE_HANDLER(OnStart);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnStop);
@@ -29,8 +28,8 @@ class CClientCenterPeerManager : public CLnxThread
         int ParseResult(const char *result);
         void ProcessConnect();
 
-        static std::string EnCodeStr(const std::string& str);
-        static std::string DeCodeStr(const std::string& str);
+        static std::string EnCodeStr(const std::string &str);
+        static std::string DeCodeStr(const std::string &str);
 
         static CClientCenterPeerManager *instance;  // m_instance
 

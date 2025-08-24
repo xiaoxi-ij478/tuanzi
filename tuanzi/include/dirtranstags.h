@@ -2,7 +2,7 @@
 #define DIRTRANSTAGS_H_INCLUDED
 
 #include "stdpkgs.h"
-class WAIT_HANDLE;
+class struct WAIT_HANDLE;
 
 #define MAX_MTU 1400u
 
@@ -159,7 +159,7 @@ struct tagSenderBind {
 
 struct tagDirResPara {
     struct tagSenderBind sender_bind;
-    WAIT_HANDLE *event_ret;
+    struct WAIT_HANDLE *event_ret;
     struct tagDirPacketHead dir_packet_head;
 };
 
@@ -243,7 +243,7 @@ struct tagDataSendUnit {
     char *msg;
     unsigned totallen;
     unsigned field_14;
-    WAIT_HANDLE *eventret;
+    struct WAIT_HANDLE *eventret;
     unsigned *ret;
     bool need_reply;
     unsigned session_id;
@@ -251,11 +251,11 @@ struct tagDataSendUnit {
 
 struct tagRetPara {
     tagRetPara() = default;
-    tagRetPara(unsigned *ret, WAIT_HANDLE *eventret) :
+    tagRetPara(unsigned *ret, struct WAIT_HANDLE *eventret) :
         ret(ret), eventret(eventret)
     {}
     unsigned *ret;
-    WAIT_HANDLE *eventret;
+    struct WAIT_HANDLE *eventret;
 };
 
 struct tagDirTranPara {

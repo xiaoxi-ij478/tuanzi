@@ -27,7 +27,7 @@ extern void EncapUCharDhcpIpInfo(
 extern void InitEAPOLFrame(struct EAPOLFrame *eapol_frame);
 extern void AppendPrivateProperty(
     char *buf,
-    unsigned& len,
+    unsigned &len,
     const struct EAPOLFrame *eapol_frame
 );
 extern void ParsePrivateProperty(
@@ -35,7 +35,7 @@ extern void ParsePrivateProperty(
     unsigned len,
     struct EAPOLFrame *eapol_frame
 );
-extern void EncapProgrammName(const std::string& prog_name, char *buf);
+extern void EncapProgrammName(const std::string &prog_name, char *buf);
 extern void EncapUCharVersionNumber(char *buf);
 
 #endif // EAPOLUTIL_H_INCLUDED

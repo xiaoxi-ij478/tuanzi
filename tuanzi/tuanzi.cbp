@@ -94,11 +94,19 @@
 				<Option projectLinkerOptionsRelation="1" />
 				<Option projectLibDirsRelation="1" />
 				<Compiler>
-					<Add option="-O2" />
+					<Add option="-ggdb3" />
 				</Compiler>
-				<Linker>
-					<Add option="-s" />
-				</Linker>
+			</Target>
+			<Target title="Message Queue Test">
+				<Option output="bin/tests/message_queue_test" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/tests" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="1" />
+				<Option projectLibDirsRelation="1" />
+				<Compiler>
+					<Add option="-ggdb3" />
+				</Compiler>
 			</Target>
 		</Build>
 		<VirtualTargets>
@@ -297,6 +305,11 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
+		<Unit filename="include/message_queue.h">
+			<Option target="Debug" />
+			<Option target="Release" />
+			<Option target="Message Queue Test" />
+		</Unit>
 		<Unit filename="include/miscdefs.h">
 			<Option target="Debug" />
 			<Option target="Release" />
@@ -446,6 +459,8 @@
 			<Option target="Release" />
 		</Unit>
 		<Unit filename="src/autorun.cpp">
+			<Option compile="0" />
+			<Option link="0" />
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
@@ -699,13 +714,12 @@
 			<Option target="Debug" />
 			<Option target="Release" />
 		</Unit>
-		<Unit filename="src/waithandle.cpp">
-			<Option target="Debug" />
-			<Option target="Release" />
-		</Unit>
 		<Unit filename="src/xmlparser.cpp">
 			<Option target="Debug" />
 			<Option target="Release" />
+		</Unit>
+		<Unit filename="tests/message_queue_test.cpp">
+			<Option target="Message Queue Test" />
 		</Unit>
 		<Unit filename="tests/timer_test.cpp">
 			<Option target="Timer test" />

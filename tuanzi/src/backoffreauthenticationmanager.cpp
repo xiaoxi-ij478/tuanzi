@@ -6,7 +6,7 @@ CBackoffReAuthenticationManager::CBackoffReAuthenticationManager() :
     reauth_timer()
 {}
 
-CBackoffReAuthenticationManager& CBackoffReAuthenticationManager::Instance()
+CBackoffReAuthenticationManager &CBackoffReAuthenticationManager::Instance()
 {
     static CBackoffReAuthenticationManager obj; // thisObj
     return obj;

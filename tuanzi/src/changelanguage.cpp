@@ -10,7 +10,7 @@ CChangeLanguage::CChangeLanguage() :
     trans_strings()
 {}
 
-CChangeLanguage& CChangeLanguage::Instance()
+CChangeLanguage &CChangeLanguage::Instance()
 {
     static CChangeLanguage lang; // sLang
     return lang;
@@ -30,34 +30,25 @@ enum LANG CChangeLanguage::GetLanguage() const
 bool CChangeLanguage::InitLanguage()
 {
     std::ifstream translate_file(translate_filename);
-    std::string line;
-    std::vector<std::string> val;
-//    size_t equal_pos;
 
     if (!translate_file && !lang_inited)
         return false;
 
     CleanLanguage();
     lang_inited = true;
+    std::string line;
 
     while (std::getline(translate_file, line)) {
         if (line.empty() || line.front() == '#')
-            continue; // skip empty or comment line
+            continue;
 
-        // use our enhanced version of split
-//        equal_pos = s.find('=');
-//
-//        if (equal_pos == std::string::npos)
-//            continue; // skip invalid line
-//
-//        trans_id_str = s.substr(0, equal_pos);
-//        trans_str = s.substr(equal_pos + 1);
+        std::vector<std::string> val;
         ParseString(line, '=', val, 1);
 
         if (val.size() == 1)
             continue;
 
-        std::string& trans_str = val[1];
+        std::string &trans_str = val[1];
         TrimAll(trans_str, " \r\n");
         replace_all_distinct(trans_str, "\\r", "\r");
         replace_all_distinct(trans_str, "\\n", "\n");
@@ -68,7 +59,7 @@ bool CChangeLanguage::InitLanguage()
     return true;
 }
 
-const std::string& CChangeLanguage::LoadString(unsigned str_id) const
+const std::string &CChangeLanguage::LoadString(unsigned str_id) const
 {
     static std::string none;
 

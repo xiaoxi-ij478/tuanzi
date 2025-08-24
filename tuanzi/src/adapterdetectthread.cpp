@@ -7,15 +7,14 @@
 #include "util.h"
 #include "adapterdetectthread.h"
 
-// *INDENT-OFF*
 #define POST_TO_CONTROL_THREAD(mtype) \
     ::PostThreadMessage( \
-        control_thread_key, \
-        control_thread_msgid, \
-        (mtype), \
-        0 \
-    )
-// *INDENT-ON*
+                         control_thread_key, \
+                         control_thread_msgid, \
+                         (mtype), \
+                         0 \
+                       )
+
 CAdapterDetectThread::CAdapterDetectThread() :
     control_thread_key(),
     control_thread_msgid(),
@@ -43,8 +42,6 @@ bool CAdapterDetectThread::StartDetect(
     char *errmsg
 ) const
 {
-    struct DetectNICInfo *info = nullptr;
-
     if (strlen(nic_name_l) > MAX_NIC_NAME_LEN) {
         if (errmsg)
             strcpy(errmsg, "para adapter name is too long");
@@ -52,13 +49,20 @@ bool CAdapterDetectThread::StartDetect(
         return false;
     }
 
-    info = new struct DetectNICInfo;
+    struct DetectNICInfo *info = new struct DetectNICInfo;
+
     strcpy(info->nic_name, nic_name_l);
+
     info->macaddr = *macaddr_l;
+
     info->ipaddr = ipaddr_l;
+
     info->thread_key = thread_key_l;
+
     info->msgid = msgid;
+
     info->disallow_multi_nic_ip = disallow_multi_nic_ip_l;
+
     g_log_Wireless.AppendText(
         "CAdapterDetectThread thread id:%u; msg id:%d; adapter name:%s ip:%u",
         thread_key_l,
@@ -143,11 +147,7 @@ void CAdapterDetectThread::OnTimer(int tflag)
 
 void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
 {
-    struct ifreq ifr;
-    struct ethtool_value evalue;
     struct NICINFO *nic_infos = get_nics_info(nullptr);
-    memset(&ifr, 0, sizeof(ifr));
-    memset(&evalue, 0, sizeof(evalue));
 
     if (!nic_infos)
         return;
@@ -200,6 +200,8 @@ void CAdapterDetectThread::MultipleAdaptesOrIPCheck() const
             }
 
         } else if (disallow_multi_nic_ip) {
+            struct ifreq ifr = {};
+            struct ethtool_value evalue = {};
             g_log_Wireless.AppendText("Other nic name:%s", cur_info->ifname);
             strncpy(ifr.ifr_name, cur_info->ifname, IFNAMSIZ - 1);
             evalue.cmd = ETHTOOL_GLINK;
@@ -248,10 +250,18 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnStartDetect, CAdapterDetectThread)
     control_thread_key = info->thread_key;
     control_thread_msgid = info->msgid;
     status = ADAPTER_UP;
-    proxy_detect_timerid =
-        SetTimer(nullptr, ADAPTER_PROXY_DETECT_TIMER_MTYPE, 60000, nullptr);
-    nic_state_detect_timerid =
-        SetTimer(nullptr, NIC_STATE_DETECT_TIMER_MTYPE, 1000, nullptr);
+    proxy_detect_timerid = SetTimer(
+                               nullptr,
+                               ADAPTER_PROXY_DETECT_TIMER_MTYPE,
+                               60000,
+                               nullptr
+                           );
+    nic_state_detect_timerid = SetTimer(
+                                   nullptr,
+                                   NIC_STATE_DETECT_TIMER_MTYPE,
+                                   1000,
+                                   nullptr
+                               );
     g_log_Wireless.AppendText(
         "%s timer nics IP=%u; timer nic state=%u",
         "OnStartDetect",

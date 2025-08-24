@@ -4,7 +4,7 @@
 #include "proxyclienttcp.h"
 #include "proxysertcp.h"
 
-ProxySerTcp::ProxySerTcp(const struct TcpInfo& info) :
+ProxySerTcp::ProxySerTcp(const struct TcpInfo &info) :
     CTcp(info),
     bound_proxy_client_tcp(),
     prev(),
@@ -18,7 +18,7 @@ bool ProxySerTcp::IsExpired(unsigned) const
 }
 
 int ProxySerTcp::FindClientTcp(
-    const struct TCPIP& pkg,
+    const struct TCPIP &pkg,
     ProxyClientTcp *client,
     unsigned flag
 )

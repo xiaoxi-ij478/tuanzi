@@ -7,7 +7,7 @@ bool AddAutoRun(const char *arg)
 {
     std::string path;
     get_exe_name(path);
-    path = path.substr(path.rfind('/'), std::string::npos);
+    path = path.substr(path.rfind('/'));
     path.insert(0, "/usr/bin");
     return !auto_run(path.c_str(), AFTER_LOGIN_ENABLE, arg);
 }
@@ -16,7 +16,7 @@ bool DelAutoRun(const char *arg)
 {
     std::string path;
     get_exe_name(path);
-    path = path.substr(path.rfind('/'), std::string::npos);
+    path = path.substr(path.rfind('/'));
     path.insert(0, "/usr/bin");
     return !auto_run(path.c_str(), AFTER_LOGIN_DISABLE, arg);
 }

@@ -9,57 +9,42 @@
 #include "threadutil.h"
 
 int WaitForSingleObject(
-    WAIT_HANDLE *wait_handle,
+    struct WAIT_HANDLE &wait_handle,
     unsigned long off_msec
 )
 {
     int ret = 0;
-    struct timespec ts = {};
 
-    if (wait_handle->signal) {
-        wait_handle->signal = false;
+    if (wait_handle.signal) {
+        wait_handle.signal = false;
         return 0;
     }
 
-    ret = pthread_mutex_trylock(&wait_handle->pthread_mutex);
+    std::unique_lock l(wait_handle.mutex, std::try_to_lock);
 
-    if (ret == EBUSY)
-        return ret;
+    if (!l)
+        return 1;
 
-    if (ret) {
-        rj_printf_debug("pthread_mutex_lock error,code =%s\n", strerror(errno));
-        return ret;
-    }
+    if (off_msec)
+        while (
+            !wait_handle.signal &&
+            wait_handle.condition.wait_for(
+                l,
+                std::chrono::milliseconds(off_msec)
+            ) == std::cv_status::timeout
+        );
 
-    if (off_msec) {
-        GetAbsTime(&ts, off_msec);
-        ret = 1;
+    else
+        while (!wait_handle.signal)
+            wait_handle.condition.wait(l);
 
-        while (!wait_handle->signal && ret)
-            ret = pthread_cond_timedwait(
-                      &wait_handle->pthread_cond,
-                      &wait_handle->pthread_mutex,
-                      &ts
-                  );
-
-    } else
-        while (!wait_handle->signal)
-            ret = pthread_cond_wait(
-                      &wait_handle->pthread_cond,
-                      &wait_handle->pthread_mutex
-                  );
-
-    wait_handle->signal = false;
-
-    if (pthread_mutex_unlock(&wait_handle->pthread_mutex))
-        rj_printf_debug("pthread_mutex_unlock error,code =%s\n", strerror(errno));
-
+    wait_handle.signal = false;
     return ret;
 }
 
 int WaitForMultipleObjects(
     [[maybe_unused]] int event_count,
-    [[maybe_unused]] WAIT_HANDLE *events,
+    [[maybe_unused]] struct WAIT_HANDLE *events,
     [[maybe_unused]] bool wait_all,
     [[maybe_unused]] unsigned long no_obj_waittime
 )
@@ -71,7 +56,7 @@ int WaitForMultipleObjects(
 //    unsigned i = 0, j = 0;
 //    int wait_result = -1;
 //    bool *wait_flags = nullptr;
-//    WAIT_HANDLE *cevents = events;
+//    struct WAIT_HANDLE *cevents = events;
 //    assert(events);
 //    assert(event_count < 0); // if event_count < 0 then new will throw error
 //
@@ -204,48 +189,24 @@ int WaitForMultipleObjects(
 //    return wait_result;
 }
 
-void CloseHandle(WAIT_HANDLE *wait_handle)
+void CloseHandle(struct WAIT_HANDLE &wait_handle)
 {
-    int ret = 0;
-
-    if (pthread_mutex_trylock(&wait_handle->pthread_mutex) == EBUSY) {
-        rj_printf_debug("pthread_mutex_trylock busy\n");
-
-        if ((ret = pthread_cond_broadcast(&wait_handle->pthread_cond)))
-            rj_printf_debug("pthread_cond_signal error %d\n", ret);
-
-        wait_handle->signal = true;
-
-    } else {
-        if ((ret = pthread_cond_broadcast(&wait_handle->pthread_cond)))
-            rj_printf_debug("pthread_cond_signal error %d\n", ret);
-
-        wait_handle->signal = true;
-
-        if ((ret = pthread_mutex_unlock(&wait_handle->pthread_mutex)))
-            rj_printf_debug("pthread_mutex_unlock nResult=%d\n", ret);
-    }
-
-    pthread_mutex_destroy(&wait_handle->pthread_mutex);
-    pthread_cond_destroy(&wait_handle->pthread_cond);
+    std::unique_lock l(wait_handle.mutex, std::try_to_lock);
+    wait_handle.condition.notify_all();
+    wait_handle.signal = true;
 }
 
-void SetEvent(WAIT_HANDLE *wait_handle, bool broadcast)
+void SetEvent(struct WAIT_HANDLE &wait_handle, bool broadcast)
 {
-    int ret = 0;
-    pthread_mutex_lock(&wait_handle->pthread_mutex);
+    std::lock_guard l(wait_handle.mutex);
 
     if (broadcast)
-        ret = pthread_cond_broadcast(&wait_handle->pthread_cond);
+        wait_handle.condition.notify_all();
 
     else
-        ret = pthread_cond_signal(&wait_handle->pthread_cond);
+        wait_handle.condition.notify_one();
 
-    if (ret)
-        rj_printf_debug("pthread_cond_signal error %d\n", ret);
-
-    wait_handle->signal = true;
-    pthread_mutex_unlock(&wait_handle->pthread_mutex);
+    wait_handle.signal = true;
 }
 
 bool TerminateThread(pthread_t thread_id)

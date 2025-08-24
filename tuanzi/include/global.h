@@ -21,7 +21,7 @@ extern std::string update_file_path;
 extern std::string update_message;
 extern int g_rwpipe[2];
 extern bool g_background;
-extern Timer *g_runModetimer;
+extern Timer g_runModetimer;
 extern bool g_bDoRunIbus;
 extern pthread_rwlock_t g_fileLock;
 extern struct SuPlatformParam *g_supf_param;

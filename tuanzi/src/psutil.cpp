@@ -173,7 +173,7 @@ void dhclient_exit()
     }
 }
 
-void get_exe_name(std::string& dst)
+void get_exe_name(std::string &dst)
 {
     char s[1024] = {};
     int r = readlink("/proc/self/exe", s, sizeof(s));

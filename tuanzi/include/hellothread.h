@@ -37,7 +37,7 @@ class CHelloThread : public CLnxThread
         void OnTimer(int tflag) override;
 
     private:
-        struct HelloPacket *CreateHelloPacket(unsigned& packet_len);
+        struct HelloPacket *CreateHelloPacket(unsigned &packet_len);
         void CreateHelloTimer(unsigned interval);
         unsigned GetCurCRCID();
         DECLARE_DISPATH_MESSAGE_HANDLER(OnChangeHelloPara);

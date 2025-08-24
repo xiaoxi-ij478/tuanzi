@@ -16,7 +16,7 @@ void DeleteFile(const char *filename)
 {
     // the original implementation uses shell
     // "rm -rf $filename"
-    remove(filename);
+    unlink(filename);
 }
 
 int cmd_mkdir(const char *dirname)
@@ -28,7 +28,7 @@ void removeFileOrDir(const char *filename)
 {
     // the original implementation uses shell
     // "rm -rf $filename"
-    remove(filename);
+    unlink(filename);
 }
 
 int get_sh_name(const char *src, char *dst)
@@ -101,7 +101,7 @@ bool isFileExist(const char *filename)
     return !access(filename, F_OK);
 }
 
-bool SuCreateDirectory(const std::string& dirname)
+bool SuCreateDirectory(const std::string &dirname)
 {
     // "mkdir -p -m 666 $dirname"
     std::vector<std::string> pathnames;
@@ -120,7 +120,7 @@ bool SuCreateDirectory(const std::string& dirname)
 
     ParseString(dirname, '/', pathnames);
 
-    for (const std::string& path : pathnames) {
+    for (const std::string &path : pathnames) {
         if (!path.empty())
             tmp.append("/");
 

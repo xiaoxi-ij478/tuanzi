@@ -23,7 +23,7 @@ class CContextControlThread : public CLnxThread
 
         void GetAdapterMac(struct ether_addr *dst) const;
         unsigned GetDHCPAuthStep();
-        void GetDHCPInfoParam(struct DHCPIPInfo& dst) const;
+        void GetDHCPInfoParam(struct DHCPIPInfo &dst) const;
         in_addr_t GetNetOrderIPV4() const;
         unsigned GetRadiusServer() const;
         void InitStartDstMac();
@@ -32,8 +32,8 @@ class CContextControlThread : public CLnxThread
         bool IS_WLAN(enum EAP_TYPES type) const;
         bool IsDhcpAuth() const;
         bool IsRuijieNas() const;
-        bool IsServerlistUpdate(const std::vector<std::string>& new_list) const;
-        bool RefreshSignal(const std::string& adapter_name);
+        bool IsServerlistUpdate(const std::vector<std::string> &new_list) const;
+        bool RefreshSignal(const std::string &adapter_name);
         void SaveRadiusPrivate(const struct EAPOLFrame *eapol_frame);
         void SetRadiusServer(unsigned type);
         void WlanScanComplete(const struct ScanCmdCtx *scan_result);
@@ -68,14 +68,14 @@ class CContextControlThread : public CLnxThread
         void ExitExtance_ExitAll();
         bool GetAdapterDHCPEnable() const;
         std::string GetSAMMessBuff(char *buf, unsigned buflen) const;
-        void InitAll_Success(const struct SuRadiusPrivate& private_prop);
+        void InitAll_Success(const struct SuRadiusPrivate &private_prop);
         void InitCheckSelf() const;
         bool InitInstance_InitAll();
         bool InitNICDevice();
         void IsIPOffered();
         bool IsWirelessAuth() const;
         void KillDirectSrv();
-        unsigned ModifyLogoffReason(enum LOGOFF_REASON& reason) const;
+        unsigned ModifyLogoffReason(enum LOGOFF_REASON &reason) const;
         DECLARE_DISPATH_MESSAGE_HANDLER(ONSAMWantLogOff);
         DECLARE_DISPATH_MESSAGE_HANDLER(ONSAWantLogOff);
         DECLARE_DISPATH_MESSAGE_HANDLER(OnAdaptersState);
@@ -112,12 +112,12 @@ class CContextControlThread : public CLnxThread
         void SetWaitDHCPAuthResultTimer();
         bool StartAdapterStateCheck() const;
         void StartDirectTrans(
-            const struct SuRadiusPrivate& private_prop,
+            const struct SuRadiusPrivate &private_prop,
             bool wait,
             bool request_init_data_now
         );
         void StartProcessBusiness(
-            const struct SuRadiusPrivate& private_prop
+            const struct SuRadiusPrivate &private_prop
         );
         int StartStateMachine(bool no_get_dhcpinfo);
         bool StopAdapterStateCheck() const;
@@ -126,7 +126,7 @@ class CContextControlThread : public CLnxThread
             enum APP_QUIT_TYPE quit_type,
             bool logoff_if_required
         );
-        void SuccessNotification(const std::string& notif_str) const;
+        void SuccessNotification(const std::string &notif_str) const;
         bool WlanConnect() const;
         bool WlanDisconnect() const;
         void WriteTipInfoToLog(std::string tip, unsigned type) const;
@@ -196,8 +196,7 @@ class CContextControlThread : public CLnxThread
 
     public:
         std::string diskid;
-        bool field_1138;
-        bool field_1139;
+        bool changing_service;
         bool service_list_updated;
 
     public:
@@ -215,7 +214,7 @@ class CContextControlThread : public CLnxThread
         std::string upgrade_url;
 
     public:
-        WAIT_HANDLE scan_completed;
+        struct WAIT_HANDLE scan_completed;
 
     private:
         char field_11D0[32];

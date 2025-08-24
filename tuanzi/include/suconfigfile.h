@@ -27,20 +27,20 @@ class CSuConfigFile
             const char *domain,
             const char *key,
             const char *defval,
-            std::string& dst
+            std::string &dst
         );
 
     private:
         bool UpdateConfig();
 
         static void EnablePrivilege(const char *lpszPrivilegeName, bool bEnable);
-        static void GetSysUPTime(unsigned& highDataTime, unsigned& lowDataTime);
+        static void GetSysUPTime(unsigned &highDataTime, unsigned &lowDataTime);
         static void LogToFile(const char *str);
-        static void DeleteFile(const std::string& filename);
+        static void DeleteFile(const std::string &filename);
         static void DeleteTempConfig();
-        static void ProfileStringToString(std::string& str);
-        static void StringToProfileString(std::string& str);
-        static void AppendComma(std::string& str);
+        static void ProfileStringToString(std::string &str);
+        static void StringToProfileString(std::string &str);
+        static void AppendComma(std::string &str);
 
         bool config_dirty;
         bool is_open;

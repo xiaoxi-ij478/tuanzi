@@ -14,13 +14,6 @@ struct LNXMSG {
     unsigned long arg2;
 };
 
-enum MODIFY_MODE {
-    BEFOER_LOGIN_DISABLE, // the source code writes as this, not typo
-    BEFOER_LOGIN_ENABLE,
-    AFTER_LOGIN_DISABLE,
-    AFTER_LOGIN_ENABLE
-};
-
 enum LANG {
     LANG_INVALID,
     LANG_ENGLISH,
@@ -186,8 +179,8 @@ struct tagMsgItem {
     tagMsgItem() = default;
     tagMsgItem(
         unsigned ntype,
-        const std::string& msgtime,
-        const std::string& msg
+        const std::string &msgtime,
+        const std::string &msg
     ) : ntype(ntype), msgtime(msgtime), msg(msg)
     {}
     unsigned ntype;
@@ -308,7 +301,7 @@ struct UdpListenParam {
     key_t mainthread;
     in_addr_t su_ipaddr;
     char ndisname[512];
-    WAIT_HANDLE event_udp_ready;
+    struct WAIT_HANDLE event_udp_ready;
 };
 
 struct UserInfo {

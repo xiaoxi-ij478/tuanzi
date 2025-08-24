@@ -19,9 +19,6 @@ CClientCenterPeerManager::CClientCenterPeerManager() :
     SetClassName("CClientCenterPeerManager");
 }
 
-CClientCenterPeerManager::~CClientCenterPeerManager()
-{}
-
 bool CClientCenterPeerManager::Start(key_t thread_key_l)
 {
     if (instance)
@@ -362,7 +359,7 @@ set_timer:
         SetTimer(PROCESS_CONNECT_MTYPE, 1000 * timer_interval_l);
 }
 
-std::string CClientCenterPeerManager::EnCodeStr(const std::string& str)
+std::string CClientCenterPeerManager::EnCodeStr(const std::string &str)
 {
     std::ostringstream oss;
     oss << std::hex << std::setfill('0');
@@ -382,7 +379,7 @@ std::string CClientCenterPeerManager::EnCodeStr(const std::string& str)
     return oss.str();
 }
 
-std::string CClientCenterPeerManager::DeCodeStr(const std::string& str)
+std::string CClientCenterPeerManager::DeCodeStr(const std::string &str)
 {
     std::ostringstream oss;
 

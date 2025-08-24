@@ -52,7 +52,7 @@ unsigned CConfUpdateUtilInstance::UpdateConfigure(const char *xml)
 
 void CConfUpdateUtilInstance::UpdateManagerCenterConf(
     CCustomizeInfo *custom_info,
-    CSuConfigFile& conffile
+    CSuConfigFile &conffile
 )
 {
     if (
@@ -92,7 +92,7 @@ std::string CConfUpdateUtilInstance::AppendNum(const char *str, int num)
     return std::string(str).append(std::to_string(num));
 }
 
-CConfUpdateUtilInstance& CConfUpdateUtilInstance::Instance()
+CConfUpdateUtilInstance &CConfUpdateUtilInstance::Instance()
 {
     static CConfUpdateUtilInstance obj; // thisObj
     return obj;

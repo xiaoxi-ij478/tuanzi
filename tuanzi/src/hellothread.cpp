@@ -49,7 +49,7 @@ void CHelloThread::OnTimer(int tflag)
         );
 }
 
-struct HelloPacket *CHelloThread::CreateHelloPacket(unsigned& packet_len)
+struct HelloPacket *CHelloThread::CreateHelloPacket(unsigned &packet_len)
 {
     struct HelloPacket *ret = new struct HelloPacket;
     unsigned cur_crcid = 0;
@@ -67,10 +67,9 @@ struct HelloPacket *CHelloThread::CreateHelloPacket(unsigned& packet_len)
     ret->ether_header.ether_type = htons(ETH_P_PAE);
     ret->code = 1;
     ret->id = 0xBF;
-    ret->length =
-        htons(
-            sizeof(struct HelloPacket) - offsetof(struct HelloPacket, id)
-        );
+    ret->length = htons(
+                      sizeof(struct HelloPacket) - offsetof(struct HelloPacket, id)
+                  );
     ret->field_14.field_0 = 0x6011113;
     ret->field_1E.field_0 = 0x6011113;
     ret->field_28 = 0x3011113;

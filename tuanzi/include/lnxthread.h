@@ -3,12 +3,17 @@
 
 #include "waithandle.h"
 #include "miscdefs.h"
+#include "timer.h"
 
 struct TIMERPARAM {
     int tflag;
-    int msqid;
-    timer_t ti;
+    timer t;
     std::mutex mutex;
+    CLnxThread *calling_thread;
+};
+
+struct WAIT_HANDLE2 : WAIT_HANDLE {
+    bool no_need_send_msg;
     CLnxThread *calling_thread;
 };
 
@@ -26,7 +31,6 @@ class CLnxThread
 {
     public:
         CLnxThread();
-        CLnxThread(void *(*thread_func)(void *), void *thread_func_arg);
         virtual ~CLnxThread();
 
         int CreateThread(pthread_attr_t *pthread_attr, bool no_need_send_msg_l);
@@ -41,24 +45,17 @@ class CLnxThread
         int StopThread();
 
     protected:
-        // void CommonConstruct();
         void SetClassName(const char *name);
         timer_t SetTimer(int tflag, int off_msec);
-        timer_t SetTimer(
-            void *,
-            int tflag,
-            int off_msec,
-            void (*)(union sigval)
-        );
 
-        virtual bool InitInstance();
+        virtual bool InitInstance() = 0;
         virtual bool Run();
-        virtual void DispathMessage(struct LNXMSG *msg);
+        virtual void DispathMessage() = 0;
         virtual bool OnTimerEnter(int tflag) const;
         virtual void OnTimerLeave(int tflag) const;
         virtual void OnTimer(int tflag);
-        virtual bool ExitInstance();
-        virtual bool KillTimer(timer_t& timerid);
+        virtual bool ExitInstance() = 0;
+        virtual bool KillTimer(timer_t &timerid);
 
     private:
         void KillAllTimer();
@@ -71,27 +68,23 @@ class CLnxThread
         static void *_LnxThreadEntry(void * /* WAIT_HANDLE2 * */ arg);
         static void _OnTimerEntry(union sigval /* TIMERPARAM @ sival_ptr */ arg);
 
+
     public:
         bool doing_upgrade;
+        std::thread thread_obj;
+
+    protected:
+        message_queue msg_queue;
 
     private:
+        bool thread_inited;
         bool thread_running;
-        CLnxThread *me;
-        WAIT_HANDLE wait_handle1;
-
-    public:
-        pthread_t thread_id;
-
-    private:
-        char classname[128];
-        int msgid; // or msqid... ?
+        struct WAIT_HANDLE thread_end_wait_handle;
+        std::string classname;
         bool no_need_send_msg;
-        WAIT_HANDLE wait_handle2;
-        void *thread_func_arg;
-        void *(*thread_func)(void *);
-        struct LNXMSG cur_msg;
-        std::vector<struct TIMERPARAM *> timers;
-        pthread_mutex_t pthread_mutex;
+        struct WAIT_HANDLE start_thread_wait_handle;
+        std::vector<struct TIMERPARAM> timers;
+        std::mutex mutex_obj;
 };
 
 #endif // LNXTHREAD_H_INCLUDED

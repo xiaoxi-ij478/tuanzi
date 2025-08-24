@@ -62,7 +62,7 @@ int ConvertGBKToUtf8(
 }
 
 int ConvertGBKToUtf8(
-    std::string& outbuf,
+    std::string &outbuf,
     const char *inbuf,
     int inbytesleft
 )
@@ -90,7 +90,7 @@ int ConvertUtf8ToGBK(
 int ConvertUtf8ToGBK(
     const char *inbuf,
     int inbytesleft,
-    std::string& outbuf
+    std::string &outbuf
 )
 {
     char *outb = new char[4 * inbytesleft];

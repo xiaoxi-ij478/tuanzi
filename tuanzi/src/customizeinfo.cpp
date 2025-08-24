@@ -25,7 +25,7 @@ int CCustomizeInfo::Load(const char *str)
 }
 
 std::string CCustomizeInfo::GetAttribute(
-    const XML_PARSER& parser,
+    const XML_PARSER &parser,
     const char *name
 ) const
 {
@@ -36,7 +36,7 @@ std::string CCustomizeInfo::GetAttribute(
     return obuf;
 }
 
-std::string CCustomizeInfo::GetText(const XML_PARSER& parser) const
+std::string CCustomizeInfo::GetText(const XML_PARSER &parser) const
 {
     std::string obuf;
     const char *attr = parser.Get_Text();
@@ -44,12 +44,12 @@ std::string CCustomizeInfo::GetText(const XML_PARSER& parser) const
     return obuf;
 }
 
-int CCustomizeInfo::GetTextInt(const XML_PARSER& parser) const
+int CCustomizeInfo::GetTextInt(const XML_PARSER &parser) const
 {
     return std::stoi(GetText(parser), nullptr, 10);
 }
 
-int CCustomizeInfo::Load(XML_PARSER& parser)
+int CCustomizeInfo::Load(XML_PARSER &parser)
 {
     if (!parser.Go_to_Child("custom_info"))
         return 5;

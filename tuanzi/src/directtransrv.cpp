@@ -14,6 +14,49 @@
 #include "contextcontrolthread.h"
 #include "directtransrv.h"
 
+static void SimulateSuLogoff(char *buf, unsigned buflen)
+{
+    logFile.AppendText("receive simulate su logoff command!");
+    CtrlThread->PostThreadMessage(
+        SIMULATE_SU_LOGOFF_MTYPE,
+        buflen,
+        reinterpret_cast<unsigned long>(buf)
+    );
+}
+
+static void RecvSecdomainPacket(char *buf, unsigned buflen)
+{
+    logFile.AppendText("receive secdomain update command!");
+    PostThreadMessage(
+        theApp.thread_key,
+        RECEIVE_SEC_DOMAIN_MTYPE,
+        buflen,
+        reinterpret_cast<unsigned long>(buf)
+    );
+}
+
+static void RcvModifyPasswordResult(bool change_success, const char *fail_msg)
+{
+    std::string fail_msg_str;
+    struct tagPasSecurityInfo *secinfo = nullptr;
+    logFile.AppendText("recv modify password result");
+    modify_password_timeout(true);
+
+    if (change_success) {
+        secinfo = CPasswordModifier::GetPasswordSecurityInfo();
+        secinfo->result = 1;
+        secinfo->force_offline = 0;
+        secinfo->password_modify_message.clear();
+        CPasswordModifier::SetPasswordSecurityInfo(secinfo);
+        CPasswordModifier::UpdateToNewPassword();
+        message_info(CChangeLanguage::Instance().LoadString(274) + '\n');
+
+    } else if (fail_msg) {
+        ConvertUtf8ToGBK(fail_msg, strlen(fail_msg), fail_msg_str);
+        message_info(fail_msg_str.append("\n"));
+    }
+}
+
 /* SMP's data format:
  * 1 byte for type
  * 2 bytes for length
@@ -288,7 +331,7 @@ bool CDirectTranSrv::DeInitDirectEnvironment()
 
 bool CDirectTranSrv::DeInit_Sam()
 {
-    WAIT_HANDLE wait_handle;
+    struct WAIT_HANDLE struct WAIT_HANDLE;
     logFile_debug.AppendText("DeInit_Sam called");
 
     if (!dir_thread)
@@ -298,12 +341,12 @@ bool CDirectTranSrv::DeInit_Sam()
     ::PostThreadMessage(
         thread_id,
         ON_DEINIT_SAM_MTYPE,
-        reinterpret_cast<unsigned long>(&wait_handle),
+        reinterpret_cast<unsigned long>(&struct WAIT_HANDLE),
         0
     );
     sam_or_smp_inited = false;
 
-    if (WaitForSingleObject(&wait_handle, 10000) == ETIMEDOUT) {
+    if (WaitForSingleObject(&struct WAIT_HANDLE, 10000) == ETIMEDOUT) {
         OnDeInit_SAM(0, 0);
         logFile_debug.AppendText("强杀直通报文发送线程[正常流程]");
     }
@@ -313,7 +356,7 @@ bool CDirectTranSrv::DeInit_Sam()
 
 bool CDirectTranSrv::DeInit_Smp()
 {
-    WAIT_HANDLE wait_handle;
+    struct WAIT_HANDLE struct WAIT_HANDLE;
     logFile_debug.AppendText("DeInit_Smp called");
 
     if (!dir_thread)
@@ -323,12 +366,12 @@ bool CDirectTranSrv::DeInit_Smp()
     ::PostThreadMessage(
         thread_id,
         ON_DEINIT_SMP_MTYPE,
-        reinterpret_cast<unsigned long>(&wait_handle),
+        reinterpret_cast<unsigned long>(&struct WAIT_HANDLE),
         0
     );
     sam_or_smp_inited = false;
 
-    if (WaitForSingleObject(&wait_handle, 10000) == ETIMEDOUT) {
+    if (WaitForSingleObject(&struct WAIT_HANDLE, 10000) == ETIMEDOUT) {
         OnDeInit_SMP(0, 0);
         logFile_debug.AppendText("强杀直通报文发送线程[正常流程]");
     }
@@ -403,8 +446,8 @@ unsigned long CDirectTranSrv::GetSMPTimestamp() const
 
 int CDirectTranSrv::GetXmlChild_Node_INT(
     const TiXmlNode *node,
-    const std::string& value,
-    const std::string&
+    const std::string &value,
+    const std::string &
 ) const
 {
     const TiXmlElement *el = nullptr;
@@ -427,8 +470,8 @@ int CDirectTranSrv::GetXmlChild_Node_INT(
 
 std::string CDirectTranSrv::GetXmlChild_Node_STR(
     const TiXmlNode *node,
-    const std::string& value,
-    const std::string&
+    const std::string &value,
+    const std::string &
 ) const
 {
     const TiXmlElement *el = nullptr;
@@ -667,7 +710,7 @@ bool CDirectTranSrv::Init_Sam(
     bool wait
 )
 {
-    WAIT_HANDLE wait_handle;
+    struct WAIT_HANDLE struct WAIT_HANDLE;
     assert(dir_srv_para);
     dir_trans_srvpara = *dir_srv_para;
 
@@ -675,10 +718,10 @@ bool CDirectTranSrv::Init_Sam(
         ::PostThreadMessage(
             thread_id,
             ON_INIT_SAM_MTYPE,
-            reinterpret_cast<unsigned long>(&wait_handle),
+            reinterpret_cast<unsigned long>(&struct WAIT_HANDLE),
             0
         );
-        WaitForSingleObject(&wait_handle, 0);
+        WaitForSingleObject(&struct WAIT_HANDLE, 0);
 
     } else
         ::PostThreadMessage(thread_id, ON_INIT_SAM_MTYPE, 0, 0);
@@ -691,7 +734,7 @@ bool CDirectTranSrv::Init_Smp(
     bool wait
 )
 {
-    WAIT_HANDLE wait_handle;
+    struct WAIT_HANDLE struct WAIT_HANDLE;
     assert(smp_para);
     dir_smp_para = *smp_para;
 
@@ -699,10 +742,10 @@ bool CDirectTranSrv::Init_Smp(
         ::PostThreadMessage(
             thread_id,
             ON_INIT_SMP_MTYPE,
-            reinterpret_cast<unsigned long>(&wait_handle),
+            reinterpret_cast<unsigned long>(&struct WAIT_HANDLE),
             0
         );
-        WaitForSingleObject(&wait_handle, 0);
+        WaitForSingleObject(&struct WAIT_HANDLE, 0);
 
     } else
         ::PostThreadMessage(thread_id, ON_INIT_SAM_MTYPE, 0, 0);
@@ -737,7 +780,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnDeInit_SAM, CDirectTranSrv)
     LeaveCriticalSection(&destroy_mutex);
 
     if (arg1)
-        SetEvent(reinterpret_cast<WAIT_HANDLE *>(arg1), true);
+        SetEvent(reinterpret_cast<struct WAIT_HANDLE *>(arg1), true);
 }
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnDeInit_SMP, CDirectTranSrv)
@@ -766,7 +809,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnDeInit_SMP, CDirectTranSrv)
     LeaveCriticalSection(&destroy_mutex);
 
     if (arg1)
-        SetEvent(reinterpret_cast<WAIT_HANDLE *>(arg1), true);
+        SetEvent(reinterpret_cast<struct WAIT_HANDLE *>(arg1), true);
 }
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SAM, CDirectTranSrv)
@@ -801,7 +844,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SAM, CDirectTranSrv)
 
     if (!dir_thread) {
         if (arg1)
-            SetEvent(reinterpret_cast<WAIT_HANDLE *>(arg1), false);
+            SetEvent(reinterpret_cast<struct WAIT_HANDLE *>(arg1), false);
 
         return;
     }
@@ -903,7 +946,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SAM, CDirectTranSrv)
     }
 
     if (arg1)
-        SetEvent(reinterpret_cast<WAIT_HANDLE *>(arg1), false);
+        SetEvent(reinterpret_cast<struct WAIT_HANDLE *>(arg1), false);
 }
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SMP, CDirectTranSrv)
@@ -930,7 +973,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SMP, CDirectTranSrv)
 
     if (!dir_thread) {
         if (arg1)
-            SetEvent(reinterpret_cast<WAIT_HANDLE *>(arg1), false);
+            SetEvent(reinterpret_cast<struct WAIT_HANDLE *>(arg1), false);
 
         return;
     }
@@ -1025,7 +1068,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnInit_SMP, CDirectTranSrv)
         logFile_debug.AppendText("request init data later.");
 
     if (arg1)
-        SetEvent(reinterpret_cast<WAIT_HANDLE *>(arg1), false);
+        SetEvent(reinterpret_cast<struct WAIT_HANDLE *>(arg1), false);
 }
 
 DEFINE_DISPATH_MESSAGE_HANDLER(OnPostNoResponse_SAM, CDirectTranSrv) const
@@ -1186,7 +1229,7 @@ void CDirectTranSrv::ParseACLParam(
 void CDirectTranSrv::ParseDHCPAuthResult_ForSAM(
     const char *buf,
     unsigned buflen,
-    unsigned& pos
+    unsigned &pos
 ) const
 {
     std::string some_string;
@@ -1406,7 +1449,7 @@ void CDirectTranSrv::ParseMsgAndPro(const char *buf, unsigned buflen) const
     }
 }
 
-void CDirectTranSrv::ParsePasswordSecurity(const TiXmlDocument& xml) const
+void CDirectTranSrv::ParsePasswordSecurity(const TiXmlDocument &xml) const
 {
     const TiXmlNode *ss_child = nullptr;
     const TiXmlNode *ssp_child = nullptr;
@@ -1597,26 +1640,56 @@ void CDirectTranSrv::ParseSMPData(
     }
 
     if ((bc_child = xml_data.FirstChildElement()->FirstChild("basic_config"))) {
-        smp_init_packet.smp_current_time =
-            GetXmlChild_Node_STR(bc_child, "smp_current_time", "basic_config");
-        smp_init_packet.basic_config.hi_detect_interval =
-            GetXmlChild_Node_INT(bc_child, "hi_detect_interval", "basic_config");
-        smp_init_packet.basic_config.hello_interval =
-            GetXmlChild_Node_INT(bc_child, "hello_interval", "basic_config");
-        smp_init_packet.basic_config.hello_response =
-            GetXmlChild_Node_STR(bc_child, "hello_response", "basic_config");
-        smp_init_packet.basic_config.hostinfo_report_interval =
-            GetXmlChild_Node_INT(bc_child, "hostinfo_report_interval", "basic_config");
-        smp_init_packet.basic_config.timeout =
-            GetXmlChild_Node_INT(bc_child, "timeout", "basic_config");
-        smp_init_packet.basic_config.retry_times =
-            GetXmlChild_Node_INT(bc_child, "retry_times", "basic_config");
-        smp_init_packet.basic_config.login_url =
-            GetXmlChild_Node_STR(bc_child, "login_url", "basic_config");
-        smp_init_packet.basic_config.disable_arpbam =
-            GetXmlChild_Node_STR(bc_child, "forbid_arp_spoofing", "basic_config");
-        smp_init_packet.basic_config.disable_dhcpbam =
-            GetXmlChild_Node_STR(bc_child, "forbid_dhcp_spoofing", "basic_config");
+        smp_init_packet.smp_current_time = GetXmlChild_Node_STR(
+                                               bc_child,
+                                               "smp_current_time",
+                                               "basic_config"
+                                           );
+        smp_init_packet.basic_config.hi_detect_interval = GetXmlChild_Node_INT(
+                    bc_child,
+                    "hi_detect_interval",
+                    "basic_config"
+                );
+        smp_init_packet.basic_config.hello_interval = GetXmlChild_Node_INT(
+                    bc_child,
+                    "hello_interval",
+                    "basic_config"
+                );
+        smp_init_packet.basic_config.hello_response = GetXmlChild_Node_STR(
+                    bc_child,
+                    "hello_response",
+                    "basic_config"
+                );
+        smp_init_packet.basic_config.hostinfo_report_interval = GetXmlChild_Node_INT(
+                    bc_child,
+                    "hostinfo_report_interval",
+                    "basic_config"
+                );
+        smp_init_packet.basic_config.timeout = GetXmlChild_Node_INT(
+                bc_child,
+                "timeout",
+                "basic_config"
+                                               );
+        smp_init_packet.basic_config.retry_times = GetXmlChild_Node_INT(
+                    bc_child,
+                    "retry_times",
+                    "basic_config"
+                );
+        smp_init_packet.basic_config.login_url = GetXmlChild_Node_STR(
+                    bc_child,
+                    "login_url",
+                    "basic_config"
+                );
+        smp_init_packet.basic_config.disable_arpbam = GetXmlChild_Node_STR(
+                    c_child,
+                    "forbid_arp_spoofing",
+                    "basic_config"
+                );
+        smp_init_packet.basic_config.disable_dhcpbam = GetXmlChild_Node_STR(
+                    bc_child,
+                    "forbid_dhcp_spoofing",
+                    "basic_config"
+                );
     }
 
     logFile_debug.AppendText(
@@ -1711,35 +1784,52 @@ void CDirectTranSrv::ParseSMPData(
     spc_child = xml_data.FirstChildElement()->FirstChild("send_packet_check");
 
     if (spc_child) {
-        spc_struct.cycle =
-            GetXmlChild_Node_INT(spc_child, "cycle", "send_packet_check");
-        spc_struct.threshold =
-            GetXmlChild_Node_INT(spc_child, "threshold", "send_packet_check");
-        spc_struct.warning_message =
-            GetXmlChild_Node_STR(spc_child, "warning_message", "send_packet_check");
-        spc_struct.offline =
-            GetXmlChild_Node_STR(spc_child, "offline", "send_packet_check") == "true";
-        spc_struct.offline_message =
-            GetXmlChild_Node_STR(spc_child, "offline_message", "send_packet_check");
+        spc_struct.cycle = GetXmlChild_Node_INT(
+                               spc_child,
+                               "cycle",
+                               "send_packet_check"
+                           );
+        spc_struct.threshold = GetXmlChild_Node_INT(
+                                   spc_child,
+                                   "threshold",
+                                   "send_packet_check"
+                               );
+        spc_struct.warning_message = GetXmlChild_Node_STR(
+                                         spc_child,
+                                         "warning_message",
+                                         "send_packet_check"
+                                     );
+        spc_struct.offline = GetXmlChild_Node_STR(
+                                 spc_child,
+                                 "offline",
+                                 "send_packet_check"
+                             ) == "true";
+        spc_struct.offline_message = GetXmlChild_Node_STR(
+                                         spc_child,
+                                         "offline_message",
+                                         "send_packet_check"
+                                     );
         RcvFlowMonitorParam(&spc_struct);
     }
 
     arpad_child = xml_data.FirstChildElement()->FirstChild("arp_attack_detection");
 
     if (arpad_child) {
-        arpad_struct.is_detection =
-            GetXmlChild_Node_STR(
-                spc_child,
-                "is_detection",
-                "arp_attack_detection"
-            ) == "true";
+        arpad_struct.is_detection = GetXmlChild_Node_STR(
+                                        spc_child,
+                                        "is_detection",
+                                        "arp_attack_detection"
+                                    ) == "true";
 
         if (
             arpad_struct.is_detection &&
             (arpad_gw_child = arpad_child->FirstChild("gateway"))
         ) {
-            arpad_struct.gateway_ip =
-                htonl(inet_addr(arpad_gw_child->ToElement()->Attribute("ip")));
+            arpad_struct.gateway_ip = htonl(
+                                          inet_addr(
+                                              arpad_gw_child->ToElement()->Attribute("ip")
+                                          )
+                                      );
 
             if (
                 HexCharToAscii(
@@ -1751,8 +1841,11 @@ void CDirectTranSrv::ParseSMPData(
                 arpad_struct.gateway_mac = {};
         }
 
-        arpad_struct.report_interval =
-            GetXmlChild_Node_INT(spc_child, "report_interval", "arp_attack_detection");
+        arpad_struct.report_interval = GetXmlChild_Node_INT(
+                                           spc_child,
+                                           "report_interval",
+                                           "arp_attack_detection"
+                                       );
 
         // it seems that CtrlThread does not handle POST_ARP_ATTACK_PARAM_MTYPE
         if (
@@ -1768,8 +1861,11 @@ void CDirectTranSrv::ParseSMPData(
 
     if ((arp_child = xml_data.FirstChildElement()->FirstChild("arp"))) {
         smp_init_packet.arp.enabled = true;
-        smp_init_packet.arp.gateway_ip =
-            GetXmlChild_Node_STR(arp_child, "gateway_ip", "arp");
+        smp_init_packet.arp.gateway_ip = GetXmlChild_Node_STR(
+                                             arp_child,
+                                             "gateway_ip",
+                                             "arp"
+                                         );
         smp_init_packet.arp.gateway_mac =
             GetXmlChild_Node_STR(arp_child, "gateway_mac", "arp");
 
@@ -1780,16 +1876,31 @@ void CDirectTranSrv::ParseSMPData(
 
     if (ind_child) {
         smp_init_packet.illegal_network_detect.enabled = true;
-        smp_init_packet.illegal_network_detect.syslog_ip =
-            GetXmlChild_Node_STR(arp_child, "syslog_ip", "illegal_network_detect");
-        smp_init_packet.illegal_network_detect.syslog_port =
-            GetXmlChild_Node_INT(arp_child, "syslog_port", "illegal_network_detect");
-        smp_init_packet.illegal_network_detect.detect_interval =
-            GetXmlChild_Node_INT(arp_child, "detect_interval", "illegal_network_detect");
-        smp_init_packet.illegal_network_detect.is_block =
-            GetXmlChild_Node_INT(arp_child, "is_block", "illegal_network_detect");
-        smp_init_packet.illegal_network_detect.block_tip =
-            GetXmlChild_Node_STR(arp_child, "block_tip", "illegal_network_detect");
+        smp_init_packet.illegal_network_detect.syslog_ip = GetXmlChild_Node_STR(
+                    arp_child,
+                    "syslog_ip",
+                    "illegal_network_detect"
+                );
+        smp_init_packet.illegal_network_detect.syslog_port = GetXmlChild_Node_INT(
+                    arp_child,
+                    "syslog_port",
+                    "illegal_network_detect"
+                );
+        smp_init_packet.illegal_network_detect.detect_interval = GetXmlChild_Node_INT(
+                    arp_child,
+                    "detect_interval",
+                    "illegal_network_detect"
+                );
+        smp_init_packet.illegal_network_detect.is_block = GetXmlChild_Node_INT(
+                    arp_child,
+                    "is_block",
+                    "illegal_network_detect"
+                );
+        smp_init_packet.illegal_network_detect.block_tip = GetXmlChild_Node_STR(
+                    arp_child,
+                    "block_tip",
+                    "illegal_network_detect"
+                );
 
     } else
         smp_init_packet.illegal_network_detect.enabled = false;
@@ -1822,7 +1933,6 @@ void CDirectTranSrv::ParseSMPData(
     } else if (strstr(buf, "<hi />"))
         smp_init_packet.hi_xml = "<?xml version=\"1.0\" encoding=\"GBK\"?>\n<hi />";
 
-    CoUnInitialize();
     HIPacketUpdate(
         smp_init_packet.hi_xml.c_str(),
         smp_init_packet.hi_xml.length() + 1
@@ -1960,17 +2070,14 @@ bool CDirectTranSrv::PostToSam(const char *buf, unsigned buflen) const
         return ret;
 
     memcpy(newbuf, buf, buflen);
+    ret = ::PostThreadMessage(
+              thread_id,
+              ON_POST_SAM,
+              reinterpret_cast<unsigned long>(newbuf),
+              buflen
+          );
 
-    if (
-        !(
-            ret = ::PostThreadMessage(
-                      thread_id,
-                      ON_POST_SAM,
-                      reinterpret_cast<unsigned long>(newbuf),
-                      buflen
-                  )
-        )
-    )
+    if (!ret)
         delete[] newbuf;
 
     return ret;
@@ -2004,17 +2111,14 @@ bool CDirectTranSrv::PostToSmp(const char *buf, unsigned buflen) const
         return ret;
 
     memcpy(newbuf, buf, buflen);
+    ret = ::PostThreadMessage(
+              thread_id,
+              ON_POST_SMP,
+              reinterpret_cast<unsigned long>(newbuf),
+              buflen
+          );
 
-    if (
-        !(
-            ret = ::PostThreadMessage(
-                      thread_id,
-                      ON_POST_SMP,
-                      reinterpret_cast<unsigned long>(newbuf),
-                      buflen
-                  )
-        )
-    )
+    if (!ret)
         delete[] newbuf;
 
     return ret;

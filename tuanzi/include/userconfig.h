@@ -8,15 +8,15 @@ class CUserConfig
 {
     public:
         static bool ParseWirelessConf(
-            const std::string& wireless_confstr,
+            const std::string &wireless_confstr,
             struct tagWirelessConf *conf
         );
         static void PrepareForRunboot(bool);
-        static bool ReadConfigParam(struct SaveConfigureInfo& info);
+        static bool ReadConfigParam(struct SaveConfigureInfo &info);
         static bool ReadSupplicantConf();
         static void ReadUsernameAndPW(
-            std::string& username,
-            std::string& password
+            std::string &username,
+            std::string &password
         );
         static void RegisteGn(unsigned);
         static void RegisteGnForWin7(unsigned);
@@ -36,10 +36,10 @@ class CUserConfig
         static void W95StartService(unsigned);
 
     private:
-        static void DecryptPassword(std::string& password);
-        static void DecryptUserName(std::string& username);
-        static void EncryptPassword(std::string& password);
-        static void EncryptUserName(std::string& username);
+        static void DecryptPassword(std::string &password);
+        static void DecryptUserName(std::string &username);
+        static void EncryptPassword(std::string &password);
+        static void EncryptUserName(std::string &username);
 };
 
 #endif // USERCONFIG_H_INCLUDED

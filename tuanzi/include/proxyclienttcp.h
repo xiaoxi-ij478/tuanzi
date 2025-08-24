@@ -9,10 +9,10 @@ class CIsProSer;
 class ProxyClientTcp : public CTcp
 {
     public:
-        ProxyClientTcp(const struct TcpInfo& tcpinfo);
+        ProxyClientTcp(const struct TcpInfo &tcpinfo);
 
         int TryDetectTCPIP(
-            const struct TCPIP& pkg,
+            const struct TCPIP &pkg,
             const ProxySerTcp *server,
             unsigned flag
         );
@@ -21,15 +21,15 @@ class ProxyClientTcp : public CTcp
     private:
         int FindSerTcp(const ProxySerTcp *server);
 
-        int HandleFtp(const struct TCPIP& pkg, const ProxySerTcp *server);
-        int HandleHttp(const struct TCPIP& pkg, const ProxySerTcp *server);
-        int HandleMms(const struct TCPIP& pkg, const ProxySerTcp *server);
-        int HandleNntp(const struct TCPIP& pkg, const ProxySerTcp *server);
-        int HandlePop3(const struct TCPIP& pkg, const ProxySerTcp *server);
-        int HandleSocks4(const struct TCPIP& pkg, const ProxySerTcp *server);
-        int HandleSocks4A(const struct TCPIP& pkg, const ProxySerTcp *server);
-        int HandleSocks5(const struct TCPIP& pkg, const ProxySerTcp *server);
-        int HandleTelnet(const struct TCPIP& pkg, const ProxySerTcp *server);
+        int HandleFtp(const struct TCPIP &pkg, const ProxySerTcp *server);
+        int HandleHttp(const struct TCPIP &pkg, const ProxySerTcp *server);
+        int HandleMms(const struct TCPIP &pkg, const ProxySerTcp *server);
+        int HandleNntp(const struct TCPIP &pkg, const ProxySerTcp *server);
+        int HandlePop3(const struct TCPIP &pkg, const ProxySerTcp *server);
+        int HandleSocks4(const struct TCPIP &pkg, const ProxySerTcp *server);
+        int HandleSocks4A(const struct TCPIP &pkg, const ProxySerTcp *server);
+        int HandleSocks5(const struct TCPIP &pkg, const ProxySerTcp *server);
+        int HandleTelnet(const struct TCPIP &pkg, const ProxySerTcp *server);
 
 
     public:

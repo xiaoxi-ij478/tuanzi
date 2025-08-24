@@ -9,9 +9,6 @@ void r(int i)
 int main()
 {
     using namespace std::literals;
-    Timer t1;
-    t1 = Timer(0s, 1ms, [] { std::cout << "1" << std::endl; });
-    t1.start();
-    std::this_thread::sleep_for(1s);
-    t1.stop();
+    timer t1(0s, 100ms, r, 2);
+    std::this_thread::sleep_for(500ms);
 }

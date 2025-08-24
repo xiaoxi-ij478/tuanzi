@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <cassert>
 #include <cctype>
 #include <cerrno>
@@ -22,11 +23,14 @@
 #include <iostream>
 #include <iterator>
 #include <limits>
+#include <memory>
 #include <mutex>
 #include <numeric>
+#include <queue>
 #include <sstream>
 #include <string>
 #include <thread>
+#include <typeinfo>
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
@@ -42,7 +46,6 @@
 #include <ifaddrs.h>
 #include <netdb.h>
 #include <pthread.h>
-#include <semaphore.h>
 #include <strings.h>
 #include <termios.h>
 #include <unistd.h>
@@ -61,6 +64,7 @@
 #include <netinet/udp.h>
 #include <scsi/scsi.h>
 #include <scsi/sg.h>
+#include <sys/file.h>
 #include <sys/ioctl.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
@@ -77,16 +81,16 @@
 #include <gnu/libc-version.h>
 #endif // __GLIBC__
 
-#include "mmd5.h"
-#include "d3des.h"
-#include "tinyxml.h"
-#include "iniparser.h"
-#include "crc16.h"
-#include "sha1.h"
-#include "tiger.h"
-#include "whirlpool.h"
-#include "ripemd128.h"
-#include "rc4.h"
-#include "pcap.h"
+#include <mmd5.h>
+#include <d3des.h>
+#include <tinyxml.h>
+#include <iniparser.h>
+#include <crc16.h>
+#include <sha1.h>
+#include <tiger.h>
+#include <whirlpool.h>
+#include <ripemd128.h>
+#include <rc4.h>
+#include <pcap.h>
 
 #endif // ALL_H_INCLUDED

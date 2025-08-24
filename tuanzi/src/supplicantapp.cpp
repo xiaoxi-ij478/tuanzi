@@ -26,7 +26,7 @@ CSupplicantApp::~CSupplicantApp()
     DeleteCriticalSection(&self_lock);
 }
 
-void CSupplicantApp::GUI_QuitMainLoop(const std::string& msg) const
+void CSupplicantApp::GUI_QuitMainLoop(const std::string &msg) const
 {
     ShowLocalMsg(msg + '\n', CChangeLanguage::Instance().LoadString(96));
     CLogFile::LogToFile(msg.c_str(), g_runLogFile.c_str(), true, true);
@@ -38,7 +38,7 @@ void CSupplicantApp::GUI_QuitMainLoop(const std::string& msg) const
     );
 }
 
-void CSupplicantApp::GUI_ShowMainWindow(const std::string& msg) const
+void CSupplicantApp::GUI_ShowMainWindow(const std::string &msg) const
 {
     GUI_QuitMainLoop(msg);
 }
@@ -53,7 +53,7 @@ void CSupplicantApp::GUI_update_LOGOFF(
     std::string notify_msg;
     bool should_not_exit = false;
     char cur_date[256] = {};
-    CChangeLanguage& cinstance = CChangeLanguage::Instance();
+    CChangeLanguage &cinstance = CChangeLanguage::Instance();
 #define SET_MSG_AND_EXIT_FLAG(reason, msg_id, flag) \
 case (reason): \
     notify_msg = cinstance.LoadString(msg_id); \
@@ -146,14 +146,14 @@ case (reason): \
 
 void CSupplicantApp::GUI_update_connect_states_and_text(
     enum STATES new_state,
-    const std::string& msg
+    const std::string &msg
 )
 {
     GUI_update_connect_text(msg);
     GUI_update_connectdlg_by_states(new_state);
 }
 
-void CSupplicantApp::GUI_update_connect_text(const std::string& msg) const
+void CSupplicantApp::GUI_update_connect_text(const std::string &msg) const
 {
     message_info(msg + '\n');
 }

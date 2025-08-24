@@ -128,7 +128,7 @@ bool CUDPListenThread::CloseGSNReceiver(int id)
         if (it->id != id)
             continue;
 
-        for (struct tagRecvSessionBind& session_bind : it->recv_session_bounds) {
+        for (struct tagRecvSessionBind &session_bind : it->recv_session_bounds) {
             delete[] session_bind.data;
             session_bind.data = nullptr;
         }
@@ -141,7 +141,7 @@ bool CUDPListenThread::CloseGSNReceiver(int id)
 }
 
 bool CUDPListenThread::DecryptPrivateData(
-    const struct tagDirectCom_ProtocalParam& proto_param,
+    const struct tagDirectCom_ProtocalParam &proto_param,
     char *buf,
     unsigned buflen
 ) const
@@ -155,7 +155,7 @@ bool CUDPListenThread::DecryptPrivateData(
 }
 
 bool CUDPListenThread::EncryptPrivateData(
-    const struct tagDirectCom_ProtocalParam& proto_param,
+    const struct tagDirectCom_ProtocalParam &proto_param,
     char *buf,
     unsigned buflen
 ) const
@@ -175,7 +175,7 @@ unsigned long CUDPListenThread::GetLastTimeStampForReceive(
 {
     EnterCriticalSection(&timestamp_mutex);
 
-    for (const struct tagTimeStampV2& timestamp : timestamps) {
+    for (const struct tagTimeStampV2 &timestamp : timestamps) {
         if (timestamp.addr != addr || timestamp.port != port)
             continue;
 
@@ -193,7 +193,7 @@ unsigned long CUDPListenThread::GetNextTimeStampForSend(
 {
     EnterCriticalSection(&timestamp_mutex);
 
-    for (struct tagTimeStampV2& timestamp : timestamps) {
+    for (struct tagTimeStampV2 &timestamp : timestamps) {
         if (timestamp.addr != addr || timestamp.port != port)
             continue;
 
@@ -211,7 +211,7 @@ unsigned CUDPListenThread::GetOutOfOrderNum(
 {
     EnterCriticalSection(&timestamp_mutex);
 
-    for (const struct tagTimeStampV2& timestamp : timestamps) {
+    for (const struct tagTimeStampV2 &timestamp : timestamps) {
         if (timestamp.addr != addr || timestamp.port != port)
             continue;
 
@@ -223,14 +223,14 @@ unsigned CUDPListenThread::GetOutOfOrderNum(
 }
 
 bool CUDPListenThread::GetProtocalParam(
-    struct tagDirectCom_ProtocalParam& proto_param,
+    struct tagDirectCom_ProtocalParam &proto_param,
     in_addr_t addr,
     unsigned short port
 )
 {
     EnterCriticalSection(&get_set_proto_param_mutex);
 
-    for (const struct tagDirectCom_ProtocalParam& proto_param_l : proto_params) {
+    for (const struct tagDirectCom_ProtocalParam &proto_param_l : proto_params) {
         if (proto_param_l.addr != addr || proto_param_l.port != port)
             continue;
 
@@ -275,7 +275,7 @@ void CUDPListenThread::InitTimeStampV2(
 {
     EnterCriticalSection(&timestamp_mutex);
 
-    for (struct tagTimeStampV2& timestamp : timestamps) {
+    for (struct tagTimeStampV2 &timestamp : timestamps) {
         if (timestamp.addr != addr || timestamp.port != port)
             continue;
 
@@ -297,7 +297,7 @@ void CUDPListenThread::InitTimeStampV2(
 }
 
 bool CUDPListenThread::IsGoodAsyUTC(
-    const struct tagDirectCom_ProtocalParam& proto_param,
+    const struct tagDirectCom_ProtocalParam &proto_param,
     unsigned long timestamp
 )
 {
@@ -443,7 +443,7 @@ DEFINE_DISPATH_MESSAGE_HANDLER(OnTimer, CUDPListenThread)
 
     EnterCriticalSection(&recv_mutex);
 
-    for (struct tagRecvBind& recv_bind : gsn_pkgs) {
+    for (struct tagRecvBind &recv_bind : gsn_pkgs) {
         proto_param.addr = 0;
         proto_param.port = 0;
         proto_param.su_ipaddr = 0;
@@ -781,7 +781,7 @@ bool CUDPListenThread::RevcDirectPack(
     if (gsn_pkgs.empty())
         return true;
 
-    for (const struct tagRecvBind& recv_bind : gsn_pkgs) {
+    for (const struct tagRecvBind &recv_bind : gsn_pkgs) {
         tmp_recvbind = recv_bind;
 
         if (
@@ -938,8 +938,8 @@ bool CUDPListenThread::RevcDirectPack(
 }
 
 void CUDPListenThread::SendResponse(
-    const struct tagDirectCom_ProtocalParam& proto_param,
-    struct tagDirPacketHead& packet_head,
+    const struct tagDirectCom_ProtocalParam &proto_param,
+    struct tagDirPacketHead &packet_head,
     in_addr_t dstaddr,
     unsigned dstport,
     in_addr_t srcaddr,
@@ -1054,13 +1054,13 @@ void CUDPListenThread::SendResponse(
 }
 
 void CUDPListenThread::SetDirParaXieYi(
-    const struct tagDirectCom_ProtocalParam& proto_param
+    const struct tagDirectCom_ProtocalParam &proto_param
 )
 {
     bool found = false;
     EnterCriticalSection(&get_set_proto_param_mutex);
 
-    for (struct tagDirectCom_ProtocalParam& proto_param_l : proto_params) {
+    for (struct tagDirectCom_ProtocalParam &proto_param_l : proto_params) {
         if (
             // the original implementation checks if proto_param
             // is the same as proto_param_l, but we do not check for that
@@ -1097,7 +1097,7 @@ void CUDPListenThread::SetLastTimeStampForReceive(
 {
     EnterCriticalSection(&timestamp_mutex);
 
-    for (struct tagTimeStampV2& timestamp_l : timestamps) {
+    for (struct tagTimeStampV2 &timestamp_l : timestamps) {
         if (timestamp_l.addr != addr || timestamp_l.port != port)
             continue;
 
@@ -1133,7 +1133,7 @@ void CUDPListenThread::SetOutOfOrderNum(
 {
     EnterCriticalSection(&timestamp_mutex);
 
-    for (struct tagTimeStampV2& timestamp_l : timestamps) {
+    for (struct tagTimeStampV2 &timestamp_l : timestamps) {
         if (timestamp_l.addr != addr || timestamp_l.port != port)
             continue;
 
@@ -1154,7 +1154,7 @@ bool CUDPListenThread::SetProtocalParam_TimeStamp(
 {
     EnterCriticalSection(&get_set_proto_param_mutex);
 
-    for (struct tagDirectCom_ProtocalParam& proto_param_l : proto_params) {
+    for (struct tagDirectCom_ProtocalParam &proto_param_l : proto_params) {
         if (proto_param_l.addr != addr || proto_param_l.port != port)
             continue;
 
@@ -1174,7 +1174,7 @@ bool CUDPListenThread::SetProtocalParam_TimeStamp(
 }
 
 void CUDPListenThread::SetResSender(
-    const struct tagDirResPara& res_sender
+    const struct tagDirResPara &res_sender
 )
 {
     dir_para = res_sender;
@@ -1223,7 +1223,7 @@ void CUDPListenThread::freeMemory()
         it != gsn_pkgs.end();
         it = gsn_pkgs.erase(it)
     )
-        for (struct tagRecvSessionBind& session_bind : it->recv_session_bounds) {
+        for (struct tagRecvSessionBind &session_bind : it->recv_session_bounds) {
             delete[] session_bind.data;
             session_bind.data = nullptr;
         }

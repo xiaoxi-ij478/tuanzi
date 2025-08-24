@@ -17,7 +17,7 @@ CDownLoadThread::CDownLoadThread() :
 CDownLoadThread::~CDownLoadThread()
 {}
 
-void CDownLoadThread::SetDlPara(struct tagDownLoadPara& para)
+void CDownLoadThread::SetDlPara(struct tagDownLoadPara &para)
 {
     if (dl_para.thread_id == para.thread_id) {
         down_para_set = true;

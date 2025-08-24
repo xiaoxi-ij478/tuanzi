@@ -14,6 +14,105 @@
 #include "timer.h"
 #include "cmdutil.h"
 
+static void DoWithServiceSwitch_NoRuijieNas()
+{
+    char tmpbuf[128] = {};
+    char finalbuf[300] = {};
+    unsigned finalbuflen = 0;
+    struct DHCPIPInfo dhcp_ipinfo = {};
+#define PUT_TYPE(type) finalbuf[finalbuflen++] = (type)
+#define PUT_LENGTH(length) finalbuf[finalbuflen++] = (length)
+#define PUT_DATA(buf, buflen) \
+    do { \
+        memcpy(&finalbuf[finalbuflen], (buf), (buflen)); \
+        finalbuflen += (buflen); \
+    } while (0)
+#define PUT_DATA_IMMEDIATE_BYTE(byte) finalbuf[finalbuflen++] = (byte)
+#define PUT_DATA_IMMEDIATE_UINT32(value) \
+    do { \
+        *reinterpret_cast<uint32_t *>(&finalbuf[finalbuflen]) = \
+                htonl(value); \
+        finalbuflen += 4; \
+    } while (0)
+    ConvertUtf8ToGBK(
+        tmpbuf,
+        sizeof(tmpbuf),
+        CtrlThread->configure_info.last_auth_username.c_str(),
+        CtrlThread->configure_info.last_auth_username.length()
+    );
+    PUT_TYPE(0x01);
+    PUT_LENGTH(0x01);
+    PUT_DATA_IMMEDIATE_BYTE(0x06);
+    PUT_TYPE(0x03);
+    PUT_LENGTH(strlen(tmpbuf));
+    PUT_DATA(tmpbuf, strlen(tmpbuf));
+    InitDhcpIpInfo(dhcp_ipinfo);
+    CtrlThread->GetDHCPInfoParam(dhcp_ipinfo);
+    PUT_TYPE(0x04);
+    PUT_LENGTH(0x04);
+    PUT_DATA_IMMEDIATE_UINT32(ntohl(dhcp_ipinfo.ip4_ipaddr));
+    PUT_TYPE(0x10);
+    PUT_LENGTH(0x01);
+    PUT_DATA_IMMEDIATE_BYTE(dhcp_ipinfo.dhcp_enabled);
+    PUT_TYPE(0x05);
+    PUT_LENGTH(0x06);
+    CtrlThread->GetAdapterMac(
+        reinterpret_cast<struct ether_addr *>(&finalbuf[finalbuflen])
+    );
+    finalbuflen += 6;
+    ConvertUtf8ToGBK(
+        tmpbuf,
+        sizeof(tmpbuf),
+        CtrlThread->service_name.c_str(),
+        CtrlThread->service_name.length()
+    );
+    PUT_TYPE(0x09);
+    PUT_LENGTH(strlen(tmpbuf));
+    PUT_DATA(tmpbuf, strlen(tmpbuf));
+#undef PUT_DATA
+#undef PUT_LENGTH
+#undef PUT_TYPE
+#undef PUT_DATA_IMMEDIATE_BYTE
+#undef PUT_DATA_IMMEDIATE_UINT32
+    assert(finalbuflen <= 300);
+
+    if (CtrlThread->dir_tran_srv) {
+        CtrlThread->dir_tran_srv->PostToSam(finalbuf, finalbuflen);
+        logFile.AppendText("no ruijie nas switch service successly");
+    }
+}
+
+static void DoWithServiceSwitch_RuijieNas()
+{
+    CtrlThread->changing_service = true;
+    CtrlThread->PostThreadMessage(REAUTH_MTYPE, 0, 0);
+}
+
+static void ServiceSwitch(const std::string &new_name)
+{
+    auto pos =
+        std::find(
+            CtrlThread->configure_info.server_names.cbegin(),
+            CtrlThread->configure_info.server_names.cend(),
+            new_name
+        );
+
+    if (pos == CtrlThread->configure_info.server_names.cend())
+        return;
+
+    CtrlThread->service_name =
+        *std::next(
+            CtrlThread->configure_info.server_alt_names.cbegin(),
+            std::distance(CtrlThread->configure_info.server_names.cbegin(), pos)
+        );
+
+    if (CtrlThread->IsRuijieNas())
+        DoWithServiceSwitch_RuijieNas();
+
+    else
+        DoWithServiceSwitch_NoRuijieNas();
+}
+
 void exec_cmd(const char *cmd, char *buf, unsigned buflen)
 {
     FILE *fp = popen(cmd, "r");
@@ -45,7 +144,7 @@ void message_info(const char *format, ...)
     std::cout.flush();
 }
 
-void message_info(const std::string& str)
+void message_info(const std::string &str)
 {
     std::cout << str << std::flush;
 }
@@ -55,7 +154,7 @@ void display_usage()
     unsigned short tc_width = get_tc_width();
     char str2[2048] = {};
     std::string log_path(g_strAppPath + "log/run.log");
-    CChangeLanguage& cinstance = CChangeLanguage::Instance();
+    CChangeLanguage &cinstance = CChangeLanguage::Instance();
     std::cout << cinstance.LoadString(2007) << std::endl;
 #define PRINT_USAGE(head, help_str_id) \
     do { \
@@ -106,7 +205,7 @@ void rj_printf_debug(const char *format, ...)
 void format_tc_string(
     unsigned short tc_width,
     unsigned indent_len,
-    const std::string& str
+    const std::string &str
 )
 {
     // i wrote this function myself since I
@@ -183,7 +282,7 @@ void print_separator(const char *s, int len, bool print_crlf)
 
 void print_string_list(
     const char *prefix,
-    const std::vector<std::string>& slist
+    const std::vector<std::string> &slist
 )
 {
     format_tc_string(12, 0, prefix);
@@ -312,8 +411,8 @@ int set_termios(bool set_echo_icanon)
 }
 
 void shownotify(
-    const std::string& content,
-    const std::string& header,
+    const std::string &content,
+    const std::string &header,
     [[maybe_unused]] unsigned timeout
 )
 {
@@ -334,7 +433,7 @@ void shownotify(
     );
 }
 
-void show_url(const std::string& header, const std::string& content)
+void show_url(const std::string &header, const std::string &content)
 {
     if (content.empty())
         return;
@@ -800,7 +899,7 @@ void show_auth_info(bool use_default, bool wireless_only)
 unsigned show_connect_net_info()
 {
     struct DHCPIPInfo dhcp_ipinfo = {};
-    CChangeLanguage& cinstance = CChangeLanguage::Instance();
+    CChangeLanguage &cinstance = CChangeLanguage::Instance();
     CtrlThread->GetDHCPInfoParam(dhcp_ipinfo);
     format_tc_string(12, 0, cinstance.LoadString(153));
     message_info("%s\n", inet_ntoa({ dhcp_ipinfo.ip4_ipaddr }));
@@ -843,7 +942,7 @@ unsigned show_connect_time()
 unsigned show_connect_user_info()
 {
     std::string logfile_path = g_strAppPath + "log/run.log";
-    CChangeLanguage& cinstance = CChangeLanguage::Instance();
+    CChangeLanguage &cinstance = CChangeLanguage::Instance();
     format_tc_string(12, 0, CChangeLanguage::Instance().LoadString(2000));
 
     if (CtrlThread->configure_info.public_authmode == "EAPMD5") {
@@ -918,7 +1017,7 @@ unsigned show_connect_user_info()
 
 void show_wlan_scan_info(const char *adapter_name)
 {
-    CChangeLanguage& cinstance = CChangeLanguage::Instance();
+    CChangeLanguage &cinstance = CChangeLanguage::Instance();
     bool adapter_usable = false;
     char tmpbuf[64] = {};
     std::vector<std::string> nics;
@@ -945,7 +1044,7 @@ void show_wlan_scan_info(const char *adapter_name)
     message_info("%s\n", cinstance.LoadString(2040).c_str());
     get_ssid_list(adapter_usable ? adapter_name : nics.front().c_str(), signals);
 
-    for (const struct tagWirelessSignal& signal : signals) {
+    for (const struct tagWirelessSignal &signal : signals) {
         sprintf(tmpbuf, "(%d%%)", signal.qual);
         signals_strlist.push_back(std::string(signal.ssid).append(tmpbuf));
     }
@@ -986,12 +1085,7 @@ void print_nic_list(bool wireless_only)
 
 void KillRunModeCheckTimer()
 {
-    if (!g_runModetimer)
-        return;
-
-    g_runModetimer->set_stop();
-    delete g_runModetimer;
-    g_runModetimer = nullptr;
+    g_runModetimer = Timer();
 }
 
 void OnRunModeCheckTimer()
@@ -1012,7 +1106,5 @@ void OnRunModeCheckTimer()
 void SetRunModeCheckTimer()
 {
     using namespace std::literals;
-
-    if (!g_runModetimer)
-        g_runModetimer = new Timer(1s, 1s, OnRunModeCheckTimer);
+    g_runModetimer = Timer(1s, 1s, OnRunModeCheckTimer);
 }

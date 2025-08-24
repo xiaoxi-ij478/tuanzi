@@ -423,13 +423,13 @@ bool CIsProSer::IsIPInLocalIPTable(in_addr_t ipaddr)
 {
     unsigned long cur_tick = GetTickCount();
 
-    for (const struct tagLocalIP& localip : local_ips)
+    for (const struct tagLocalIP &localip : local_ips)
         if (ipaddr == localip.local_ip && cur_tick - localip.creation_time < 120000)
             return true;
 
     UpdateLocalIPTable();
 
-    for (const struct tagLocalIP& localip : local_ips)
+    for (const struct tagLocalIP &localip : local_ips)
         if (ipaddr == localip.local_ip && cur_tick - localip.creation_time < 120000)
             return true;
 
@@ -511,7 +511,7 @@ void CIsProSer::UpdateLocalIPTable()
         )
             continue;
 
-        for (struct tagLocalIP& localip : local_ips) {
+        for (struct tagLocalIP &localip : local_ips) {
             if (
                 localip.local_ip != reinterpret_cast<struct sockaddr_in *>
                 (cur_if->ifa_addr)->sin_addr.s_addr

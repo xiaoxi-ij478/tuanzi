@@ -40,6 +40,75 @@ static int iniparser_error_callback(const char *format, ...)
     return 0;
 }
 
+static void InitAppMain()
+{
+    CtrlThread = new CContextControlThread;
+    CtrlThread->CreateThread(nullptr, false);
+
+    if (CtrlThread->StartThread()) {
+        ShowLocalMsg("Create Main Thread Failed", "RG-SU");
+        return;
+    }
+
+    g_log_Wireless.AppendText(
+        "CtrlThread->GetMessageID msgid=%d\n",
+        CtrlThread->GetMessageID()
+    );
+}
+
+static void setAppEnvironment()
+{
+    char *path = getenv("PATH");
+
+    if (strstr(path, "/sbin"))
+        return;
+
+
+    char *new_path = new char[strlen(path) + strlen(":/sbin") + 1];
+    strcpy(new_path, path);
+    strcat(new_path, ":/sbin");
+    setenv("PATH", new_path, 1);
+    delete[] new_path;
+    new_path = nullptr;
+}
+
+static void InitLogFiles()
+{
+#define INIT_LOG_OBJ(obj, rel_path) (obj).CreateLogFile_S(g_strAppPath + (rel_path), 3)
+    INIT_LOG_OBJ(logFile_debug,       "log/Debug_001.log");
+    INIT_LOG_OBJ(g_logFile_Ser,       "log/Debug_Server.log");
+    INIT_LOG_OBJ(g_logFile_start,     "log/Debug_start_yf.log");
+    INIT_LOG_OBJ(g_log_Wireless,      "log/Debug_Wireless_8021x.log");
+    INIT_LOG_OBJ(g_logFile_proxy,     "log/Debug_Proxy.log");
+    INIT_LOG_OBJ(g_Logoff,            "log/Debug_Logoff.log");
+    INIT_LOG_OBJ(g_dhcpDug,           "log/Debug_dhcp.log");
+    INIT_LOG_OBJ(logFile,             "log/Debug_logfile.log");
+    INIT_LOG_OBJ(g_logSystem,         "log/Debug_system.log");
+    INIT_LOG_OBJ(g_Update,            "log/Debug_update.log");
+    INIT_LOG_OBJ(g_eapPeapLog,        "log/Debug_eapPeap.log");
+    INIT_LOG_OBJ(g_rjPrivateParselog, "log/jPrivateParse.log");
+    INIT_LOG_OBJ(g_uilog,             "log/ui.log");
+    INIT_LOG_OBJ(g_WlanStateLog,      "log/wlanState.log");
+    INIT_LOG_OBJ(g_logContextControl, "log/Debug_ContextControl.log");
+#undef INIT_LOG_OBJ
+}
+
+static bool set_msg_config(const std::string &key, int val)
+{
+    // "sysctl -w kernel.$key=$val >&-"
+
+    if (key != "msgmax" && key != "msgmnb" && key != "msgmni")
+        return false;
+
+    std::ofstream ofs("/proc/sys/kernel/" + key);
+
+    if (!ofs || !(ofs << val))
+        return false;
+
+    ofs.close();
+    return true;
+}
+
 int option = 0;
 int save_password = -1;
 int list_mode = -1;
@@ -89,7 +158,7 @@ int main(int argc, char **argv)
     setAppEnvironment();
     TakeAppPath(g_strAppPath);
     g_runLogFile = g_strAppPath + "log/run.log";
-    CChangeLanguage& cinstance = CChangeLanguage::Instance();
+    CChangeLanguage &cinstance = CChangeLanguage::Instance();
     cinstance.SetLanguage(GetSysLanguage());
     InitLogFiles();
 
@@ -255,9 +324,7 @@ int main(int argc, char **argv)
     hold_signals();
     set_signals();
     release_signals();
-    // why to do this?
-    // this would introduce lots of zombie processes
-//    signal(SIGCHLD, SIG_IGN);
+    signal(SIGCHLD, SIG_IGN);
     g_logChkRun.CreateLogFile_S(g_strAppPath + "log/chkrun.log", 1);
 
     if (!chkRunThred.StartThread(&start_thread_result, chk_call_back)) {

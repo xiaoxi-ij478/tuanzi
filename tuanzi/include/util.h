@@ -1,22 +1,13 @@
 #ifndef UTIL_H_INCLUDED
 #define UTIL_H_INCLUDED
 
-extern void setAppEnvironment();
-extern int TakeAppPath(std::string& dst);
-extern void InitLogFiles();
+extern int TakeAppPath(std::string &dst);
 extern void replace_all_distinct(
-    std::string& str,
-    const std::string& srcstr,
-    const std::string& dststr
+    std::string &str,
+    const std::string &srcstr,
+    const std::string &dststr
 );
-[[noreturn]] extern void chk_call_back(int);
-extern bool set_msg_config(const std::string& key, int val);
-extern void ChangeSelfSvrParam(void *);
-extern void CoInitialize();
-extern void CoUnInitialize();
-extern std::string DWordToString(unsigned a);
-extern bool DecryptSuConfig(); // this is not working
-extern bool EncryptSuConfig(); // this is not working
+[[noreturn]] extern void chk_call_back();
 extern unsigned addStringOnLineHead(
     const char *in_filename,
     const char *out_filename,
@@ -24,95 +15,50 @@ extern unsigned addStringOnLineHead(
     const char *add_string
 );
 extern int FindChar(char to_find, const char *str, int begin, int end);
-extern int FindSub(
-    const char *to_find_buf,
-    unsigned to_find_buf_len,
-    const char *buf,
-    unsigned begin,
-    unsigned end
-);
-extern int GKillTimer(timer_t timer);
-extern void GOnTimer(union sigval);
-extern void GSNRecvPacket(char *, int);
-extern timer_t GSetTimer(
-    int off_msec,
-    void (*thread_function)(union sigval),
-    struct TIMERPARAM *timer
-);
-extern void GetMD5File(const char *filename, char *result);
 extern void ParseString(
-    const std::string& str,
+    const std::string &str,
     char delim,
-    std::vector<std::string>& dest
+    std::vector<std::string> &dest
 );
 extern void ParseString(
-    const std::string& str,
+    const std::string &str,
     char delim,
-    std::vector<std::string>& dest,
+    std::vector<std::string> &dest,
     unsigned max_time
 );
-extern void TrimLeft(std::string& str, const std::string& chars);
-extern void TrimRight(std::string& str, const std::string& chars);
-extern void HIPacketUpdate(const char *, int);
+extern void TrimLeft(std::string &str, const std::string &chars);
+extern void TrimRight(std::string &str, const std::string &chars);
 extern unsigned HexCharToAscii(
-    const std::string& str,
+    const std::string &str,
     char *buf,
     unsigned buflen
 );
 extern std::string HexToString(const char *buf, int buflen);
-extern int ASCIIStrtoChar(const std::string& str, char *buf);
+extern int ASCIIStrtoChar(const std::string &str, char *buf);
 extern std::string AsciiToStr(
     const char *buf,
     unsigned len
 );
-extern std::string IntToString(int num);
-extern unsigned MD5StrtoUChar(const std::string& str, char *buf);
-extern int MemCmpare(
-    const char *buf1,
-    int begin,
-    int end,
-    const char *buf2,
-    int len
-);
-extern void RcvACLParam(const void *arg);
-extern void RcvCMD_GetProcessAndNetworkInfo();
-extern void RcvFlowMonitorParam(const void *arg);
-extern void RcvIPMACChangeNotify();
-extern void RcvLoginURL(const std::string& arg);
-extern void RcvNetSecParam(const void *arg);
-extern void RcvOpenUtrustUrlCmd(const std::string& arg);
-extern void RcvStartAuthNotification();
-extern void StrToLower(char *str);
-extern bool convertInt(const char *str, int& result);
+extern unsigned MD5StrtoUChar(const std::string &str, char *buf);
 extern void decode(char *buf, unsigned buflen);
-extern void encode(char *buf, unsigned buflen);
-extern std::string makeLower(const std::string& str);
-extern std::string makeUpper(const std::string& str);
 extern int StringToHex(
-    const std::string& str,
+    const std::string &str,
     char *retbuf,
     unsigned retbuflen
 );
 extern void WriteRegUserInfo(
-    const struct UserInfo& info
+    const struct UserInfo &info
 #ifdef BUILDING_UPDATER
-    , const std::string& filename
+    , const std::string &filename
 #endif // BUILDING_UPDATER
 );
 extern void ReadRegUserInfo(
-    struct UserInfo& info
+    struct UserInfo &info
 #ifdef BUILDING_UPDATER
-    , const std::string& filename
+    , const std::string &filename
 #endif // BUILDING_UPDATER
 );
-extern void SimulateSuLogoff(char *buf, unsigned buflen);
-extern bool SetLanFlag(unsigned flag);
-extern void RecvSecdomainPacket(char *buf, unsigned buflen);
-extern void CopyGradeInfo(
-    struct SPUpGradeInfo& dst,
-    const struct SPUpGradeInfo& src
-);
-extern void GetSuInternalVersion(unsigned& major, unsigned& minor);
+extern void GetSuInternalVersion(unsigned &major, unsigned &minor);
 extern void RadiusEncrpytPwd(
     const char *md5_challenge,
     unsigned md5_challenge_len,
@@ -120,21 +66,101 @@ extern void RadiusEncrpytPwd(
     unsigned password_len,
     char *outbuf
 );
-extern char GetHIRusultByLocal();
-extern void RcvSvrList(const std::vector<std::string>& service_list);
-extern bool IsUpgrade(unsigned ver);
-extern bool GetHIResult(
-    const std::vector<struct HIFailInfo>& a1,
-    unsigned long a2,
-    unsigned a3
-);
-extern void RcvSvrSwitchResult(const std::string& notify);
-extern void RcvModifyPasswordResult(bool change_success, const char *fail_msg);
-extern void DoWithServiceSwitch_NoRuijieNas();
-extern void DoWithServiceSwitch_RuijieNas();
-extern void InitAppMain();
-extern void ServiceSwitch(const std::string& service_name);
-extern void TrimAll(std::string& str, const std::string& chars);
+extern void RcvSvrList(const std::vector<std::string> &service_list);
+extern void RcvSvrSwitchResult(const std::string &notify);
+
+static inline std::string DWordToString(unsigned a)
+{
+    return std::to_string(a);
+}
+
+static inline void TrimAll(std::string &str, const std::string &chars)
+{
+    TrimLeft(str, chars);
+    TrimRight(str, chars);
+}
+
+static inline void GSNRecvPacket(char *, int)
+{
+    logFile.AppendText("receive gsn relative command!");
+}
+
+static inline char GetHIRusultByLocal()
+{
+    return 0;
+}
+
+static inline std::string makeLower(const std::string &str)
+{
+    std::string ret;
+    std::transform(str.cbegin(), str.cend(), std::back_inserter(ret), tolower);
+    return ret;
+}
+
+static inline std::string makeUpper(const std::string &str)
+{
+    std::string ret;
+    std::transform(str.cbegin(), str.cend(), std::back_inserter(ret), toupper);
+    return ret;
+}
+
+static inline int MemCmpare(
+    const char *buf1,
+    int begin,
+    int end,
+    const char *buf2,
+    int len
+)
+{
+    if (!buf1 || !buf2 || end - begin + 1 < len)
+        return -2;
+
+    return memcmp(buf1 + begin, buf2, len);
+}
+
+static inline void RcvFlowMonitorParam(const void *arg)
+{
+    logFile.AppendText("recv flow monitor param");
+    assert(arg);
+}
+
+static inline void RcvNetSecParam(const void *arg)
+{
+    logFile.AppendText("recv network security param");
+    assert(arg);
+}
+
+static inline void decode(char *buf, unsigned buflen)
+{
+    // *INDENT-OFF*
+    std::transform(
+        buf,
+        buf + buflen,
+        buf,
+        [](char i) {
+            return
+                ((~i & 0x10) >> 1) |
+                ((~i & 0x20) >> 3) |
+                ((~i & 0x40) >> 5) |
+                ((~i & 0x80) >> 7) |
+                ((~i & 0x08) << 1) |
+                ((~i & 0x04) << 3) |
+                ((~i & 0x02) << 5) |
+                ((~i & 0x01) << 7);
+        }
+    );
+    // *INDENT-ON*
+}
+
+static inline void encode(char *buf, unsigned buflen)
+{
+    return decode(buf, buflen);
+}
+
+static inline void HIPacketUpdate(const char *, int)
+{
+    logFile.AppendText("receive hi packet update command!");
+}
 
 static inline void swap128(char *val)
 {
@@ -155,16 +181,14 @@ static inline void swap128(char *val)
     for (auto *h = (head), *n = h->next; h; h = n, n = h ? h->next : nullptr) \
         func(h)
 
-#define __free_list_delete_operator(o) delete (o)
-
 #define free_list_with_custom_next(head, next) \
-    free_list_with_func_custom_next(head, __free_list_delete_operator, next)
+    free_list_with_func_custom_next(head, delete, next)
 
 #define free_list_with_func(head, func) \
     free_list_with_func_custom_next(head, func, next)
 
 #define free_list(head) \
-    free_list_with_func_custom_next(head, __free_list_delete_operator, next)
+    free_list_with_func_custom_next(head, delete, next)
 
 #define UNUSED_VAR(name) (void)name
 

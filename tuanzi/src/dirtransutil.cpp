@@ -5,9 +5,9 @@
 #include "dirtransutil.h"
 
 void CreateDirPktHead(
-    struct mtagFinalDirPacket& final_packet_head,
-    struct tagDirPacketHead& packet_head,
-    [[maybe_unused]] struct tagSenderBind& sender_bind,
+    struct mtagFinalDirPacket &final_packet_head,
+    struct tagDirPacketHead &packet_head,
+    [[maybe_unused]] struct tagSenderBind &sender_bind,
     char *buf,
     unsigned buflen,
     char *keybuf,
@@ -61,13 +61,13 @@ void CreateDirPktHead(
 }
 
 void CreateSessionIfNecessary(
-    struct tagRecvBind& gsn_pkg,
+    struct tagRecvBind &gsn_pkg,
     in_addr_t srcaddr,
     unsigned session_id,
-    struct tagRecvSessionBind& recv_session
+    struct tagRecvSessionBind &recv_session
 )
 {
-    for (struct tagRecvSessionBind& session : gsn_pkg.recv_session_bounds) {
+    for (struct tagRecvSessionBind &session : gsn_pkg.recv_session_bounds) {
         if (session.srcaddr != srcaddr || session.session_id != session_id)
             continue;
 
@@ -91,7 +91,7 @@ void CreateSessionIfNecessary(
     recv_session = gsn_pkg.recv_session_bounds.back();
 }
 
-void InitSmpInitPacket(struct tagSmpInitPacket& packet)
+void InitSmpInitPacket(struct tagSmpInitPacket &packet)
 {
     packet.smp_current_time.clear();
     packet.basic_config.login_url.clear();
